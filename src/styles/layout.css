@@ -1,0 +1,10 @@
+.page {
+  padding: var(--space-page);
+  max-width: var(--layout-content-max-width);
+  margin: 0 auto;
+}
+
+/* Full-bleed pages use the entire content area instead of the centered column. */
+.page-wide {
+  max-width: none;
+}

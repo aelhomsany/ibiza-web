@@ -1,0 +1,185 @@
+.public-holidays-section {
+  padding: 16px 20px 20px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+@media (min-width: 900px) {
+  .public-holidays-section {
+    border-top: none;
+  }
+}
+
+.public-holidays-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-foreground);
+  margin: 0 0 14px;
+}
+
+.public-holidays-label span {
+  color: var(--color-teal);
+}
+
+.public-holidays-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-muted);
+  background: var(--color-holiday-bg);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 24px 16px;
+  margin: 0 0 16px;
+}
+
+.holiday-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.holiday-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-light);
+  border-left: 3px solid var(--color-holiday-fg);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+}
+
+.holiday-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.holiday-card-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.holiday-card-date {
+  display: inline-block;
+  align-self: flex-start;
+  background: var(--color-holiday-bg);
+  color: var(--color-holiday-fg);
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.holiday-card-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.holiday-card-edit {
+  flex-direction: column;
+  align-items: stretch;
+  border-left-color: var(--color-teal);
+}
+
+.holiday-card-edit .holiday-card-actions {
+  justify-content: flex-end;
+}
+
+.holiday-add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--color-mist);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+}
+
+.holiday-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.holiday-date-field > span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.holiday-card-edit .holiday-date-field {
+  width: 100%;
+}
+
+.holiday-add-date {
+  flex: 0 0 auto;
+  width: 150px;
+}
+
+.holiday-add-name {
+  flex: 1 1 200px;
+  min-width: 160px;
+}
+
+.holiday-add input[type='date'],
+.holiday-add input[type='text'],
+.holiday-card-edit input[type='date'],
+.holiday-card-edit input[type='text'] {
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--color-white);
+  color: var(--color-foreground);
+}
+
+.holiday-card-edit input[type='date'],
+.holiday-card-edit input[type='text'] {
+  width: 100%;
+}
+
+/* Equal heights so the date pickers, name input, and Add button line up exactly. */
+.holiday-add input[type='date'],
+.holiday-add input[type='text'],
+.holiday-add .btn {
+  height: 38px;
+}
+
+.holiday-add .btn {
+  margin-left: auto;
+}
+
+.holiday-btn-ghost {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.holiday-btn-ghost:hover {
+  color: var(--color-foreground);
+  background: var(--color-border-light);
+}
+
+.holiday-btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

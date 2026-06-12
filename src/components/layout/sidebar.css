@@ -1,0 +1,139 @@
+.sidebar {
+  width: var(--layout-sidebar-width);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar--org {
+  background: var(--color-teal);
+}
+
+.sidebar--admin {
+  background: var(--color-sidebar-deep);
+}
+
+.sidebar-logo {
+  padding: 22px 20px;
+  border-bottom: 1px solid var(--color-sidebar-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-logo-icon {
+  font-size: 26px;
+}
+
+.sidebar-logo-text {
+  color: var(--color-mist);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.sidebar-logo-sub {
+  color: var(--color-sage);
+  font-size: 11px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+}
+
+.sidebar-nav-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-nav-item) 12px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  margin-bottom: 3px;
+  transition: all 0.15s;
+  background: transparent;
+  color: var(--color-sage);
+  text-align: left;
+  font-size: var(--font-body-size);
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.sidebar-nav-item:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.sidebar-nav-item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.sidebar--org .sidebar-nav-item:hover {
+  background: var(--color-primary-hover);
+  color: var(--color-mist);
+}
+
+.sidebar--admin .sidebar-nav-item:hover {
+  background: var(--color-mint-alpha-20);
+  color: var(--color-mist);
+}
+
+.sidebar-nav-item.active {
+  background: var(--color-mint);
+  color: var(--color-foreground);
+  font-weight: 600;
+}
+
+.sidebar-user {
+  padding: 16px 20px;
+  border-top: 1px solid var(--color-sidebar-border);
+}
+
+.sidebar-user-name {
+  color: var(--color-mist);
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-user-role {
+  color: var(--color-sage);
+  font-size: 11px;
+  text-transform: capitalize;
+  margin-top: 2px;
+}
+
+.sidebar-sign-out {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--color-sidebar-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-sage);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sidebar-sign-out:hover {
+  background: var(--color-primary-hover);
+  color: var(--color-mist);
+}
+
+.sidebar-sign-out:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.sidebar-sign-out:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}

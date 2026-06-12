@@ -1,0 +1,120 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  background: var(--color-mist);
+  color: var(--color-foreground);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Standard (Firefox) */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-teal) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-teal);
+  border-radius: 3px;
+}
+
+.page-title {
+  font-size: var(--font-page-title-size);
+  font-weight: var(--font-page-title-weight);
+  line-height: var(--font-page-title-line-height);
+  color: var(--color-foreground);
+}
+
+.page-sub {
+  font-size: var(--font-page-sub-size);
+  font-weight: var(--font-page-sub-weight);
+  color: var(--color-muted);
+  margin-top: 3px;
+}
+
+.body-text {
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  color: var(--color-foreground);
+}
+
+.page-header {
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.btn {
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: filter 0.15s, transform 0.1s;
+}
+
+.btn:hover {
+  filter: brightness(0.93);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* Primary CTA — matches the "New Request" / mockup .btn-primary (teal on mist). */
+.btn-primary {
+  background: var(--color-teal);
+  color: var(--color-mist);
+  padding: 10px 20px;
+  font-size: 14px;
+}
+
+/* Small variant — declared after .btn-primary so its padding/size win when combined. */
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.btn-admin {
+  background: var(--color-admin-accent);
+  color: var(--color-foreground);
+  padding: 10px 20px;
+  font-size: var(--font-body-size);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-teal);
+  border: 1.5px solid var(--color-teal);
+  padding: 10px 20px;
+  font-size: 14px;
+}

@@ -1,0 +1,78 @@
+.group-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 20px 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.group-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+}
+
+.group-tab.active {
+  border-bottom-color: var(--color-teal);
+  color: var(--color-teal);
+}
+
+.group-tab:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
+.settings-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.settings-card-helper {
+  color: var(--color-muted);
+  font-size: 13px;
+  padding: 16px 20px 0;
+}
+
+.settings-card-label {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 16px 20px 8px;
+}
+
+.settings-card-loading,
+.settings-card-error {
+  font-size: 13px;
+  padding: 16px 20px;
+}
+
+.settings-card-error {
+  color: var(--color-danger, #b42318);
+}
+
+.settings-card-body {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.settings-col-weekends {
+  padding-bottom: 8px;
+}
+
+@media (min-width: 900px) {
+  .settings-card-body {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    align-items: stretch;
+  }
+
+  .settings-col-weekends {
+    border-right: 1px solid var(--color-border-light);
+    padding-bottom: 20px;
+  }
+}

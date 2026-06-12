@@ -1,0 +1,79 @@
+:root {
+  /* Palette */
+  --color-mist: #ECF4E8;
+  --color-sage: #CBF3BB;
+  --color-mint: #ABE7B2;
+  --color-teal: #093C5D;
+  --color-primary: #093C5D;
+  --color-primary-hover: #0E4F75;
+  --color-primary-foreground: #ECF4E8;
+  --color-background: #ECF4E8;
+  --color-foreground: #2D4A4F;
+  --color-muted: #5A7A80;
+  --color-muted-foreground: #7A9BA1;
+  --color-white: #FFFFFF;
+  --color-border: #B8DCC4;
+  --color-border-light: #D8ECD8;
+  --color-sidebar: #093C5D;
+  --color-sidebar-border: #062A42;
+  --color-sidebar-deep: #062A42;
+  --color-success: #7BC98A;
+  --color-warning: #FEF9C3;
+  --color-danger: #EF4444;
+  --color-approved-bg: #CBF3BB;
+  --color-approved-fg: #2D4A4F;
+  --color-pending-bg: #FEF9C3;
+  --color-pending-fg: #854D0E;
+  --color-declined-bg: #FEE2E2;
+  --color-declined-fg: #991B1B;
+  --color-holiday-bg: #E4F5DC;
+  --color-holiday-fg: #6A9BA5;
+  --color-group-us: #093C5D;
+  --color-group-egypt: #2D6A4F;
+  --color-admin-accent: #ABE7B2;
+  --color-admin-shell: #062A42;
+  --color-teal-tint: #D6E8ED;
+  --color-mint-tint: #D8F5DC;
+  --color-sage-tint: #E4F5DC;
+
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-page-title-size: 22px;
+  --font-page-title-weight: 700;
+  --font-page-title-line-height: 1.2;
+  --font-page-sub-size: 14px;
+  --font-page-sub-weight: 400;
+  --font-card-title-size: 15px;
+  --font-card-title-weight: 600;
+  --font-body-size: 14px;
+  --font-body-weight: 400;
+  --font-caption-size: 12px;
+  --font-caption-weight: 500;
+
+  /* Spacing */
+  --space-page: 32px;
+  --space-card-padding: 20px;
+  --space-section-gap: 24px;
+  --space-nav-item: 10px;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 99px;
+
+  /* Layout */
+  --layout-sidebar-width: 240px;
+  --layout-content-max-width: 1100px;
+
+  /* Elevation */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --shadow-notification-panel: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* Derived (for nav hover without hex in component CSS) */
+  --color-mint-alpha-20: rgba(171, 231, 178, 0.2);
+  --color-focus-ring: rgba(9, 60, 93, 0.25);
+  --shadow-login-card: 0 20px 60px rgba(45, 74, 79, 0.18);
+}

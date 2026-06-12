@@ -1,0 +1,14 @@
+/* Shared date picker (see DateField.tsx). The whole control is the click target
+   that opens the calendar; manual typing is blocked in the component. */
+.date-field {
+  cursor: pointer;
+}
+
+.date-field::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
+/* The text segments are not editable, so don't show a text caret on them. */
+.date-field::-webkit-datetime-edit {
+  cursor: pointer;
+}

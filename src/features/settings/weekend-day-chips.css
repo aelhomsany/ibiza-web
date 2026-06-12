@@ -1,0 +1,37 @@
+.weekend-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px 20px;
+}
+
+.weekend-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--color-foreground);
+}
+
+.weekend-chip input {
+  accent-color: var(--color-teal);
+}
+
+.weekend-chip.active {
+  background: var(--color-mint-tint);
+  border-color: var(--color-mint);
+}
+
+.weekend-chip.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.weekend-chip:focus-within {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}

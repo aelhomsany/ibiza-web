@@ -1,0 +1,151 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test -- --run
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          CI: true
+          TEST_ENV: ci
+          BASE_URL: http://localhost:5173
+          API_URL: http://localhost:8080
+          E2E_API_AVAILABLE: false
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  e2e-with-api:
+    name: E2E + API + OpenAPI contract
+    runs-on: ubuntu-latest
+    needs: build
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: ibiza
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Checkout ibiza-web
+        uses: actions/checkout@v4
+        with:
+          path: ibiza-web
+
+      - name: Checkout ibiza-api
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/ibiza-api
+          path: ibiza-api
+        continue-on-error: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: ibiza-web/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install web dependencies
+        working-directory: ibiza-web
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: ibiza-web
+        run: npx playwright install --with-deps chromium
+
+      - name: Start ibiza-api
+        working-directory: ibiza-api
+        env:
+          SPRING_PROFILES_ACTIVE: dev
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: ibiza
+          DB_USER: root
+          DB_PASSWORD: root
+          JWT_SECRET: ci-jwt-secret-must-be-at-least-32-characters
+          CORS_ALLOWED_ORIGINS: http://localhost:5173
+          IBIZA_WEB_BASE_URL: http://localhost:5173
+        run: |
+          ./mvnw -B -q spring-boot:run \
+            -Dspring-boot.run.jvmArguments="-Dspring.profiles.active=dev" &
+          echo $! > api.pid
+
+      - name: Wait for API health
+        run: ibiza-web/scripts/wait-for-http.sh http://localhost:8080/actuator/health '"status":"UP"' 180
+
+      - name: Verify OpenAPI generated types
+        working-directory: ibiza-web
+        env:
+          API_URL: http://localhost:8080
+        run: ./scripts/verify-openapi-types.sh
+
+      - name: Run E2E with API
+        working-directory: ibiza-web
+        env:
+          CI: true
+          TEST_ENV: ci
+          BASE_URL: http://localhost:5173
+          API_URL: http://localhost:8080
+          E2E_API_AVAILABLE: true
+          E2E_USER_EMAIL: alex@company.com
+          E2E_USER_PASSWORD: PilotDev123!
+        run: npm run test:e2e
+
+      - name: Stop ibiza-api
+        if: always()
+        working-directory: ibiza-api
+        run: |
+          if [[ -f api.pid ]]; then
+            kill "$(cat api.pid)" 2>/dev/null || true
+          fi
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-with-api
+          path: |
+            ibiza-web/playwright-report/
+            ibiza-web/test-results/
+          retention-days: 7

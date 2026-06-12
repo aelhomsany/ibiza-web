@@ -1,0 +1,12 @@
+.org-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-mist);
+}
+
+.org-shell__main {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--color-mist);
+}
