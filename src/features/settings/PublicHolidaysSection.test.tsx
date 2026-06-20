@@ -6,23 +6,27 @@ import * as apiClient from '../../api/client'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
 import { PublicHolidaysSection } from './PublicHolidaysSection'
 
-function renderSection() {
+function renderSection(options?: { onWarning?: (message: string) => void }) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   })
+  const onWarning = options?.onWarning ?? vi.fn()
 
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
-        <PublicHolidaysSection
-          activeGroupId={1}
-          activeGroupName="US"
-          onSuccess={vi.fn()}
-          onWarning={vi.fn()}
-        />
-      </AuthTestProvider>
-    </QueryClientProvider>,
-  )
+  return {
+    onWarning,
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+          <PublicHolidaysSection
+            activeGroupId={1}
+            activeGroupName="US"
+            onSuccess={vi.fn()}
+            onWarning={onWarning}
+          />
+        </AuthTestProvider>
+      </QueryClientProvider>,
+    ),
+  }
 }
 
 describe('PublicHolidaysSection', () => {
@@ -181,6 +185,71 @@ describe('PublicHolidaysSection', () => {
       expect(screen.getByText(/Eid al-Adha/)).toBeInTheDocument()
     })
     expect(screen.getByText(/Jun 6, 2026 – Jun 9, 2026/)).toBeInTheDocument()
+  })
+
+  it('[P2] warns when Add is clicked without start date and name', async () => {
+    const onWarning = vi.fn()
+    renderSection({ onWarning })
+
+    await waitFor(() => {
+      expect(
+        screen.getByLabelText(/New holiday start date for US/i),
+      ).toBeInTheDocument()
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }))
+
+    expect(onWarning).toHaveBeenCalledWith('Enter a start date and name')
+    expect(apiClient.createPublicHoliday).not.toHaveBeenCalled()
+  })
+
+  it('[P2] warns when holiday name is whitespace only', async () => {
+    const onWarning = vi.fn()
+    renderSection({ onWarning })
+
+    await waitFor(() => {
+      expect(
+        screen.getByLabelText(/New holiday start date for US/i),
+      ).toBeInTheDocument()
+    })
+
+    fireEvent.change(screen.getByLabelText(/New holiday start date for US/i), {
+      target: { value: '2026-09-01' },
+    })
+    fireEvent.change(screen.getByLabelText(/New holiday name for US/i), {
+      target: { value: '   ' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }))
+
+    expect(onWarning).toHaveBeenCalledWith('Enter a start date and name')
+    expect(apiClient.createPublicHoliday).not.toHaveBeenCalled()
+  })
+
+  it('[P2] warns when end date is before start date', async () => {
+    const onWarning = vi.fn()
+    renderSection({ onWarning })
+
+    await waitFor(() => {
+      expect(
+        screen.getByLabelText(/New holiday start date for US/i),
+      ).toBeInTheDocument()
+    })
+
+    fireEvent.change(screen.getByLabelText(/New holiday start date for US/i), {
+      target: { value: '2026-06-10' },
+    })
+    fireEvent.change(screen.getByLabelText(/New holiday end date for US/i), {
+      target: { value: '2026-06-05' },
+    })
+    fireEvent.change(screen.getByLabelText(/New holiday name for US/i), {
+      target: { value: 'Invalid range' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }))
+
+    expect(onWarning).toHaveBeenCalledWith(
+      'End date must be on or after start date',
+    )
+    expect(apiClient.createPublicHoliday).not.toHaveBeenCalled()
   })
 
   it('calls DELETE when removing a holiday', async () => {

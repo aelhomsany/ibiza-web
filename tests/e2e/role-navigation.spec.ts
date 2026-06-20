@@ -35,7 +35,7 @@ test.describe('Role-based navigation', () => {
 
     await expect(page).toHaveURL('/')
     await expect(page.getByTestId('nav-dashboard')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
+    await expect(page.getByTestId('dashboard-page')).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Settings' })).toHaveCount(0)
   })
 
@@ -45,7 +45,7 @@ test.describe('Role-based navigation', () => {
 
     await expect(page).toHaveURL('/')
     await expect(page.getByTestId('nav-dashboard')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
+    await expect(page.getByTestId('dashboard-page')).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Approvals' })).toHaveCount(0)
   })
 })

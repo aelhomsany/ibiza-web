@@ -177,7 +177,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
         department,
         role,
         workforceGroupId: workforceGroupId as number,
-        managerId: resolvedManagerId,
+        managerId: resolvedManagerId ?? undefined,
         entitlements: entitlementInputs,
       }
       updateMutation.mutate({ id: editMemberId, payload })

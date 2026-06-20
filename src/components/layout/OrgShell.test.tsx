@@ -1,6 +1,9 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { DashboardPlaceholder } from '../../features/dashboard/DashboardPlaceholder'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { vi } from 'vitest'
+import * as apiClient from '../../api/client'
+import { DashboardPage } from '../../features/dashboard/DashboardPage'
 import {
   AuthTestProvider,
   createMockAuthForRole,
@@ -9,38 +12,58 @@ import {
 import { OrgShell } from './OrgShell'
 
 function renderOrgShell(role: Parameters<typeof createMockAuthForRole>[0]) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+
   render(
-    <MemoryRouter initialEntries={['/']}>
-      <AuthTestProvider value={createMockAuthForRole(role)}>
-        <Routes>
-          <Route element={<OrgShell />}>
-            <Route path="/" element={<DashboardPlaceholder />} />
-          </Route>
-        </Routes>
-      </AuthTestProvider>
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={['/']}>
+        <AuthTestProvider value={createMockAuthForRole(role)}>
+          <Routes>
+            <Route element={<OrgShell />}>
+              <Route path="/" element={<DashboardPage />} />
+            </Route>
+          </Routes>
+        </AuthTestProvider>
+      </MemoryRouter>
+    </QueryClientProvider>,
   )
 }
 
 describe('OrgShell', () => {
-  it('renders teal sidebar and page title typography', () => {
+  beforeEach(() => {
+    vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue([])
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('renders teal sidebar and dashboard greeting typography', async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+
     render(
-      <MemoryRouter initialEntries={['/']}>
-        <AuthTestProvider>
-          <Routes>
-            <Route element={<OrgShell />}>
-              <Route path="/" element={<DashboardPlaceholder />} />
-            </Route>
-          </Routes>
-        </AuthTestProvider>
-      </MemoryRouter>,
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/']}>
+          <AuthTestProvider>
+            <Routes>
+              <Route element={<OrgShell />}>
+                <Route path="/" element={<DashboardPage />} />
+              </Route>
+            </Routes>
+          </AuthTestProvider>
+        </MemoryRouter>
+      </QueryClientProvider>,
     )
 
     const sidebar = screen.getByTestId('sidebar')
     expect(sidebar).toHaveClass('sidebar', 'sidebar--org')
     expect(screen.getByRole('navigation', { name: /main navigation/i })).toBeInTheDocument()
 
-    const pageTitle = screen.getByRole('heading', { name: 'Dashboard' })
+    const pageTitle = screen.getByRole('heading', { name: /Good (morning|afternoon|evening)/i })
     expect(pageTitle).toHaveClass('page-title')
   })
 
@@ -69,16 +92,22 @@ describe('OrgShell', () => {
   })
 
   it('shows no org nav items for PLATFORM_ADMIN fallback role', () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+
     render(
-      <MemoryRouter initialEntries={['/']}>
-        <AuthTestProvider value={createMockAuthForRole('PLATFORM_ADMIN')}>
-          <Routes>
-            <Route element={<OrgShell />}>
-              <Route path="/" element={<DashboardPlaceholder />} />
-            </Route>
-          </Routes>
-        </AuthTestProvider>
-      </MemoryRouter>,
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/']}>
+          <AuthTestProvider value={createMockAuthForRole('PLATFORM_ADMIN')}>
+            <Routes>
+              <Route element={<OrgShell />}>
+                <Route path="/" element={<DashboardPage />} />
+              </Route>
+            </Routes>
+          </AuthTestProvider>
+        </MemoryRouter>
+      </QueryClientProvider>,
     )
 
     expect(screen.queryByTestId('nav-dashboard')).not.toBeInTheDocument()

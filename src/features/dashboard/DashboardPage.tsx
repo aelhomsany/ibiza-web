@@ -1,0 +1,122 @@
+import { useCallback, useEffect, useState } from 'react'
+import { useAuth } from '../../auth/useAuth'
+import { BalanceCard } from './BalanceCard'
+import { OutTodaySidebar } from './OutTodaySidebar'
+import { RecentRequestsCard } from './RecentRequestsCard'
+import { RequestLeaveModal } from './RequestLeaveModal'
+import { useDashboardBalances } from './useDashboardBalances'
+import { useDashboardOutToday } from './useDashboardOutToday'
+import { useDashboardRecentRequests } from './useDashboardRecentRequests'
+import { useDashboardUpcoming } from './useDashboardUpcoming'
+import '../../styles/app-toast.css'
+import './dashboard.css'
+
+function firstName(fullName: string): string {
+  return fullName.split(' ')[0] ?? fullName
+}
+
+function timeGreeting(): string {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
+export function DashboardPage() {
+  const { user } = useAuth()
+  const [modalOpen, setModalOpen] = useState(false)
+  const [successToast, setSuccessToast] = useState<string | null>(null)
+  const balancesQuery = useDashboardBalances()
+  const recentQuery = useDashboardRecentRequests()
+  const outTodayQuery = useDashboardOutToday()
+  const upcomingQuery = useDashboardUpcoming()
+
+  const showSubmitSuccessToast = useCallback(() => {
+    setSuccessToast('Leave request submitted — waiting for approval')
+  }, [])
+
+  useEffect(() => {
+    if (!successToast) {
+      return undefined
+    }
+
+    const timer = window.setTimeout(() => setSuccessToast(null), 3000)
+    return () => window.clearTimeout(timer)
+  }, [successToast])
+
+  return (
+    <div className="page" data-testid="dashboard-page">
+      <header className="page-header">
+        <div>
+          <h1 className="page-title">
+            {timeGreeting()}, {user ? firstName(user.fullName) : 'there'}! 👋
+          </h1>
+          <p className="page-sub">Here&apos;s your leave overview</p>
+        </div>
+        <button
+          type="button"
+          className="btn btn-primary"
+          data-testid="request-leave-btn"
+          onClick={() => setModalOpen(true)}
+        >
+          + Request Leave
+        </button>
+      </header>
+
+      {balancesQuery.isPending && (
+        <div className="balance-grid" data-testid="balance-grid-loading">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div key={index} className="dashboard-skeleton-card" />
+          ))}
+        </div>
+      )}
+
+      {balancesQuery.isError && (
+        <p className="dashboard-error" data-testid="dashboard-balances-error">
+          Unable to load your leave balances.
+        </p>
+      )}
+
+      {balancesQuery.isSuccess && (
+        <div className="balance-grid" data-testid="balance-grid">
+          {balancesQuery.data.map((balance) => (
+            <BalanceCard key={balance.leaveTypeId} balance={balance} />
+          ))}
+        </div>
+      )}
+
+      <div className="dash-grid" data-testid="dash-grid">
+        <RecentRequestsCard
+          requests={recentQuery.data ?? []}
+          isLoading={recentQuery.isPending}
+          isError={recentQuery.isError}
+        />
+        <OutTodaySidebar
+          outToday={outTodayQuery.data ?? []}
+          upcoming={upcomingQuery.data ?? []}
+          isOutTodayLoading={outTodayQuery.isPending}
+          isUpcomingLoading={upcomingQuery.isPending}
+          isOutTodayError={outTodayQuery.isError}
+          isUpcomingError={upcomingQuery.isError}
+        />
+      </div>
+
+      <RequestLeaveModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSuccess={showSubmitSuccessToast}
+      />
+
+      {successToast && (
+        <div
+          className="app-toast"
+          role="status"
+          aria-live="polite"
+          data-testid="submit-success-toast"
+        >
+          {successToast}
+        </div>
+      )}
+    </div>
+  )
+}

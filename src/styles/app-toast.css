@@ -1,0 +1,16 @@
+.app-toast {
+  background: var(--color-foreground);
+  border-radius: 10px;
+  bottom: 24px;
+  color: var(--color-mist);
+  font-size: 14px;
+  padding: 12px 20px;
+  position: fixed;
+  right: 24px;
+  z-index: 9999;
+}
+
+.app-toast-warning {
+  background: var(--color-pending-bg);
+  color: var(--color-pending-fg);
+}

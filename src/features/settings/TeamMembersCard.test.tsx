@@ -40,8 +40,8 @@ const mockMembers: TeamMemberSummaryResponse[] = [
     email: 'sarah@company.com',
     department: 'Engineering',
     role: 'EMPLOYEE',
-    workforceGroupId: 1,
-    workforceGroupName: 'US',
+    workforceGroupId: 2,
+    workforceGroupName: 'Egypt',
     managerId: 3,
     managerName: 'Alex Johnson',
   },
@@ -65,8 +65,9 @@ describe('TeamMembersCard', () => {
       expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
     })
 
-    // Group pills are shown
-    expect(screen.getAllByText('US').length).toBeGreaterThanOrEqual(1)
+    // Group pills are shown with UX-DR6 tint classes
+    expect(document.querySelector('.group-pill-us')).toBeInTheDocument()
+    expect(document.querySelector('.group-pill-egypt')).toBeInTheDocument()
     // Manager meta shown for Sarah
     expect(screen.getByText(/Reports to Alex/)).toBeInTheDocument()
   })

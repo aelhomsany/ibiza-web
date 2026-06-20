@@ -1,10 +1,20 @@
 import type {
+  BalanceCardResponse,
+  OutTodayResponse,
+  RecentRequestResponse,
+  UpcomingAbsenceResponse,
+  CreateLeaveRequestRequest,
   CreatePublicHolidayRequest,
   CreateTeamMemberRequest,
+  CreateWorkforceGroupRequest,
   DayOfWeek,
   ForgotPasswordRequest,
+  LeaveRequestResponse,
   LeaveTypeResponse,
   LoginRequest,
+  PendingApprovalResponse,
+  PreviewLeaveRequestRequest,
+  PreviewLeaveRequestResponse,
   ProblemDetail,
   PublicHolidayResponse,
   ResetPasswordRequest,
@@ -210,6 +220,15 @@ export async function getWorkforceGroups(): Promise<WorkforceGroupResponse[]> {
   })
 }
 
+export async function createWorkforceGroup(
+  payload: CreateWorkforceGroupRequest,
+): Promise<WorkforceGroupResponse> {
+  return request<WorkforceGroupResponse>('/api/v1/workforce-groups', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
 export async function putWorkforceGroupWeekendDays(
   groupId: number,
   weekendDays: DayOfWeek[],
@@ -264,6 +283,60 @@ export async function getLeaveTypes(): Promise<LeaveTypeResponse[]> {
   })
 }
 
+export async function previewLeaveRequest(
+  payload: PreviewLeaveRequestRequest,
+): Promise<PreviewLeaveRequestResponse> {
+  return request<PreviewLeaveRequestResponse>('/api/v1/leave-requests/preview', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function createLeaveRequest(
+  payload: CreateLeaveRequestRequest,
+): Promise<LeaveRequestResponse> {
+  return request<LeaveRequestResponse>('/api/v1/leave-requests', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function getDashboardBalances(): Promise<BalanceCardResponse[]> {
+  return request<BalanceCardResponse[]>('/api/v1/dashboard/balances', {
+    method: 'GET',
+  })
+}
+
+export async function getDashboardRecentRequests(): Promise<RecentRequestResponse[]> {
+  return request<RecentRequestResponse[]>('/api/v1/dashboard/recent-requests', {
+    method: 'GET',
+  })
+}
+
+export async function getMyLeaveRequests(): Promise<RecentRequestResponse[]> {
+  return request<RecentRequestResponse[]>('/api/v1/leave-requests', {
+    method: 'GET',
+  })
+}
+
+export async function getPendingApprovals(): Promise<PendingApprovalResponse[]> {
+  return request<PendingApprovalResponse[]>('/api/v1/approvals/pending', {
+    method: 'GET',
+  })
+}
+
+export async function getDashboardOutToday(): Promise<OutTodayResponse[]> {
+  return request<OutTodayResponse[]>('/api/v1/dashboard/out-today', {
+    method: 'GET',
+  })
+}
+
+export async function getDashboardUpcoming(): Promise<UpcomingAbsenceResponse[]> {
+  return request<UpcomingAbsenceResponse[]>('/api/v1/dashboard/upcoming', {
+    method: 'GET',
+  })
+}
+
 export async function getTeamMembers(): Promise<TeamMemberSummaryResponse[]> {
   return request<TeamMemberSummaryResponse[]>('/api/v1/team-members', {
     method: 'GET',
@@ -304,12 +377,21 @@ export const apiClient = {
   postForgotPassword,
   postResetPassword,
   getWorkforceGroups,
+  createWorkforceGroup,
   putWorkforceGroupWeekendDays,
   getPublicHolidays,
   createPublicHoliday,
   updatePublicHoliday,
   deletePublicHoliday,
   getLeaveTypes,
+  previewLeaveRequest,
+  createLeaveRequest,
+  getDashboardBalances,
+  getDashboardRecentRequests,
+  getMyLeaveRequests,
+  getPendingApprovals,
+  getDashboardOutToday,
+  getDashboardUpcoming,
   getTeamMembers,
   getTeamMember,
   createTeamMember,

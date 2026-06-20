@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { LeaveTypesCard } from './LeaveTypesCard'
 import { TeamMembersCard } from './TeamMembersCard'
 import { WorkforceGroupsWeekendsCard } from './WorkforceGroupsWeekendsCard'
 import './group-tabs.css'
@@ -31,7 +32,7 @@ export function SettingsPage() {
       <header className="page-header">
         <div>
           <h1 className="page-title">Settings</h1>
-          <p className="page-sub">Workforce groups, team, and holidays</p>
+          <p className="page-sub">Company policy, team, and leave entitlements</p>
         </div>
       </header>
 
@@ -39,6 +40,8 @@ export function SettingsPage() {
         onSuccess={showSuccessToast}
         onWarning={showWarningToast}
       />
+
+      <LeaveTypesCard onWarning={showWarningToast} />
 
       <TeamMembersCard
         onSuccess={showSuccessToast}

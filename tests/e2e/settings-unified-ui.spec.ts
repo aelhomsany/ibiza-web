@@ -1,0 +1,72 @@
+import { test, expect } from '../support/fixtures'
+import { loginViaUi, navigateInApp } from '../support/helpers/auth'
+
+const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
+
+/**
+ * Story 2.7 — unified Settings page composition.
+ * Remove outer skip when ibiza-api is unavailable in CI; inner tests assert implemented UI.
+ */
+test.describe('Settings unified UI — Story 2.7', () => {
+  test.skip(
+    !process.env.E2E_API_AVAILABLE,
+    'Set E2E_API_AVAILABLE=true when ibiza-api is running for settings data',
+  )
+
+  test('[P1] HR Admin sees subtitle and three policy cards in mockup order', async ({ page }) => {
+    await loginViaUi(page, { email: 'jordan@company.com', password })
+    await navigateInApp(page, '/settings')
+
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
+    await expect(
+      page.getByText('Company policy, team, and leave entitlements'),
+    ).toBeVisible()
+
+    const workforce = page.getByTestId('workforce-groups-weekends-card')
+    const leaveTypes = page.getByTestId('leave-types-card')
+    const teamMembers = page.getByTestId('team-members-card')
+
+    await expect(workforce).toBeVisible()
+    await expect(leaveTypes).toBeVisible()
+    await expect(teamMembers).toBeVisible()
+
+    const workforceBox = await workforce.boundingBox()
+    const leaveTypesBox = await leaveTypes.boundingBox()
+    const teamMembersBox = await teamMembers.boundingBox()
+
+    expect(workforceBox!.y).toBeLessThan(leaveTypesBox!.y)
+    expect(leaveTypesBox!.y).toBeLessThan(teamMembersBox!.y)
+  })
+
+  test('[P1] Leave Types card shows five seeded types with uncapped Unpaid copy', async ({
+    page,
+  }) => {
+    await loginViaUi(page, { email: 'jordan@company.com', password })
+    await navigateInApp(page, '/settings')
+
+    await expect(page.getByTestId('leave-types-card')).toBeVisible()
+    await expect(page.getByTestId('leave-types-list')).toBeVisible()
+    await expect(page.getByText('Annual Leave')).toBeVisible()
+    await expect(page.getByText('20 days default')).toBeVisible()
+    await expect(page.getByText('Unpaid Leave')).toBeVisible()
+    await expect(page.getByText('Unlimited / custom')).toBeVisible()
+  })
+
+  test('[P1] + Add Group creates a new workforce group tab', async ({ page }) => {
+    await loginViaUi(page, { email: 'jordan@company.com', password })
+    await navigateInApp(page, '/settings')
+
+    await page.getByTestId('add-group-btn').click()
+    await expect(page.getByTestId('workforce-group-modal')).toBeVisible()
+
+    const modal = page.getByTestId('workforce-group-modal')
+    const groupName = `UK-${Date.now()}`
+    await modal.getByLabel(/group name/i).fill(groupName)
+    await modal.getByRole('checkbox', { name: /Sat weekend day/i }).check()
+    await modal.getByRole('checkbox', { name: /Sun weekend day/i }).check()
+    await page.getByTestId('create-group-submit').click()
+
+    await expect(page.getByRole('tab', { name: groupName })).toBeVisible()
+    await expect(page.getByTestId('settings-toast')).toContainText(new RegExp(`${groupName}|created`, 'i'))
+  })
+})

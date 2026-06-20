@@ -26,11 +26,9 @@ export DB_NAME="${DB_NAME:-ibiza}"
 export DB_USER="${DB_USER:-root}"
 export DB_PASSWORD="${DB_PASSWORD:-}"
 
-(
-  cd "$API_DIR"
-  ./mvnw -q spring-boot:run -Dspring-boot.run.arguments="--server.port=${API_PORT}" \
-    -Dspring-boot.run.jvmArguments="-Dspring.profiles.active=dev" &
-)
+cd "$API_DIR"
+./mvnw -q spring-boot:run -Dspring-boot.run.arguments="--server.port=${API_PORT}" \
+  -Dspring-boot.run.jvmArguments="-Dspring.profiles.active=dev" &
 API_PID=$!
 
 "$ROOT/scripts/wait-for-http.sh" "http://localhost:${API_PORT}/actuator/health" '"status":"UP"' 180

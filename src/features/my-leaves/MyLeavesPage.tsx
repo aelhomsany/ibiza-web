@@ -1,0 +1,181 @@
+import { useCallback, useEffect, useState } from 'react'
+import type { RecentRequestResponse } from '../../api/generated/types'
+import { LeaveStatusBadge } from '../../components/ui/LeaveStatusBadge'
+import { BalanceCard } from '../dashboard/BalanceCard'
+import { LeaveTypeTag } from '../dashboard/LeaveTypeTag'
+import { RequestLeaveModal } from '../dashboard/RequestLeaveModal'
+import { formatDateRange } from '../dashboard/leaveRequestFormatting'
+import { useDashboardBalances } from '../dashboard/useDashboardBalances'
+import { useMyLeaveRequests } from './useMyLeaveRequests'
+import '../../styles/app-toast.css'
+import '../dashboard/dashboard.css'
+import './my-leaves.css'
+
+function HistoryStatusCell({ request }: { request: RecentRequestResponse }) {
+  return (
+    <>
+      <LeaveStatusBadge status={request.status} />
+      {request.statusHint && <div className="status-hint">{request.statusHint}</div>}
+      {request.status === 'DECLINED' && request.declineReason && (
+        <div className="decline-reason">&quot;{request.declineReason}&quot;</div>
+      )}
+    </>
+  )
+}
+
+function HistoryTable({ requests }: { requests: RecentRequestResponse[] }) {
+  if (requests.length === 0) {
+    return (
+      <div className="dashboard-empty-state" data-testid="my-leaves-empty-state">
+        <p>No leave requests yet. Start a request when you need time away.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="table-wrap" data-testid="my-leaves-history-table">
+      <table className="dashboard-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Dates</th>
+            <th>Days</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {requests.map((request) => (
+            <tr
+              key={request.id}
+              className={request.status === 'PENDING' ? 'row-pending' : undefined}
+              data-testid={`my-leaves-request-row-${request.id}`}
+            >
+              <td>
+                <LeaveTypeTag
+                  icon={request.leaveTypeIcon ?? ''}
+                  name={request.leaveTypeName ?? ''}
+                  color={request.leaveTypeColor ?? 'inherit'}
+                  backgroundColor={request.leaveTypeBackgroundColor ?? 'transparent'}
+                  borderColor={request.leaveTypeBorderColor ?? 'transparent'}
+                />
+              </td>
+              <td>{formatDateRange(request.dateFrom ?? '', request.dateTo ?? '')}</td>
+              <td>
+                <strong>{request.workingDays}</strong>{' '}
+                <span className="working-caption">working</span>
+              </td>
+              <td>
+                <HistoryStatusCell request={request} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+export function MyLeavesPage() {
+  const [modalOpen, setModalOpen] = useState(false)
+  const [successToast, setSuccessToast] = useState<string | null>(null)
+  const balancesQuery = useDashboardBalances()
+  const historyQuery = useMyLeaveRequests()
+
+  const showSubmitSuccessToast = useCallback(() => {
+    setSuccessToast('Leave request submitted — waiting for approval')
+  }, [])
+
+  useEffect(() => {
+    if (!successToast) {
+      return undefined
+    }
+
+    const timer = window.setTimeout(() => setSuccessToast(null), 3000)
+    return () => window.clearTimeout(timer)
+  }, [successToast])
+
+  return (
+    <div className="page" data-testid="my-leaves-page">
+      <header className="page-header">
+        <div>
+          <h1 className="page-title">My Leaves</h1>
+          <p className="page-sub">Your leave history and balances</p>
+        </div>
+        <button
+          type="button"
+          className="btn btn-primary"
+          data-testid="request-leave-btn"
+          onClick={() => setModalOpen(true)}
+        >
+          + Request Leave
+        </button>
+      </header>
+
+      <section aria-labelledby="my-leaves-balances-title">
+        <h2 id="my-leaves-balances-title" className="my-leaves-section-title">
+          Balances
+        </h2>
+        {balancesQuery.isPending && (
+          <div className="balance-grid" data-testid="my-leaves-balance-grid-loading">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="dashboard-skeleton-card" />
+            ))}
+          </div>
+        )}
+
+        {balancesQuery.isError && (
+          <p className="dashboard-error" data-testid="my-leaves-balances-error">
+            Unable to load your leave balances.
+          </p>
+        )}
+
+        {balancesQuery.isSuccess && (
+          <div className="balance-grid" data-testid="my-leaves-balance-grid">
+            {balancesQuery.data.map((balance) => (
+              <BalanceCard key={balance.leaveTypeId} balance={balance} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="card my-leaves-history" aria-labelledby="my-leaves-history-title">
+        <div className="card-header">
+          <h2 id="my-leaves-history-title" className="card-title">
+            Leave History
+          </h2>
+        </div>
+
+        {historyQuery.isPending && (
+          <div className="dashboard-section-loading" data-testid="my-leaves-history-loading">
+            Loading leave history...
+          </div>
+        )}
+
+        {historyQuery.isError && (
+          <p className="dashboard-error" data-testid="my-leaves-history-error">
+            Unable to load your leave history.
+          </p>
+        )}
+
+        {historyQuery.isSuccess && <HistoryTable requests={historyQuery.data} />}
+      </section>
+
+      <RequestLeaveModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSuccess={showSubmitSuccessToast}
+      />
+
+      {successToast && (
+        <div
+          className="app-toast"
+          role="status"
+          aria-live="polite"
+          data-testid="submit-success-toast"
+        >
+          {successToast}
+        </div>
+      )}
+    </div>
+  )
+}

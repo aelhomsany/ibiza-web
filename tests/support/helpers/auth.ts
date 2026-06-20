@@ -5,6 +5,7 @@ import { apiRequest } from './api-client'
 export type LoginCredentials = {
   email: string
   password: string
+  timezone?: string
 }
 
 export type TokenResponse = {
@@ -22,7 +23,11 @@ export async function loginViaApi(
     request,
     method: 'POST',
     path: '/api/v1/auth/login',
-    data: credentials,
+    data: {
+      email: credentials.email,
+      password: credentials.password,
+      timezone: credentials.timezone ?? 'America/New_York',
+    },
   })
 }
 

@@ -2,13 +2,15 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from '../auth/AuthProvider'
 import { AdminShell } from '../components/layout/AdminShell'
 import { OrgShell } from '../components/layout/OrgShell'
-import { DashboardPlaceholder } from '../features/dashboard/DashboardPlaceholder'
+import { DashboardPage } from '../features/dashboard/DashboardPage'
+import { MyLeavesPage } from '../features/my-leaves/MyLeavesPage'
 import { ForgotPasswordPage } from '../features/login/ForgotPasswordPage'
 import { LoginPage } from '../features/login/LoginPage'
 import { ResetPasswordPage } from '../features/login/ResetPasswordPage'
 import { OrganizationsPlaceholder } from '../features/platform/OrganizationsPlaceholder'
 import { SettingsPage } from '../features/settings/SettingsPage'
 import { PagePlaceholder } from '../features/shared/PagePlaceholder'
+import { ApprovalsPage } from '../features/approvals/ApprovalsPage'
 import { ProtectedRoute } from './ProtectedRoute'
 import { RoleGuard } from './RoleGuard'
 
@@ -22,16 +24,8 @@ export function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route element={<RoleGuard shell="org" />}>
           <Route element={<OrgShell />}>
-            <Route path="/" element={<DashboardPlaceholder />} />
-            <Route
-              path="/my-leaves"
-              element={
-                <PagePlaceholder
-                  title="My Leaves"
-                  subtitle="Your leave history and balances"
-                />
-              }
-            />
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/my-leaves" element={<MyLeavesPage />} />
             <Route
               path="/calendar"
               element={
@@ -41,15 +35,7 @@ export function AppRoutes() {
                 />
               }
             />
-            <Route
-              path="/approvals"
-              element={
-                <PagePlaceholder
-                  title="Approvals"
-                  subtitle="Pending leave requests"
-                />
-              }
-            />
+            <Route path="/approvals" element={<ApprovalsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route
               path="*"

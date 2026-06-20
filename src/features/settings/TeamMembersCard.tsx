@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { getTeamMembers } from '../../api/client'
 import { useAuth } from '../../auth/useAuth'
+import { groupPillClass } from './groupPillClass'
 import { TeamMemberModal } from './TeamMemberModal'
 import './team-members.css'
 
@@ -69,7 +70,7 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
   }
 
   return (
-    <section className="settings-card" style={{ marginTop: 24 }}>
+    <section className="settings-card settings-card-spaced" data-testid="team-members-card">
       <div className="card-section-header">
         <span className="card-section-title">Team Members</span>
         <button
@@ -90,7 +91,7 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
         <p style={{ fontSize: 13, color: 'var(--color-muted)' }}>No team members yet.</p>
       )}
 
-      <div data-testid="team-members-list">
+      <div className="settings-list-body" data-testid="team-members-list">
         {members.map((member) => (
           <div key={member.id} className="settings-list-item">
             <div className="member-avatar" aria-hidden="true">
@@ -100,7 +101,9 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
               <div className="member-name-row">
                 {member.fullName}
                 {member.workforceGroupName && (
-                  <span className="group-pill">{member.workforceGroupName}</span>
+                  <span className={groupPillClass(member.workforceGroupName)}>
+                    {member.workforceGroupName}
+                  </span>
                 )}
               </div>
               <div className="member-meta">

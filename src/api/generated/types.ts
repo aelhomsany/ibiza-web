@@ -75,6 +75,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/leave-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the authenticated user's full leave request history */
+        get: operations["listMyLeaveRequests"];
+        put?: never;
+        /** Submit a leave request for the authenticated user */
+        post: operations["create_3"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/leave-requests/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview working days for a date range using the caller's workforce group */
+        post: operations["preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/reset-password": {
         parameters: {
             query?: never;
@@ -231,6 +266,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dashboard/upcoming": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List upcoming approved absences within 30 days */
+        get: operations["getUpcoming"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/recent-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the authenticated user's recent leave requests */
+        get: operations["getRecentRequests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/out-today": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List teammates out today in the viewer's timezone */
+        get: operations["getOutToday"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/balances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List leave balance cards for the authenticated user */
+        get: operations["getBalances"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -250,6 +353,240 @@ export interface paths {
     };
 }
 export type webhooks = Record<string, never>;
+
+// Convenience named re-exports — import from this file directly in feature code.
+// Fields that the API guarantees to be present are typed as non-optional here
+// even though OpenAPI 3.1 marks many schema object properties as optional.
+export type DayOfWeek = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
+export type UserRole = 'EMPLOYEE' | 'MANAGER' | 'HR_ADMIN' | 'PLATFORM_ADMIN';
+
+export type WorkforceGroupResponse = {
+  id: number;
+  name: string;
+  weekendDays: DayOfWeek[];
+};
+
+export type CreateWorkforceGroupRequest = { name: string };
+export type UpdateWorkforceGroupRequest = { name: string };
+export type UpdateWeekendDaysRequest = { weekendDays: DayOfWeek[] };
+
+export type PublicHolidayResponse = {
+  id: number;
+  workforceGroupId: number;
+  dateFrom: string;
+  dateTo: string;
+  name: string;
+};
+
+export type CreatePublicHolidayRequest = {
+  workforceGroupId: number;
+  dateFrom: string;
+  dateTo?: string;
+  name: string;
+};
+
+export type UpdatePublicHolidayRequest = {
+  dateFrom?: string;
+  dateTo?: string;
+  name?: string;
+};
+
+export type LeaveTypeResponse = {
+  id: number;
+  name: string;
+  icon: string;
+  color: string;
+  backgroundColor: string;
+  borderColor: string;
+  defaultBalanceDays: number | null;
+  displayOrder: number;
+};
+
+export type TokenResponse = {
+  accessToken: string;
+  refreshToken?: string;
+  tokenType?: string;
+  expiresIn?: number;
+};
+
+export type LoginRequest = {
+  email: string;
+  password: string;
+  timezone?: string;
+};
+
+export type ForgotPasswordRequest = { email: string };
+export type ResetPasswordRequest = { token: string; password?: string; newPassword?: string };
+
+export type UserSummaryResponse = {
+  id: number;
+  email: string;
+  fullName: string;
+  role: UserRole;
+  organizationId: number;
+  timezone: string;
+};
+
+export type ProblemDetail = {
+  type?: string;
+  title?: string;
+  status?: number;
+  detail?: string;
+  instance?: string;
+  [key: string]: unknown;
+};
+
+export type EntitlementInput = {
+  leaveTypeId: number;
+  allocatedDays: number;
+};
+
+export type EntitlementResponse = {
+  leaveTypeId?: number;
+  leaveTypeName?: string;
+  allocatedDays?: number;
+};
+
+export type TeamMemberSummaryResponse = {
+  id?: number;
+  fullName?: string;
+  email?: string;
+  department?: string;
+  role?: string;
+  workforceGroupId?: number;
+  workforceGroupName?: string;
+  managerId?: number;
+  managerName?: string;
+};
+
+export type TeamMemberDetailResponse = {
+  id?: number;
+  fullName?: string;
+  email?: string;
+  department?: string;
+  role?: string;
+  workforceGroupId?: number;
+  workforceGroupName?: string;
+  managerId?: number;
+  managerName?: string;
+  entitlements?: EntitlementResponse[];
+};
+
+export type CreateTeamMemberRequest = {
+  fullName: string;
+  email: string;
+  department: string;
+  role: UserRole;
+  workforceGroupId: number;
+  managerId?: number;
+  entitlements?: EntitlementInput[];
+};
+
+export type UpdateTeamMemberRequest = {
+  fullName?: string;
+  department?: string;
+  role?: UserRole;
+  workforceGroupId?: number;
+  managerId?: number;
+  entitlements?: EntitlementInput[];
+};
+
+export type BalanceCardResponse = {
+  leaveTypeId: number;
+  name: string;
+  icon: string;
+  color: string;
+  backgroundColor: string;
+  borderColor: string;
+  displayOrder: number;
+  capped: boolean;
+  allocatedDays: number | null;
+  usedDays: number;
+  remainingDays: number | null;
+};
+
+export type LeaveRequestResponse = {
+  id: number;
+  leaveTypeId: number;
+  dateFrom: string;
+  dateTo: string;
+  days: number;
+  status: 'PENDING' | 'APPROVED' | 'DECLINED';
+  note?: string | null;
+  createdAt?: string;
+};
+
+export type PreviewLeaveRequestRequest = {
+  dateFrom: string;
+  dateTo: string;
+};
+
+export type PreviewLeaveRequestResponse = {
+  workingDays: number;
+  excludedWeekends: number;
+  excludedHolidays: number;
+  workforceGroupId: number;
+  workforceGroupName: string;
+};
+
+export type CreateLeaveRequestRequest = {
+  leaveTypeId: number;
+  dateFrom: string;
+  dateTo: string;
+  note?: string;
+};
+
+export type RecentRequestResponse = {
+  id: number;
+  leaveTypeId: number;
+  leaveTypeName: string;
+  leaveTypeIcon: string;
+  leaveTypeColor: string;
+  leaveTypeBackgroundColor: string;
+  leaveTypeBorderColor: string;
+  dateFrom: string;
+  dateTo: string;
+  workingDays: number;
+  status: 'PENDING' | 'APPROVED' | 'DECLINED';
+  statusHint?: string | null;
+  declineReason?: string | null;
+  approverFirstName?: string | null;
+};
+
+export type PendingApprovalResponse = {
+  requestId: number;
+  employeeUserId: number;
+  employeeFullName: string;
+  leaveTypeId: number;
+  leaveTypeName: string;
+  leaveTypeIcon: string;
+  leaveTypeColor: string;
+  leaveTypeBackgroundColor: string;
+  leaveTypeBorderColor: string;
+  dateFrom: string;
+  dateTo: string;
+  workingDays: number;
+  note: string | null;
+  workforceGroupName?: string | null;
+};
+
+export type OutTodayResponse = {
+  userId: number;
+  fullName: string;
+  initials: string;
+  leaveTypeName: string;
+  leaveTypeIcon: string;
+  presence: 'WFH' | 'OFF';
+};
+
+export type UpcomingAbsenceResponse = {
+  id: number;
+  userId: number;
+  fullName: string;
+  dateFrom: string;
+  workingDays: number;
+  leaveTypeIcon: string;
+};
 export interface components {
     schemas: {
         UpdateWeekendDaysRequest: {
@@ -325,6 +662,49 @@ export interface components {
             dateTo?: string;
             name?: string;
         };
+        CreateLeaveRequestRequest: {
+            /** Format: int64 */
+            leaveTypeId: number;
+            /** Format: date */
+            dateFrom: string;
+            /** Format: date */
+            dateTo: string;
+            note?: string;
+        };
+        LeaveRequestResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            leaveTypeId?: number;
+            /** Format: date */
+            dateFrom?: string;
+            /** Format: date */
+            dateTo?: string;
+            /** Format: int32 */
+            days?: number;
+            /** @enum {string} */
+            status?: "PENDING" | "APPROVED" | "DECLINED";
+            note?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        PreviewLeaveRequestRequest: {
+            /** Format: date */
+            dateFrom: string;
+            /** Format: date */
+            dateTo: string;
+        };
+        PreviewLeaveRequestResponse: {
+            /** Format: int32 */
+            workingDays?: number;
+            /** Format: int32 */
+            excludedWeekends?: number;
+            /** Format: int32 */
+            excludedHolidays?: number;
+            /** Format: int64 */
+            workforceGroupId?: number;
+            workforceGroupName?: string;
+        };
         ResetPasswordRequest: {
             token?: string;
             password?: string;
@@ -357,9 +737,9 @@ export interface components {
             role?: "EMPLOYEE" | "MANAGER" | "HR_ADMIN";
             /** Format: int64 */
             workforceGroupId?: number;
+            entitlements?: components["schemas"]["EntitlementInput"][];
             /** Format: int64 */
             managerId?: number;
-            entitlements?: components["schemas"]["EntitlementInput"][];
         };
         UpdatePublicHolidayRequest: {
             /** Format: date */
@@ -397,6 +777,71 @@ export interface components {
             defaultBalanceDays?: number | null;
             /** Format: int32 */
             displayOrder?: number;
+        };
+        RecentRequestResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            leaveTypeId?: number;
+            leaveTypeName?: string;
+            leaveTypeIcon?: string;
+            leaveTypeColor?: string;
+            leaveTypeBackgroundColor?: string;
+            leaveTypeBorderColor?: string;
+            dateFrom?: string;
+            dateTo?: string;
+            /** Format: int32 */
+            workingDays?: number;
+            /** @enum {string} */
+            status?: "PENDING" | "APPROVED" | "DECLINED";
+            statusHint?: string;
+            declineReason?: string | null;
+            approverFirstName?: string | null;
+        };
+        UpcomingAbsenceResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            userId?: number;
+            fullName?: string;
+            dateFrom?: string;
+            /** Format: int32 */
+            workingDays?: number;
+            leaveTypeIcon?: string;
+        };
+        OutTodayResponse: {
+            /** Format: int64 */
+            userId?: number;
+            fullName?: string;
+            initials?: string;
+            leaveTypeName?: string;
+            leaveTypeIcon?: string;
+            /** @enum {string} */
+            presence?: "WFH" | "OFF";
+        };
+        BalanceCardResponse: {
+            /** Format: int64 */
+            leaveTypeId?: number;
+            name?: string;
+            icon?: string;
+            color?: string;
+            backgroundColor?: string;
+            borderColor?: string;
+            /** Format: int32 */
+            displayOrder?: number;
+            capped?: boolean;
+            /**
+             * Format: int32
+             * @description Allocated working days from entitlements; null when uncapped.
+             */
+            allocatedDays?: number | null;
+            /** Format: int32 */
+            usedDays?: number;
+            /**
+             * Format: int32
+             * @description Remaining working days; null when uncapped.
+             */
+            remainingDays?: number | null;
         };
         UserSummaryResponse: {
             /** Format: int64 */
@@ -574,6 +1019,74 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PublicHolidayResponse"];
+                };
+            };
+        };
+    };
+    listMyLeaveRequests: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RecentRequestResponse"][];
+                };
+            };
+        };
+    };
+    create_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateLeaveRequestRequest"];
+            };
+        };
+        responses: {
+            /** @description Leave request created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LeaveRequestResponse"];
+                };
+            };
+        };
+    };
+    preview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreviewLeaveRequestRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PreviewLeaveRequestResponse"];
                 };
             };
         };
@@ -852,6 +1365,86 @@ export interface operations {
             };
         };
     };
+    getUpcoming: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UpcomingAbsenceResponse"][];
+                };
+            };
+        };
+    };
+    getRecentRequests: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RecentRequestResponse"][];
+                };
+            };
+        };
+    };
+    getOutToday: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["OutTodayResponse"][];
+                };
+            };
+        };
+    };
+    getBalances: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BalanceCardResponse"][];
+                };
+            };
+        };
+    };
     me: {
         parameters: {
             query?: never;
@@ -873,140 +1466,3 @@ export interface operations {
         };
     };
 }
-
-// Convenience named re-exports — import from this file directly in feature code.
-// Fields that the API guarantees to be present are typed as non-optional here
-// even though OpenAPI 3.1 marks them all as optional in the schema object.
-export type DayOfWeek = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
-export type UserRole = 'EMPLOYEE' | 'MANAGER' | 'HR_ADMIN' | 'PLATFORM_ADMIN';
-
-export type WorkforceGroupResponse = {
-  id: number;
-  name: string;
-  weekendDays: DayOfWeek[];
-};
-
-export type CreateWorkforceGroupRequest = { name: string };
-export type UpdateWorkforceGroupRequest = { name: string };
-export type UpdateWeekendDaysRequest = { weekendDays: DayOfWeek[] };
-
-export type PublicHolidayResponse = {
-  id: number;
-  workforceGroupId: number;
-  dateFrom: string;
-  dateTo: string;
-  name: string;
-};
-
-export type CreatePublicHolidayRequest = {
-  workforceGroupId: number;
-  dateFrom: string;
-  dateTo?: string;
-  name: string;
-};
-
-export type UpdatePublicHolidayRequest = {
-  dateFrom?: string;
-  dateTo?: string;
-  name?: string;
-};
-
-export type LeaveTypeResponse = {
-  id: number;
-  name: string;
-  icon: string;
-  color: string;
-  backgroundColor: string;
-  borderColor: string;
-  defaultBalanceDays: number | null;
-  displayOrder: number;
-};
-
-export type TokenResponse = {
-  accessToken: string;
-  refreshToken?: string;
-  tokenType?: string;
-  expiresIn?: number;
-};
-
-export type LoginRequest = {
-  email: string;
-  password: string;
-  timezone?: string;
-};
-
-export type ForgotPasswordRequest = { email: string };
-export type ResetPasswordRequest = { token: string; password?: string; newPassword?: string };
-
-export type UserSummaryResponse = {
-  id: number;
-  email: string;
-  fullName: string;
-  role: UserRole;
-  organizationId: number;
-  timezone: string;
-};
-
-export type ProblemDetail = {
-  type?: string;
-  title?: string;
-  status?: number;
-  detail?: string;
-  instance?: string;
-  [key: string]: unknown;
-};
-
-export type EntitlementInput = {
-  leaveTypeId: number;
-  allocatedDays: number;
-};
-
-export type EntitlementResponse = {
-  leaveTypeId?: number;
-  leaveTypeName?: string;
-  allocatedDays?: number;
-};
-
-export type TeamMemberSummaryResponse = {
-  id?: number;
-  fullName?: string;
-  email?: string;
-  department?: string;
-  role?: string;
-  workforceGroupId?: number;
-  workforceGroupName?: string;
-  managerId?: number;
-  managerName?: string;
-};
-
-export type TeamMemberDetailResponse = {
-  id?: number;
-  fullName?: string;
-  email?: string;
-  department?: string;
-  role?: string;
-  workforceGroupId?: number;
-  workforceGroupName?: string;
-  managerId?: number;
-  managerName?: string;
-  entitlements?: EntitlementResponse[];
-};
-
-export type CreateTeamMemberRequest = {
-  fullName: string;
-  email: string;
-  department: string;
-  role: UserRole;
-  workforceGroupId: number;
-  managerId?: number;
-  entitlements?: EntitlementInput[];
-};
-
-export type UpdateTeamMemberRequest = {
-  fullName?: string;
-  department?: string;
-  role?: UserRole;
-  workforceGroupId?: number;
-  managerId?: number;
-  entitlements?: EntitlementInput[];
-};

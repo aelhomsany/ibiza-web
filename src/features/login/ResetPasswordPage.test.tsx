@@ -47,6 +47,17 @@ describe('ResetPasswordPage', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Passwords do not match.')
   })
 
+  it('Given password shorter than 8 characters, When submitting, Then shows min length error', async () => {
+    const user = userEvent.setup()
+    renderResetPage()
+
+    await user.type(screen.getByTestId('reset-password'), 'short1')
+    await user.type(screen.getByTestId('reset-password-confirm'), 'short1')
+    await user.click(screen.getByTestId('reset-password-submit'))
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Password must be at least 8 characters.')
+  })
+
   it('Given no token in URL, When page loads, Then shows invalid link error', () => {
     renderResetPage(null)
 

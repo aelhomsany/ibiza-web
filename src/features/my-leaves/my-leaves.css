@@ -1,0 +1,10 @@
+.my-leaves-section-title {
+  color: var(--color-foreground);
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.my-leaves-history {
+  margin-top: 4px;
+}

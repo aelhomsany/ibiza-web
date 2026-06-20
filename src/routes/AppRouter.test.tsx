@@ -33,6 +33,7 @@ describe('AppRoutes', () => {
       { id: 2, name: 'Egypt', weekendDays: ['FRIDAY', 'SATURDAY'] },
     ])
     vi.spyOn(apiClient, 'getPublicHolidays').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue([])
   })
 
   afterEach(() => {
@@ -58,7 +59,7 @@ describe('AppRoutes', () => {
     renderAppRoutes(['/'], createMockAuthForRole('EMPLOYEE'))
 
     expect(screen.getByTestId('org-shell')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+    expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
     expect(screen.getByTestId('nav-dashboard')).toBeInTheDocument()
   })
 
@@ -74,7 +75,7 @@ describe('AppRoutes', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('org-shell')).toBeInTheDocument()
-      expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+      expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
     })
     expect(screen.queryByTestId('admin-shell')).not.toBeInTheDocument()
   })
@@ -93,7 +94,7 @@ describe('AppRoutes', () => {
     renderAppRoutes(['/settings'], createMockAuthForRole('EMPLOYEE'))
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+      expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
     })
     expect(screen.queryByRole('heading', { name: 'Settings' })).not.toBeInTheDocument()
   })
@@ -102,7 +103,7 @@ describe('AppRoutes', () => {
     renderAppRoutes(['/approvals'], createMockAuthForRole('EMPLOYEE'))
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+      expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
     })
     expect(screen.queryByRole('heading', { name: 'Approvals' })).not.toBeInTheDocument()
   })
@@ -111,7 +112,7 @@ describe('AppRoutes', () => {
     renderAppRoutes(['/settings'], createMockAuthForRole('MANAGER'))
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+      expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
     })
     expect(screen.queryByRole('heading', { name: 'Settings' })).not.toBeInTheDocument()
   })

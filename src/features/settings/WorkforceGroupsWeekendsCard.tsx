@@ -5,6 +5,7 @@ import type { DayOfWeek } from '../../api/generated/types'
 import { useAuth } from '../../auth/useAuth'
 import { PublicHolidaysSection } from './PublicHolidaysSection'
 import { WeekendDayChips } from './WeekendDayChips'
+import { WorkforceGroupModal } from './WorkforceGroupModal'
 import './group-tabs.css'
 
 type WorkforceGroupsWeekendsCardProps = {
@@ -20,6 +21,7 @@ export function WorkforceGroupsWeekendsCard({
   const orgId = user?.organizationId
   const queryClient = useQueryClient()
   const [activeGroupId, setActiveGroupId] = useState<number | null>(null)
+  const [groupModalOpen, setGroupModalOpen] = useState(false)
 
   const queryKey = useMemo(() => ['workforce-groups', orgId] as const, [orgId])
 
@@ -64,6 +66,18 @@ export function WorkforceGroupsWeekendsCard({
 
   return (
     <section className="settings-card" data-testid="workforce-groups-weekends-card">
+      <div className="card-section-header">
+        <span className="card-section-title">Workforce Groups</span>
+        <button
+          type="button"
+          className="btn btn-outline btn-sm"
+          data-testid="add-group-btn"
+          onClick={() => setGroupModalOpen(true)}
+        >
+          + Add Group
+        </button>
+      </div>
+
       <p className="settings-card-helper">
         Each group has its own weekends and holidays. Users are assigned to exactly one group.
       </p>
@@ -97,7 +111,7 @@ export function WorkforceGroupsWeekendsCard({
                 onWarning?.('Select at least one weekend day')
               }
               onChange={async (weekendDays) => {
-                await updateWeekendsMutation.mutateAsync({
+                updateWeekendsMutation.mutate({
                   groupId: activeGroup.id,
                   weekendDays,
                 })
@@ -111,6 +125,18 @@ export function WorkforceGroupsWeekendsCard({
             onWarning={onWarning}
           />
         </div>
+      )}
+
+      {groupModalOpen && (
+        <WorkforceGroupModal
+          onClose={() => setGroupModalOpen(false)}
+          onSuccess={(message, newGroupId) => {
+            void queryClient.invalidateQueries({ queryKey })
+            setActiveGroupId(newGroupId)
+            onSuccess?.(message)
+          }}
+          onWarning={onWarning}
+        />
       )}
     </section>
   )
