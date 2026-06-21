@@ -51,7 +51,7 @@ export function DashboardPage() {
   }, [successToast])
 
   return (
-    <div className="page" data-testid="dashboard-page">
+    <div className="page page-wide" data-testid="dashboard-page">
       <header className="page-header">
         <div>
           <h1 className="page-title">

@@ -66,6 +66,8 @@
   /* Layout */
   --layout-sidebar-width: 240px;
   --layout-content-max-width: 1100px;
+  /* Cap for lone dense tables on full-bleed (page-wide) pages so they don't stretch sparse. */
+  --layout-table-max-width: 1100px;
 
   /* Elevation */
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);

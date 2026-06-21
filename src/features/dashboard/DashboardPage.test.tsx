@@ -69,6 +69,14 @@ describe('DashboardPage', () => {
     vi.restoreAllMocks()
   })
 
+  it('renders the page full-bleed (page-wide) like Settings', async () => {
+    renderDashboardPage()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('dashboard-page')).toHaveClass('page', 'page-wide')
+    })
+  })
+
   it('renders balance grid above dash grid', async () => {
     renderDashboardPage()
 

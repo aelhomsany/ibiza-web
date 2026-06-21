@@ -11,6 +11,8 @@
 
 .my-leaves-history {
   margin-top: 0;
+  /* Lone 4-column table: cap so it stays readable on full-bleed pages instead of stretching sparse. */
+  max-width: var(--layout-table-max-width);
 }
 
 .my-leaves-history .dashboard-table td {

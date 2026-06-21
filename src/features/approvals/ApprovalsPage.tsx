@@ -103,7 +103,7 @@ export function ApprovalsPage() {
   }
 
   return (
-    <div className="page" data-testid="approvals-page">
+    <div className="page page-wide" data-testid="approvals-page">
       <header className="page-header">
         <div>
           <h1 className="page-title">Approvals</h1>

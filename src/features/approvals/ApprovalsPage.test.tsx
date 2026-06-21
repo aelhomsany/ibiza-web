@@ -76,6 +76,14 @@ describe('ApprovalsPage', () => {
     vi.restoreAllMocks()
   })
 
+  it('renders the page full-bleed (page-wide) like Settings', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue(mockPendingApprovals)
+
+    renderApprovalsPage('MANAGER')
+
+    expect(screen.getByTestId('approvals-page')).toHaveClass('page', 'page-wide')
+  })
+
   it('[P1] renders scoped pending approval rows with employee and leave details', async () => {
     vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue(mockPendingApprovals)
 

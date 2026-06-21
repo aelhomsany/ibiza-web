@@ -111,7 +111,7 @@ export function MyLeavesPage() {
   }, [successToast])
 
   return (
-    <div className="page" data-testid="my-leaves-page">
+    <div className="page page-wide" data-testid="my-leaves-page">
       <header className="page-header">
         <div>
           <h1 className="page-title">My Leaves</h1>

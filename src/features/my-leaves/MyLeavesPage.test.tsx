@@ -155,6 +155,15 @@ describe('MyLeavesPage', () => {
     vi.restoreAllMocks()
   })
 
+  it('renders the page full-bleed (page-wide) like Settings', async () => {
+    vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
+
+    renderMyLeavesPage()
+
+    expect(screen.getByTestId('my-leaves-page')).toHaveClass('page', 'page-wide')
+  })
+
   it('[P1] balance grid precedes history table in document order', async () => {
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
     vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
