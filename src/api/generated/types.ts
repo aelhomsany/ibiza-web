@@ -568,6 +568,47 @@ export type PendingApprovalResponse = {
   workingDays: number;
   note: string | null;
   workforceGroupName?: string | null;
+  decidedOnBehalf?: boolean;
+  nominalManagerFirstName?: string | null;
+};
+
+export type DeclineLeaveRequestRequest = {
+  reason: string;
+};
+
+export type PendingApprovalCountResponse = {
+  count: number;
+};
+
+export type RecentApprovalDecisionResponse = {
+  requestId?: number;
+  employeeUserId?: number;
+  employeeFullName?: string;
+  leaveTypeId?: number;
+  leaveTypeName?: string;
+  leaveTypeIcon?: string;
+  leaveTypeColor?: string;
+  leaveTypeBackgroundColor?: string;
+  leaveTypeBorderColor?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  workingDays?: number;
+  status?: 'PENDING' | 'APPROVED' | 'DECLINED';
+  actorFirstName?: string;
+  decidedAt?: string;
+  decidedOnBehalf?: boolean;
+  nominalManagerFirstName?: string | null;
+};
+
+export type AuditEventResponse = {
+  id?: number;
+  action?: 'SUBMITTED' | 'APPROVED' | 'DECLINED';
+  actorUserId?: number;
+  actorFirstName?: string;
+  occurredAt?: string;
+  leaveRequestId?: number;
+  onBehalf?: boolean;
+  nominalManagerFirstName?: string | null;
 };
 
 export type OutTodayResponse = {

@@ -10,13 +10,17 @@ import type {
   DayOfWeek,
   ForgotPasswordRequest,
   LeaveRequestResponse,
+  DeclineLeaveRequestRequest,
   LeaveTypeResponse,
   LoginRequest,
   PendingApprovalResponse,
+  PendingApprovalCountResponse,
   PreviewLeaveRequestRequest,
   PreviewLeaveRequestResponse,
   ProblemDetail,
   PublicHolidayResponse,
+  RecentApprovalDecisionResponse,
+  AuditEventResponse,
   ResetPasswordRequest,
   TeamMemberDetailResponse,
   TeamMemberSummaryResponse,
@@ -325,6 +329,43 @@ export async function getPendingApprovals(): Promise<PendingApprovalResponse[]> 
   })
 }
 
+export async function getPendingApprovalCount(): Promise<PendingApprovalCountResponse> {
+  return request<PendingApprovalCountResponse>('/api/v1/approvals/pending-count', {
+    method: 'GET',
+  })
+}
+
+export async function getRecentApprovalDecisions(): Promise<RecentApprovalDecisionResponse[]> {
+  return request<RecentApprovalDecisionResponse[]>('/api/v1/approvals/recent-decisions', {
+    method: 'GET',
+  })
+}
+
+export async function approveLeaveRequest(id: number): Promise<LeaveRequestResponse> {
+  return request<LeaveRequestResponse>(`/api/v1/leave-requests/${id}/approve`, {
+    method: 'POST',
+  })
+}
+
+export async function declineLeaveRequest(
+  id: number,
+  reason: string,
+): Promise<LeaveRequestResponse> {
+  const payload: DeclineLeaveRequestRequest = { reason }
+  return request<LeaveRequestResponse>(`/api/v1/leave-requests/${id}/decline`, {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function getLeaveRequestAuditEvents(
+  requestId: number,
+): Promise<AuditEventResponse[]> {
+  return request<AuditEventResponse[]>(`/api/v1/leave-requests/${requestId}/audit-events`, {
+    method: 'GET',
+  })
+}
+
 export async function getDashboardOutToday(): Promise<OutTodayResponse[]> {
   return request<OutTodayResponse[]>('/api/v1/dashboard/out-today', {
     method: 'GET',
@@ -390,6 +431,10 @@ export const apiClient = {
   getDashboardRecentRequests,
   getMyLeaveRequests,
   getPendingApprovals,
+  getPendingApprovalCount,
+  getRecentApprovalDecisions,
+  approveLeaveRequest,
+  declineLeaveRequest,
   getDashboardOutToday,
   getDashboardUpcoming,
   getTeamMembers,

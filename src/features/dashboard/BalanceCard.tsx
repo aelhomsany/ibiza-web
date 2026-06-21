@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import type { BalanceCardResponse } from '../../api/generated/types'
 import { balanceCardSlug } from './balanceCardSlug'
 import './balance-card.css'
@@ -12,7 +13,9 @@ export function BalanceCard({ balance }: BalanceCardProps) {
     backgroundColor: balance.backgroundColor,
     borderColor: balance.borderColor,
     color: balance.color,
-  }
+    '--balance-accent': balance.color,
+    '--balance-tag-fg': balance.color,
+  } as CSSProperties
 
   if (!balance.capped) {
     return (
@@ -47,10 +50,7 @@ export function BalanceCard({ balance }: BalanceCardProps) {
           {Math.abs(remaining)} over limit
         </span>
       ) : (
-        <span
-          className="balance-tag"
-          style={{ backgroundColor: `${balance.color}22`, color: balance.color }}
-        >
+        <span className="balance-tag balance-tag--remaining" data-testid={`balance-tag-remaining-${slug}`}>
           {remaining} left
         </span>
       )}
@@ -62,8 +62,8 @@ export function BalanceCard({ balance }: BalanceCardProps) {
       </div>
       <div className="balance-bar-bg">
         <div
-          className="balance-bar"
-          style={{ width: `${pct}%`, backgroundColor: isOverdraft ? 'var(--color-danger)' : balance.color }}
+          className={`balance-bar${isOverdraft ? ' balance-bar--overdraft' : ''}`}
+          style={{ width: `${pct}%` }}
           data-testid={`balance-bar-${slug}`}
         />
       </div>

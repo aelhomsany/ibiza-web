@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { RecentRequestResponse } from '../../api/generated/types'
+import { useAuth } from '../../auth/useAuth'
 import { LeaveStatusBadge } from '../../components/ui/LeaveStatusBadge'
+import { AuditHistoryExpander } from '../approvals/AuditHistoryExpander'
 import { BalanceCard } from '../dashboard/BalanceCard'
 import { LeaveTypeTag } from '../dashboard/LeaveTypeTag'
 import { RequestLeaveModal } from '../dashboard/RequestLeaveModal'
@@ -23,7 +25,13 @@ function HistoryStatusCell({ request }: { request: RecentRequestResponse }) {
   )
 }
 
-function HistoryTable({ requests }: { requests: RecentRequestResponse[] }) {
+function HistoryTable({
+  requests,
+  showAuditHistory,
+}: {
+  requests: RecentRequestResponse[]
+  showAuditHistory: boolean
+}) {
   if (requests.length === 0) {
     return (
       <div className="dashboard-empty-state" data-testid="my-leaves-empty-state">
@@ -41,6 +49,7 @@ function HistoryTable({ requests }: { requests: RecentRequestResponse[] }) {
             <th>Dates</th>
             <th>Days</th>
             <th>Status</th>
+            {showAuditHistory ? <th>Audit</th> : null}
           </tr>
         </thead>
         <tbody>
@@ -67,6 +76,11 @@ function HistoryTable({ requests }: { requests: RecentRequestResponse[] }) {
               <td>
                 <HistoryStatusCell request={request} />
               </td>
+              {showAuditHistory ? (
+                <td>
+                  {request.id != null ? <AuditHistoryExpander requestId={request.id} /> : null}
+                </td>
+              ) : null}
             </tr>
           ))}
         </tbody>
@@ -76,6 +90,8 @@ function HistoryTable({ requests }: { requests: RecentRequestResponse[] }) {
 }
 
 export function MyLeavesPage() {
+  const { user } = useAuth()
+  const isHrAdmin = user?.role === 'HR_ADMIN'
   const [modalOpen, setModalOpen] = useState(false)
   const [successToast, setSuccessToast] = useState<string | null>(null)
   const balancesQuery = useDashboardBalances()
@@ -111,7 +127,7 @@ export function MyLeavesPage() {
         </button>
       </header>
 
-      <section aria-labelledby="my-leaves-balances-title">
+      <section className="my-leaves-balances" aria-labelledby="my-leaves-balances-title">
         <h2 id="my-leaves-balances-title" className="my-leaves-section-title">
           Balances
         </h2>
@@ -157,7 +173,9 @@ export function MyLeavesPage() {
           </p>
         )}
 
-        {historyQuery.isSuccess && <HistoryTable requests={historyQuery.data} />}
+        {historyQuery.isSuccess && (
+          <HistoryTable requests={historyQuery.data} showAuditHistory={isHrAdmin} />
+        )}
       </section>
 
       <RequestLeaveModal

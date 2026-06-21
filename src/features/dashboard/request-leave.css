@@ -1,11 +1,27 @@
+.request-leave-modal .modal {
+  width: 100%;
+  max-width: 480px;
+  padding: 32px;
+  border-radius: var(--radius-xl);
+}
+
+.request-leave-modal .modal-header {
+  margin-bottom: 24px;
+}
+
+.request-leave-modal .modal-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
 .request-leave-modal .date-row {
-  display: flex;
-  gap: 16px;
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .request-leave-modal .date-row .form-group {
-  flex: 1;
   margin-bottom: 0;
 }
 
@@ -16,6 +32,7 @@
   padding: 10px 14px;
   font-size: 13px;
   margin-bottom: 16px;
+  color: var(--color-foreground);
 }
 
 .request-leave-modal .days-indicator .preview-primary {
@@ -48,4 +65,11 @@
 .request-leave-modal .preview-loading {
   font-size: 13px;
   color: var(--color-muted);
+}
+
+.request-leave-modal .modal-actions {
+  margin-top: 8px;
+  padding-top: 0;
+  border-top: none;
+  gap: 12px;
 }

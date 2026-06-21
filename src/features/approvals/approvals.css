@@ -90,10 +90,232 @@
 
 .btn-danger-outline {
   background: var(--color-white);
-  border: 1px solid #fca5a5;
+  border: 1px solid var(--color-danger);
   color: var(--color-danger);
 }
 
+.approval-name-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.approval-on-behalf-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--color-sage-tint);
+  color: var(--color-foreground);
+}
+
+.approval-reports-to-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--color-mist);
+  color: var(--color-foreground);
+}
+
+.decline-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 60, 93, 0.45);
+  background: color-mix(in srgb, var(--color-teal) 45%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.decline-modal-panel {
+  background: var(--color-white);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-light);
+  padding: 32px;
+  width: min(100%, 480px);
+  box-shadow: var(--shadow-modal);
+}
+
+.decline-modal-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-foreground);
+}
+
+.decline-modal-sub {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.decline-modal-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--color-muted);
+}
+
+.decline-modal-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  font: inherit;
+  font-size: var(--font-body-size);
+  resize: vertical;
+  min-height: 96px;
+}
+
+.decline-modal-textarea:focus {
+  outline: none;
+  border-color: var(--color-teal);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.decline-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.decline-modal-error {
+  color: var(--color-declined-fg);
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+
+.recent-decisions-section {
+  margin-top: var(--space-section-gap);
+}
+
+.recent-decisions-title {
+  font-size: var(--font-card-title-size);
+  font-weight: var(--font-card-title-weight);
+  margin: 0 0 12px;
+  color: var(--color-foreground);
+}
+
+.recent-decisions-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--color-muted);
+  background: var(--color-white);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+}
+
+.recent-decisions-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.recent-decisions-table th,
+.recent-decisions-table td {
+  padding: 13px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.recent-decisions-table th {
+  padding: 10px 20px;
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+  color: var(--color-muted);
+  background: var(--color-sage-tint);
+}
+
+.recent-decision-employee {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
 .btn-danger-outline:hover:not(:disabled) {
-  background: #fef2f2;
+  background: var(--color-declined-bg);
+}
+
+.audit-history-panel {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border-light);
+  background: var(--color-mist);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.audit-history-title {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+.audit-history-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.audit-history-event {
+  padding-left: 12px;
+  border-left: 2px solid var(--color-teal);
+}
+
+.audit-history-event-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.audit-history-action {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.audit-history-timestamp {
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.audit-history-actor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.audit-history-toggle {
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-teal);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.audit-history-toggle:hover {
+  color: var(--color-foreground);
 }

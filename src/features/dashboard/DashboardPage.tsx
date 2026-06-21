@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../auth/useAuth'
+import { usePendingApprovalCount } from '../approvals/usePendingApprovalCount'
 import { BalanceCard } from './BalanceCard'
 import { OutTodaySidebar } from './OutTodaySidebar'
 import { RecentRequestsCard } from './RecentRequestsCard'
@@ -30,6 +32,10 @@ export function DashboardPage() {
   const recentQuery = useDashboardRecentRequests()
   const outTodayQuery = useDashboardOutToday()
   const upcomingQuery = useDashboardUpcoming()
+  const pendingCountQuery = usePendingApprovalCount()
+  const pendingCount = pendingCountQuery.data?.count ?? 0
+  const showPendingAlert =
+    (user?.role === 'MANAGER' || user?.role === 'HR_ADMIN') && pendingCount > 0
 
   const showSubmitSuccessToast = useCallback(() => {
     setSuccessToast('Leave request submitted — waiting for approval')
@@ -62,6 +68,15 @@ export function DashboardPage() {
           + Request Leave
         </button>
       </header>
+
+      {showPendingAlert ? (
+        <div className="dashboard-pending-alert" data-testid="dashboard-pending-alert" role="status">
+          <span>{pendingCount} Pending Approvals</span>
+          <Link to="/approvals" className="dashboard-pending-alert-link">
+            Review Now
+          </Link>
+        </div>
+      ) : null}
 
       {balancesQuery.isPending && (
         <div className="balance-grid" data-testid="balance-grid-loading">

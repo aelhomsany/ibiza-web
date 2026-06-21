@@ -4,21 +4,43 @@ import type { PendingApprovalResponse } from '../../api/generated/types'
 
 type ApprovalRowProps = {
   approval: PendingApprovalResponse
+  onApprove: () => void
+  onDecline: () => void
+  isApproving?: boolean
+  isDeclining?: boolean
 }
 
 function workingDaysLabel(days: number): string {
   return `${days} working day${days === 1 ? '' : 's'}`
 }
 
-export function ApprovalRow({ approval }: ApprovalRowProps) {
+export function ApprovalRow({
+  approval,
+  onApprove,
+  onDecline,
+  isApproving = false,
+  isDeclining = false,
+}: ApprovalRowProps) {
   const requestId = approval.requestId ?? 0
   const employeeName = approval.employeeFullName?.trim() || 'Unknown'
   const note = approval.note?.trim()
+  const actionsDisabled = isApproving || isDeclining
 
   return (
     <div className="approval-row" data-testid={`approval-row-${requestId}`}>
       <div className="approval-info">
-        <div className="approval-name">{employeeName}</div>
+        <div className="approval-name-row">
+          <span className="approval-name">{employeeName}</span>
+          {approval.decidedOnBehalf && approval.nominalManagerFirstName ? (
+            <span className="approval-on-behalf-pill" data-testid={`on-behalf-pill-${requestId}`}>
+              On behalf of {approval.nominalManagerFirstName}
+            </span>
+          ) : approval.nominalManagerFirstName ? (
+            <span className="approval-reports-to-pill" data-testid={`reports-to-pill-${requestId}`}>
+              Reports to {approval.nominalManagerFirstName}
+            </span>
+          ) : null}
+        </div>
         <div className="approval-details">
           <LeaveTypeTag
             icon={approval.leaveTypeIcon ?? ''}
@@ -46,8 +68,8 @@ export function ApprovalRow({ approval }: ApprovalRowProps) {
           type="button"
           className="btn btn-sm btn-danger-outline"
           data-testid={`decline-btn-${requestId}`}
-          title="Decline actions arrive in Story 3.7"
-          disabled
+          onClick={onDecline}
+          disabled={actionsDisabled}
         >
           Decline
         </button>
@@ -55,8 +77,8 @@ export function ApprovalRow({ approval }: ApprovalRowProps) {
           type="button"
           className="btn btn-sm btn-success"
           data-testid={`approve-btn-${requestId}`}
-          title="Approve actions arrive in Story 3.7"
-          disabled
+          onClick={onApprove}
+          disabled={actionsDisabled}
         >
           Approve ✓
         </button>

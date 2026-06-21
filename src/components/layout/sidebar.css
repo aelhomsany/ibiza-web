@@ -62,6 +62,24 @@
   text-decoration: none;
 }
 
+.sidebar-nav-label {
+  flex: 1;
+}
+
+.sidebar-nav-badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 99px;
+  background: var(--color-mint);
+  color: var(--color-foreground);
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .sidebar-nav-item:focus {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-focus-ring);

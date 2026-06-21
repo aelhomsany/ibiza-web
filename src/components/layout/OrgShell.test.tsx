@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { vi } from 'vitest'
@@ -16,24 +16,28 @@ function renderOrgShell(role: Parameters<typeof createMockAuthForRole>[0]) {
     defaultOptions: { queries: { retry: false } },
   })
 
-  render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={['/']}>
-        <AuthTestProvider value={createMockAuthForRole(role)}>
-          <Routes>
-            <Route element={<OrgShell />}>
-              <Route path="/" element={<DashboardPage />} />
-            </Route>
-          </Routes>
-        </AuthTestProvider>
-      </MemoryRouter>
-    </QueryClientProvider>,
-  )
+  return {
+    queryClient,
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/']}>
+          <AuthTestProvider value={createMockAuthForRole(role)}>
+            <Routes>
+              <Route element={<OrgShell />}>
+                <Route path="/" element={<DashboardPage />} />
+              </Route>
+            </Routes>
+          </AuthTestProvider>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    ),
+  }
 }
 
 describe('OrgShell', () => {
   beforeEach(() => {
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 0 })
   })
 
   afterEach(() => {
@@ -112,5 +116,48 @@ describe('OrgShell', () => {
 
     expect(screen.queryByTestId('nav-dashboard')).not.toBeInTheDocument()
     expect(screen.queryByTestId('nav-approvals')).not.toBeInTheDocument()
+  })
+
+  it('[P0] renders Approvals badge with scoped pending count for Manager', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 2 })
+
+    renderOrgShell('MANAGER')
+
+    expect(await screen.findByTestId('nav-approvals-badge')).toHaveTextContent('2')
+    expect(screen.getByTestId('nav-approvals')).toHaveAttribute('aria-label', 'Approvals, 2 pending')
+  })
+
+  it('[P0] hides the Approvals badge when the scoped pending count is zero', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 0 })
+
+    renderOrgShell('MANAGER')
+
+    expect(await screen.findByTestId('nav-approvals')).toBeInTheDocument()
+    expect(screen.queryByTestId('nav-approvals-badge')).not.toBeInTheDocument()
+  })
+
+  it('[P0] does not query pending count and never renders Approvals nav for Employee', () => {
+    const countSpy = vi.spyOn(apiClient, 'getPendingApprovalCount')
+
+    renderOrgShell('EMPLOYEE')
+
+    expect(countSpy).not.toHaveBeenCalled()
+    expect(screen.queryByTestId('nav-approvals')).not.toBeInTheDocument()
+  })
+
+  it('[P0] hides Approvals badge after pending-count refetch returns zero', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovalCount')
+      .mockResolvedValueOnce({ count: 2 })
+      .mockResolvedValue({ count: 0 })
+
+    const { queryClient } = renderOrgShell('MANAGER')
+
+    expect(await screen.findByTestId('nav-approvals-badge')).toHaveTextContent('2')
+    await queryClient.invalidateQueries({ queryKey: ['approvals', 'pending-count', 1] })
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('nav-approvals-badge')).not.toBeInTheDocument()
+    })
+    expect(screen.getByTestId('nav-approvals')).toHaveAttribute('aria-label', 'Approvals')
   })
 })

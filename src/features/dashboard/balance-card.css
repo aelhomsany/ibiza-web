@@ -4,6 +4,8 @@
   border: 1px solid;
   position: relative;
   overflow: hidden;
+  --balance-accent: var(--color-teal);
+  --balance-tag-fg: var(--color-teal);
 }
 
 .balance-icon {
@@ -12,8 +14,8 @@
 }
 
 .balance-label {
-  font-size: 12px;
-  color: var(--ink-muted);
+  font-size: var(--font-caption-size);
+  color: var(--color-muted);
   margin-bottom: 4px;
 }
 
@@ -24,27 +26,32 @@
 }
 
 .balance-total {
-  font-size: 14px;
+  font-size: var(--font-body-size);
   font-weight: 400;
-  color: var(--ink-light);
+  color: var(--color-muted-foreground);
 }
 
 .balance-bar-bg {
-  background: var(--mist);
-  border-radius: 99px;
+  background: var(--color-mist);
+  border-radius: var(--radius-full);
   height: 5px;
   margin-top: 12px;
 }
 
 .balance-bar {
   height: 5px;
-  border-radius: 99px;
+  border-radius: var(--radius-full);
   transition: width 0.4s;
+  background-color: var(--balance-accent);
+}
+
+.balance-bar--overdraft {
+  background-color: var(--color-danger);
 }
 
 .balance-used {
   font-size: 11px;
-  color: var(--ink-light);
+  color: var(--color-muted-foreground);
   margin-top: 4px;
 }
 
@@ -55,7 +62,13 @@
   font-size: 11px;
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: 99px;
+  border-radius: var(--radius-full);
+}
+
+.balance-tag--remaining {
+  background-color: var(--color-mist);
+  background-color: color-mix(in srgb, var(--balance-tag-fg) 13%, var(--color-white));
+  color: var(--balance-tag-fg);
 }
 
 .balance-tag--overdraft {

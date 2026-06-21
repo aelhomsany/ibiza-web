@@ -9,6 +9,7 @@ export type NavItem = {
   icon?: string
   end?: boolean
   testId?: string
+  badge?: number
 }
 
 type SidebarProps = {
@@ -41,20 +42,32 @@ export function Sidebar({
       </div>
 
       <nav className="sidebar-nav" aria-label="Main navigation">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              `sidebar-nav-item${isActive ? ' active' : ''}`
-            }
-            end={item.end ?? item.path === '/'}
-            data-testid={item.testId}
-          >
-            {item.icon && <span aria-hidden="true">{item.icon}</span>}
-            {item.label}
-          </NavLink>
-        ))}
+        {navItems.map((item) => {
+          const badge = item.badge
+          const accessibleLabel =
+            badge != null && badge > 0 ? `${item.label}, ${badge} pending` : item.label
+
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `sidebar-nav-item${isActive ? ' active' : ''}`
+              }
+              end={item.end ?? item.path === '/'}
+              data-testid={item.testId}
+              aria-label={accessibleLabel}
+            >
+              {item.icon && <span aria-hidden="true">{item.icon}</span>}
+              <span className="sidebar-nav-label">{item.label}</span>
+              {badge != null && badge > 0 ? (
+                <span className="sidebar-nav-badge" data-testid={`${item.testId}-badge`}>
+                  {badge}
+                </span>
+              ) : null}
+            </NavLink>
+          )
+        })}
       </nav>
 
       <div className="sidebar-user">

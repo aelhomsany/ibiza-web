@@ -155,6 +155,17 @@ describe('MyLeavesPage', () => {
     vi.restoreAllMocks()
   })
 
+  it('[P1] balance grid precedes history table in document order', async () => {
+    vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
+
+    renderMyLeavesPage()
+
+    const balanceGrid = await screen.findByTestId('my-leaves-balance-grid')
+    const historyTable = await screen.findByTestId('my-leaves-history-table')
+    expect(balanceGrid.compareDocumentPosition(historyTable) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
   it('[P1] renders mirrored balance grid and full personal history', async () => {
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
     vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)

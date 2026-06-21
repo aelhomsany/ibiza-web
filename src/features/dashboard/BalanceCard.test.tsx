@@ -40,6 +40,7 @@ describe('BalanceCard', () => {
     render(<BalanceCard balance={cappedBalance} />)
 
     expect(screen.getByTestId('balance-card-annual-leave')).toBeInTheDocument()
+    expect(screen.getByTestId('balance-tag-remaining-annual-leave')).toHaveClass('balance-tag--remaining')
     expect(screen.getByText('15 left')).toBeInTheDocument()
     expect(screen.getByText('15')).toBeInTheDocument()
     expect(screen.getByText('/20')).toBeInTheDocument()

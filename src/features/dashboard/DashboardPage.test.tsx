@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import type { BalanceCardResponse } from '../../api/generated/types'
@@ -36,18 +37,23 @@ const mockBalances: BalanceCardResponse[] = [
   },
 ]
 
-function renderDashboardPage() {
+function renderDashboardPage(role: 'EMPLOYEE' | 'MANAGER' | 'HR_ADMIN' = 'EMPLOYEE') {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
 
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <AuthTestProvider value={createMockAuthForRole('EMPLOYEE')}>
-        <DashboardPage />
-      </AuthTestProvider>
-    </QueryClientProvider>,
-  )
+  return {
+    queryClient,
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <AuthTestProvider value={createMockAuthForRole(role)}>
+            <DashboardPage />
+          </AuthTestProvider>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    ),
+  }
 }
 
 describe('DashboardPage', () => {
@@ -56,6 +62,7 @@ describe('DashboardPage', () => {
     vi.spyOn(apiClient, 'getDashboardRecentRequests').mockResolvedValue([])
     vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
     vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 0 })
   })
 
   afterEach(() => {
@@ -114,6 +121,44 @@ describe('DashboardPage', () => {
 
     await user.click(screen.getByTestId('request-leave-btn'))
     expect(screen.getByTestId('request-leave-modal')).toBeInTheDocument()
+  })
+
+  it('[P1] renders pending alert above balance grid for Manager when count > 0', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 3 })
+
+    renderDashboardPage('MANAGER')
+
+    const alert = await screen.findByTestId('dashboard-pending-alert')
+    expect(alert).toHaveTextContent('3 Pending Approvals')
+    expect(screen.getByRole('link', { name: 'Review Now' })).toHaveAttribute('href', '/approvals')
+
+    const balanceGrid = await screen.findByTestId('balance-grid')
+    expect(alert.compareDocumentPosition(balanceGrid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('[P1] hides pending alert when count is zero or user is Employee', async () => {
+    renderDashboardPage('EMPLOYEE')
+
+    await waitFor(() => {
+      expect(screen.getByTestId('balance-grid')).toBeInTheDocument()
+    })
+
+    expect(screen.queryByTestId('dashboard-pending-alert')).not.toBeInTheDocument()
+  })
+
+  it('[P1] hides pending alert after pending-count refetch returns zero', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovalCount')
+      .mockResolvedValueOnce({ count: 2 })
+      .mockResolvedValue({ count: 0 })
+
+    const { queryClient } = renderDashboardPage('MANAGER')
+
+    await screen.findByTestId('dashboard-pending-alert')
+    await queryClient.invalidateQueries({ queryKey: ['approvals', 'pending-count', 1] })
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('dashboard-pending-alert')).not.toBeInTheDocument()
+    })
   })
 })
 

@@ -1,10 +1,23 @@
+.my-leaves-balances {
+  margin-bottom: var(--space-section-gap);
+}
+
 .my-leaves-section-title {
   color: var(--color-foreground);
-  font-size: 15px;
-  font-weight: 600;
+  font-size: var(--font-card-title-size);
+  font-weight: var(--font-card-title-weight);
   margin: 0 0 12px;
 }
 
 .my-leaves-history {
+  margin-top: 0;
+}
+
+.my-leaves-history .dashboard-table td {
+  vertical-align: top;
+}
+
+.my-leaves-history .status-hint,
+.my-leaves-history .decline-reason {
   margin-top: 4px;
 }
