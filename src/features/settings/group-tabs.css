@@ -35,7 +35,7 @@
 }
 
 .settings-card-spaced {
-  margin-top: 24px;
+  margin-top: var(--space-section-gap);
 }
 
 .settings-card .card-section-header {

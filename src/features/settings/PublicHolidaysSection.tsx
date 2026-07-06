@@ -236,7 +236,9 @@ export function PublicHolidaysSection({
             ) : (
               <div key={holiday.id} className="holiday-card">
                 <div className="holiday-card-body">
-                  <span className="holiday-card-name">{holiday.name}</span>
+                  <span className="holiday-card-name" title={holiday.name}>
+                    {holiday.name}
+                  </span>
                   <span className="holiday-card-date">
                     {formatHolidayRange(holiday.dateFrom, holiday.dateTo)}
                   </span>

@@ -17,6 +17,7 @@ export function useCreateLeaveRequest() {
         queryClient.invalidateQueries({ queryKey: ['dashboard', 'balances', userId] })
         queryClient.invalidateQueries({ queryKey: myLeaveRequestsQueryKey(userId) })
       }
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
   })
 }

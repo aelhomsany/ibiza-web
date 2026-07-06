@@ -3,7 +3,7 @@ import { loginViaApi, pilotCredentials } from '../support/helpers/auth'
 
 test.describe('Authentication API', () => {
   test.skip(
-    !process.env.E2E_API_AVAILABLE,
+    process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for API auth checks',
   )
 

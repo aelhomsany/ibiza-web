@@ -1,8 +1,16 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { getTeamMembers } from '../../api/client'
+import {
+  ApiError,
+  deactivateTeamMember,
+  getTeamMembers,
+  reactivateTeamMember,
+} from '../../api/client'
+import type { TeamMemberSummaryResponse } from '../../api/generated/types'
 import { useAuth } from '../../auth/useAuth'
-import { groupPillClass } from './groupPillClass'
+import { groupPillClass } from '../../components/groupPillClass'
+import { Modal } from '../../components/ui/Modal'
+import { CloseIcon, PlusIcon } from '../../components/ui/icons'
 import { TeamMemberModal } from './TeamMemberModal'
 import './team-members.css'
 
@@ -37,9 +45,14 @@ function roleLabel(role: string): string {
   }
 }
 
+function statusLabel(status: TeamMemberSummaryResponse['status']): string {
+  return status === 'DEACTIVATED' ? 'Deactivated' : 'Active'
+}
+
 export function TeamMembersCard({ onSuccess, onWarning }: Props) {
   const { user } = useAuth()
   const orgId = user?.organizationId
+  const queryClient = useQueryClient()
 
   const queryKey = ['team-members', orgId] as const
 
@@ -51,8 +64,16 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editMemberId, setEditMemberId] = useState<number | null>(null)
+  const [lifecycleTarget, setLifecycleTarget] = useState<TeamMemberSummaryResponse | null>(null)
 
   const members = membersQuery.data ?? []
+  const isLifecycleDeactivation = lifecycleTarget?.status !== 'DEACTIVATED'
+  const lifecycleTitle = isLifecycleDeactivation
+    ? 'Deactivate Team Member'
+    : 'Reactivate Team Member'
+  const lifecycleConfirmLabel = isLifecycleDeactivation
+    ? 'Confirm Deactivation'
+    : 'Confirm Reactivation'
 
   function openAdd() {
     setEditMemberId(null)
@@ -69,6 +90,39 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
     setEditMemberId(null)
   }
 
+  const lifecycleMutation = useMutation({
+    mutationFn: (member: TeamMemberSummaryResponse) => {
+      const id = member.id!
+      return member.status === 'DEACTIVATED'
+        ? reactivateTeamMember(id)
+        : deactivateTeamMember(id)
+    },
+    onSuccess: (updated, member) => {
+      void queryClient.invalidateQueries({ queryKey })
+      void queryClient.invalidateQueries({ queryKey: ['platform', 'organizations'] })
+      setLifecycleTarget(null)
+      const name = updated.fullName ?? member.fullName ?? 'Team member'
+      onSuccess?.(`${name} ${updated.status === 'DEACTIVATED' ? 'deactivated' : 'reactivated'}`)
+    },
+    onError: (err) => {
+      const message =
+        err instanceof ApiError
+          ? err.problem.detail ?? 'Unable to update team member status'
+          : 'Unable to update team member status'
+      onWarning?.(message)
+    },
+  })
+
+  function openLifecycleConfirm(member: TeamMemberSummaryResponse) {
+    setLifecycleTarget(member)
+  }
+
+  function closeLifecycleConfirm() {
+    if (!lifecycleMutation.isPending) {
+      setLifecycleTarget(null)
+    }
+  }
+
   return (
     <section className="settings-card settings-card-spaced" data-testid="team-members-card">
       <div className="card-section-header">
@@ -79,7 +133,7 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
           onClick={openAdd}
           data-testid="add-member-btn"
         >
-          + Add Member
+          <PlusIcon size={14} /> Add Member
         </button>
       </div>
 
@@ -92,8 +146,13 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
       )}
 
       <div className="settings-list-body" data-testid="team-members-list">
-        {members.map((member) => (
-          <div key={member.id} className="settings-list-item">
+        {members.map((member) => {
+          const isDeactivated = member.status === 'DEACTIVATED'
+          return (
+          <div
+            key={member.id}
+            className={`settings-list-item${isDeactivated ? ' settings-list-item-muted' : ''}`}
+          >
             <div className="member-avatar" aria-hidden="true">
               {initials(member.fullName ?? '')}
             </div>
@@ -115,6 +174,17 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
             <span className={roleBadgeClass(member.role ?? '')} style={{ marginRight: 8 }}>
               {roleLabel(member.role ?? '')}
             </span>
+            <span className={`member-status-badge${isDeactivated ? ' is-deactivated' : ''}`}>
+              {statusLabel(member.status)}
+            </span>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={() => openLifecycleConfirm(member)}
+              data-testid={`${isDeactivated ? 'reactivate' : 'deactivate'}-member-${member.id}`}
+            >
+              {isDeactivated ? 'Reactivate' : 'Deactivate'}
+            </button>
             <button
               type="button"
               className="btn btn-outline btn-sm"
@@ -124,8 +194,57 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
               Edit
             </button>
           </div>
-        ))}
+          )
+        })}
       </div>
+
+      {lifecycleTarget && (
+        <Modal
+          labelledBy="team-member-lifecycle-title"
+          onClose={closeLifecycleConfirm}
+          closeOnBackdrop={false}
+        >
+          <div className="modal-header">
+            <h2 className="modal-title" id="team-member-lifecycle-title">
+              {lifecycleTitle}
+            </h2>
+            <button
+              type="button"
+              className="modal-close"
+              onClick={closeLifecycleConfirm}
+              aria-label="Close"
+              disabled={lifecycleMutation.isPending}
+            >
+              <CloseIcon size={18} />
+            </button>
+          </div>
+          <div className="modal-body">
+            <p className="body-text">
+              {isLifecycleDeactivation
+                ? `${lifecycleTarget.fullName} will lose access and stop counting toward the active seat limit. Historical records stay visible.`
+                : `${lifecycleTarget.fullName} will regain access if the active seat limit allows it.`}
+            </p>
+          </div>
+          <div className="modal-actions">
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={closeLifecycleConfirm}
+              disabled={lifecycleMutation.isPending}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => lifecycleMutation.mutate(lifecycleTarget)}
+              disabled={lifecycleMutation.isPending}
+            >
+              {lifecycleMutation.isPending ? 'Saving…' : lifecycleConfirmLabel}
+            </button>
+          </div>
+        </Modal>
+      )}
 
       {modalOpen && (
         <TeamMemberModal

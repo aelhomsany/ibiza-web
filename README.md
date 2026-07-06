@@ -44,6 +44,7 @@ SPA runs on **http://localhost:5173**. Requests to `/api/*` are proxied to the A
 | `sarah@company.com` | Employee | `/` |
 | `alex@company.com` | Manager | `/` |
 | `jordan@company.com` | HR Admin | `/` |
+| `riley@ibiza.app` | Platform Admin | `/platform/organizations` |
 
 See `../ibiza-api/README.md` for backend setup.
 
@@ -87,6 +88,25 @@ npm run generate:api
 
 Commit updated generated files when API contracts change.
 
+### Platform create organization E2E
+
+`tests/e2e/platform-create-organization.spec.ts` and
+`tests/e2e/platform-edit-subscription.spec.ts` are opt-in full-stack smokes. Start `ibiza-api` and
+`ibiza-web`, then run them with:
+
+```bash
+E2E_API_AVAILABLE=true npm run test:e2e -- tests/e2e/platform-create-organization.spec.ts
+E2E_API_AVAILABLE=true npm run test:e2e -- tests/e2e/platform-edit-subscription.spec.ts
+E2E_API_AVAILABLE=true npm run test:e2e -- tests/e2e/team-member-plan-limit.spec.ts
+```
+
+They sign in as the seeded Platform Admin. The create smoke creates a uniquely named organization
+and verifies the row appears with plan badge, initial HR contact, and user count. The edit
+subscription smoke opens the row action modal, updates the plan, and verifies the plan badge/user
+limit update on the Organizations table. The team-member plan-limit smoke creates a Free
+organization through the platform API, seeds it to the 3-user limit, then verifies Settings shows
+the server warning detail and keeps the Add Member modal open.
+
 ## Project layout
 
 Feature-first folders under `src/features/`. Shared UI in `src/components/`. Auth session in `src/auth/`. API client in `src/api/client.ts`.
@@ -107,8 +127,21 @@ Two route-based shells share one SPA (both require sign-in). Navigation is filte
 | Organization app | `/`, `/my-leaves`, `/calendar`, `/approvals`, `/settings` | 240px teal sidebar, mist canvas |
 | Platform Admin | `/platform`, `/platform/organizations` | Deep teal sidebar, mint CTAs |
 
+Platform Admin sessions are billing-console only: the admin shell has Organizations navigation and
+no notification bell, balance cards, leave tables, approvals, calendar, or settings surfaces.
+
 Public routes (no shell): `/login`, `/forgot-password`, `/reset-password`.
 
 Design tokens live in `src/styles/tokens.css` (sourced from planning artifact `DESIGN.md`). Component CSS must use `var(--color-*)` — no hardcoded hex outside `tokens.css`.
+
+### Shared UI primitives (`src/components/ui/`)
+
+Reuse these — never re-implement per feature:
+
+- **`Modal`** — native `<dialog>`; focus trap, Escape, and focus-return come from the browser. All modals go through it (jsdom `showModal` polyfill in `src/test/setup.ts`).
+- **`Toast` + `useToast`** — one toast slot per page: 5s auto-dismiss, pauses on hover/focus, dismiss button, `role=status|alert`.
+- **`icons.tsx`** — stroke-SVG icon set (currentColor) for all UI chrome; emoji only in content data.
+- **`DateField`** (`src/components/DateField.tsx`) — click/Enter/Space open the calendar; native keyboard editing stays enabled.
+- Responsive: single **900px breakpoint** — sidebar collapses to a drawer via `ShellTopBar`; pages are `React.lazy` route chunks in `AppRouter.tsx`.
 
 **Manual check:** `npm run dev` → sign in → verify dashboard, browser refresh keeps session, sign out returns to login.

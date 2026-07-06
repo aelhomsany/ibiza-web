@@ -1,31 +1,25 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
+import { Toast } from '../../components/ui/Toast'
+import { useToast } from '../../components/ui/useToast'
 import { LeaveTypesCard } from './LeaveTypesCard'
 import { TeamMembersCard } from './TeamMembersCard'
 import { WorkforceGroupsWeekendsCard } from './WorkforceGroupsWeekendsCard'
+import { CalendarSyncSettings } from './CalendarSyncSettings'
+import { NotificationPreferencesSettings } from './NotificationPreferencesSettings'
 import './group-tabs.css'
-import './settings-toast.css'
-
-type Toast = { message: string; type: 'success' | 'warning' }
 
 export function SettingsPage() {
-  const [toast, setToast] = useState<Toast | null>(null)
+  const { toast, showToast, dismissToast } = useToast()
 
-  const showSuccessToast = useCallback((message: string) => {
-    setToast({ message, type: 'success' })
-  }, [])
+  const showSuccessToast = useCallback(
+    (message: string) => showToast(message, 'success'),
+    [showToast],
+  )
 
-  const showWarningToast = useCallback((message: string) => {
-    setToast({ message, type: 'warning' })
-  }, [])
-
-  useEffect(() => {
-    if (!toast) {
-      return undefined
-    }
-
-    const timer = window.setTimeout(() => setToast(null), 3000)
-    return () => window.clearTimeout(timer)
-  }, [toast])
+  const showWarningToast = useCallback(
+    (message: string) => showToast(message, 'warning'),
+    [showToast],
+  )
 
   return (
     <div className="page page-wide">
@@ -43,21 +37,22 @@ export function SettingsPage() {
 
       <LeaveTypesCard onWarning={showWarningToast} />
 
+      <CalendarSyncSettings
+        onSuccess={showSuccessToast}
+        onWarning={showWarningToast}
+      />
+
+      <NotificationPreferencesSettings
+        onSuccess={showSuccessToast}
+        onWarning={showWarningToast}
+      />
+
       <TeamMembersCard
         onSuccess={showSuccessToast}
         onWarning={showWarningToast}
       />
 
-      {toast && (
-        <div
-          className={`settings-toast${toast.type === 'warning' ? ' settings-toast-warning' : ''}`}
-          role="status"
-          aria-live="polite"
-          data-testid="settings-toast"
-        >
-          {toast.message}
-        </div>
-      )}
+      <Toast toast={toast} onDismiss={dismissToast} testId="settings-toast" />
     </div>
   )
 }

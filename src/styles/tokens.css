@@ -9,8 +9,9 @@
   --color-primary-foreground: #ECF4E8;
   --color-background: #ECF4E8;
   --color-foreground: #2D4A4F;
-  --color-muted: #5A7A80;
-  --color-muted-foreground: #7A9BA1;
+  /* Muted text shades — both must stay ≥4.5:1 on white, mist, and sage-tint (WCAG AA). */
+  --color-muted: #4F6D75;
+  --color-muted-foreground: #52717A;
   --color-white: #FFFFFF;
   --color-border: #B8DCC4;
   --color-border-light: #D8ECD8;
@@ -27,7 +28,8 @@
   --color-declined-bg: #FEE2E2;
   --color-declined-fg: #991B1B;
   --color-holiday-bg: #E4F5DC;
-  --color-holiday-fg: #6A9BA5;
+  /* Holiday text sits on holiday-bg — keep ≥4.5:1 against it (WCAG AA). */
+  --color-holiday-fg: #3E6773;
   --color-group-us: #093C5D;
   --color-group-egypt: #2D6A4F;
   --color-admin-accent: #ABE7B2;
@@ -50,7 +52,18 @@
   --font-caption-size: 12px;
   --font-caption-weight: 500;
 
-  /* Spacing */
+  /* Spacing — 4px grid. Structural spacing (page padding, section gaps, card
+     padding, table cells, grid/flex gaps) uses steps of 4/8/12/16/20/24/32/48;
+     2px and 6px are reserved for micro spacing inside small controls (badges,
+     label-to-input, icon nudges). Do not introduce off-grid values (5/7/9/10/
+     13/14/18/22/28…) in new CSS. */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
   --space-page: 32px;
   --space-card-padding: 20px;
   --space-section-gap: 24px;

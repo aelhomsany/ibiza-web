@@ -10,11 +10,15 @@ import type {
   DayOfWeek,
   ForgotPasswordRequest,
   LeaveRequestResponse,
+  LeaveRequestContextResponse,
   DeclineLeaveRequestRequest,
   LeaveTypeResponse,
   LoginRequest,
   PendingApprovalResponse,
   PendingApprovalCountResponse,
+  NotificationResponse,
+  UnreadCountResponse,
+  MarkAllReadResponse,
   PreviewLeaveRequestRequest,
   PreviewLeaveRequestResponse,
   ProblemDetail,
@@ -27,9 +31,20 @@ import type {
   TokenResponse,
   UpdatePublicHolidayRequest,
   UpdateTeamMemberRequest,
+  UpdateTeamMemberStatusRequest,
   UpdateWeekendDaysRequest,
   UserSummaryResponse,
   WorkforceGroupResponse,
+  CalendarMonthResponse,
+  CalendarSyncConnectResponse,
+  CalendarSyncStatusResponse,
+  NotificationPreferenceResponse,
+  UpdateNotificationPreferenceRequest,
+  CheckoutSessionResponse,
+  CreateOrganizationRequest,
+  CreateCheckoutSessionRequest,
+  OrganizationSummaryResponse,
+  UpdateSubscriptionRequest,
 } from './generated/types'
 import { clearAccessToken, getAccessToken, setAccessToken } from '../auth/tokenStorage'
 
@@ -323,6 +338,14 @@ export async function getMyLeaveRequests(): Promise<RecentRequestResponse[]> {
   })
 }
 
+export async function getLeaveRequestContext(
+  requestId: number,
+): Promise<LeaveRequestContextResponse> {
+  return request<LeaveRequestContextResponse>(`/api/v1/leave-requests/${requestId}`, {
+    method: 'GET',
+  })
+}
+
 export async function getPendingApprovals(): Promise<PendingApprovalResponse[]> {
   return request<PendingApprovalResponse[]>('/api/v1/approvals/pending', {
     method: 'GET',
@@ -332,6 +355,30 @@ export async function getPendingApprovals(): Promise<PendingApprovalResponse[]> 
 export async function getPendingApprovalCount(): Promise<PendingApprovalCountResponse> {
   return request<PendingApprovalCountResponse>('/api/v1/approvals/pending-count', {
     method: 'GET',
+  })
+}
+
+export async function getNotifications(): Promise<NotificationResponse[]> {
+  return request<NotificationResponse[]>('/api/v1/notifications', {
+    method: 'GET',
+  })
+}
+
+export async function getUnreadNotificationCount(): Promise<UnreadCountResponse> {
+  return request<UnreadCountResponse>('/api/v1/notifications/unread-count', {
+    method: 'GET',
+  })
+}
+
+export async function markNotificationRead(id: number): Promise<NotificationResponse> {
+  return request<NotificationResponse>(`/api/v1/notifications/${id}/read`, {
+    method: 'PATCH',
+  })
+}
+
+export async function markAllNotificationsRead(): Promise<MarkAllReadResponse> {
+  return request<MarkAllReadResponse>('/api/v1/notifications/mark-all-read', {
+    method: 'POST',
   })
 }
 
@@ -364,6 +411,96 @@ export async function getLeaveRequestAuditEvents(
   return request<AuditEventResponse[]>(`/api/v1/leave-requests/${requestId}/audit-events`, {
     method: 'GET',
   })
+}
+
+export async function getCalendarMonth(
+  month: string,
+  workforceGroupId?: number,
+): Promise<CalendarMonthResponse> {
+  const params = new URLSearchParams({ month })
+  if (workforceGroupId != null) {
+    params.set('workforceGroupId', String(workforceGroupId))
+  }
+  return request<CalendarMonthResponse>(`/api/v1/calendar?${params.toString()}`, {
+    method: 'GET',
+  })
+}
+
+export async function getCalendarSyncStatus(): Promise<CalendarSyncStatusResponse> {
+  return request<CalendarSyncStatusResponse>('/api/v1/calendar-sync/status', {
+    method: 'GET',
+  })
+}
+
+export async function connectCalendarSync(
+  provider: CalendarSyncStatusResponse['provider'] = 'GOOGLE',
+): Promise<CalendarSyncConnectResponse> {
+  return request<CalendarSyncConnectResponse>(
+    `/api/v1/calendar-sync/${provider.toLowerCase()}/connect`,
+    { method: 'POST' },
+  )
+}
+
+export async function retryCalendarSync(
+  provider: CalendarSyncStatusResponse['provider'] = 'GOOGLE',
+): Promise<void> {
+  return request<void>(`/api/v1/calendar-sync/${provider.toLowerCase()}/retry`, {
+    method: 'POST',
+  })
+}
+
+export async function disconnectCalendarSync(
+  provider: CalendarSyncStatusResponse['provider'] = 'GOOGLE',
+): Promise<void> {
+  return request<void>(`/api/v1/calendar-sync/${provider.toLowerCase()}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function getNotificationPreferences(): Promise<
+  NotificationPreferenceResponse[]
+> {
+  return request<NotificationPreferenceResponse[]>(
+    '/api/v1/notification-preferences',
+    { method: 'GET' },
+  )
+}
+
+export async function updateNotificationPreference(
+  payload: UpdateNotificationPreferenceRequest,
+): Promise<NotificationPreferenceResponse[]> {
+  return request<NotificationPreferenceResponse[]>(
+    '/api/v1/notification-preferences',
+    { method: 'PATCH', body: payload },
+  )
+}
+
+export async function getPlatformOrganizations(): Promise<OrganizationSummaryResponse[]> {
+  return request<OrganizationSummaryResponse[]>('/api/v1/platform/organizations', {
+    method: 'GET',
+  })
+}
+
+export async function createPlatformOrganization(
+  payload: CreateOrganizationRequest,
+): Promise<OrganizationSummaryResponse> {
+  return request<OrganizationSummaryResponse>('/api/v1/platform/organizations', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function updatePlatformOrganizationSubscription(
+  organizationId: number,
+  payload: UpdateSubscriptionRequest,
+): Promise<OrganizationSummaryResponse> {
+  return request<OrganizationSummaryResponse>(
+    `/api/v1/platform/organizations/${organizationId}/subscription`,
+    {
+      method: 'PATCH',
+      body: payload,
+    },
+  )
 }
 
 export async function getDashboardOutToday(): Promise<OutTodayResponse[]> {
@@ -399,6 +536,15 @@ export async function createTeamMember(
   })
 }
 
+export async function createCheckoutSession(
+  payload: CreateCheckoutSessionRequest,
+): Promise<CheckoutSessionResponse> {
+  return request<CheckoutSessionResponse>('/api/v1/billing/checkout-session', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
 export async function updateTeamMember(
   id: number,
   payload: UpdateTeamMemberRequest,
@@ -407,6 +553,24 @@ export async function updateTeamMember(
     method: 'PATCH',
     body: payload,
   })
+}
+
+export async function updateTeamMemberStatus(
+  id: number,
+  payload: UpdateTeamMemberStatusRequest,
+): Promise<TeamMemberSummaryResponse> {
+  return request<TeamMemberSummaryResponse>(`/api/v1/team-members/${id}/status`, {
+    method: 'PATCH',
+    body: payload,
+  })
+}
+
+export async function deactivateTeamMember(id: number): Promise<TeamMemberSummaryResponse> {
+  return updateTeamMemberStatus(id, { status: 'DEACTIVATED' })
+}
+
+export async function reactivateTeamMember(id: number): Promise<TeamMemberSummaryResponse> {
+  return updateTeamMemberStatus(id, { status: 'ACTIVE' })
 }
 
 export const apiClient = {
@@ -430,15 +594,32 @@ export const apiClient = {
   getDashboardBalances,
   getDashboardRecentRequests,
   getMyLeaveRequests,
+  getLeaveRequestContext,
   getPendingApprovals,
   getPendingApprovalCount,
+  getNotifications,
+  getUnreadNotificationCount,
+  markNotificationRead,
+  markAllNotificationsRead,
   getRecentApprovalDecisions,
   approveLeaveRequest,
   declineLeaveRequest,
   getDashboardOutToday,
   getDashboardUpcoming,
+  getCalendarMonth,
+  getCalendarSyncStatus,
+  connectCalendarSync,
+  retryCalendarSync,
+  disconnectCalendarSync,
+  getPlatformOrganizations,
+  createPlatformOrganization,
+  updatePlatformOrganizationSubscription,
   getTeamMembers,
   getTeamMember,
   createTeamMember,
+  createCheckoutSession,
   updateTeamMember,
+  updateTeamMemberStatus,
+  deactivateTeamMember,
+  reactivateTeamMember,
 }

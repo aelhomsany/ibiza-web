@@ -6,7 +6,7 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
 test.describe('Settings API — workforce groups and holidays', () => {
   test.skip(
-    !process.env.E2E_API_AVAILABLE,
+    process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for settings API checks',
   )
 

@@ -1,3 +1,4 @@
+import { CheckIcon } from '../../components/ui/icons'
 import { LeaveTypeTag } from '../dashboard/LeaveTypeTag'
 import { formatDateRange } from '../dashboard/leaveRequestFormatting'
 import type { PendingApprovalResponse } from '../../api/generated/types'
@@ -80,7 +81,7 @@ export function ApprovalRow({
           onClick={onApprove}
           disabled={actionsDisabled}
         >
-          Approve ✓
+          Approve <CheckIcon size={14} />
         </button>
       </div>
     </div>

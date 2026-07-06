@@ -7,10 +7,15 @@
   gap: 12px;
   padding: 12px 0;
   border-bottom: 1px solid var(--color-border-light);
+  flex-wrap: wrap;
 }
 
 .settings-list-item:last-child {
   border-bottom: none;
+}
+
+.settings-list-item-muted .member-avatar {
+  background: var(--color-muted);
 }
 
 /* ---- Avatar / initials ---- */
@@ -43,33 +48,13 @@
   margin-top: 2px;
 }
 
-/* ---- Group pill ---- */
-.group-pill {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  background: var(--color-teal-tint);
-  color: var(--color-teal);
-}
-
-.group-pill-us {
-  background: var(--color-teal-tint);
-  color: var(--color-group-us);
-}
-
-.group-pill-egypt {
-  background: var(--color-sage-tint);
-  color: var(--color-group-egypt);
-}
-
 /* ---- Role badges ---- */
 .badge {
   display: inline-flex;
   align-items: center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 3px 9px;
+  padding: 2px 10px;
   border-radius: var(--radius-full);
   white-space: nowrap;
 }
@@ -89,58 +74,26 @@
   color: var(--color-foreground);
 }
 
-/* ---- Modal overlay ---- */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
+.member-status-badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  z-index: 100;
-}
-
-.modal {
+  min-height: 24px;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
   background: var(--color-white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-modal);
-  padding: 28px 32px;
-  width: 480px;
-  max-width: 95vw;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal-wide {
-  width: 560px;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.modal-title {
-  font-size: 16px;
-  font-weight: 700;
   color: var(--color-foreground);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 22px;
-  cursor: pointer;
+.member-status-badge.is-deactivated {
+  background: var(--color-border-light);
   color: var(--color-muted);
-  line-height: 1;
-  padding: 0 4px;
 }
 
-.modal-close:hover {
-  color: var(--color-foreground);
-}
+/* ---- Modal chrome lives in src/components/ui/modal.css (shared Modal component) ---- */
 
 /* ---- Form groups ---- */
 .form-group {
@@ -211,19 +164,70 @@
   width: 80px;
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 5px 8px;
+  padding: 6px 8px;
   font-size: 13px;
   text-align: right;
 }
 
-/* ---- Modal actions row ---- */
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--color-border-light);
+/* ---- Plan-limit upgrade prompt ---- */
+.upgrade-prompt {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: end;
+  margin: 4px 0 16px;
+  padding: 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-warning);
+  color: var(--color-foreground);
+  font-size: 13px;
+}
+
+.upgrade-prompt strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.upgrade-prompt p {
+  margin: 0 0 6px;
+}
+
+.upgrade-prompt p:last-child {
+  margin-bottom: 0;
+}
+
+.upgrade-prompt-actions {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.upgrade-prompt-actions label {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.upgrade-prompt-actions select {
+  min-width: 120px;
+  height: 38px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--color-foreground);
+  background: var(--color-white);
+}
+
+@media (max-width: 900px) {
+  .upgrade-prompt,
+  .upgrade-prompt-actions {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ---- Card section header with CTA ---- */

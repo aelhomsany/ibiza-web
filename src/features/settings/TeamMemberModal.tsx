@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ApiError,
+  createCheckoutSession,
   createTeamMember,
   getLeaveTypes,
   getTeamMember,
@@ -10,11 +11,15 @@ import {
   updateTeamMember,
 } from '../../api/client'
 import type {
+  CreateCheckoutSessionRequest,
   CreateTeamMemberRequest,
   EntitlementInput,
   UpdateTeamMemberRequest,
 } from '../../api/generated/types'
 import { useAuth } from '../../auth/useAuth'
+import { Modal } from '../../components/ui/Modal'
+import { CloseIcon } from '../../components/ui/icons'
+import { redirectToExternalUrl } from '../../navigation/redirect'
 import './team-members.css'
 
 type Props = {
@@ -25,6 +30,7 @@ type Props = {
 }
 
 type UserRole = 'EMPLOYEE' | 'MANAGER' | 'HR_ADMIN'
+type UpgradePlan = Extract<CreateCheckoutSessionRequest['plan'], 'STARTER' | 'GROWTH'>
 
 type LeaveTypeOption = {
   id: number
@@ -70,6 +76,12 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
   const [managerId, setManagerId] = useState<number | ''>('')
   const [entitlements, setEntitlements] = useState<Record<number, number>>({})
   const [groupError, setGroupError] = useState(false)
+  const [upgradePrompt, setUpgradePrompt] = useState<{
+    detail: string
+    checkoutUnavailable: boolean
+  } | null>(null)
+  const [upgradePlan, setUpgradePlan] = useState<UpgradePlan>('STARTER')
+  const upgradePromptRef = useRef<HTMLDivElement>(null)
 
   const groups = groupsQuery.data ?? []
   const allMembers = membersQuery.data ?? []
@@ -78,7 +90,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
     .map((lt) => ({ id: lt.id!, name: lt.name!, defaultBalanceDays: lt.defaultBalanceDays! }))
 
   const managers = allMembers.filter(
-    (m) => m.role === 'MANAGER' || m.role === 'HR_ADMIN',
+    (m) => (m.role === 'MANAGER' || m.role === 'HR_ADMIN') && m.status !== 'DEACTIVATED',
   )
 
   useEffect(() => {
@@ -123,16 +135,49 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
     }
   }, [role])
 
+  const upgradePromptVisible = upgradePrompt !== null
+  useEffect(() => {
+    if (upgradePromptVisible) {
+      upgradePromptRef.current?.focus()
+    }
+  }, [upgradePromptVisible])
+
   const createMutation = useMutation({
     mutationFn: (payload: CreateTeamMemberRequest) => createTeamMember(payload),
     onSuccess: (created) => {
       void queryClient.invalidateQueries({ queryKey: ['team-members', orgId] })
+      setUpgradePrompt(null)
       onSuccess(`${created.fullName} added to Ibiza!`)
     },
     onError: (err) => {
+      if (isPlanLimitReached(err)) {
+        setUpgradePrompt({
+          detail: err.problem.detail ?? 'Your organization is at its plan user limit',
+          checkoutUnavailable: false,
+        })
+        return
+      }
       const msg =
         err instanceof ApiError ? err.problem.detail ?? 'Failed to add member' : 'Failed to add member'
       onWarning?.(msg)
+    },
+  })
+
+  const checkoutMutation = useMutation({
+    mutationFn: (payload: CreateCheckoutSessionRequest) => createCheckoutSession(payload),
+    onSuccess: (session) => {
+      if (session.checkoutUrl) {
+        redirectToExternalUrl(session.checkoutUrl)
+        return
+      }
+      setUpgradePrompt((current) =>
+        current ? { ...current, checkoutUnavailable: true } : current,
+      )
+    },
+    onError: () => {
+      setUpgradePrompt((current) =>
+        current ? { ...current, checkoutUnavailable: true } : current,
+      )
     },
   })
 
@@ -153,6 +198,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setUpgradePrompt(null)
     if (!workforceGroupId) {
       setGroupError(true)
       return
@@ -196,25 +242,20 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
     }
   }
 
+  function handleUpgrade() {
+    checkoutMutation.mutate({ plan: upgradePlan })
+  }
+
   const isPending = createMutation.isPending || updateMutation.isPending
 
   return (
-    <div
-      className="modal-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="team-member-modal-title"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
-    >
-      <div className="modal modal-wide" onClick={(e) => e.stopPropagation()}>
+    <Modal labelledBy="team-member-modal-title" onClose={onClose} className="modal-wide">
         <div className="modal-header">
           <span className="modal-title" id="team-member-modal-title">
             {isEdit ? 'Edit Team Member' : 'Add Team Member'}
           </span>
           <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
-            ×
+            <CloseIcon size={18} />
           </button>
         </div>
 
@@ -341,6 +382,38 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
             </div>
           )}
 
+          {upgradePrompt && (
+            <div className="upgrade-prompt" role="alert" tabIndex={-1} ref={upgradePromptRef}>
+              <div>
+                <strong>Upgrade Required</strong>
+                <p>{upgradePrompt.detail}</p>
+                {upgradePrompt.checkoutUnavailable && (
+                  <p>Self-serve checkout is unavailable. Use the manual path below.</p>
+                )}
+                <p>Manual fallback: Contact Platform Admin to upgrade.</p>
+              </div>
+              <div className="upgrade-prompt-actions">
+                <label htmlFor="upgrade-plan">Paid plan</label>
+                <select
+                  id="upgrade-plan"
+                  value={upgradePlan}
+                  onChange={(event) => setUpgradePlan(event.target.value as UpgradePlan)}
+                >
+                  <option value="STARTER">Starter</option>
+                  <option value="GROWTH">Growth</option>
+                </select>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleUpgrade}
+                  disabled={checkoutMutation.isPending}
+                >
+                  {checkoutMutation.isPending ? 'Opening…' : 'Upgrade'}
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="modal-actions">
             <button type="button" className="btn btn-outline" onClick={onClose}>
               Cancel
@@ -350,7 +423,10 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   )
+}
+
+function isPlanLimitReached(err: unknown): err is ApiError {
+  return err instanceof ApiError && err.problem.code === 'plan-limit-reached'
 }

@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
 import { ApiError } from '../../api/client'
+import { Toast } from '../../components/ui/Toast'
+import { useToast } from '../../components/ui/useToast'
+import { CheckCircleIcon } from '../../components/ui/icons'
 import { ApprovalRow } from './ApprovalRow'
 import { DeclineModal } from './DeclineModal'
 import { RecentDecisionRow } from './RecentDecisionRow'
@@ -8,7 +11,6 @@ import { useApproveRequest } from './useApproveRequest'
 import { useDeclineRequest } from './useDeclineRequest'
 import { usePendingApprovals } from './usePendingApprovals'
 import { useRecentApprovalDecisions } from './useRecentApprovalDecisions'
-import '../../styles/app-toast.css'
 import './approvals.css'
 
 const MANAGER_SUBTITLE = "Review and action your team's leave requests"
@@ -30,28 +32,12 @@ export function ApprovalsPage() {
   } = useRecentApprovalDecisions()
   const approveMutation = useApproveRequest()
   const declineMutation = useDeclineRequest()
-  const [successToast, setSuccessToast] = useState<string | null>(null)
-  const [errorToast, setErrorToast] = useState<string | null>(null)
+  const { toast, showToast, dismissToast } = useToast()
   const [declineTarget, setDeclineTarget] = useState<DeclineTarget | null>(null)
   const [declineReason, setDeclineReason] = useState('')
   const [declineSubmitError, setDeclineSubmitError] = useState<string | null>(null)
   const isHrAdmin = user?.role === 'HR_ADMIN'
   const subtitle = isHrAdmin ? HR_SUBTITLE : MANAGER_SUBTITLE
-
-  const showSuccessToast = useCallback((message: string) => {
-    setSuccessToast(message)
-  }, [])
-
-  useEffect(() => {
-    if (!successToast && !errorToast) {
-      return undefined
-    }
-    const timer = window.setTimeout(() => {
-      setSuccessToast(null)
-      setErrorToast(null)
-    }, 3000)
-    return () => window.clearTimeout(timer)
-  }, [successToast, errorToast])
 
   const resolveMutationError = (error: unknown, fallback: string): string => {
     if (error instanceof ApiError) {
@@ -65,12 +51,10 @@ export function ApprovalsPage() {
       { requestId, employeeUserId },
       {
         onSuccess: () => {
-          setErrorToast(null)
-          showSuccessToast(`${employeeName}'s request approved`)
+          showToast(`${employeeName}'s request approved`)
         },
         onError: (error) => {
-          setSuccessToast(null)
-          setErrorToast(resolveMutationError(error, 'Unable to approve request'))
+          showToast(resolveMutationError(error, 'Unable to approve request'), 'warning')
         },
       },
     )
@@ -92,8 +76,7 @@ export function ApprovalsPage() {
           setDeclineTarget(null)
           setDeclineReason('')
           setDeclineSubmitError(null)
-          setErrorToast(null)
-          showSuccessToast(`${declineTarget.employeeName}'s request declined`)
+          showToast(`${declineTarget.employeeName}'s request declined`)
         },
         onError: (error) => {
           setDeclineSubmitError(resolveMutationError(error, 'Unable to decline request'))
@@ -119,8 +102,8 @@ export function ApprovalsPage() {
         </div>
       ) : pendingApprovals.length === 0 ? (
         <div className="approvals-empty-state" data-testid="approvals-empty-state">
-          <div aria-hidden="true" style={{ fontSize: '40px' }}>
-            ✅
+          <div aria-hidden="true" className="approvals-empty-icon">
+            <CheckCircleIcon size={40} />
           </div>
           <p>All caught up!</p>
         </div>
@@ -214,27 +197,11 @@ export function ApprovalsPage() {
         />
       ) : null}
 
-      {successToast ? (
-        <div
-          className="app-toast"
-          role="status"
-          aria-live="polite"
-          data-testid="approval-success-toast"
-        >
-          {successToast}
-        </div>
-      ) : null}
-
-      {errorToast ? (
-        <div
-          className="app-toast app-toast-warning"
-          role="alert"
-          aria-live="assertive"
-          data-testid="approval-error-toast"
-        >
-          {errorToast}
-        </div>
-      ) : null}
+      <Toast
+        toast={toast}
+        onDismiss={dismissToast}
+        testId={toast?.tone === 'warning' ? 'approval-error-toast' : 'approval-success-toast'}
+      />
     </div>
   )
 }

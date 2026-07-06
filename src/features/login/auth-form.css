@@ -27,7 +27,9 @@
 }
 
 .auth-logo-icon {
-  font-size: 44px;
+  display: flex;
+  justify-content: center;
+  color: var(--color-teal);
 }
 
 .auth-logo-title {
@@ -45,7 +47,7 @@
 .auth-form-title {
   font-size: 15px;
   font-weight: 600;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   color: var(--color-foreground);
 }
 

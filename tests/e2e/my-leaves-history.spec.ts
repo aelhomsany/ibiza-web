@@ -8,7 +8,7 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
  */
 test.describe('My Leaves history — Story 3.5', () => {
   test.skip(
-    !process.env.E2E_API_AVAILABLE,
+    process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for My Leaves data',
   )
 

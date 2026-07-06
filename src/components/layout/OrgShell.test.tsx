@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { vi } from 'vitest'
@@ -7,7 +7,6 @@ import { DashboardPage } from '../../features/dashboard/DashboardPage'
 import {
   AuthTestProvider,
   createMockAuthForRole,
-  createMockAuthValue,
 } from '../../test/authTestUtils'
 import { OrgShell } from './OrgShell'
 
@@ -38,6 +37,7 @@ describe('OrgShell', () => {
   beforeEach(() => {
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue([])
     vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 0 })
+    vi.spyOn(apiClient, 'getUnreadNotificationCount').mockResolvedValue({ count: 0 })
   })
 
   afterEach(() => {
@@ -159,5 +159,25 @@ describe('OrgShell', () => {
       expect(screen.queryByTestId('nav-approvals-badge')).not.toBeInTheDocument()
     })
     expect(screen.getByTestId('nav-approvals')).toHaveAttribute('aria-label', 'Approvals')
+  })
+
+  it('[P0] renders notification bell in the app header, not the sidebar', async () => {
+    renderOrgShell('EMPLOYEE')
+
+    const header = screen.getByTestId('app-header')
+    expect(header).toContainElement(await screen.findByTestId('notification-bell'))
+
+    const sidebar = screen.getByTestId('sidebar')
+    expect(within(sidebar).queryByTestId('notification-bell')).toBeNull()
+    expect(sidebar.querySelector('.sidebar-logo')).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: /main navigation/i })).toBeInTheDocument()
+  })
+
+  it('[P1] shows the organization name in the app header with full-name tooltip', () => {
+    renderOrgShell('EMPLOYEE')
+
+    const context = screen.getByTestId('app-header-context')
+    expect(context).toHaveTextContent('Acme Corp')
+    expect(context).toHaveAttribute('title', 'Acme Corp')
   })
 })

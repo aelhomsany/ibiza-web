@@ -1,4 +1,5 @@
 import { LeaveStatusBadge } from '../../components/ui/LeaveStatusBadge'
+import { InboxIcon } from '../../components/ui/icons'
 import type { RecentRequestResponse } from '../../api/generated/types'
 import { LeaveTypeTag } from './LeaveTypeTag'
 import { formatDateRange } from './leaveRequestFormatting'
@@ -42,7 +43,7 @@ export function RecentRequestsCard({ requests, isLoading, isError }: Props) {
       {requests.length === 0 ? (
         <div className="dashboard-empty-state">
           <span className="dashboard-empty-icon" aria-hidden="true">
-            📭
+            <InboxIcon size={36} />
           </span>
           <p>No leave requests yet</p>
         </div>
@@ -51,10 +52,10 @@ export function RecentRequestsCard({ requests, isLoading, isError }: Props) {
           <table className="dashboard-table">
             <thead>
               <tr>
-                <th>Type</th>
-                <th>Dates</th>
-                <th>Days</th>
-                <th>Status</th>
+                <th scope="col">Type</th>
+                <th scope="col">Dates</th>
+                <th scope="col">Days</th>
+                <th scope="col">Status</th>
               </tr>
             </thead>
             <tbody>

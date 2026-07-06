@@ -4,7 +4,7 @@ const apiUrl = process.env.API_URL ?? process.env.VITE_API_URL ?? 'http://localh
 
 test.describe('Authentication API guards', () => {
   test.skip(
-    !process.env.E2E_API_AVAILABLE,
+    process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for API guard checks',
   )
 

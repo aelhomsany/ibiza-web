@@ -21,15 +21,13 @@ function openPicker(el: HTMLInputElement | null) {
 }
 
 /**
- * Shared native date picker. The calendar opens when the user clicks anywhere in
- * the box (not just the icon), and manual keyboard entry is blocked so a date can
- * only be chosen from the calendar popup. Use this for EVERY date picker in the app.
+ * Shared native date picker. Clicking anywhere in the box opens the calendar
+ * popup, and the input keeps the browser's native keyboard editing (arrow keys
+ * per date segment, typed digits) so keyboard and assistive-tech users are not
+ * forced through the picker. Use this for EVERY date picker in the app.
  */
 export const DateField = forwardRef<HTMLInputElement, DateFieldProps>(
-  function DateField(
-    { value, onChange, onClick, onFocus, onKeyDown, className, ...rest },
-    ref,
-  ) {
+  function DateField({ value, onChange, onClick, onKeyDown, className, ...rest }, ref) {
     return (
       <input
         {...rest}
@@ -42,17 +40,11 @@ export const DateField = forwardRef<HTMLInputElement, DateFieldProps>(
           openPicker(e.currentTarget)
           onClick?.(e)
         }}
-        onFocus={(e) => {
-          openPicker(e.currentTarget)
-          onFocus?.(e)
-        }}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
+            // Enter/Space opens the calendar instead of submitting the form.
             e.preventDefault()
             openPicker(e.currentTarget)
-          } else if (e.key !== 'Tab' && e.key !== 'Escape') {
-            // Block manual typing — dates come from the calendar only.
-            e.preventDefault()
           }
           onKeyDown?.(e)
         }}

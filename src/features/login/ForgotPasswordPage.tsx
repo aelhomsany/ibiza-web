@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { ApiError, postForgotPassword } from '../../api/client'
+import { UmbrellaIcon } from '../../components/ui/icons'
 import './auth-form.css'
 
 export function ForgotPasswordPage() {
@@ -33,7 +34,7 @@ export function ForgotPasswordPage() {
       <div className="auth-card">
         <div className="auth-logo">
           <div className="auth-logo-icon" aria-hidden="true">
-            🏖️
+            <UmbrellaIcon size={34} />
           </div>
           <div className="auth-logo-title">Ibiza</div>
           <div className="auth-logo-sub">Team Leave Management</div>

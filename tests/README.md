@@ -94,6 +94,13 @@ Artifacts: `test-results/` (JUnit + traces) and `playwright-report/` on failure.
 | API auth test skipped | Set `E2E_API_AVAILABLE=true` and run `ibiza-api` on `:8080` |
 | Login UI test skipped | Expected until Epic 1 Story 1.6 implements login page + test IDs |
 
+### Story 6.4 plan-limit smoke
+
+`tests/e2e/team-member-plan-limit.spec.ts` is an opt-in full-stack smoke. It creates a unique Free
+organization through the platform API, signs a short-lived HR token with the same `JWT_SECRET` used
+by the E2E API process, seeds the org to three users, then verifies Settings shows the plan-limit
+warning toast and leaves the Add Member modal open.
+
 ## Knowledge Base References
 
 - Playwright config guardrails (TEA): `playwright-config.md`

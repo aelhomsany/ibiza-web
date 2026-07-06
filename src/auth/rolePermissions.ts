@@ -1,5 +1,12 @@
 import type { UserRole } from '../api/generated/types'
 import type { NavItem } from '../components/layout/Sidebar'
+import {
+  CalendarIcon,
+  CheckCircleIcon,
+  ClipboardListIcon,
+  DashboardIcon,
+  SettingsIcon,
+} from '../components/ui/icons'
 
 export const ORG_ROLES = ['EMPLOYEE', 'MANAGER', 'HR_ADMIN'] as const satisfies readonly UserRole[]
 
@@ -13,35 +20,35 @@ const ORG_BASE: NavCatalogItem[] = [
   {
     label: 'Dashboard',
     path: '/',
-    icon: '📊',
+    icon: DashboardIcon,
     testId: 'nav-dashboard',
     requiredRoles: [...ORG_ROLES],
   },
   {
     label: 'My Leaves',
     path: '/my-leaves',
-    icon: '📋',
+    icon: ClipboardListIcon,
     testId: 'nav-my-leaves',
     requiredRoles: [...ORG_ROLES],
   },
   {
     label: 'Team Calendar',
     path: '/calendar',
-    icon: '📅',
+    icon: CalendarIcon,
     testId: 'nav-calendar',
     requiredRoles: [...ORG_ROLES],
   },
   {
     label: 'Approvals',
     path: '/approvals',
-    icon: '✅',
+    icon: CheckCircleIcon,
     testId: 'nav-approvals',
     requiredRoles: ['MANAGER', 'HR_ADMIN'],
   },
   {
     label: 'Settings',
     path: '/settings',
-    icon: '⚙️',
+    icon: SettingsIcon,
     testId: 'nav-settings',
     requiredRoles: ['HR_ADMIN'],
   },
@@ -62,9 +69,12 @@ export function getOrgNavItems(role: UserRole): NavItem[] {
     return []
   }
 
-  return ORG_NAV_ITEMS.filter((item) => item.requiredRoles.includes(role)).map(
-    ({ requiredRoles: _requiredRoles, ...navItem }) => navItem,
-  )
+  return ORG_NAV_ITEMS.filter((item) => item.requiredRoles.includes(role)).map((item) => ({
+    label: item.label,
+    path: item.path,
+    icon: item.icon,
+    testId: item.testId,
+  }))
 }
 
 export function canAccessAdminRoute(role: UserRole): boolean {

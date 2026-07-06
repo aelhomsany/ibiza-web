@@ -21,6 +21,7 @@ export function useDeclineRequest() {
         void queryClient.invalidateQueries({ queryKey: ['leave-requests', orgId] })
       }
       void queryClient.invalidateQueries({ queryKey: ['leave-requests'] })
+      void queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
   })
 }

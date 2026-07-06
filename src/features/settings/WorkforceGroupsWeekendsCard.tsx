@@ -6,6 +6,7 @@ import { useAuth } from '../../auth/useAuth'
 import { PublicHolidaysSection } from './PublicHolidaysSection'
 import { WeekendDayChips } from './WeekendDayChips'
 import { WorkforceGroupModal } from './WorkforceGroupModal'
+import { PlusIcon } from '../../components/ui/icons'
 import './group-tabs.css'
 
 type WorkforceGroupsWeekendsCardProps = {
@@ -74,7 +75,7 @@ export function WorkforceGroupsWeekendsCard({
           data-testid="add-group-btn"
           onClick={() => setGroupModalOpen(true)}
         >
-          + Add Group
+          <PlusIcon size={14} /> Add Group
         </button>
       </div>
 

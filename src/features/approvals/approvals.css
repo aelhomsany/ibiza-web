@@ -35,7 +35,7 @@
   gap: 4px;
   font-size: 12px;
   color: var(--color-muted);
-  margin-top: 3px;
+  margin-top: 4px;
 }
 
 .approval-meta {
@@ -61,7 +61,7 @@
   margin-left: 6px;
   padding: 2px 8px;
   border-radius: 99px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   background: var(--color-teal-tint);
   color: var(--color-teal);
@@ -73,14 +73,24 @@
   color: var(--color-muted);
 }
 
+.approvals-empty-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+  color: var(--color-success);
+}
+
 .approvals-error-state {
   padding: 48px;
   text-align: center;
   color: var(--color-danger);
 }
 
+/* Transparent border matches .btn-danger-outline's 1px so the Approve/Decline
+   pair renders the same box height regardless of flex stretch behavior. */
 .btn-success {
   background: var(--color-mint);
+  border: 1px solid transparent;
   color: var(--color-foreground);
 }
 
@@ -106,7 +116,7 @@
   align-items: center;
   padding: 2px 8px;
   border-radius: var(--radius-full);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   background: var(--color-sage-tint);
   color: var(--color-foreground);
@@ -117,31 +127,21 @@
   align-items: center;
   padding: 2px 8px;
   border-radius: var(--radius-full);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   background: var(--color-mist);
   color: var(--color-foreground);
 }
 
-.decline-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(9, 60, 93, 0.45);
-  background: color-mix(in srgb, var(--color-teal) 45%, transparent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 1000;
-}
-
-.decline-modal-panel {
-  background: var(--color-white);
+.modal.decline-modal-panel {
   border-radius: var(--radius-xl);
   border: 1px solid var(--color-border-light);
-  padding: 32px;
   width: min(100%, 480px);
-  box-shadow: var(--shadow-modal);
+}
+
+.modal.decline-modal-panel::backdrop {
+  background: rgba(9, 60, 93, 0.45);
+  background: color-mix(in srgb, var(--color-teal) 45%, transparent);
 }
 
 .decline-modal-title {
@@ -223,7 +223,7 @@
 
 .recent-decisions-table th,
 .recent-decisions-table td {
-  padding: 13px 20px;
+  padding: 12px var(--space-card-padding);
   text-align: left;
   border-bottom: 1px solid var(--color-border-light);
   font-size: 13px;
@@ -231,7 +231,7 @@
 }
 
 .recent-decisions-table th {
-  padding: 10px 20px;
+  padding: 12px var(--space-card-padding);
   font-size: var(--font-caption-size);
   font-weight: 600;
   color: var(--color-muted);

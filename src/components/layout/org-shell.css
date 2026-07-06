@@ -1,12 +1,28 @@
 .org-shell {
   display: flex;
+  flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background: var(--color-mist);
 }
 
+.org-shell__body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.org-shell__content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .org-shell__main {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   background: var(--color-mist);
 }

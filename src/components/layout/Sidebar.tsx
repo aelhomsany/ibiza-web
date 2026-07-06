@@ -1,12 +1,14 @@
 import { NavLink } from 'react-router-dom'
+import type { ComponentType } from 'react'
 import { formatRole } from '../../auth/authUtils'
 import type { UserRole } from '../../api/generated/types'
+import { UmbrellaIcon, type IconProps } from '../ui/icons'
 import './sidebar.css'
 
 export type NavItem = {
   label: string
   path: string
-  icon?: string
+  icon?: ComponentType<IconProps>
   end?: boolean
   testId?: string
   badge?: number
@@ -18,6 +20,12 @@ type SidebarProps = {
   userName?: string
   userRole?: UserRole
   onSignOut?: () => void
+  logoTitle?: string
+  logoSubtitle?: string
+  /** Mobile drawer state — the sidebar is always visible on desktop. */
+  mobileOpen?: boolean
+  /** Called when a nav link is followed, so the mobile drawer can close. */
+  onNavigate?: () => void
 }
 
 export function Sidebar({
@@ -26,18 +34,26 @@ export function Sidebar({
   userName = 'User',
   userRole = 'EMPLOYEE',
   onSignOut,
+  logoTitle = 'Ibiza',
+  logoSubtitle = 'Team Leave Management',
+  mobileOpen = false,
+  onNavigate,
 }: SidebarProps) {
   const variantClass = variant === 'org' ? 'sidebar--org' : 'sidebar--admin'
 
   return (
-    <aside className={`sidebar ${variantClass}`} data-testid="sidebar">
+    <aside
+      id="app-sidebar"
+      className={`sidebar ${variantClass}${mobileOpen ? ' sidebar--open' : ''}`}
+      data-testid="sidebar"
+    >
       <div className="sidebar-logo">
         <span className="sidebar-logo-icon" aria-hidden="true">
-          🏖️
+          <UmbrellaIcon size={26} />
         </span>
         <div>
-          <div className="sidebar-logo-text">Ibiza</div>
-          <div className="sidebar-logo-sub">Team Leave Management</div>
+          <div className="sidebar-logo-text">{logoTitle}</div>
+          <div className="sidebar-logo-sub">{logoSubtitle}</div>
         </div>
       </div>
 
@@ -46,6 +62,7 @@ export function Sidebar({
           const badge = item.badge
           const accessibleLabel =
             badge != null && badge > 0 ? `${item.label}, ${badge} pending` : item.label
+          const Icon = item.icon
 
           return (
             <NavLink
@@ -57,8 +74,13 @@ export function Sidebar({
               end={item.end ?? item.path === '/'}
               data-testid={item.testId}
               aria-label={accessibleLabel}
+              onClick={onNavigate}
             >
-              {item.icon && <span aria-hidden="true">{item.icon}</span>}
+              {Icon && (
+                <span className="sidebar-nav-icon" aria-hidden="true">
+                  <Icon size={16} />
+                </span>
+              )}
               <span className="sidebar-nav-label">{item.label}</span>
               {badge != null && badge > 0 ? (
                 <span className="sidebar-nav-badge" data-testid={`${item.testId}-badge`}>

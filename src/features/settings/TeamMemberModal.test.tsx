@@ -2,8 +2,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
+import { ApiError } from '../../api/client'
 import * as apiClient from '../../api/client'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
+import { redirectToExternalUrl } from '../../navigation/redirect'
 import { TeamMemberModal } from './TeamMemberModal'
 import type {
   LeaveTypeResponse,
@@ -11,6 +13,10 @@ import type {
   TeamMemberSummaryResponse,
   WorkforceGroupResponse,
 } from '../../api/generated/types'
+
+vi.mock('../../navigation/redirect', () => ({
+  redirectToExternalUrl: vi.fn(),
+}))
 
 const mockGroups: WorkforceGroupResponse[] = [
   { id: 1, name: 'US', weekendDays: ['SATURDAY', 'SUNDAY'] },
@@ -52,6 +58,7 @@ function renderModal(
 
 describe('TeamMemberModal — add mode', () => {
   beforeEach(() => {
+    vi.mocked(redirectToExternalUrl).mockReset()
     vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue(mockGroups)
     vi.spyOn(apiClient, 'getLeaveTypes').mockResolvedValue(mockLeaveTypes)
     vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(mockMembers)
@@ -102,6 +109,166 @@ describe('TeamMemberModal — add mode', () => {
       )
       expect(onSuccess).toHaveBeenCalled()
     })
+  })
+
+  it('renders an upgrade prompt with CTA for plan-limit marker', async () => {
+    const user = userEvent.setup()
+    const onSuccess = vi.fn()
+    const onWarning = vi.fn()
+    const detail = 'Acme Corp is at the 3-user Free limit'
+    vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
+      new ApiError(409, {
+        type: 'https://ibiza.app/errors/conflict',
+        title: 'Conflict',
+        status: 409,
+        detail,
+        instance: '/api/v1/team-members',
+        code: 'plan-limit-reached',
+      }),
+    )
+
+    renderModal(null, vi.fn(), onSuccess, onWarning)
+
+    await user.type(screen.getByLabelText(/Full name/i), 'Fourth User')
+    await user.type(screen.getByLabelText(/Email/i), 'fourth@company.com')
+    await user.type(screen.getByLabelText(/Department/i), 'Ops')
+    await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
+    await user.click(screen.getByRole('button', { name: /Save/i }))
+
+    const alert = await screen.findByRole('alert')
+    expect(alert).toHaveTextContent(detail)
+    expect(screen.getByRole('button', { name: 'Upgrade' })).toBeInTheDocument()
+    expect(screen.getByText(/Contact Platform Admin to upgrade/i)).toBeInTheDocument()
+    expect(onWarning).not.toHaveBeenCalled()
+    expect(onSuccess).not.toHaveBeenCalled()
+  })
+
+  it('keeps duplicate-email conflicts on the warning toast path without upgrade CTA', async () => {
+    const user = userEvent.setup()
+    const onWarning = vi.fn()
+    const detail = 'Email already in use within this organization'
+    vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
+      new ApiError(409, {
+        type: 'https://ibiza.app/errors/conflict',
+        title: 'Conflict',
+        status: 409,
+        detail,
+        instance: '/api/v1/team-members',
+      }),
+    )
+
+    renderModal(null, vi.fn(), vi.fn(), onWarning)
+
+    await user.type(screen.getByLabelText(/Full name/i), 'Jordan Lee')
+    await user.type(screen.getByLabelText(/Email/i), 'jordan@company.com')
+    await user.type(screen.getByLabelText(/Department/i), 'Ops')
+    await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
+    await user.click(screen.getByRole('button', { name: /Save/i }))
+
+    await waitFor(() => {
+      expect(onWarning).toHaveBeenCalledWith(detail)
+    })
+    expect(screen.queryByRole('button', { name: 'Upgrade' })).not.toBeInTheDocument()
+  })
+
+  it('calls checkout and redirects when upgrade CTA succeeds', async () => {
+    const user = userEvent.setup()
+    const detail = 'Acme Corp is at the 3-user Free limit'
+    vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
+      new ApiError(409, {
+        type: 'https://ibiza.app/errors/conflict',
+        title: 'Conflict',
+        status: 409,
+        detail,
+        instance: '/api/v1/team-members',
+        code: 'plan-limit-reached',
+      }),
+    )
+    const checkoutSpy = vi.spyOn(apiClient, 'createCheckoutSession').mockResolvedValue({
+      checkoutUrl: 'https://checkout.stripe.test/session',
+    })
+
+    renderModal()
+
+    await user.type(screen.getByLabelText(/Full name/i), 'Fourth User')
+    await user.type(screen.getByLabelText(/Email/i), 'fourth@company.com')
+    await user.type(screen.getByLabelText(/Department/i), 'Ops')
+    await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
+    await user.click(screen.getByRole('button', { name: /Save/i }))
+    await user.click(await screen.findByRole('button', { name: 'Upgrade' }))
+
+    await waitFor(() => {
+      expect(checkoutSpy).toHaveBeenCalledWith({ plan: 'STARTER' })
+      expect(redirectToExternalUrl).toHaveBeenCalledWith('https://checkout.stripe.test/session')
+    })
+  })
+
+  it('shows manual fallback when checkout is rejected', async () => {
+    const user = userEvent.setup()
+    const detail = 'Acme Corp is at the 3-user Free limit'
+    vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
+      new ApiError(409, {
+        type: 'https://ibiza.app/errors/conflict',
+        title: 'Conflict',
+        status: 409,
+        detail,
+        instance: '/api/v1/team-members',
+        code: 'plan-limit-reached',
+      }),
+    )
+    vi.spyOn(apiClient, 'createCheckoutSession').mockRejectedValue(
+      new ApiError(400, {
+        type: 'https://ibiza.app/errors/validation-failed',
+        title: 'Validation failed',
+        status: 400,
+        detail: 'Plan is not upgradeable',
+        instance: '/api/v1/billing/checkout-session',
+      }),
+    )
+
+    renderModal()
+
+    await user.type(screen.getByLabelText(/Full name/i), 'Fourth User')
+    await user.type(screen.getByLabelText(/Email/i), 'fourth@company.com')
+    await user.type(screen.getByLabelText(/Department/i), 'Ops')
+    await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
+    await user.click(screen.getByRole('button', { name: /Save/i }))
+    await user.click(await screen.findByRole('button', { name: 'Upgrade' }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        /Self-serve checkout is unavailable/i,
+      )
+    })
+    expect(screen.getByText(/Contact Platform Admin to upgrade/i)).toBeInTheDocument()
+  })
+
+  it('keeps modal open after plan-limit create error', async () => {
+    const user = userEvent.setup()
+    const onClose = vi.fn()
+    vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
+      new ApiError(409, {
+        type: 'https://ibiza.app/errors/conflict',
+        title: 'Conflict',
+        status: 409,
+        detail: 'Acme Corp is at the 3-user Free limit',
+        instance: '/api/v1/team-members',
+        code: 'plan-limit-reached',
+      }),
+    )
+
+    renderModal(null, onClose)
+
+    await user.type(screen.getByLabelText(/Full name/i), 'Fourth User')
+    await user.type(screen.getByLabelText(/Email/i), 'fourth@company.com')
+    await user.type(screen.getByLabelText(/Department/i), 'Ops')
+    await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
+    await user.click(screen.getByRole('button', { name: /Save/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Add Team Member')).toBeInTheDocument()
+    })
+    expect(onClose).not.toHaveBeenCalled()
   })
 
   it('blocks Save when Workforce Group is not selected', async () => {
@@ -176,6 +343,7 @@ describe('TeamMemberModal — edit mode', () => {
   }
 
   beforeEach(() => {
+    vi.mocked(redirectToExternalUrl).mockReset()
     vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue(mockGroups)
     vi.spyOn(apiClient, 'getLeaveTypes').mockResolvedValue(mockLeaveTypes)
     vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(mockMembers)

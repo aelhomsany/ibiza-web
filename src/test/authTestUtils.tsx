@@ -9,6 +9,7 @@ export const mockUsers = {
     fullName: 'Sarah Chen',
     role: 'EMPLOYEE',
     organizationId: 1,
+    organizationName: 'Acme Corp',
     timezone: 'America/New_York',
   },
   manager: {
@@ -17,6 +18,7 @@ export const mockUsers = {
     fullName: 'Alex Johnson',
     role: 'MANAGER',
     organizationId: 1,
+    organizationName: 'Acme Corp',
     timezone: 'America/New_York',
   },
   hrAdmin: {
@@ -25,15 +27,14 @@ export const mockUsers = {
     fullName: 'Jordan Lee',
     role: 'HR_ADMIN',
     organizationId: 1,
+    organizationName: 'Acme Corp',
     timezone: 'America/New_York',
   },
   platformAdmin: {
     id: 99,
-    email: 'admin@ibiza.app',
-    fullName: 'Platform Admin',
+    email: 'riley@ibiza.app',
+    fullName: 'Riley Ops',
     role: 'PLATFORM_ADMIN',
-    organizationId: 1,
-    timezone: 'UTC',
   },
 } as const satisfies Record<string, UserSummaryResponse>
 

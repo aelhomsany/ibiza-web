@@ -1,0 +1,60 @@
+.request-context-header {
+  align-items: center;
+}
+
+.request-context-card {
+  max-width: var(--layout-table-max-width);
+}
+
+.request-context-summary {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.request-context-summary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.request-context-summary dt {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.request-context-summary dd {
+  color: var(--color-foreground);
+  font-size: 14px;
+  margin: 0;
+}
+
+.request-context-summary .status-hint,
+.request-context-summary .decline-reason {
+  display: block;
+  margin-top: 6px;
+}
+
+.request-context-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.request-context-back-link {
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  .request-context-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .request-context-summary {
+    grid-template-columns: 1fr;
+  }
+}

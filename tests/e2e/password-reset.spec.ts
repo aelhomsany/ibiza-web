@@ -8,7 +8,7 @@ test.describe('Password reset UI', () => {
   })
 
   test.skip(
-    !process.env.E2E_API_AVAILABLE,
+    process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for forgot-password submit flow',
   )
 

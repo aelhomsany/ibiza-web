@@ -7,9 +7,9 @@ type TestFixtures = {
 }
 
 const factoryTest = base.extend<TestFixtures>({
-  userFactory: async ({}, use) => {
+  userFactory: async (_, run) => {
     const factory = new UserFactory()
-    await use(factory)
+    await run(factory)
     factory.cleanup()
   },
 })

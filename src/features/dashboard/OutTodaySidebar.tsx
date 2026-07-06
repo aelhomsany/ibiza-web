@@ -1,4 +1,5 @@
 import { PresenceBadge } from '../../components/ui/PresenceBadge'
+import { SunIcon } from '../../components/ui/icons'
 import type { OutTodayResponse, UpcomingAbsenceResponse } from '../../api/generated/types'
 
 type Props = {
@@ -44,7 +45,9 @@ export function OutTodaySidebar({
         ) : isOutTodayError ? (
           <p className="dashboard-error">Unable to load out today.</p>
         ) : outToday.length === 0 ? (
-          <p className="sidebar-empty">Everyone is in today! 🎉</p>
+          <p className="sidebar-empty">
+            Everyone is in today! <SunIcon size={13} />
+          </p>
         ) : (
           outToday.map((row) => (
             <div key={row.userId} className="person-row" data-testid={`out-today-row-${row.userId}`}>

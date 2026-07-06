@@ -10,9 +10,10 @@
 }
 
 .my-leaves-history {
+  /* Fills the full-bleed page like Dashboard/Approvals — the old
+     --layout-table-max-width cap left a dead right gutter on wide screens
+     while the balance grid above it filled the row (removed 2026-07-05). */
   margin-top: 0;
-  /* Lone 4-column table: cap so it stays readable on full-bleed pages instead of stretching sparse. */
-  max-width: var(--layout-table-max-width);
 }
 
 .my-leaves-history .dashboard-table td {

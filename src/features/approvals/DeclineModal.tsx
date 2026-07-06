@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from 'react'
+import { Modal } from '../../components/ui/Modal'
 import './approvals.css'
 
 type DeclineModalProps = {
@@ -31,13 +32,13 @@ export function DeclineModal({
   }, [])
 
   return (
-    <div className="decline-modal-backdrop" data-testid="decline-modal">
-      <div
-        className="decline-modal-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-      >
+    <Modal
+      labelledBy={titleId}
+      onClose={onCancel}
+      className="decline-modal-panel"
+      testId="decline-modal"
+      closeOnBackdrop={false}
+    >
         <h2 id={titleId} className="decline-modal-title">
           Decline request for {employeeName}
         </h2>
@@ -85,10 +86,9 @@ export function DeclineModal({
             disabled={!confirmEnabled}
             onClick={() => onConfirm(reason.trim())}
           >
-            Confirm decline
+            Confirm Decline
           </button>
         </div>
-      </div>
-    </div>
+    </Modal>
   )
 }

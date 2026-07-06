@@ -89,11 +89,38 @@ function mockSettingsApis() {
   })
   vi.spyOn(apiClient, 'getLeaveTypes').mockResolvedValue(mockLeaveTypes)
   vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(mockTeamMembers)
+  vi.spyOn(apiClient, 'getCalendarSyncStatus').mockResolvedValue({
+    provider: 'GOOGLE',
+    connected: false,
+    accountEmail: null,
+    status: 'DISCONNECTED',
+    lastErrorCategory: null,
+    lastSyncedAt: null,
+    nextRetryAt: null,
+  })
   vi.spyOn(apiClient, 'createWorkforceGroup').mockResolvedValue({
     id: 3,
     name: 'UK',
     weekendDays: [],
   })
+  vi.spyOn(apiClient, 'getNotificationPreferences').mockResolvedValue([
+    {
+      channel: 'IN_APP',
+      scope: 'WORKFLOW',
+      mandatory: true,
+      enabled: true,
+      mutedUntil: null,
+      effectiveEnabledNow: true,
+    },
+    {
+      channel: 'EMAIL',
+      scope: 'WORKFLOW',
+      mandatory: false,
+      enabled: true,
+      mutedUntil: null,
+      effectiveEnabledNow: true,
+    },
+  ])
 }
 
 describe('SettingsPage', () => {
@@ -154,18 +181,42 @@ describe('SettingsPage', () => {
     await waitFor(() => {
       expect(screen.getByTestId('workforce-groups-weekends-card')).toBeInTheDocument()
       expect(screen.getByTestId('leave-types-card')).toBeInTheDocument()
+      expect(screen.getByTestId('calendar-sync-settings')).toBeInTheDocument()
       expect(screen.getByTestId('team-members-card')).toBeInTheDocument()
     })
 
     const workforce = screen.getByTestId('workforce-groups-weekends-card')
     const leaveTypes = screen.getByTestId('leave-types-card')
+    const calendarSync = screen.getByTestId('calendar-sync-settings')
     const teamMembers = screen.getByTestId('team-members-card')
 
     expect(
       workforce.compareDocumentPosition(leaveTypes) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy()
     expect(
-      leaveTypes.compareDocumentPosition(teamMembers) & Node.DOCUMENT_POSITION_FOLLOWING,
+      leaveTypes.compareDocumentPosition(calendarSync) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+    expect(
+      calendarSync.compareDocumentPosition(teamMembers) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  })
+
+  it('[P1] includes the notification preferences card after calendar sync, before team members', async () => {
+    renderSettingsPage()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('notification-preferences-settings')).toBeInTheDocument()
+    })
+
+    const calendarSync = screen.getByTestId('calendar-sync-settings')
+    const notificationPrefs = screen.getByTestId('notification-preferences-settings')
+    const teamMembers = screen.getByTestId('team-members-card')
+
+    expect(
+      calendarSync.compareDocumentPosition(notificationPrefs) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+    expect(
+      notificationPrefs.compareDocumentPosition(teamMembers) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy()
   })
 

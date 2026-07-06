@@ -1,0 +1,62 @@
+.calendar-sync-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 20px 20px;
+}
+
+.calendar-sync-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-teal-tint);
+  color: var(--color-teal);
+}
+
+.calendar-sync-title {
+  margin: 0;
+  color: var(--color-foreground);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.calendar-sync-status,
+.calendar-sync-warning,
+.calendar-sync-modal-copy {
+  margin: 4px 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.calendar-sync-warning {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.calendar-sync-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.calendar-sync-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 900px) {
+  .calendar-sync-body {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .calendar-sync-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}

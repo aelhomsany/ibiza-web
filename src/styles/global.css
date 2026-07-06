@@ -53,7 +53,7 @@ html {
   font-size: var(--font-page-sub-size);
   font-weight: var(--font-page-sub-weight);
   color: var(--color-muted);
-  margin-top: 3px;
+  margin-top: 4px;
 }
 
 .body-text {
@@ -63,7 +63,7 @@ html {
 }
 
 .page-header {
-  margin-bottom: 28px;
+  margin-bottom: var(--space-section-gap);
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -90,23 +90,28 @@ html {
   transform: scale(0.97);
 }
 
-/* Primary CTA — matches the "New Request" / mockup .btn-primary (teal on mist). */
+/* Primary CTA — matches the "New Request" / mockup .btn-primary (teal on mist).
+   Transparent border matches .btn-outline's 1.5px so filled/outline pairs (e.g.
+   Save + Cancel in .modal-actions) render the same box height without relying
+   on the flex container's implicit align-items:stretch. */
 .btn-primary {
   background: var(--color-teal);
   color: var(--color-mist);
+  border: 1.5px solid transparent;
   padding: 10px 20px;
   font-size: 14px;
 }
 
 /* Small variant — declared after .btn-primary so its padding/size win when combined. */
 .btn-sm {
-  padding: 6px 14px;
+  padding: 6px 12px;
   font-size: 13px;
 }
 
 .btn-admin {
   background: var(--color-admin-accent);
   color: var(--color-foreground);
+  border: 1.5px solid transparent;
   padding: 10px 20px;
   font-size: var(--font-body-size);
 }
@@ -153,5 +158,30 @@ html {
 .badge-off {
   background: var(--color-mist);
   color: var(--color-muted);
+}
+
+/* Visually hidden but available to screen readers. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Respect the user's reduced-motion preference across the app. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 

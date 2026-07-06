@@ -9,6 +9,7 @@ import {
   createMockAuthValue,
 } from '../test/authTestUtils'
 import { AppRoutes } from './AppRouter'
+import { mockCalendarMonth } from '../features/calendar/calendarTestFixtures'
 
 function renderAppRoutes(initialEntries: string[], authValue = createMockAuthForRole('EMPLOYEE')) {
   const queryClient = new QueryClient({
@@ -28,15 +29,22 @@ function renderAppRoutes(initialEntries: string[], authValue = createMockAuthFor
 
 describe('AppRoutes', () => {
   beforeEach(() => {
+    // Pin Date to the calendar fixture month (June 2026) so TeamCalendarPage
+    // bootstraps to the fixture month and does not double-fetch (see
+    // TeamCalendarPage.test.tsx for details). Only Date is faked.
+    vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-06-15T12:00:00Z') })
     vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue([
       { id: 1, name: 'US', weekendDays: ['SATURDAY', 'SUNDAY'] },
       { id: 2, name: 'Egypt', weekendDays: ['FRIDAY', 'SATURDAY'] },
     ])
     vi.spyOn(apiClient, 'getPublicHolidays').mockResolvedValue([])
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
+    vi.spyOn(apiClient, 'getPlatformOrganizations').mockResolvedValue([])
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
   })
 
@@ -55,19 +63,20 @@ describe('AppRoutes', () => {
     })
   })
 
-  it('renders org shell at root route when authenticated', () => {
+  it('renders org shell at root route when authenticated', async () => {
     renderAppRoutes(['/'], createMockAuthForRole('EMPLOYEE'))
 
+    // Pages are lazy-loaded, so wait for the chunk to resolve.
+    expect(await screen.findByTestId('dashboard-page')).toBeInTheDocument()
     expect(screen.getByTestId('org-shell')).toBeInTheDocument()
-    expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
     expect(screen.getByTestId('nav-dashboard')).toBeInTheDocument()
   })
 
-  it('renders admin shell at platform route when authenticated as platform admin', () => {
+  it('renders admin shell at platform route when authenticated as platform admin', async () => {
     renderAppRoutes(['/platform/organizations'], createMockAuthForRole('PLATFORM_ADMIN'))
 
+    expect(await screen.findByRole('heading', { name: 'Organizations' })).toBeInTheDocument()
     expect(screen.getByTestId('admin-shell')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Organizations' })).toBeInTheDocument()
   })
 
   it('redirects org user away from platform routes', async () => {
@@ -117,11 +126,25 @@ describe('AppRoutes', () => {
     expect(screen.queryByRole('heading', { name: 'Settings' })).not.toBeInTheDocument()
   })
 
-  it('allows HR admin to open settings route', () => {
+  it('allows HR admin to open settings route', async () => {
     renderAppRoutes(['/settings'], createMockAuthForRole('HR_ADMIN'))
 
-    expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument()
     expect(screen.getByTestId('nav-settings')).toBeInTheDocument()
+  })
+
+  it('renders the real Team Calendar page at /calendar', async () => {
+    renderAppRoutes(['/calendar'], createMockAuthForRole('EMPLOYEE'))
+
+    // Lazy page chunk + month reconciliation refetch can exceed the default 1s
+    // findBy timeout under parallel test load.
+    expect(
+      await screen.findByTestId('team-calendar-page', undefined, { timeout: 3000 }),
+    ).toBeInTheDocument()
+    expect(
+      await screen.findByTestId('calendar-month-grid', undefined, { timeout: 3000 }),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Org-wide leave coverage')).not.toBeInTheDocument()
   })
 
   it('renders org shell Page Not Found for unknown routes when authenticated', () => {

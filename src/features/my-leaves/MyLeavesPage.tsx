@@ -1,7 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import type { RecentRequestResponse } from '../../api/generated/types'
 import { useAuth } from '../../auth/useAuth'
 import { LeaveStatusBadge } from '../../components/ui/LeaveStatusBadge'
+import { Toast } from '../../components/ui/Toast'
+import { PlusIcon } from '../../components/ui/icons'
+import { useToast } from '../../components/ui/useToast'
 import { AuditHistoryExpander } from '../approvals/AuditHistoryExpander'
 import { BalanceCard } from '../dashboard/BalanceCard'
 import { LeaveTypeTag } from '../dashboard/LeaveTypeTag'
@@ -9,7 +12,6 @@ import { RequestLeaveModal } from '../dashboard/RequestLeaveModal'
 import { formatDateRange } from '../dashboard/leaveRequestFormatting'
 import { useDashboardBalances } from '../dashboard/useDashboardBalances'
 import { useMyLeaveRequests } from './useMyLeaveRequests'
-import '../../styles/app-toast.css'
 import '../dashboard/dashboard.css'
 import './my-leaves.css'
 
@@ -45,11 +47,11 @@ function HistoryTable({
       <table className="dashboard-table">
         <thead>
           <tr>
-            <th>Type</th>
-            <th>Dates</th>
-            <th>Days</th>
-            <th>Status</th>
-            {showAuditHistory ? <th>Audit</th> : null}
+            <th scope="col">Type</th>
+            <th scope="col">Dates</th>
+            <th scope="col">Days</th>
+            <th scope="col">Status</th>
+            {showAuditHistory ? <th scope="col">Audit</th> : null}
           </tr>
         </thead>
         <tbody>
@@ -93,22 +95,13 @@ export function MyLeavesPage() {
   const { user } = useAuth()
   const isHrAdmin = user?.role === 'HR_ADMIN'
   const [modalOpen, setModalOpen] = useState(false)
-  const [successToast, setSuccessToast] = useState<string | null>(null)
+  const { toast, showToast, dismissToast } = useToast()
   const balancesQuery = useDashboardBalances()
   const historyQuery = useMyLeaveRequests()
 
   const showSubmitSuccessToast = useCallback(() => {
-    setSuccessToast('Leave request submitted — waiting for approval')
-  }, [])
-
-  useEffect(() => {
-    if (!successToast) {
-      return undefined
-    }
-
-    const timer = window.setTimeout(() => setSuccessToast(null), 3000)
-    return () => window.clearTimeout(timer)
-  }, [successToast])
+    showToast('Leave request submitted — waiting for approval')
+  }, [showToast])
 
   return (
     <div className="page page-wide" data-testid="my-leaves-page">
@@ -123,7 +116,7 @@ export function MyLeavesPage() {
           data-testid="request-leave-btn"
           onClick={() => setModalOpen(true)}
         >
-          + Request Leave
+          <PlusIcon size={16} /> Request Leave
         </button>
       </header>
 
@@ -184,16 +177,7 @@ export function MyLeavesPage() {
         onSuccess={showSubmitSuccessToast}
       />
 
-      {successToast && (
-        <div
-          className="app-toast"
-          role="status"
-          aria-live="polite"
-          data-testid="submit-success-toast"
-        >
-          {successToast}
-        </div>
-      )}
+      <Toast toast={toast} onDismiss={dismissToast} testId="submit-success-toast" />
     </div>
   )
 }

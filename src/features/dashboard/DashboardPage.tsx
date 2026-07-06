@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../auth/useAuth'
+import { Toast } from '../../components/ui/Toast'
+import { PlusIcon } from '../../components/ui/icons'
+import { useToast } from '../../components/ui/useToast'
 import { usePendingApprovalCount } from '../approvals/usePendingApprovalCount'
 import { BalanceCard } from './BalanceCard'
 import { OutTodaySidebar } from './OutTodaySidebar'
@@ -10,7 +13,6 @@ import { useDashboardBalances } from './useDashboardBalances'
 import { useDashboardOutToday } from './useDashboardOutToday'
 import { useDashboardRecentRequests } from './useDashboardRecentRequests'
 import { useDashboardUpcoming } from './useDashboardUpcoming'
-import '../../styles/app-toast.css'
 import './dashboard.css'
 
 function firstName(fullName: string): string {
@@ -27,7 +29,7 @@ function timeGreeting(): string {
 export function DashboardPage() {
   const { user } = useAuth()
   const [modalOpen, setModalOpen] = useState(false)
-  const [successToast, setSuccessToast] = useState<string | null>(null)
+  const { toast, showToast, dismissToast } = useToast()
   const balancesQuery = useDashboardBalances()
   const recentQuery = useDashboardRecentRequests()
   const outTodayQuery = useDashboardOutToday()
@@ -38,24 +40,15 @@ export function DashboardPage() {
     (user?.role === 'MANAGER' || user?.role === 'HR_ADMIN') && pendingCount > 0
 
   const showSubmitSuccessToast = useCallback(() => {
-    setSuccessToast('Leave request submitted — waiting for approval')
-  }, [])
-
-  useEffect(() => {
-    if (!successToast) {
-      return undefined
-    }
-
-    const timer = window.setTimeout(() => setSuccessToast(null), 3000)
-    return () => window.clearTimeout(timer)
-  }, [successToast])
+    showToast('Leave request submitted — waiting for approval')
+  }, [showToast])
 
   return (
     <div className="page page-wide" data-testid="dashboard-page">
       <header className="page-header">
         <div>
           <h1 className="page-title">
-            {timeGreeting()}, {user ? firstName(user.fullName) : 'there'}! 👋
+            {timeGreeting()}, {user ? firstName(user.fullName) : 'there'}!
           </h1>
           <p className="page-sub">Here&apos;s your leave overview</p>
         </div>
@@ -65,7 +58,7 @@ export function DashboardPage() {
           data-testid="request-leave-btn"
           onClick={() => setModalOpen(true)}
         >
-          + Request Leave
+          <PlusIcon size={16} /> Request Leave
         </button>
       </header>
 
@@ -122,16 +115,7 @@ export function DashboardPage() {
         onSuccess={showSubmitSuccessToast}
       />
 
-      {successToast && (
-        <div
-          className="app-toast"
-          role="status"
-          aria-live="polite"
-          data-testid="submit-success-toast"
-        >
-          {successToast}
-        </div>
-      )}
+      <Toast toast={toast} onDismiss={dismissToast} testId="submit-success-toast" />
     </div>
   )
 }

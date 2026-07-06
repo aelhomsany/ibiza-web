@@ -78,11 +78,9 @@ describe('LoginPage', () => {
           value={createMockAuthValue({
             user: {
               id: 2,
-              email: 'admin@ibiza.app',
-              fullName: 'Platform Admin',
+              email: 'riley@ibiza.app',
+              fullName: 'Riley Ops',
               role: 'PLATFORM_ADMIN',
-              organizationId: 1,
-              timezone: 'UTC',
             },
             isAuthenticated: true,
             isLoading: false,

@@ -4,7 +4,7 @@ import { loginViaUi, navigateInApp } from '../support/helpers/auth'
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
 test.describe('Dashboard recent requests and sidebar — Story 3.2', () => {
-  test.skip(!process.env.E2E_API_AVAILABLE, 'Set E2E_API_AVAILABLE=true to run against live API + pilot seed')
+  test.skip(process.env.E2E_API_AVAILABLE !== 'true', 'Set E2E_API_AVAILABLE=true to run against live API + pilot seed')
 
   test('[P1] Employee sees recent requests table and out-today sidebar after login', async ({
     page,

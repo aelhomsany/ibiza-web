@@ -27,6 +27,9 @@ jobs:
       - run: npm ci
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
+      - name: Build web app for preview
+        run: npm run build
+
       - name: Run E2E tests
         run: npm run test:e2e
         env:
@@ -34,7 +37,7 @@ jobs:
           TEST_ENV: ci
           BASE_URL: http://localhost:5173
           API_URL: http://localhost:8080
-          E2E_API_AVAILABLE: false
+          E2E_API_AVAILABLE: 'false'
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
@@ -120,6 +123,10 @@ jobs:
           API_URL: http://localhost:8080
         run: ./scripts/verify-openapi-types.sh
 
+      - name: Build web app for preview
+        working-directory: ibiza-web
+        run: npm run build
+
       - name: Run E2E with API
         working-directory: ibiza-web
         env:
@@ -128,7 +135,7 @@ jobs:
           BASE_URL: http://localhost:5173
           API_URL: http://localhost:8080
           # Story 3.7 approval-decision.spec.ts and other API-backed E2E specs
-          E2E_API_AVAILABLE: true
+          E2E_API_AVAILABLE: 'true'
           E2E_USER_EMAIL: alex@company.com
           E2E_USER_PASSWORD: PilotDev123!
         run: npm run test:e2e

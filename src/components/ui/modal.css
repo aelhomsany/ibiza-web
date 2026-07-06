@@ -1,0 +1,68 @@
+/* Shared modal chrome for the native <dialog> based Modal component. */
+
+.modal {
+  /* The global `* { margin: 0 }` reset kills the UA margin:auto that centers
+     a native <dialog>; restore it so every modal is viewport-centered. */
+  margin: auto;
+  background: var(--color-white);
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+  padding: 24px 32px;
+  width: 480px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  color: var(--color-foreground);
+}
+
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.modal-wide {
+  width: 560px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-foreground);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--color-muted);
+  line-height: 1;
+  padding: 2px 4px;
+}
+
+.modal-close:hover {
+  color: var(--color-foreground);
+}
+
+.modal-close:focus-visible {
+  outline: none;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-light);
+}

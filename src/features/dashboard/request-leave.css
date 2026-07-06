@@ -1,7 +1,6 @@
-.request-leave-modal .modal {
+.modal.request-leave-modal {
   width: 100%;
   max-width: 480px;
-  padding: 32px;
   border-radius: var(--radius-xl);
 }
 
@@ -29,7 +28,7 @@
   background: var(--color-teal-tint);
   border: 1px solid var(--color-teal);
   border-radius: var(--radius-md);
-  padding: 10px 14px;
+  padding: 12px 16px;
   font-size: 13px;
   margin-bottom: 16px;
   color: var(--color-foreground);

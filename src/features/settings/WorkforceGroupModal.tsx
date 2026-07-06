@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { createWorkforceGroup, putWorkforceGroupWeekendDays } from '../../api/client'
 import type { DayOfWeek } from '../../api/generated/types'
+import { Modal } from '../../components/ui/Modal'
+import { CloseIcon } from '../../components/ui/icons'
 import { WEEKEND_DAYS_DISPLAY } from './weekendDays'
 import './team-members.css'
 import './weekend-day-chips.css'
@@ -68,22 +70,13 @@ export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: Workforce
   }
 
   return (
-    <div
-      className="modal-overlay"
-      data-testid="workforce-group-modal"
-      onClick={(event) => {
-        if (event.target === event.currentTarget) {
-          onClose()
-        }
-      }}
-    >
-      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="group-modal-title" onClick={(e) => e.stopPropagation()}>
+    <Modal labelledBy="group-modal-title" onClose={onClose} testId="workforce-group-modal">
         <div className="modal-header">
           <span className="modal-title" id="group-modal-title">
             Add Workforce Group
           </span>
           <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
-            ×
+            <CloseIcon size={18} />
           </button>
         </div>
 
@@ -138,7 +131,6 @@ export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: Workforce
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   )
 }

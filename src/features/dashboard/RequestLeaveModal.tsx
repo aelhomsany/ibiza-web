@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ApiError, getLeaveTypes } from '../../api/client'
 import { DateField } from '../../components/DateField'
+import { Modal } from '../../components/ui/Modal'
+import { CloseIcon } from '../../components/ui/icons'
 import { useAuth } from '../../auth/useAuth'
 import { useCreateLeaveRequest } from './useCreateLeaveRequest'
 import { useLeaveRequestPreview } from './useLeaveRequestPreview'
@@ -33,7 +35,6 @@ function workingDayLabel(count: number): string {
 export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModalProps) {
   const { user } = useAuth()
   const orgId = user?.organizationId
-  const modalRef = useRef<HTMLDivElement>(null)
   const createMutation = useCreateLeaveRequest()
 
   const [leaveTypeId, setLeaveTypeId] = useState<number | ''>('')
@@ -79,49 +80,6 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
     preview == null ||
     preview.workingDays === 0 ||
     createMutation.isPending
-
-  useEffect(() => {
-    if (!open) {
-      return
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        onClose()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [open, onClose])
-
-  useEffect(() => {
-    if (!open || !modalRef.current) return
-    const focusable = modalRef.current.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-    )
-    const first = focusable[0]
-    const last = focusable[focusable.length - 1]
-    first?.focus()
-
-    function handleTab(event: KeyboardEvent) {
-      if (event.key !== 'Tab') return
-      if (event.shiftKey) {
-        if (document.activeElement === first) {
-          event.preventDefault()
-          last?.focus()
-        }
-      } else {
-        if (document.activeElement === last) {
-          event.preventDefault()
-          first?.focus()
-        }
-      }
-    }
-
-    window.addEventListener('keydown', handleTab)
-    return () => window.removeEventListener('keydown', handleTab)
-  }, [open])
 
   useEffect(() => {
     if (!open) {
@@ -172,25 +130,18 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
   }
 
   return (
-    <div
-      className="modal-overlay request-leave-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="request-leave-modal-title"
-      data-testid="request-leave-modal"
-      onClick={(event) => {
-        if (event.target === event.currentTarget) {
-          onClose()
-        }
-      }}
+    <Modal
+      labelledBy="request-leave-modal-title"
+      onClose={onClose}
+      className="request-leave-modal"
+      testId="request-leave-modal"
     >
-      <div className="modal" ref={modalRef} onClick={(event) => event.stopPropagation()}>
-        <div className="modal-header">
+      <div className="modal-header">
           <span className="modal-title" id="request-leave-modal-title">
             Request Leave
           </span>
           <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
-            ×
+            <CloseIcon size={18} />
           </button>
         </div>
 
@@ -318,7 +269,6 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   )
 }
