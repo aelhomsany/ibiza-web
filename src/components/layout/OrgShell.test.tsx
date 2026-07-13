@@ -1,4 +1,5 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { vi } from 'vitest'
@@ -7,7 +8,10 @@ import { DashboardPage } from '../../features/dashboard/DashboardPage'
 import {
   AuthTestProvider,
   createMockAuthForRole,
+  createMockAuthValue,
+  mockUsers,
 } from '../../test/authTestUtils'
+import { ToastProvider } from '../ui/ToastProvider'
 import { OrgShell } from './OrgShell'
 
 function renderOrgShell(role: Parameters<typeof createMockAuthForRole>[0]) {
@@ -19,15 +23,17 @@ function renderOrgShell(role: Parameters<typeof createMockAuthForRole>[0]) {
     queryClient,
     ...render(
       <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={['/']}>
-          <AuthTestProvider value={createMockAuthForRole(role)}>
-            <Routes>
-              <Route element={<OrgShell />}>
-                <Route path="/" element={<DashboardPage />} />
-              </Route>
-            </Routes>
-          </AuthTestProvider>
-        </MemoryRouter>
+        <ToastProvider>
+          <MemoryRouter initialEntries={['/']}>
+            <AuthTestProvider value={createMockAuthForRole(role)}>
+              <Routes>
+                <Route element={<OrgShell />}>
+                  <Route path="/" element={<DashboardPage />} />
+                </Route>
+              </Routes>
+            </AuthTestProvider>
+          </MemoryRouter>
+        </ToastProvider>
       </QueryClientProvider>,
     ),
   }
@@ -51,15 +57,17 @@ describe('OrgShell', () => {
 
     render(
       <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={['/']}>
-          <AuthTestProvider>
-            <Routes>
-              <Route element={<OrgShell />}>
-                <Route path="/" element={<DashboardPage />} />
-              </Route>
-            </Routes>
-          </AuthTestProvider>
-        </MemoryRouter>
+        <ToastProvider>
+          <MemoryRouter initialEntries={['/']}>
+            <AuthTestProvider>
+              <Routes>
+                <Route element={<OrgShell />}>
+                  <Route path="/" element={<DashboardPage />} />
+                </Route>
+              </Routes>
+            </AuthTestProvider>
+          </MemoryRouter>
+        </ToastProvider>
       </QueryClientProvider>,
     )
 
@@ -102,15 +110,17 @@ describe('OrgShell', () => {
 
     render(
       <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={['/']}>
-          <AuthTestProvider value={createMockAuthForRole('PLATFORM_ADMIN')}>
-            <Routes>
-              <Route element={<OrgShell />}>
-                <Route path="/" element={<DashboardPage />} />
-              </Route>
-            </Routes>
-          </AuthTestProvider>
-        </MemoryRouter>
+        <ToastProvider>
+          <MemoryRouter initialEntries={['/']}>
+            <AuthTestProvider value={createMockAuthForRole('PLATFORM_ADMIN')}>
+              <Routes>
+                <Route element={<OrgShell />}>
+                  <Route path="/" element={<DashboardPage />} />
+                </Route>
+              </Routes>
+            </AuthTestProvider>
+          </MemoryRouter>
+        </ToastProvider>
       </QueryClientProvider>,
     )
 
@@ -173,11 +183,96 @@ describe('OrgShell', () => {
     expect(screen.getByRole('navigation', { name: /main navigation/i })).toBeInTheDocument()
   })
 
+  it('[P1] orders language switcher before notification bell and user menu', async () => {
+    renderOrgShell('EMPLOYEE')
+    const actions = screen.getByTestId('app-header').querySelector('.app-header-actions')!
+    expect(Array.from(actions.children).map((child) => child.getAttribute('data-testid') ?? child.querySelector('[data-testid]')?.getAttribute('data-testid'))).toEqual([
+      'language-switcher',
+      'notification-bell',
+      'user-menu-trigger',
+    ])
+  })
+
+  it('[P1] places the mobile language control inside the user menu', async () => {
+    renderOrgShell('EMPLOYEE')
+    await userEvent.click(await screen.findByTestId('user-menu-trigger'))
+    expect(screen.getByTestId('mobile-language-switcher')).toBeInTheDocument()
+  })
+
+  it('[P2] renders shell navigation labels through the translation layer', async () => {
+    renderOrgShell('EMPLOYEE')
+
+    expect(screen.getByTestId('nav-dashboard')).toHaveTextContent('Dashboard')
+    await userEvent.click(await screen.findByTestId('user-menu-trigger'))
+    expect(screen.getByRole('menuitem', { name: 'Sign out' })).toBeInTheDocument()
+  })
+
   it('[P1] shows the organization name in the app header with full-name tooltip', () => {
     renderOrgShell('EMPLOYEE')
 
     const context = screen.getByTestId('app-header-context')
     expect(context).toHaveTextContent('Acme Corp')
     expect(context).toHaveAttribute('title', 'Acme Corp')
+  })
+
+  it('[P0] renders user menu in the header and removes sidebar sign-out', async () => {
+    renderOrgShell('EMPLOYEE')
+
+    const header = screen.getByTestId('app-header')
+    expect(header).toContainElement(await screen.findByTestId('user-menu-trigger'))
+
+    const sidebar = screen.getByTestId('sidebar')
+    expect(within(sidebar).queryByTestId('sign-out-button')).not.toBeInTheDocument()
+    expect(within(sidebar).queryByText('Sign out')).not.toBeInTheDocument()
+  })
+
+  it('[P1] opening the user menu closes an already-open notification panel', async () => {
+    renderOrgShell('EMPLOYEE')
+
+    await userEvent.click(await screen.findByTestId('notification-bell'))
+    expect(screen.getByTestId('notification-bell')).toHaveAttribute('aria-expanded', 'true')
+
+    await userEvent.click(screen.getByTestId('user-menu-trigger'))
+    expect(screen.getByTestId('user-menu-panel')).toBeInTheDocument()
+    expect(screen.getByTestId('notification-bell')).toHaveAttribute('aria-expanded', 'false')
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user-menu-trigger')).toHaveFocus()
+    })
+  })
+
+  it('[P0] shows profile image in the header avatar when profileImageUrl is present', async () => {
+    vi.spyOn(apiClient, 'getProfileImageContent').mockResolvedValue(new Blob(['image'], { type: 'image/png' }))
+    vi.stubGlobal('URL', { createObjectURL: vi.fn(() => 'blob:profile'), revokeObjectURL: vi.fn() })
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <MemoryRouter initialEntries={['/']}>
+            <AuthTestProvider
+              value={createMockAuthValue({
+                user: {
+                  ...mockUsers.employee,
+                  profileImageUrl: '/api/v1/users/me/profile-image/content?v=1',
+                },
+              })}
+            >
+              <Routes>
+                <Route element={<OrgShell />}>
+                  <Route path="/" element={<DashboardPage />} />
+                </Route>
+              </Routes>
+            </AuthTestProvider>
+          </MemoryRouter>
+        </ToastProvider>
+      </QueryClientProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user-menu-trigger').querySelector('img')).toBeInTheDocument()
+    })
   })
 })

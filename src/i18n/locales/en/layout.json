@@ -1,0 +1,9 @@
+{
+  "nav": { "dashboard": "Dashboard", "myLeaves": "My Leaves", "calendar": "Calendar", "approvals": "Approvals", "settings": "Settings", "organizations": "Organizations" },
+  "navigation": { "main": "Main navigation" },
+  "header": { "openNavigation": "Open navigation", "closeNavigation": "Close navigation", "userMenu": "User menu, {{name}}", "accountMenu": "Account menu", "language": "Language" },
+  "menu": { "profile": "Profile details", "myRequests": "My Requests", "signOut": "Sign out" },
+  "notifications": { "label": "Notifications", "unread": "Notifications, {{count}} unread", "markAllRead": "Mark all read", "loading": "Loading notifications...", "empty": "No notifications yet" },
+  "loading": { "pendingApprovals": "Loading pending requests…", "recentDecisions": "Loading recent decisions…", "leaveBalances": "Loading leave balances", "leaveHistory": "Loading leave history", "teamMembers": "Loading team members…" },
+  "language": { "en": "English", "ar": "العربية", "current": "Current language", "saveFailed": "We couldn't save your language preference. Please try again." }
+}

@@ -90,6 +90,24 @@ html {
   transform: scale(0.97);
 }
 
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+  filter: none;
+}
+
+.btn:disabled:active {
+  transform: none;
+}
+
 /* Primary CTA — matches the "New Request" / mockup .btn-primary (teal on mist).
    Transparent border matches .btn-outline's 1.5px so filled/outline pairs (e.g.
    Save + Cancel in .modal-actions) render the same box height without relying
@@ -100,12 +118,6 @@ html {
   border: 1.5px solid transparent;
   padding: 10px 20px;
   font-size: 14px;
-}
-
-/* Small variant — declared after .btn-primary so its padding/size win when combined. */
-.btn-sm {
-  padding: 6px 12px;
-  font-size: 13px;
 }
 
 .btn-admin {
@@ -122,6 +134,61 @@ html {
   border: 1.5px solid var(--color-teal);
   padding: 10px 20px;
   font-size: 14px;
+}
+
+.btn-danger {
+  background: var(--color-danger);
+  color: var(--color-white);
+  border: 1.5px solid transparent;
+  padding: 10px 20px;
+  font-size: 14px;
+}
+
+.btn-danger-outline {
+  background: var(--color-white);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  padding: 10px 20px;
+  font-size: 14px;
+}
+
+.btn-danger-outline:hover:not(:disabled) {
+  background: var(--color-declined-bg);
+}
+
+.btn-success {
+  background: var(--color-mint);
+  border: 1px solid transparent;
+  color: var(--color-foreground);
+  padding: 10px 20px;
+  font-size: 14px;
+}
+
+.btn-success:hover:not(:disabled) {
+  filter: brightness(0.97);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-muted);
+  padding: 10px 20px;
+  font-size: 14px;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  color: var(--color-foreground);
+  background: var(--color-border-light);
+}
+
+/* Size modifier must follow every variant so its compact dimensions always win. */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.field-required {
+  color: var(--color-danger);
 }
 
 /* Leave status + presence badges — ported from mockup tokens only */
@@ -152,12 +219,36 @@ html {
 
 .badge-wfh {
   background: var(--color-mint-tint);
-  color: var(--color-group-egypt);
+  color: var(--color-teal);
 }
 
 .badge-off {
   background: var(--color-mist);
   color: var(--color-muted);
+}
+
+.app-recovery {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-page);
+}
+
+.recovery-card {
+  max-width: 560px;
+  padding: var(--space-card-padding);
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-card);
+}
+
+.recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
 }
 
 /* Visually hidden but available to screen readers. */
@@ -184,4 +275,3 @@ html {
     scroll-behavior: auto !important;
   }
 }
-

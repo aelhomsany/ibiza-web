@@ -1,0 +1,26 @@
+.profile-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.profile-avatar-lg {
+  width: 96px;
+  height: 96px;
+  font-size: 28px;
+}
+
+.profile-avatar-image {
+  object-fit: cover;
+  padding: 0;
+  border: none;
+}

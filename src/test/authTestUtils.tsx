@@ -11,6 +11,7 @@ export const mockUsers = {
     organizationId: 1,
     organizationName: 'Acme Corp',
     timezone: 'America/New_York',
+    workforceGroupName: 'US',
   },
   manager: {
     id: 1,
@@ -61,6 +62,7 @@ export function createMockAuthValue(
     isLoading: false,
     login: vi.fn().mockResolvedValue(mockUser),
     logout: vi.fn().mockResolvedValue(undefined),
+    refreshUser: vi.fn().mockResolvedValue(mockUser),
     ...overrides,
   }
 }

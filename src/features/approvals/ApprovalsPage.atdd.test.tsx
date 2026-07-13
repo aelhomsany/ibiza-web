@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
+import { ToastProvider } from '../../components/ui/ToastProvider'
 import { ApprovalsPage } from './ApprovalsPage'
 
 type PendingApprovalResponse = {
@@ -55,9 +56,11 @@ function renderApprovalsPage(role: 'MANAGER' | 'HR_ADMIN' = 'MANAGER') {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthTestProvider value={createMockAuthForRole(role)}>
-        <ApprovalsPage />
-      </AuthTestProvider>
+      <ToastProvider>
+        <AuthTestProvider value={createMockAuthForRole(role)}>
+          <ApprovalsPage />
+        </AuthTestProvider>
+      </ToastProvider>
     </QueryClientProvider>,
   )
 }

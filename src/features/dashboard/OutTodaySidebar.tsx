@@ -1,6 +1,8 @@
+import type { CSSProperties } from 'react'
 import { PresenceBadge } from '../../components/ui/PresenceBadge'
 import { SunIcon } from '../../components/ui/icons'
 import type { OutTodayResponse, UpcomingAbsenceResponse } from '../../api/generated/types'
+import { chipColorStyle } from '../../utils/entityColor'
 
 type Props = {
   outToday: OutTodayResponse[]
@@ -16,16 +18,6 @@ function formatDate(iso: string): string {
   const [year, month, day] = iso.split('-').map(Number)
   const date = new Date(year, month - 1, day)
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-}
-
-function avatarColor(userId: number): string {
-  const palette = [
-    'var(--color-primary)',
-    'var(--color-group-egypt)',
-    'var(--color-muted)',
-    'var(--color-primary-hover)',
-  ]
-  return palette[Math.abs(userId) % palette.length]
 }
 
 export function OutTodaySidebar({
@@ -53,7 +45,7 @@ export function OutTodaySidebar({
             <div key={row.userId} className="person-row" data-testid={`out-today-row-${row.userId}`}>
               <div
                 className="person-avatar"
-                style={{ backgroundColor: avatarColor(row.userId ?? 0) }}
+                style={chipColorStyle(row.userId ?? 0) as CSSProperties}
                 aria-hidden="true"
               >
                 {row.initials}
@@ -83,7 +75,7 @@ export function OutTodaySidebar({
             <div key={row.id} className="person-row">
               <div
                 className="person-avatar"
-                style={{ backgroundColor: avatarColor(row.userId ?? 0) }}
+                style={chipColorStyle(row.userId ?? 0) as CSSProperties}
                 aria-hidden="true"
               >
                 {row.fullName

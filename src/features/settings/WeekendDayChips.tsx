@@ -68,6 +68,7 @@ export function WeekendDayChips({
               type="checkbox"
               checked={isActive}
               disabled={disabled || saving}
+              data-busy={saving ? 'true' : undefined}
               aria-label={`${label} weekend day for ${groupName}`}
               onChange={(event) => {
                 void handleToggle(value, event.target.checked)

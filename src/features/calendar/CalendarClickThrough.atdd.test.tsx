@@ -125,6 +125,19 @@ describe('Team Calendar click-through ATDD - Story 8.6', () => {
     expect(screen.getByTestId('calendar-event-87')).toHaveClass('cal-event--wfh')
   })
 
+  it('[P0] exposes informational aria-label on read-only calendar chips (Story 10.7)', () => {
+    render(
+      <MemoryRouter>
+        <CalendarMonthGrid calendar={clickThroughCalendar} month="2026-06" />
+      </MemoryRouter>,
+    )
+
+    const chip = screen.getByTestId('calendar-event-87')
+    expect(chip).toHaveAccessibleName(/Omar Hassan, Work From Home, on Jun 15, 2026/i)
+    expect(chip.tagName).toBe('SPAN')
+    expect(chip).not.toHaveAttribute('tabindex')
+  })
+
   it('[P0] navigates from a permitted calendar chip to the selected request context', async () => {
     vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(clickThroughCalendar)
     vi.spyOn(

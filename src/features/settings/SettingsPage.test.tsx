@@ -5,6 +5,7 @@ import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import type { LeaveTypeResponse, TeamMemberSummaryResponse } from '../../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
+import { ToastProvider } from '../../components/ui/ToastProvider'
 import { SettingsPage } from './SettingsPage'
 
 const mockLeaveTypes: LeaveTypeResponse[] = [
@@ -61,9 +62,11 @@ function renderSettingsPage() {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
-        <SettingsPage />
-      </AuthTestProvider>
+      <ToastProvider>
+        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+          <SettingsPage />
+        </AuthTestProvider>
+      </ToastProvider>
     </QueryClientProvider>,
   )
 }

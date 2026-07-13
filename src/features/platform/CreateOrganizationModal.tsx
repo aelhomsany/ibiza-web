@@ -130,7 +130,12 @@ export function CreateOrganizationModal({ onClose }: Props) {
             <button type="button" className="btn" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-admin" disabled={createMutation.isPending}>
+            <button
+              type="submit"
+              className="btn btn-admin"
+              disabled={createMutation.isPending}
+              data-busy={createMutation.isPending ? 'true' : undefined}
+            >
               {createMutation.isPending ? 'Creating...' : 'Create Organization'}
             </button>
           </div>

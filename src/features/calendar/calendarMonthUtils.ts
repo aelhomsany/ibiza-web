@@ -108,17 +108,3 @@ export function uniqueBy<T>(items: T[], getKey: (item: T) => string | number): T
 export function firstName(fullName: string): string {
   return fullName.trim().split(/\s+/)[0] ?? fullName
 }
-
-// Number of user color tokens defined in calendar.css (cal-event--user-0 … --user-7).
-// The API assigns userColorKey as user-0..user-(N-1) for every user in the org with no
-// upper bound, so the unbounded index must wrap into the fixed palette to avoid rendering
-// background-less (invisible) chips/dots for the 9th+ user with absences in a month.
-export const USER_COLOR_PALETTE_SIZE = 8
-
-export function userColorClass(prefix: string, userColorKey: string): string {
-  const rawIndex = Number.parseInt(userColorKey.replace(/^user-/, ''), 10)
-  const index = Number.isFinite(rawIndex)
-    ? ((rawIndex % USER_COLOR_PALETTE_SIZE) + USER_COLOR_PALETTE_SIZE) % USER_COLOR_PALETTE_SIZE
-    : 0
-  return `${prefix}--user-${index}`
-}

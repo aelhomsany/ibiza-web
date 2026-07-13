@@ -132,6 +132,10 @@
   width: 12px;
 }
 
+.cal-user-dot {
+  background: var(--chip-bg, var(--color-teal));
+}
+
 .cal-holiday-swatch {
   background: var(--color-holiday-bg);
   border: 1px solid var(--color-border);
@@ -233,8 +237,9 @@
 
 .cal-event {
   align-items: center;
+  background: var(--chip-bg, var(--color-teal));
   border-radius: 3px;
-  color: var(--color-white);
+  color: var(--chip-fg, var(--color-primary-foreground));
   display: inline-flex;
   font-size: 11px;
   font-weight: 700;
@@ -268,46 +273,6 @@
 
 .cal-event--sample {
   min-width: 28px;
-}
-
-.cal-event--user-0,
-.cal-user-dot--user-0 {
-  background: var(--color-teal);
-}
-
-.cal-event--user-1,
-.cal-user-dot--user-1 {
-  background: var(--color-group-egypt);
-}
-
-.cal-event--user-2,
-.cal-user-dot--user-2 {
-  background: var(--color-muted);
-}
-
-.cal-event--user-3,
-.cal-user-dot--user-3 {
-  background: var(--color-primary-hover);
-}
-
-.cal-event--user-4,
-.cal-user-dot--user-4 {
-  background: var(--color-success);
-}
-
-.cal-event--user-5,
-.cal-user-dot--user-5 {
-  background: var(--color-pending-fg);
-}
-
-.cal-event--user-6,
-.cal-user-dot--user-6 {
-  background: var(--color-declined-fg);
-}
-
-.cal-event--user-7,
-.cal-user-dot--user-7 {
-  background: var(--color-holiday-fg);
 }
 
 @media (max-width: 900px) {

@@ -1,12 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { ApiError, getLeaveTypes } from '../../api/client'
+import { fieldErrorsFromApiError, LEAVE_REQUEST_FIELD_IDS } from '../../api/fieldViolations'
 import { DateField } from '../../components/DateField'
+import { FieldErrorMessage } from '../../components/form/FieldErrorMessage'
 import { Modal } from '../../components/ui/Modal'
 import { CloseIcon } from '../../components/ui/icons'
 import { useAuth } from '../../auth/useAuth'
 import { useCreateLeaveRequest } from './useCreateLeaveRequest'
 import { useLeaveRequestPreview } from './useLeaveRequestPreview'
+import { translateFieldViolation } from '../../i18n/fieldViolationMessage'
 import '../settings/team-members.css'
 import './request-leave.css'
 
@@ -42,6 +45,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
   const [dateTo, setDateTo] = useState('')
   const [note, setNote] = useState('')
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
   const debouncedFrom = useDebouncedValue(dateFrom, 300)
   const debouncedTo = useDebouncedValue(dateTo, 300)
@@ -88,6 +92,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
       setDateTo('')
       setNote('')
       setSubmitErrorMessage(null)
+      setFieldErrors({})
       createMutation.reset()
     }
   }, [open])
@@ -106,6 +111,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
     const trimmedNote = note.trim()
 
     setSubmitErrorMessage(null)
+    setFieldErrors({})
     createMutation.mutate(
       {
         leaveTypeId: selectedLeaveTypeId,
@@ -120,6 +126,18 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
         },
         onError: (error) => {
           if (error instanceof ApiError) {
+            const nextFieldErrors = fieldErrorsFromApiError(error.fieldViolations)
+            if (nextFieldErrors) {
+              setFieldErrors(
+                Object.fromEntries(
+                  Object.entries(nextFieldErrors).map(([field, message]) => [
+                    field,
+                    translateFieldViolation(field, message),
+                  ]),
+                ),
+              )
+              return
+            }
             setSubmitErrorMessage(error.problem.detail ?? 'Unable to submit leave request')
             return
           }
@@ -129,12 +147,41 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
     )
   }
 
+  function clearFieldError(field: string) {
+    setFieldErrors((prev) => {
+      if (!(field in prev)) return prev
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }
+
+  function fieldErrorProps(field: keyof typeof LEAVE_REQUEST_FIELD_IDS) {
+    const fieldId = LEAVE_REQUEST_FIELD_IDS[field]
+    const message = fieldErrors[field]
+    if (!message) {
+      return { message: undefined, fieldId, invalid: false, describedBy: undefined }
+    }
+    return {
+      message,
+      fieldId,
+      invalid: true,
+      describedBy: `field-error-${fieldId}`,
+    }
+  }
+
+  const leaveTypeError = fieldErrorProps('leaveTypeId')
+  const dateFromError = fieldErrorProps('dateFrom')
+  const dateToError = fieldErrorProps('dateTo')
+  const noteError = fieldErrorProps('note')
+
   return (
     <Modal
       labelledBy="request-leave-modal-title"
       onClose={onClose}
       className="request-leave-modal"
       testId="request-leave-modal"
+      closeOnBackdrop={false}
     >
       <div className="modal-header">
           <span className="modal-title" id="request-leave-modal-title">
@@ -151,10 +198,13 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
             <select
               id="leave-type"
               value={leaveTypeId}
-              onChange={(event) =>
+              onChange={(event) => {
                 setLeaveTypeId(event.target.value === '' ? '' : Number(event.target.value))
-              }
+                clearFieldError('leaveTypeId')
+              }}
               required
+              aria-invalid={leaveTypeError.invalid || undefined}
+              aria-describedby={leaveTypeError.describedBy}
             >
               <option value="">— Select leave type —</option>
               {(leaveTypesQuery.data ?? []).map((leaveType) => (
@@ -164,6 +214,9 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
                 </option>
               ))}
             </select>
+            {leaveTypeError.message && (
+              <FieldErrorMessage fieldId={leaveTypeError.fieldId} message={leaveTypeError.message} />
+            )}
           </div>
 
           <div className="form-group date-row">
@@ -173,9 +226,17 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
                 id="leave-from-date"
                 data-testid="leave-from-date"
                 value={dateFrom}
-                onChange={setDateFrom}
+                onChange={(value) => {
+                  setDateFrom(value)
+                  clearFieldError('dateFrom')
+                }}
                 aria-label="From date"
+                aria-invalid={dateFromError.invalid || undefined}
+                aria-describedby={dateFromError.describedBy}
               />
+              {dateFromError.message && (
+                <FieldErrorMessage fieldId={dateFromError.fieldId} message={dateFromError.message} />
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="leave-to-date">To</label>
@@ -184,9 +245,17 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
                 data-testid="leave-to-date"
                 value={dateTo}
                 min={dateFrom || undefined}
-                onChange={setDateTo}
+                onChange={(value) => {
+                  setDateTo(value)
+                  clearFieldError('dateTo')
+                }}
                 aria-label="To date"
+                aria-invalid={dateToError.invalid || undefined}
+                aria-describedby={dateToError.describedBy}
               />
+              {dateToError.message && (
+                <FieldErrorMessage fieldId={dateToError.fieldId} message={dateToError.message} />
+              )}
             </div>
           </div>
 
@@ -250,9 +319,17 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
             <textarea
               id="leave-note"
               value={note}
-              onChange={(event) => setNote(event.target.value)}
+              onChange={(event) => {
+                setNote(event.target.value)
+                clearFieldError('note')
+              }}
               rows={3}
+              aria-invalid={noteError.invalid || undefined}
+              aria-describedby={noteError.describedBy}
             />
+            {noteError.message && (
+              <FieldErrorMessage fieldId={noteError.fieldId} message={noteError.message} />
+            )}
           </div>
 
           <div className="modal-actions">
@@ -264,6 +341,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
               className="btn btn-primary"
               data-testid="submit-request-btn"
               disabled={submitDisabled}
+              data-busy={createMutation.isPending ? 'true' : undefined}
             >
               {createMutation.isPending ? 'Submitting…' : 'Submit Request'}
             </button>

@@ -1,5 +1,4 @@
 import { useCallback } from 'react'
-import { Toast } from '../../components/ui/Toast'
 import { useToast } from '../../components/ui/useToast'
 import { LeaveTypesCard } from './LeaveTypesCard'
 import { TeamMembersCard } from './TeamMembersCard'
@@ -9,7 +8,7 @@ import { NotificationPreferencesSettings } from './NotificationPreferencesSettin
 import './group-tabs.css'
 
 export function SettingsPage() {
-  const { toast, showToast, dismissToast } = useToast()
+  const { showToast } = useToast()
 
   const showSuccessToast = useCallback(
     (message: string) => showToast(message, 'success'),
@@ -51,8 +50,6 @@ export function SettingsPage() {
         onSuccess={showSuccessToast}
         onWarning={showWarningToast}
       />
-
-      <Toast toast={toast} onDismiss={dismissToast} testId="settings-toast" />
     </div>
   )
 }

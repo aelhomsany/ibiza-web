@@ -1,0 +1,6 @@
+{
+  "actions": { "retry": "Retry", "reload": "Reload" },
+  "toast": { "dismiss": "Dismiss notification" },
+  "recovery": { "heading": "Something went wrong", "app": "Reload Ibiza or try again to recover your workspace.", "route": "This page could not load. Your navigation is still available." },
+  "profile": { "languageNotSet": "Not set", "notApplicable": "Not applicable" }
+}

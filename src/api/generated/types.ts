@@ -39,6 +39,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/me/profile-image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload or replace the caller's profile image */
+        post: operations["uploadProfileImage"];
+        /** Remove the caller's profile image */
+        delete: operations["removeProfileImage"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/team-members": {
         parameters: {
             query?: never;
@@ -173,6 +191,40 @@ export interface paths {
         put?: never;
         /** Preview working days for a date range using the caller's workforce group */
         post: operations["preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/calendar-sync/{provider}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retry failed calendar sync work */
+        post: operations["retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/calendar-sync/{provider}/connect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start provider OAuth connection */
+        post: operations["connect"];
         delete?: never;
         options?: never;
         head?: never;
@@ -316,6 +368,23 @@ export interface paths {
         patch: operations["update"];
         trace?: never;
     };
+    "/api/v1/users/me/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the caller's user preferences */
+        patch: operations["updatePreferences"];
+        trace?: never;
+    };
     "/api/v1/team-members/{id}": {
         parameters: {
             query?: never;
@@ -401,6 +470,41 @@ export interface paths {
         head?: never;
         /** Mark one caller-owned notification as read */
         patch: operations["markRead"];
+        trace?: never;
+    };
+    "/api/v1/notification-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the caller's effective notification preferences */
+        get: operations["get_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a mutable workflow notification preference for the caller */
+        patch: operations["update_3"];
+        trace?: never;
+    };
+    "/api/v1/users/me/profile-image/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stream the caller's profile image */
+        get: operations["getProfileImageContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/notifications": {
@@ -573,6 +677,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/calendar-sync/{provider}/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Complete provider OAuth connection */
+        get: operations["callback"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/calendar-sync/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get calendar sync connection status */
+        get: operations["status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -641,6 +779,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/calendar-sync/{provider}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Disconnect provider calendar sync */
+        delete: operations["disconnect"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -657,6 +812,21 @@ export interface components {
         };
         CreateWorkforceGroupRequest: {
             name?: string;
+        };
+        UserSummaryResponse: {
+            /** Format: int64 */
+            id?: number;
+            email?: string;
+            fullName?: string;
+            /** @enum {string} */
+            role?: "EMPLOYEE" | "MANAGER" | "HR_ADMIN" | "PLATFORM_ADMIN";
+            /** Format: int64 */
+            organizationId?: number | null;
+            organizationName?: string | null;
+            timezone?: string | null;
+            workforceGroupName?: string | null;
+            profileImageUrl?: string | null;
+            preferredLanguage?: string | null;
         };
         CreateTeamMemberRequest: {
             fullName?: string;
@@ -805,6 +975,10 @@ export interface components {
             workforceGroupId?: number;
             workforceGroupName?: string;
         };
+        CalendarSyncConnectResponse: {
+            provider?: string;
+            authorizationUrl?: string;
+        };
         CreateCheckoutSessionRequest: {
             /** @enum {string} */
             plan: "FREE" | "STARTER" | "GROWTH" | "INTERNAL";
@@ -836,6 +1010,9 @@ export interface components {
         };
         UpdateWorkforceGroupRequest: {
             name?: string;
+        };
+        UpdateUserPreferencesRequest: {
+            preferredLanguage?: string;
         };
         UpdateTeamMemberRequest: {
             fullName?: string;
@@ -896,6 +1073,26 @@ export interface components {
             /** Format: int64 */
             leaveRequestId?: number;
             linkPath?: string;
+        };
+        UpdateNotificationPreferenceRequest: {
+            /** @enum {string} */
+            channel: "IN_APP" | "EMAIL";
+            /** @enum {string} */
+            scope: "WORKFLOW";
+            enabled: boolean;
+            /** Format: date-time */
+            mutedUntil?: string;
+        };
+        NotificationPreferenceResponse: {
+            /** @enum {string} */
+            channel?: "IN_APP" | "EMAIL";
+            /** @enum {string} */
+            scope?: "WORKFLOW";
+            mandatory?: boolean;
+            enabled?: boolean;
+            /** Format: date-time */
+            mutedUntil?: string;
+            effectiveEnabledNow?: boolean;
         };
         UnreadCountResponse: {
             /** Format: int64 */
@@ -1065,17 +1262,16 @@ export interface components {
             absences?: components["schemas"]["CalendarAbsenceResponse"][];
             holidays?: components["schemas"]["CalendarHolidayResponse"][];
         };
-        UserSummaryResponse: {
-            /** Format: int64 */
-            id?: number;
-            email?: string;
-            fullName?: string;
-            /** @enum {string} */
-            role?: "EMPLOYEE" | "MANAGER" | "HR_ADMIN" | "PLATFORM_ADMIN";
-            /** Format: int64 */
-            organizationId?: number | null;
-            organizationName?: string | null;
-            timezone?: string | null;
+        CalendarSyncStatusResponse: {
+            provider?: string;
+            connected?: boolean;
+            accountEmail?: string;
+            status?: string;
+            lastErrorCategory?: string;
+            /** Format: date-time */
+            lastSyncedAt?: string;
+            /** Format: date-time */
+            nextRetryAt?: string;
         };
         RecentApprovalDecisionResponse: {
             /** Format: int64 */
@@ -1203,6 +1399,51 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["WorkforceGroupResponse"];
                 };
+            };
+        };
+    };
+    uploadProfileImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserSummaryResponse"];
+                };
+            };
+        };
+    };
+    removeProfileImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -1476,6 +1717,48 @@ export interface operations {
             };
         };
     };
+    retry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    connect: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarSyncConnectResponse"];
+                };
+            };
+        };
+    };
     receiveStripeWebhook: {
         parameters: {
             query?: never;
@@ -1684,6 +1967,30 @@ export interface operations {
             };
         };
     };
+    updatePreferences: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateUserPreferencesRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserSummaryResponse"];
+                };
+            };
+        };
+    };
     get: {
         parameters: {
             query?: never;
@@ -1848,6 +2155,70 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["NotificationResponse"];
+                };
+            };
+        };
+    };
+    get_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NotificationPreferenceResponse"][];
+                };
+            };
+        };
+    };
+    update_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNotificationPreferenceRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NotificationPreferenceResponse"][];
+                };
+            };
+        };
+    };
+    getProfileImageContent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
                 };
             };
         };
@@ -2059,6 +2430,49 @@ export interface operations {
             };
         };
     };
+    callback: {
+        parameters: {
+            query?: {
+                code?: string;
+                state?: string;
+            };
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarSyncStatusResponse"];
+                };
+            };
+        };
+    };
     me: {
         parameters: {
             query?: never;
@@ -2139,6 +2553,26 @@ export interface operations {
             };
         };
     };
+    disconnect: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
 }
 
 // Ibiza keeps these schema aliases for feature code ergonomics, even though
@@ -2206,11 +2640,18 @@ export type UpdatePublicHolidayRequest = components["schemas"]["UpdatePublicHoli
 export type UpdateSubscriptionRequest = components["schemas"]["UpdateSubscriptionRequest"];
 export type UpdateTeamMemberRequest = components["schemas"]["UpdateTeamMemberRequest"];
 export type UpdateTeamMemberStatusRequest = components["schemas"]["UpdateTeamMemberStatusRequest"];
+export type UpdateUserPreferencesRequest = components["schemas"]["UpdateUserPreferencesRequest"];
 export type UpdateWeekendDaysRequest = components["schemas"]["UpdateWeekendDaysRequest"];
-export type UserSummaryResponse = Omit<RequiredSchema<"UserSummaryResponse">, "organizationId" | "organizationName" | "timezone"> & {
+export type UserSummaryResponse = Omit<
+    RequiredSchema<"UserSummaryResponse">,
+    "organizationId" | "organizationName" | "timezone" | "workforceGroupName" | "preferredLanguage" | "profileImageUrl"
+> & {
     organizationId?: number | null;
     organizationName?: string | null;
     timezone?: string | null;
+    workforceGroupName?: string | null;
+    preferredLanguage?: string | null;
+    profileImageUrl?: string | null;
 };
 export type DayOfWeek = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
 export type WorkforceGroupResponse = Omit<RequiredSchema<"WorkforceGroupResponse">, "weekendDays"> & {

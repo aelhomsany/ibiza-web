@@ -1,10 +1,12 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, type ReactElement } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from '../auth/AuthProvider'
 import { AdminShell } from '../components/layout/AdminShell'
 import { OrgShell } from '../components/layout/OrgShell'
+import { ProfileRouteShell } from '../components/layout/ProfileRouteShell'
 import { LoginPage } from '../features/login/LoginPage'
 import { PagePlaceholder } from '../features/shared/PagePlaceholder'
+import { usePageTitle } from '../hooks/usePageTitle'
 import { ProtectedRoute } from './ProtectedRoute'
 import { RoleGuard } from './RoleGuard'
 
@@ -45,6 +47,9 @@ const OrganizationsPage = lazy(() =>
 const SettingsPage = lazy(() =>
   import('../features/settings/SettingsPage').then((m) => ({ default: m.SettingsPage })),
 )
+const ProfilePage = lazy(() =>
+  import('../features/profile/ProfilePage').then((m) => ({ default: m.ProfilePage })),
+)
 const ApprovalsPage = lazy(() =>
   import('../features/approvals/ApprovalsPage').then((m) => ({ default: m.ApprovalsPage })),
 )
@@ -57,31 +62,51 @@ function RouteFallback() {
   )
 }
 
+function TitledRoute({ title, children }: { title: string; children: ReactElement }) {
+  usePageTitle(title)
+  return children
+}
+
+function withPageTitle(title: string, element: ReactElement) {
+  return <TitledRoute title={title}>{element}</TitledRoute>
+}
+
 export function AppRoutes() {
   return (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/login" element={withPageTitle('Sign in', <LoginPage />)} />
+        <Route path="/forgot-password" element={withPageTitle('Forgot password', <ForgotPasswordPage />)} />
+        <Route path="/reset-password" element={withPageTitle('Reset password', <ResetPasswordPage />)} />
 
         <Route element={<ProtectedRoute />}>
+          <Route element={<ProfileRouteShell />}>
+            <Route
+              path="/profile"
+              element={withPageTitle('Profile details', <ProfilePage />)}
+            />
+          </Route>
+
           <Route element={<RoleGuard shell="org" />}>
             <Route element={<OrgShell />}>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/my-leaves" element={<MyLeavesPage />} />
-              <Route path="/leave-requests/:id" element={<RequestContextPage />} />
-              <Route path="/calendar" element={<TeamCalendarPage />} />
-              <Route path="/approvals" element={<ApprovalsPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/" element={withPageTitle('Dashboard', <DashboardPage />)} />
+              <Route path="/my-leaves" element={withPageTitle('My Leaves', <MyLeavesPage />)} />
+              <Route
+                path="/leave-requests/:id"
+                element={withPageTitle('Request Details', <RequestContextPage />)}
+              />
+              <Route path="/calendar" element={withPageTitle('Team Calendar', <TeamCalendarPage />)} />
+              <Route path="/approvals" element={withPageTitle('Approvals', <ApprovalsPage />)} />
+              <Route path="/settings" element={withPageTitle('Settings', <SettingsPage />)} />
               <Route
                 path="*"
-                element={
+                element={withPageTitle(
+                  'Page Not Found',
                   <PagePlaceholder
                     title="Page Not Found"
                     subtitle="The page you're looking for doesn't exist."
-                  />
-                }
+                  />,
+                )}
               />
             </Route>
           </Route>
@@ -94,15 +119,19 @@ export function AppRoutes() {
                 path="/platform"
                 element={<Navigate to="/platform/organizations" replace />}
               />
-              <Route path="/platform/organizations" element={<OrganizationsPage />} />
+              <Route
+                path="/platform/organizations"
+                element={withPageTitle('Organizations', <OrganizationsPage />)}
+              />
               <Route
                 path="/platform/*"
-                element={
+                element={withPageTitle(
+                  'Page Not Found',
                   <PagePlaceholder
                     title="Page Not Found"
                     subtitle="The page you're looking for doesn't exist."
-                  />
-                }
+                  />,
+                )}
               />
             </Route>
           </Route>

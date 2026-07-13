@@ -84,6 +84,7 @@ export function DeclineModal({
             className="btn btn-sm btn-danger-outline"
             data-testid="decline-confirm-btn"
             disabled={!confirmEnabled}
+            data-busy={isSubmitting ? 'true' : undefined}
             onClick={() => onConfirm(reason.trim())}
           >
             Confirm Decline

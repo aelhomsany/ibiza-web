@@ -1,10 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import { ApiError } from '../../api/client'
 import * as apiClient from '../../api/client'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
+import { mockBackdropGeometry } from '../../test/backdropTestUtils'
 import { redirectToExternalUrl } from '../../navigation/redirect'
 import { TeamMemberModal } from './TeamMemberModal'
 import type {
@@ -42,7 +43,7 @@ function renderModal(
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   })
-  return render(
+  const result = render(
     <QueryClientProvider client={queryClient}>
       <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
         <TeamMemberModal
@@ -54,6 +55,7 @@ function renderModal(
       </AuthTestProvider>
     </QueryClientProvider>,
   )
+  return { ...result, onClose }
 }
 
 describe('TeamMemberModal — add mode', () => {
@@ -71,6 +73,35 @@ describe('TeamMemberModal — add mode', () => {
   it('renders Add Team Member title', () => {
     renderModal()
     expect(screen.getByText('Add Team Member')).toBeInTheDocument()
+  })
+
+  it('[P0] keeps the team-member form open and preserves input on backdrop click', async () => {
+    const user = userEvent.setup()
+    const { onClose } = renderModal()
+
+    await user.type(screen.getByLabelText(/Full name/i), 'Jordan Lee')
+    await user.type(screen.getByLabelText(/Email/i), 'jordan@example.com')
+    const dialog = screen.getByRole('dialog', { name: 'Add Team Member' })
+    mockBackdropGeometry(dialog)
+
+    fireEvent.click(dialog, { clientX: 20, clientY: 20 })
+
+    expect(onClose).not.toHaveBeenCalled()
+    expect(screen.getByRole('dialog', { name: 'Add Team Member' })).toBeInTheDocument()
+    expect(screen.getByLabelText(/Full name/i)).toHaveValue('Jordan Lee')
+    expect(screen.getByLabelText(/Email/i)).toHaveValue('jordan@example.com')
+  })
+
+  it('[P1] still closes from Cancel and Escape', async () => {
+    const user = userEvent.setup()
+    const { onClose } = renderModal()
+    const dialog = screen.getByRole('dialog', { name: 'Add Team Member' })
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(onClose).toHaveBeenCalledTimes(1)
+
+    fireEvent(dialog, new Event('cancel', { cancelable: true }))
+    expect(onClose).toHaveBeenCalledTimes(2)
   })
 
   it('submits createTeamMember when form is valid', async () => {

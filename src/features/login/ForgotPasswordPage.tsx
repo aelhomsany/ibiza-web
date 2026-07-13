@@ -69,7 +69,7 @@ export function ForgotPasswordPage() {
                 />
               </div>
 
-              <button type="submit" className="auth-submit" disabled={submitting}>
+              <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
                 {submitting ? 'Sending…' : 'Send reset link'}
               </button>
             </form>

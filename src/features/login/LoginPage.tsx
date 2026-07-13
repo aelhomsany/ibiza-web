@@ -111,7 +111,7 @@ export function LoginPage() {
 
           <button
             type="submit"
-            className="auth-submit"
+            className="btn btn-primary btn-block"
             data-testid="sign-in-submit"
             disabled={submitting}
           >

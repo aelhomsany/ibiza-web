@@ -71,6 +71,7 @@ export function ApprovalRow({
           data-testid={`decline-btn-${requestId}`}
           onClick={onDecline}
           disabled={actionsDisabled}
+          data-busy={isDeclining ? 'true' : undefined}
         >
           Decline
         </button>
@@ -80,6 +81,7 @@ export function ApprovalRow({
           data-testid={`approve-btn-${requestId}`}
           onClick={onApprove}
           disabled={actionsDisabled}
+          data-busy={isApproving ? 'true' : undefined}
         >
           Approve <CheckIcon size={14} />
         </button>

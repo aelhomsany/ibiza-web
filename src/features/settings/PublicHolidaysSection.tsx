@@ -220,12 +220,13 @@ export function PublicHolidaysSection({
                     className="btn btn-primary btn-sm"
                     onClick={() => void handleSaveEdit(holiday.id)}
                     disabled={isSaving}
+                    data-busy={isSaving ? 'true' : undefined}
                   >
                     Save
                   </button>
                   <button
                     type="button"
-                    className="holiday-btn-ghost"
+                    className="btn btn-ghost btn-sm"
                     onClick={cancelEdit}
                     disabled={isSaving}
                   >
@@ -246,7 +247,7 @@ export function PublicHolidaysSection({
                 <div className="holiday-card-actions">
                   <button
                     type="button"
-                    className="holiday-btn-ghost"
+                    className="btn btn-ghost btn-sm"
                     onClick={() => startEdit(holiday)}
                     disabled={isSaving}
                   >
@@ -254,9 +255,10 @@ export function PublicHolidaysSection({
                   </button>
                   <button
                     type="button"
-                    className="holiday-btn-ghost"
+                    className="btn btn-ghost btn-sm"
                     onClick={() => void deleteMutation.mutateAsync(holiday.id)}
                     disabled={isSaving}
+                    data-busy={isSaving ? 'true' : undefined}
                   >
                     Remove
                   </button>
@@ -303,6 +305,7 @@ export function PublicHolidaysSection({
           className="btn btn-primary btn-sm"
           onClick={() => void handleAdd()}
           disabled={isSaving}
+          data-busy={isSaving ? 'true' : undefined}
         >
           Add
         </button>

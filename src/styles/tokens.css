@@ -30,8 +30,6 @@
   --color-holiday-bg: #E4F5DC;
   /* Holiday text sits on holiday-bg — keep ≥4.5:1 against it (WCAG AA). */
   --color-holiday-fg: #3E6773;
-  --color-group-us: #093C5D;
-  --color-group-egypt: #2D6A4F;
   --color-admin-accent: #ABE7B2;
   --color-admin-shell: #062A42;
   --color-teal-tint: #D6E8ED;

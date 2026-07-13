@@ -1,6 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { vi } from 'vitest'
+import { mockBackdropGeometry } from '../../test/backdropTestUtils'
 import { Modal } from './Modal'
+
+const modalCss = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'modal.css'), 'utf8')
 
 function renderModal(overrides: Partial<Parameters<typeof Modal>[0]> = {}) {
   const onClose = vi.fn()
@@ -14,6 +20,10 @@ function renderModal(overrides: Partial<Parameters<typeof Modal>[0]> = {}) {
 }
 
 describe('Modal', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('renders an open native dialog labelled by its title', () => {
     renderModal()
     const dialog = screen.getByTestId('test-modal')
@@ -33,6 +43,30 @@ describe('Modal', () => {
     const { onClose } = renderModal()
     fireEvent.click(screen.getByRole('button', { name: 'Do it' }))
     expect(onClose).not.toHaveBeenCalled()
+  })
+
+  it('does not close on backdrop clicks when closeOnBackdrop is false', () => {
+    const { onClose } = renderModal({ closeOnBackdrop: false })
+    const dialog = screen.getByTestId('test-modal')
+    mockBackdropGeometry(dialog)
+
+    fireEvent.click(dialog, { clientX: 20, clientY: 20 })
+
+    expect(onClose).not.toHaveBeenCalled()
+  })
+
+  it('closes on backdrop clicks outside the dialog bounds by default', () => {
+    const { onClose } = renderModal()
+    const dialog = screen.getByTestId('test-modal')
+    mockBackdropGeometry(dialog)
+
+    fireEvent.click(dialog, { clientX: 20, clientY: 20 })
+
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps modal close buttons at a 32px-plus touch target on the 4px grid', () => {
+    expect(modalCss).toMatch(/\.modal-close\s*{[^}]*padding:\s*8px;/s)
   })
 
   it('returns focus to the opener when unmounted', () => {

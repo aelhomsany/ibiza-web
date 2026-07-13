@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { OrganizationSummaryResponse } from '../../api/generated/types'
-import { Toast } from '../../components/ui/Toast'
+import { PlusIcon } from '../../components/ui/icons'
 import { useToast } from '../../components/ui/useToast'
 import { CreateOrganizationModal } from './CreateOrganizationModal'
 import { EditSubscriptionModal } from './EditSubscriptionModal'
@@ -12,7 +12,7 @@ export function OrganizationsPage() {
   const [createOpen, setCreateOpen] = useState(false)
   const [editingOrganization, setEditingOrganization] =
     useState<OrganizationSummaryResponse | null>(null)
-  const { toast, showToast, dismissToast } = useToast()
+  const { showToast } = useToast()
 
   function showSubscriptionSavedToast() {
     showToast('Subscription updated')
@@ -28,7 +28,7 @@ export function OrganizationsPage() {
           </p>
         </div>
         <button type="button" className="btn btn-admin" onClick={() => setCreateOpen(true)}>
-          + Create Organization
+          <PlusIcon size={14} /> Create Organization
         </button>
       </header>
 
@@ -48,7 +48,7 @@ export function OrganizationsPage() {
               Create the first customer organization to start provisioning HR access.
             </p>
             <button type="button" className="btn btn-admin" onClick={() => setCreateOpen(true)}>
-              + Create Organization
+              <PlusIcon size={14} /> Create Organization
             </button>
           </>
         </section>
@@ -67,7 +67,6 @@ export function OrganizationsPage() {
           onSuccess={showSubscriptionSavedToast}
         />
       ) : null}
-      <Toast toast={toast} onDismiss={dismissToast} testId="subscription-success-toast" />
     </div>
   )
 }

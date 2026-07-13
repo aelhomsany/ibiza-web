@@ -41,7 +41,7 @@ describe('CalendarMonthGrid', () => {
     expect(screen.getByTestId('calendar-event-10-2026-06-10')).toHaveClass('cal-event--off')
   })
 
-  it('[P1] wraps user color keys beyond the palette size into a defined token', () => {
+  it('[P1] user-11 chip uses hash-based inline style, not a modulo-8 class', () => {
     const calendar = {
       ...mockCalendarMonth,
       absences: [
@@ -58,8 +58,10 @@ describe('CalendarMonthGrid', () => {
     }
     renderGrid(calendar)
 
-    // user-11 must map into the 8-color palette (11 % 8 = 3), never an undefined token.
-    expect(screen.getByTestId('calendar-event-99')).toHaveClass('cal-event--user-3')
+    const chip = screen.getByTestId('calendar-event-99')
+    expect(chip.className).not.toMatch(/cal-event--user-\d/)
+    expect(chip.style.getPropertyValue('--chip-bg')).toBeTruthy()
+    expect(chip.style.getPropertyValue('--chip-fg')).toBeTruthy()
   })
 
   it('[P1] renders holiday names and workforce group pills for every holiday range day', () => {
@@ -68,7 +70,10 @@ describe('CalendarMonthGrid', () => {
     for (const date of ['2026-06-18', '2026-06-19']) {
       const cell = within(screen.getByTestId(`calendar-day-${date}`))
       expect(cell.getByText('Founders Day')).toBeInTheDocument()
-      expect(cell.getByText('US')).toHaveClass('group-pill-us')
+      const pill = cell.getByText('US')
+      expect(pill).toHaveClass('group-pill')
+      expect(pill).not.toHaveClass('group-pill-us')
+      expect((pill as HTMLElement).style.getPropertyValue('--pill-bg')).toBeTruthy()
     }
   })
 })

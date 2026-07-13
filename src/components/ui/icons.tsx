@@ -126,6 +126,15 @@ export function CheckIcon(props: IconProps) {
   )
 }
 
+export function GlobeIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+    </IconBase>
+  )
+}
+
 export function RefreshCwIcon(props: IconProps) {
   return (
     <IconBase {...props}>
@@ -186,6 +195,25 @@ export function CloseIcon(props: IconProps) {
     <IconBase {...props}>
       <path d="M18 6 6 18" />
       <path d="m6 6 12 12" />
+    </IconBase>
+  )
+}
+
+export function UserIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </IconBase>
+  )
+}
+
+export function LogOutIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" x2="9" y1="12" y2="12" />
     </IconBase>
   )
 }

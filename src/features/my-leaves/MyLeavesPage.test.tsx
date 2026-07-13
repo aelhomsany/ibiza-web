@@ -10,6 +10,7 @@ import type {
   RecentRequestResponse,
 } from '../../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
+import { ToastProvider } from '../../components/ui/ToastProvider'
 import { MyLeavesPage } from './MyLeavesPage'
 
 const mockBalances: BalanceCardResponse[] = [
@@ -134,9 +135,11 @@ function renderMyLeavesPage() {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthTestProvider value={createMockAuthForRole('EMPLOYEE')}>
-        <MyLeavesPage />
-      </AuthTestProvider>
+      <ToastProvider>
+        <AuthTestProvider value={createMockAuthForRole('EMPLOYEE')}>
+          <MyLeavesPage />
+        </AuthTestProvider>
+      </ToastProvider>
     </QueryClientProvider>,
   )
 }
@@ -153,6 +156,24 @@ async function setLeaveDates(from: string, to: string) {
 describe('MyLeavesPage', () => {
   afterEach(() => {
     vi.restoreAllMocks()
+  })
+
+  it('[P1] announces balance and history loading via role=status', () => {
+    vi.spyOn(apiClient, 'getDashboardBalances').mockImplementation(
+      () => new Promise(() => undefined),
+    )
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockImplementation(
+      () => new Promise(() => undefined),
+    )
+
+    renderMyLeavesPage()
+
+    expect(
+      screen.getByRole('status', { name: /loading leave balances/i }),
+    ).toHaveAttribute('aria-busy', 'true')
+    expect(
+      screen.getByRole('status', { name: /loading leave history/i }),
+    ).toHaveAttribute('aria-busy', 'true')
   })
 
   it('renders the page full-bleed (page-wide) like Settings', async () => {
@@ -263,7 +284,7 @@ describe('MyLeavesPage', () => {
     await user.click(screen.getByTestId('submit-request-btn'))
 
     await waitFor(() => {
-      expect(screen.getByTestId('submit-success-toast')).toHaveTextContent(
+      expect(screen.getByTestId('app-toast')).toHaveTextContent(
         'Leave request submitted',
       )
       expect(historySpy).toHaveBeenCalledTimes(2)

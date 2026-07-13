@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import type { ComponentType } from 'react'
-import { formatRole } from '../../auth/authUtils'
-import type { UserRole } from '../../api/generated/types'
+import { useTranslation } from 'react-i18next'
+import '../../i18n/config'
 import { UmbrellaIcon, type IconProps } from '../ui/icons'
 import './sidebar.css'
 
@@ -17,9 +17,6 @@ export type NavItem = {
 type SidebarProps = {
   variant: 'org' | 'admin'
   navItems: NavItem[]
-  userName?: string
-  userRole?: UserRole
-  onSignOut?: () => void
   logoTitle?: string
   logoSubtitle?: string
   /** Mobile drawer state — the sidebar is always visible on desktop. */
@@ -31,14 +28,12 @@ type SidebarProps = {
 export function Sidebar({
   variant,
   navItems,
-  userName = 'User',
-  userRole = 'EMPLOYEE',
-  onSignOut,
   logoTitle = 'Ibiza',
   logoSubtitle = 'Team Leave Management',
   mobileOpen = false,
   onNavigate,
 }: SidebarProps) {
+  const { t } = useTranslation('layout')
   const variantClass = variant === 'org' ? 'sidebar--org' : 'sidebar--admin'
 
   return (
@@ -57,7 +52,7 @@ export function Sidebar({
         </div>
       </div>
 
-      <nav className="sidebar-nav" aria-label="Main navigation">
+      <nav className="sidebar-nav" aria-label={t('navigation.main')}>
         {navItems.map((item) => {
           const badge = item.badge
           const accessibleLabel =
@@ -91,23 +86,6 @@ export function Sidebar({
           )
         })}
       </nav>
-
-      <div className="sidebar-user">
-        <div className="sidebar-user-name">{userName}</div>
-        <div className="sidebar-user-role">
-          {userRole ? formatRole(userRole) : 'Employee'}
-        </div>
-        {onSignOut && (
-          <button
-            type="button"
-            className="sidebar-sign-out"
-            data-testid="sign-out-button"
-            onClick={() => void onSignOut()}
-          >
-            Sign out
-          </button>
-        )}
-      </div>
     </aside>
   )
 }

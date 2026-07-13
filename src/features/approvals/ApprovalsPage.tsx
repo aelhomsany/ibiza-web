@@ -1,9 +1,10 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth/useAuth'
 import { ApiError } from '../../api/client'
-import { Toast } from '../../components/ui/Toast'
 import { useToast } from '../../components/ui/useToast'
 import { CheckCircleIcon } from '../../components/ui/icons'
+import { LoadingState } from '../../components/ui/LoadingState'
 import { ApprovalRow } from './ApprovalRow'
 import { DeclineModal } from './DeclineModal'
 import { RecentDecisionRow } from './RecentDecisionRow'
@@ -11,6 +12,7 @@ import { useApproveRequest } from './useApproveRequest'
 import { useDeclineRequest } from './useDeclineRequest'
 import { usePendingApprovals } from './usePendingApprovals'
 import { useRecentApprovalDecisions } from './useRecentApprovalDecisions'
+import '../dashboard/dashboard.css'
 import './approvals.css'
 
 const MANAGER_SUBTITLE = "Review and action your team's leave requests"
@@ -23,6 +25,7 @@ type DeclineTarget = {
 }
 
 export function ApprovalsPage() {
+  const { t } = useTranslation('layout')
   const { user } = useAuth()
   const { data: pendingApprovals = [], isPending, isError } = usePendingApprovals()
   const {
@@ -32,7 +35,7 @@ export function ApprovalsPage() {
   } = useRecentApprovalDecisions()
   const approveMutation = useApproveRequest()
   const declineMutation = useDeclineRequest()
-  const { toast, showToast, dismissToast } = useToast()
+  const { showToast } = useToast()
   const [declineTarget, setDeclineTarget] = useState<DeclineTarget | null>(null)
   const [declineReason, setDeclineReason] = useState('')
   const [declineSubmitError, setDeclineSubmitError] = useState<string | null>(null)
@@ -95,7 +98,10 @@ export function ApprovalsPage() {
       </header>
 
       {isPending ? (
-        <p className="body-text">Loading pending requests…</p>
+        <LoadingState
+          label={t('loading.pendingApprovals')}
+          testId="approvals-pending-loading"
+        />
       ) : isError ? (
         <div className="approvals-error-state" data-testid="approvals-error-state" role="alert">
           <p>We couldn’t load pending requests. Please try again.</p>
@@ -137,7 +143,10 @@ export function ApprovalsPage() {
       <section className="recent-decisions-section" data-testid="recent-decisions-section">
         <h2 className="recent-decisions-title">Recent Decisions</h2>
         {isRecentPending ? (
-          <p className="body-text">Loading recent decisions…</p>
+          <LoadingState
+            label={t('loading.recentDecisions')}
+            testId="approvals-recent-loading"
+          />
         ) : isRecentError ? (
           <div className="approvals-error-state" data-testid="recent-decisions-error" role="alert">
             <p>We couldn’t load recent decisions. Please try again.</p>
@@ -196,12 +205,6 @@ export function ApprovalsPage() {
           submitError={declineSubmitError}
         />
       ) : null}
-
-      <Toast
-        toast={toast}
-        onDismiss={dismissToast}
-        testId={toast?.tone === 'warning' ? 'approval-error-toast' : 'approval-success-toast'}
-      />
     </div>
   )
 }

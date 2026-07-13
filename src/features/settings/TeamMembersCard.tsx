@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ApiError,
   deactivateTeamMember,
@@ -8,9 +9,10 @@ import {
 } from '../../api/client'
 import type { TeamMemberSummaryResponse } from '../../api/generated/types'
 import { useAuth } from '../../auth/useAuth'
-import { groupPillClass } from '../../components/groupPillClass'
+import { LoadingState } from '../../components/ui/LoadingState'
 import { Modal } from '../../components/ui/Modal'
 import { CloseIcon, PlusIcon } from '../../components/ui/icons'
+import { pillColorStyle } from '../../utils/entityColor'
 import { TeamMemberModal } from './TeamMemberModal'
 import './team-members.css'
 
@@ -29,7 +31,7 @@ function initials(fullName: string): string {
 }
 
 function roleBadgeClass(role: string): string {
-  return `badge badge-${role}`
+  return `role-badge role-badge-${role}`
 }
 
 function roleLabel(role: string): string {
@@ -50,6 +52,7 @@ function statusLabel(status: TeamMemberSummaryResponse['status']): string {
 }
 
 export function TeamMembersCard({ onSuccess, onWarning }: Props) {
+  const { t } = useTranslation('layout')
   const { user } = useAuth()
   const orgId = user?.organizationId
   const queryClient = useQueryClient()
@@ -138,11 +141,15 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
       </div>
 
       {membersQuery.isPending && (
-        <p style={{ fontSize: 13, color: 'var(--color-muted)' }}>Loading…</p>
+        <LoadingState
+          label={t('loading.teamMembers')}
+          testId="team-members-loading"
+          className="settings-list-hint"
+        />
       )}
 
       {!membersQuery.isPending && members.length === 0 && (
-        <p style={{ fontSize: 13, color: 'var(--color-muted)' }}>No team members yet.</p>
+        <p className="settings-list-hint">No team members yet.</p>
       )}
 
       <div className="settings-list-body" data-testid="team-members-list">
@@ -156,11 +163,16 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
             <div className="member-avatar" aria-hidden="true">
               {initials(member.fullName ?? '')}
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="member-details">
               <div className="member-name-row">
                 {member.fullName}
                 {member.workforceGroupName && (
-                  <span className={groupPillClass(member.workforceGroupName)}>
+                  <span
+                    className="group-pill"
+                    style={pillColorStyle(
+                      member.workforceGroupId ?? member.workforceGroupName.trim().toLowerCase(),
+                    )}
+                  >
                     {member.workforceGroupName}
                   </span>
                 )}
@@ -171,7 +183,7 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
                 {member.managerName ? ` · Reports to ${member.managerName.split(' ')[0]}` : ''}
               </div>
             </div>
-            <span className={roleBadgeClass(member.role ?? '')} style={{ marginRight: 8 }}>
+            <span className={roleBadgeClass(member.role ?? '')}>
               {roleLabel(member.role ?? '')}
             </span>
             <span className={`member-status-badge${isDeactivated ? ' is-deactivated' : ''}`}>
@@ -236,9 +248,10 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
             </button>
             <button
               type="button"
-              className="btn btn-primary"
+              className={`btn ${isLifecycleDeactivation ? 'btn-danger' : 'btn-primary'}`}
               onClick={() => lifecycleMutation.mutate(lifecycleTarget)}
               disabled={lifecycleMutation.isPending}
+              data-busy={lifecycleMutation.isPending ? 'true' : undefined}
             >
               {lifecycleMutation.isPending ? 'Saving…' : lifecycleConfirmLabel}
             </button>

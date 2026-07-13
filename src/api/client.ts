@@ -45,8 +45,10 @@ import type {
   CreateCheckoutSessionRequest,
   OrganizationSummaryResponse,
   UpdateSubscriptionRequest,
+  UpdateUserPreferencesRequest,
 } from './generated/types'
 import { clearAccessToken, getAccessToken, setAccessToken } from '../auth/tokenStorage'
+import { parseFieldViolations, type FieldViolationMap } from './fieldViolations'
 
 /** Prefer relative /api paths so Vite dev proxy forwards cookies (refresh token). */
 const configuredBaseUrl = import.meta.env.VITE_API_URL ?? ''
@@ -63,12 +65,14 @@ export function setAuthFailureHandler(handler: (() => void) | null): void {
 export class ApiError extends Error {
   readonly status: number
   readonly problem: ProblemDetail
+  readonly fieldViolations: FieldViolationMap | null
 
   constructor(status: number, problem: ProblemDetail) {
     super(problem.detail ?? problem.title ?? 'Request failed')
     this.name = 'ApiError'
     this.status = status
     this.problem = problem
+    this.fieldViolations = parseFieldViolations(problem)
   }
 }
 
@@ -104,10 +108,11 @@ type RequestOptions = Omit<RequestInit, 'body'> & {
   body?: unknown
   skipAuthRefresh?: boolean
   _retried?: boolean
+  responseType?: 'blob'
 }
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { body, skipAuthRefresh, _retried, headers: customHeaders, ...init } = options
+  const { body, skipAuthRefresh, _retried, responseType, headers: customHeaders, ...init } = options
   const headers = new Headers(customHeaders)
   headers.set('X-Correlation-Id', createCorrelationId())
 
@@ -165,6 +170,10 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     return undefined as T
   }
 
+  if (responseType === 'blob') {
+    return (await response.blob()) as T
+  }
+
   const contentType = response.headers.get('content-type') ?? ''
   if (!contentType.includes('json')) {
     return undefined as T
@@ -214,6 +223,28 @@ export async function postLogout(): Promise<void> {
 export async function getMe(): Promise<UserSummaryResponse> {
   return request<UserSummaryResponse>('/api/v1/auth/me', {
     method: 'GET',
+  })
+}
+
+export async function uploadProfileImage(file: File): Promise<UserSummaryResponse> {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request<UserSummaryResponse>('/api/v1/users/me/profile-image', {
+    method: 'POST',
+    body: formData,
+  })
+}
+
+export async function removeProfileImage(): Promise<void> {
+  await request<void>('/api/v1/users/me/profile-image', {
+    method: 'DELETE',
+  })
+}
+
+export async function getProfileImageContent(profileImageUrl: string): Promise<Blob> {
+  return request<Blob>(profileImageUrl, {
+    method: 'GET',
+    responseType: 'blob',
   })
 }
 
@@ -473,6 +504,15 @@ export async function updateNotificationPreference(
     '/api/v1/notification-preferences',
     { method: 'PATCH', body: payload },
   )
+}
+
+export async function updateUserPreferences(
+  payload: UpdateUserPreferencesRequest,
+): Promise<UserSummaryResponse> {
+  return request<UserSummaryResponse>('/api/v1/users/me/preferences', {
+    method: 'PATCH',
+    body: payload,
+  })
 }
 
 export async function getPlatformOrganizations(): Promise<OrganizationSummaryResponse[]> {

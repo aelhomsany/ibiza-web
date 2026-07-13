@@ -71,11 +71,12 @@
 }
 
 .table-wrap {
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .dashboard-table {
   width: 100%;
+  min-width: 760px;
   border-collapse: collapse;
 }
 
@@ -153,7 +154,8 @@
   width: 28px;
   height: 28px;
   border-radius: var(--radius-full);
-  color: var(--color-mist);
+  background: var(--chip-bg, var(--color-primary));
+  color: var(--chip-fg, var(--color-mist));
   font-weight: 700;
   font-size: 11px;
   display: flex;

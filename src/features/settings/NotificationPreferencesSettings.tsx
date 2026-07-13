@@ -247,6 +247,7 @@ export function NotificationPreferencesSettings({
             className="btn btn-outline btn-sm"
             onClick={muteEmail}
             disabled={saving}
+            data-busy={saving ? 'true' : undefined}
           >
             Mute Email
           </button>
@@ -255,6 +256,7 @@ export function NotificationPreferencesSettings({
             className="btn btn-outline btn-sm"
             onClick={clearEmailMute}
             disabled={saving}
+            data-busy={saving ? 'true' : undefined}
           >
             Clear Mute
           </button>
@@ -266,6 +268,7 @@ export function NotificationPreferencesSettings({
             className="btn btn-primary btn-sm"
             onClick={saveEmailPreference}
             disabled={saving}
+            data-busy={saving ? 'true' : undefined}
           >
             Save Preferences
           </button>

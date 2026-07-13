@@ -56,6 +56,16 @@ describe('TeamMembersCard', () => {
     vi.restoreAllMocks()
   })
 
+  it('[P1] announces team members loading via role=status', () => {
+    vi.spyOn(apiClient, 'getTeamMembers').mockImplementation(
+      () => new Promise(() => undefined),
+    )
+
+    renderCard()
+
+    expect(screen.getByRole('status', { name: /loading/i })).toHaveAttribute('aria-busy', 'true')
+  })
+
   it('renders member rows after loading', async () => {
     renderCard()
 
@@ -65,9 +75,18 @@ describe('TeamMembersCard', () => {
       expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
     })
 
-    // Group pills are shown with UX-DR6 tint classes
-    expect(document.querySelector('.group-pill-us')).toBeInTheDocument()
-    expect(document.querySelector('.group-pill-egypt')).toBeInTheDocument()
+    // Group pills use hash-derived CSS custom properties
+    const usPill = screen.getByText('US')
+    const egyptPill = screen.getByText('Egypt')
+    expect(usPill).toHaveClass('group-pill')
+    expect(egyptPill).toHaveClass('group-pill')
+    expect(usPill).not.toHaveClass('group-pill-us')
+    expect(egyptPill).not.toHaveClass('group-pill-egypt')
+    expect((usPill as HTMLElement).style.getPropertyValue('--pill-bg')).toBeTruthy()
+    expect((egyptPill as HTMLElement).style.getPropertyValue('--pill-bg')).toBeTruthy()
+    expect((usPill as HTMLElement).style.getPropertyValue('--pill-bg')).not.toBe(
+      (egyptPill as HTMLElement).style.getPropertyValue('--pill-bg'),
+    )
     // Manager meta shown for Sarah
     expect(screen.getByText(/Reports to Alex/)).toBeInTheDocument()
   })

@@ -1,0 +1,8 @@
+{
+  "fields": {
+    "fullName": { "required": "Full name is required" },
+    "email": { "invalid": "Enter a valid email address" },
+    "leaveTypeId": { "required": "Select a leave type" },
+    "dateTo": { "range": "End date must be on or after start date" }
+  }
+}

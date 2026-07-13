@@ -40,7 +40,8 @@ export async function loginViaUi(page: Page, credentials: LoginCredentials): Pro
 }
 
 export async function logoutViaUi(page: Page): Promise<void> {
-  await page.getByTestId('sign-out-button').click()
+  await page.getByTestId('user-menu-trigger').click()
+  await page.getByTestId('user-menu-item-sign-out').click()
   await expect(page.getByTestId('login-page')).toBeVisible()
 }
 

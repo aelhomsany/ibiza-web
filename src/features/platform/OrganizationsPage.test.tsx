@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import { OrganizationsPage } from './OrganizationsPage'
+import { ToastProvider } from '../../components/ui/ToastProvider'
 import { mockAcmeForEditSubscription } from './platformSubscriptionTestFixtures'
 
 function renderOrganizationsPage() {
@@ -13,7 +14,9 @@ function renderOrganizationsPage() {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <OrganizationsPage />
+      <ToastProvider>
+        <OrganizationsPage />
+      </ToastProvider>
     </QueryClientProvider>,
   )
 }
@@ -35,7 +38,7 @@ describe('OrganizationsPage', () => {
     expect(
       screen.getByText('Provision orgs and manage subscriptions — no workforce leave data'),
     ).toBeInTheDocument()
-    const createButtons = screen.getAllByRole('button', { name: /^\+ create organization$/i })
+    const createButtons = screen.getAllByRole('button', { name: /^create organization$/i })
     expect(createButtons[0]).toHaveClass(
       'btn-admin',
     )
@@ -51,7 +54,7 @@ describe('OrganizationsPage', () => {
     const user = userEvent.setup()
     renderOrganizationsPage()
 
-    await user.click(screen.getAllByRole('button', { name: /^\+ create organization$/i })[0])
+    await user.click(screen.getAllByRole('button', { name: /^create organization$/i })[0])
 
     expect(
       screen.getByRole('dialog', { name: 'Create Organization' }),

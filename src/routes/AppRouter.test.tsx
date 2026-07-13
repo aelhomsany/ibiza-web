@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
@@ -10,6 +13,10 @@ import {
 } from '../test/authTestUtils'
 import { AppRoutes } from './AppRouter'
 import { mockCalendarMonth } from '../features/calendar/calendarTestFixtures'
+import { ToastProvider } from '../components/ui/ToastProvider'
+
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '../..')
+const indexHtmlPath = join(repoRoot, 'index.html')
 
 function renderAppRoutes(initialEntries: string[], authValue = createMockAuthForRole('EMPLOYEE')) {
   const queryClient = new QueryClient({
@@ -18,11 +25,13 @@ function renderAppRoutes(initialEntries: string[], authValue = createMockAuthFor
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={initialEntries}>
-        <AuthTestProvider value={authValue}>
-          <AppRoutes />
-        </AuthTestProvider>
-      </MemoryRouter>
+      <ToastProvider>
+        <MemoryRouter initialEntries={initialEntries}>
+          <AuthTestProvider value={authValue}>
+            <AppRoutes />
+          </AuthTestProvider>
+        </MemoryRouter>
+      </ToastProvider>
     </QueryClientProvider>,
   )
 }
@@ -44,6 +53,7 @@ describe('AppRoutes', () => {
   })
 
   afterEach(() => {
+    document.title = ''
     vi.useRealTimers()
     vi.restoreAllMocks()
   })
@@ -159,5 +169,59 @@ describe('AppRoutes', () => {
 
     expect(screen.getByTestId('admin-shell')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Page Not Found' })).toBeInTheDocument()
+  })
+
+  it('sets the dashboard page title', async () => {
+    renderAppRoutes(['/'], createMockAuthForRole('EMPLOYEE'))
+
+    await screen.findByTestId('dashboard-page')
+    expect(document.title).toBe('Dashboard — Ibiza')
+  })
+
+  it('sets the settings page title', async () => {
+    renderAppRoutes(['/settings'], createMockAuthForRole('HR_ADMIN'))
+
+    await screen.findByRole('heading', { name: 'Settings' })
+    expect(document.title).toBe('Settings — Ibiza')
+  })
+
+  it('sets the login page title', async () => {
+    renderAppRoutes(
+      ['/login'],
+      createMockAuthValue({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      }),
+    )
+
+    expect(await screen.findByTestId('login-page')).toBeInTheDocument()
+    expect(document.title).toBe('Sign in — Ibiza')
+  })
+
+  it('sets the platform organizations page title', async () => {
+    renderAppRoutes(['/platform/organizations'], createMockAuthForRole('PLATFORM_ADMIN'))
+
+    await screen.findByRole('heading', { name: 'Organizations' })
+    expect(document.title).toBe('Organizations — Ibiza')
+  })
+
+  it('uses the static product title before React boots', () => {
+    const html = readFileSync(indexHtmlPath, 'utf-8')
+    expect(html).toContain('<title>Ibiza — Team Leave Management</title>')
+  })
+
+  it('[P0] renders the real profile page in the org shell', async () => {
+    renderAppRoutes(['/profile'], createMockAuthForRole('EMPLOYEE'))
+
+    expect(await screen.findByTestId('profile-page')).toBeInTheDocument()
+    expect(screen.getByTestId('org-shell')).toBeInTheDocument()
+  })
+
+  it('[P0] renders the real profile page in the admin shell for platform admin', async () => {
+    renderAppRoutes(['/profile'], createMockAuthForRole('PLATFORM_ADMIN'))
+
+    expect(await screen.findByTestId('profile-page')).toBeInTheDocument()
+    expect(screen.getByTestId('admin-shell')).toBeInTheDocument()
   })
 })

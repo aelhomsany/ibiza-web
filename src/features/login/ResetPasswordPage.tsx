@@ -108,7 +108,7 @@ export function ResetPasswordPage() {
 
           <button
             type="submit"
-            className="auth-submit"
+            className="btn btn-primary btn-block"
             data-testid="reset-password-submit"
             disabled={submitting || !token}
           >

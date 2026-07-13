@@ -112,7 +112,7 @@ export function WorkforceGroupsWeekendsCard({
                 onWarning?.('Select at least one weekend day')
               }
               onChange={async (weekendDays) => {
-                updateWeekendsMutation.mutate({
+                await updateWeekendsMutation.mutateAsync({
                   groupId: activeGroup.id,
                   weekendDays,
                 })

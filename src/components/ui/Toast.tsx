@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import type { ToastState } from './useToast'
+import { useTranslation } from 'react-i18next'
+import '../../i18n/config'
+import type { ToastState } from './toastContext'
 import { CloseIcon } from './icons'
 import './toast.css'
 
@@ -8,7 +10,6 @@ const TOAST_DURATION_MS = 5000
 type ToastProps = {
   toast: ToastState | null
   onDismiss: () => void
-  testId?: string
 }
 
 /**
@@ -16,7 +17,8 @@ type ToastProps = {
  * timer while hovered or focused, and always offers an explicit dismiss button.
  * Success uses role="status"; warnings use role="alert". Pair with useToast().
  */
-export function Toast({ toast, onDismiss, testId }: ToastProps) {
+export function Toast({ toast, onDismiss }: ToastProps) {
+  const { t } = useTranslation('common')
   const [paused, setPaused] = useState(false)
   const remainingRef = useRef(TOAST_DURATION_MS)
   const startedAtRef = useRef(0)
@@ -51,7 +53,8 @@ export function Toast({ toast, onDismiss, testId }: ToastProps) {
       className={`app-toast${isWarning ? ' app-toast-warning' : ''}`}
       role={isWarning ? 'alert' : 'status'}
       aria-live={isWarning ? 'assertive' : 'polite'}
-      data-testid={testId}
+      data-testid="app-toast"
+      data-tone={toast.tone}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -61,7 +64,7 @@ export function Toast({ toast, onDismiss, testId }: ToastProps) {
       <button
         type="button"
         className="app-toast-dismiss"
-        aria-label="Dismiss notification"
+        aria-label={t('toast.dismiss')}
         onClick={onDismiss}
       >
         <CloseIcon size={14} />

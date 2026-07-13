@@ -5,6 +5,7 @@ import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import type { PendingApprovalResponse, RecentApprovalDecisionResponse } from '../../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
+import { ToastProvider } from '../../components/ui/ToastProvider'
 import { ApprovalsPage } from './ApprovalsPage'
 
 const mockPendingApprovals: PendingApprovalResponse[] = [
@@ -59,9 +60,11 @@ function renderApprovalsPage(role: 'MANAGER' | 'HR_ADMIN' = 'MANAGER') {
     queryClient,
     ...render(
       <QueryClientProvider client={queryClient}>
-        <AuthTestProvider value={createMockAuthForRole(role)}>
-          <ApprovalsPage />
-        </AuthTestProvider>
+        <ToastProvider>
+          <AuthTestProvider value={createMockAuthForRole(role)}>
+            <ApprovalsPage />
+          </AuthTestProvider>
+        </ToastProvider>
       </QueryClientProvider>,
     ),
   }
@@ -74,6 +77,24 @@ describe('ApprovalsPage', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
+  })
+
+  it('[P1] announces pending and recent loading states via role=status', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockImplementation(
+      () => new Promise(() => undefined),
+    )
+    vi.spyOn(apiClient, 'getRecentApprovalDecisions').mockImplementation(
+      () => new Promise(() => undefined),
+    )
+
+    renderApprovalsPage('MANAGER')
+
+    expect(
+      screen.getByRole('status', { name: /loading pending requests/i }),
+    ).toHaveAttribute('aria-busy', 'true')
+    expect(
+      screen.getByRole('status', { name: /loading recent decisions/i }),
+    ).toHaveAttribute('aria-busy', 'true')
   })
 
   it('renders the page full-bleed (page-wide) like Settings', async () => {
@@ -150,7 +171,7 @@ describe('ApprovalsPage', () => {
 
     expect(approveSpy).toHaveBeenCalledWith(101)
     await waitFor(() =>
-      expect(screen.getByTestId('approval-success-toast')).toHaveTextContent(/approved/i),
+      expect(screen.getByTestId('app-toast')).toHaveTextContent(/approved/i),
     )
 
     const invalidatedKeys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]))
@@ -210,7 +231,7 @@ describe('ApprovalsPage', () => {
 
     expect(declineSpy).toHaveBeenCalledWith(101, 'Coverage gap that week')
     await waitFor(() =>
-      expect(screen.getByTestId('approval-success-toast')).toHaveTextContent(/declined/i),
+      expect(screen.getByTestId('app-toast')).toHaveTextContent(/declined/i),
     )
 
     const invalidatedKeys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]))
@@ -285,7 +306,7 @@ describe('ApprovalsPage', () => {
     await user.click(screen.getByTestId('approve-btn-101'))
 
     await waitFor(() =>
-      expect(screen.getByTestId('approval-success-toast')).toHaveTextContent(/approved/i),
+      expect(screen.getByTestId('app-toast')).toHaveTextContent(/approved/i),
     )
 
     const invalidatedKeys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]))
@@ -335,7 +356,7 @@ describe('ApprovalsPage', () => {
     await user.click(screen.getByTestId('approve-btn-101'))
 
     await waitFor(() =>
-      expect(screen.getByTestId('approval-success-toast')).toHaveTextContent(/approved/i),
+      expect(screen.getByTestId('app-toast')).toHaveTextContent(/approved/i),
     )
     await waitFor(() => {
       expect(screen.queryByTestId('approval-row-101')).not.toBeInTheDocument()
@@ -366,7 +387,7 @@ describe('ApprovalsPage', () => {
     await user.click(screen.getByTestId('decline-confirm-btn'))
 
     await waitFor(() =>
-      expect(screen.getByTestId('approval-success-toast')).toHaveTextContent(/declined/i),
+      expect(screen.getByTestId('app-toast')).toHaveTextContent(/declined/i),
     )
 
     const invalidatedKeys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]))

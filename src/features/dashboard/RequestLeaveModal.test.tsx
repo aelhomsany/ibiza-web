@@ -1,11 +1,20 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import type { PreviewLeaveRequestResponse } from '../../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
+import { mockBackdropGeometry } from '../../test/backdropTestUtils'
 import { RequestLeaveModal } from './RequestLeaveModal'
+
+const globalCss = readFileSync(
+  resolve(dirname(fileURLToPath(import.meta.url)), '../../styles/global.css'),
+  'utf8',
+)
 
 const mockLeaveTypes = [
   {
@@ -41,13 +50,14 @@ function renderModal(open = true, onClose = vi.fn()) {
     defaultOptions: { queries: { retry: false } },
   })
 
-  return render(
+  const result = render(
     <QueryClientProvider client={queryClient}>
       <AuthTestProvider value={createMockAuthForRole('EMPLOYEE')}>
         <RequestLeaveModal open={open} onClose={onClose} />
       </AuthTestProvider>
     </QueryClientProvider>,
   )
+  return { ...result, onClose }
 }
 
 async function setLeaveDates(from: string, to: string) {
@@ -89,6 +99,55 @@ describe('RequestLeaveModal — Story 3.3', () => {
 
     expect(screen.getByTestId('submit-request-btn')).toBeDisabled()
     expect(screen.getByRole('alert')).toHaveTextContent(/US Workforce Group/i)
+  })
+
+  it('[P1] keeps shared disabled .btn CSS attached to disabled submit controls', async () => {
+    vi.spyOn(apiClient, 'previewLeaveRequest').mockResolvedValue(mockPreviewZeroDays)
+    const user = userEvent.setup()
+
+    renderModal()
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: /Annual Leave/i })).toBeInTheDocument()
+    })
+    await user.selectOptions(screen.getByLabelText(/Leave Type/i), '1')
+    await setLeaveDates('2026-06-06', '2026-06-07')
+
+    await waitFor(() => {
+      expect(screen.getByTestId('submit-request-btn')).toBeDisabled()
+    })
+
+    expect(screen.getByTestId('submit-request-btn')).toHaveClass('btn')
+    expect(globalCss).toMatch(/\.btn:disabled\s*{[^}]*opacity:\s*\.55;[^}]*cursor:\s*not-allowed;/s)
+    expect(globalCss).toMatch(/\.btn:disabled:hover\s*{[^}]*filter:\s*none;/s)
+    expect(globalCss).toMatch(/\.btn:disabled:active\s*{[^}]*transform:\s*none;/s)
+  })
+
+  it('[P0] keeps the request form open and preserves input on backdrop click', async () => {
+    const user = userEvent.setup()
+    const { onClose } = renderModal()
+
+    await user.type(screen.getByLabelText(/Note/i), 'Need coverage for a family trip')
+    const dialog = screen.getByTestId('request-leave-modal')
+    mockBackdropGeometry(dialog)
+
+    fireEvent.click(dialog, { clientX: 20, clientY: 20 })
+
+    expect(onClose).not.toHaveBeenCalled()
+    expect(screen.getByTestId('request-leave-modal')).toBeInTheDocument()
+    expect(screen.getByLabelText(/Note/i)).toHaveValue('Need coverage for a family trip')
+  })
+
+  it('[P1] still closes from Cancel and Escape', async () => {
+    const user = userEvent.setup()
+    const { onClose } = renderModal()
+    const dialog = screen.getByTestId('request-leave-modal')
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(onClose).toHaveBeenCalledTimes(1)
+
+    fireEvent(dialog, new Event('cancel', { cancelable: true }))
+    expect(onClose).toHaveBeenCalledTimes(2)
   })
 
   it('[P1] renders charged-day preview copy and workforce group context', async () => {

@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { RecentRequestResponse } from '../../api/generated/types'
 import { useAuth } from '../../auth/useAuth'
 import { LeaveStatusBadge } from '../../components/ui/LeaveStatusBadge'
-import { Toast } from '../../components/ui/Toast'
+import { LoadingState } from '../../components/ui/LoadingState'
 import { PlusIcon } from '../../components/ui/icons'
 import { useToast } from '../../components/ui/useToast'
 import { AuditHistoryExpander } from '../approvals/AuditHistoryExpander'
@@ -92,10 +93,11 @@ function HistoryTable({
 }
 
 export function MyLeavesPage() {
+  const { t } = useTranslation('layout')
   const { user } = useAuth()
   const isHrAdmin = user?.role === 'HR_ADMIN'
   const [modalOpen, setModalOpen] = useState(false)
-  const { toast, showToast, dismissToast } = useToast()
+  const { showToast } = useToast()
   const balancesQuery = useDashboardBalances()
   const historyQuery = useMyLeaveRequests()
 
@@ -125,11 +127,17 @@ export function MyLeavesPage() {
           Balances
         </h2>
         {balancesQuery.isPending && (
-          <div className="balance-grid" data-testid="my-leaves-balance-grid-loading">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="dashboard-skeleton-card" />
-            ))}
-          </div>
+          <LoadingState
+            label={t('loading.leaveBalances')}
+            variant="skeleton"
+            testId="my-leaves-balance-grid-loading"
+          >
+            <div className="balance-grid">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} className="dashboard-skeleton-card" />
+              ))}
+            </div>
+          </LoadingState>
         )}
 
         {balancesQuery.isError && (
@@ -155,9 +163,11 @@ export function MyLeavesPage() {
         </div>
 
         {historyQuery.isPending && (
-          <div className="dashboard-section-loading" data-testid="my-leaves-history-loading">
-            Loading leave history...
-          </div>
+          <LoadingState
+            label={t('loading.leaveHistory')}
+            variant="block"
+            testId="my-leaves-history-loading"
+          />
         )}
 
         {historyQuery.isError && (
@@ -176,8 +186,6 @@ export function MyLeavesPage() {
         onClose={() => setModalOpen(false)}
         onSuccess={showSubmitSuccessToast}
       />
-
-      <Toast toast={toast} onDismiss={dismissToast} testId="submit-success-toast" />
     </div>
   )
 }

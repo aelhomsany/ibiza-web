@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../auth/useAuth'
-import { Toast } from '../../components/ui/Toast'
 import { PlusIcon } from '../../components/ui/icons'
 import { useToast } from '../../components/ui/useToast'
 import { usePendingApprovalCount } from '../approvals/usePendingApprovalCount'
@@ -29,7 +28,7 @@ function timeGreeting(): string {
 export function DashboardPage() {
   const { user } = useAuth()
   const [modalOpen, setModalOpen] = useState(false)
-  const { toast, showToast, dismissToast } = useToast()
+  const { showToast } = useToast()
   const balancesQuery = useDashboardBalances()
   const recentQuery = useDashboardRecentRequests()
   const outTodayQuery = useDashboardOutToday()
@@ -114,8 +113,6 @@ export function DashboardPage() {
         onClose={() => setModalOpen(false)}
         onSuccess={showSubmitSuccessToast}
       />
-
-      <Toast toast={toast} onDismiss={dismissToast} testId="submit-success-toast" />
     </div>
   )
 }

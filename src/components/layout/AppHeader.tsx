@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, RefObject } from 'react'
+import { useTranslation } from 'react-i18next'
+import '../../i18n/config'
 import { MenuIcon, CloseIcon, UmbrellaIcon } from '../ui/icons'
 import './app-header.css'
 
@@ -13,6 +15,8 @@ type AppHeaderProps = {
   /** Mobile drawer state — the hamburger is hidden on desktop. */
   navOpen: boolean
   onToggleNav: () => void
+  /** Ref for focus return when the mobile drawer closes. */
+  menuButtonRef?: RefObject<HTMLButtonElement | null>
 }
 
 /**
@@ -27,18 +31,21 @@ export function AppHeader({
   actions,
   navOpen,
   onToggleNav,
+  menuButtonRef,
 }: AppHeaderProps) {
+  const { t } = useTranslation('layout')
   return (
     <header
       className={`app-header app-header--${variant}`}
       data-testid="app-header"
     >
       <button
+        ref={menuButtonRef}
         type="button"
         className="app-header-menu"
         aria-expanded={navOpen}
         aria-controls="app-sidebar"
-        aria-label={navOpen ? 'Close navigation' : 'Open navigation'}
+        aria-label={navOpen ? t('header.closeNavigation') : t('header.openNavigation')}
         data-testid="shell-topbar-menu"
         onClick={onToggleNav}
       >

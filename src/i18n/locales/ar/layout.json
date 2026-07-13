@@ -1,0 +1,9 @@
+{
+  "nav": { "dashboard": "لوحة المعلومات", "myLeaves": "إجازاتي", "calendar": "التقويم", "approvals": "الموافقات", "settings": "الإعدادات", "organizations": "المؤسسات" },
+  "navigation": { "main": "التنقل الرئيسي" },
+  "header": { "openNavigation": "فتح التنقل", "closeNavigation": "إغلاق التنقل", "userMenu": "قائمة المستخدم، {{name}}", "accountMenu": "قائمة الحساب", "language": "اللغة" },
+  "menu": { "profile": "تفاصيل الملف الشخصي", "myRequests": "طلباتي", "signOut": "تسجيل الخروج" },
+  "notifications": { "label": "الإشعارات", "unread": "الإشعارات، {{count}} غير مقروءة", "markAllRead": "تحديد الكل كمقروء", "loading": "جارٍ تحميل الإشعارات...", "empty": "لا توجد إشعارات بعد" },
+  "loading": { "pendingApprovals": "جارٍ تحميل الطلبات المعلّقة…", "recentDecisions": "جارٍ تحميل القرارات الأخيرة…", "leaveBalances": "جارٍ تحميل أرصدة الإجازات", "leaveHistory": "جارٍ تحميل سجل الإجازات", "teamMembers": "جارٍ تحميل أعضاء الفريق…" },
+  "language": { "en": "English", "ar": "العربية", "current": "اللغة الحالية", "saveFailed": "تعذر حفظ تفضيل اللغة. يرجى المحاولة مرة أخرى." }
+}

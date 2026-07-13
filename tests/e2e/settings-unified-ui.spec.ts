@@ -67,6 +67,8 @@ test.describe('Settings unified UI — Story 2.7', () => {
     await page.getByTestId('create-group-submit').click()
 
     await expect(page.getByRole('tab', { name: groupName })).toBeVisible()
-    await expect(page.getByTestId('settings-toast')).toContainText(new RegExp(`${groupName}|created`, 'i'))
+    const toast = page.getByTestId('app-toast')
+    await expect(toast).toContainText(new RegExp(`${groupName}|created`, 'i'))
+    await expect(toast).toHaveAttribute('data-tone', 'success')
   })
 })

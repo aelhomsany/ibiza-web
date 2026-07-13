@@ -91,9 +91,11 @@ test.describe('Team member plan limit', () => {
     await page.getByLabel(/Workforce Group/i).selectOption({ index: 1 })
     await page.getByRole('button', { name: /Save/i }).click()
 
-    await expect(page.getByTestId('settings-toast')).toContainText(
+    const toast = page.getByTestId('app-toast')
+    await expect(toast).toContainText(
       `${orgName} is at the 3-user Free limit`,
     )
+    await expect(toast).toHaveAttribute('data-tone', 'warning')
     await expect(page.getByText('Add Team Member')).toBeVisible()
   })
 })

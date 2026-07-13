@@ -138,6 +138,7 @@ export function CalendarSyncSettings({
               className="btn btn-primary btn-sm"
               onClick={() => connectMutation.mutate()}
               disabled={connectMutation.isPending}
+              data-busy={connectMutation.isPending ? 'true' : undefined}
               data-testid="calendar-sync-connect"
             >
               <CalendarIcon size={14} /> Connect
@@ -149,6 +150,7 @@ export function CalendarSyncSettings({
               className="btn btn-outline btn-sm"
               onClick={() => retryMutation.mutate()}
               disabled={retryMutation.isPending}
+              data-busy={retryMutation.isPending ? 'true' : undefined}
               data-testid="calendar-sync-retry"
             >
               <RefreshCwIcon size={14} /> Retry
@@ -207,6 +209,7 @@ export function CalendarSyncSettings({
               className="btn btn-primary"
               onClick={() => disconnectMutation.mutate()}
               disabled={disconnectMutation.isPending}
+              data-busy={disconnectMutation.isPending ? 'true' : undefined}
             >
               Confirm Disconnect
             </button>

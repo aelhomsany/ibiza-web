@@ -10,6 +10,10 @@ import {
   getWorkforceGroups,
   updateTeamMember,
 } from '../../api/client'
+import {
+  fieldErrorsFromApiError,
+  TEAM_MEMBER_FIELD_IDS,
+} from '../../api/fieldViolations'
 import type {
   CreateCheckoutSessionRequest,
   CreateTeamMemberRequest,
@@ -19,7 +23,9 @@ import type {
 import { useAuth } from '../../auth/useAuth'
 import { Modal } from '../../components/ui/Modal'
 import { CloseIcon } from '../../components/ui/icons'
+import { FieldErrorMessage } from '../../components/form/FieldErrorMessage'
 import { redirectToExternalUrl } from '../../navigation/redirect'
+import { translateFieldViolation } from '../../i18n/fieldViolationMessage'
 import './team-members.css'
 
 type Props = {
@@ -76,6 +82,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
   const [managerId, setManagerId] = useState<number | ''>('')
   const [entitlements, setEntitlements] = useState<Record<number, number>>({})
   const [groupError, setGroupError] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [upgradePrompt, setUpgradePrompt] = useState<{
     detail: string
     checkoutUnavailable: boolean
@@ -157,6 +164,18 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
         })
         return
       }
+      if (err instanceof ApiError) {
+        const nextFieldErrors = fieldErrorsFromApiError(err.fieldViolations)
+        if (nextFieldErrors) {
+          const mappedFieldErrors = teamMemberFieldErrors(translateFieldErrors(nextFieldErrors))
+          if (Object.keys(mappedFieldErrors).length > 0) {
+            setFieldErrors(mappedFieldErrors)
+          }
+          if (Object.keys(mappedFieldErrors).length === Object.keys(nextFieldErrors).length) {
+            return
+          }
+        }
+      }
       const msg =
         err instanceof ApiError ? err.problem.detail ?? 'Failed to add member' : 'Failed to add member'
       onWarning?.(msg)
@@ -190,6 +209,18 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
       onSuccess('Team member updated.')
     },
     onError: (err) => {
+      if (err instanceof ApiError) {
+        const nextFieldErrors = fieldErrorsFromApiError(err.fieldViolations)
+        if (nextFieldErrors) {
+          const mappedFieldErrors = teamMemberFieldErrors(translateFieldErrors(nextFieldErrors))
+          if (Object.keys(mappedFieldErrors).length > 0) {
+            setFieldErrors(mappedFieldErrors)
+          }
+          if (Object.keys(mappedFieldErrors).length === Object.keys(nextFieldErrors).length) {
+            return
+          }
+        }
+      }
       const msg =
         err instanceof ApiError ? err.problem.detail ?? 'Failed to update member' : 'Failed to update member'
       onWarning?.(msg)
@@ -199,6 +230,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setUpgradePrompt(null)
+    setFieldErrors({})
     if (!workforceGroupId) {
       setGroupError(true)
       return
@@ -248,8 +280,44 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
 
   const isPending = createMutation.isPending || updateMutation.isPending
 
+  function clearFieldError(field: string) {
+    setFieldErrors((prev) => {
+      if (!(field in prev)) return prev
+      const next = { ...prev }
+      delete next[field]
+      return next
+    })
+  }
+
+  function fieldErrorProps(field: keyof typeof TEAM_MEMBER_FIELD_IDS) {
+    const fieldId = TEAM_MEMBER_FIELD_IDS[field]
+    const message =
+      fieldErrors[field] ??
+      (field === 'workforceGroupId' && groupError ? 'Workforce Group is required' : undefined)
+    if (!message) {
+      return { message: undefined, fieldId, invalid: false, describedBy: undefined }
+    }
+    return {
+      message,
+      fieldId,
+      invalid: true,
+      describedBy: `field-error-${fieldId}`,
+    }
+  }
+
+  const fullNameError = fieldErrorProps('fullName')
+  const emailError = fieldErrorProps('email')
+  const departmentError = fieldErrorProps('department')
+  const roleError = fieldErrorProps('role')
+  const groupFieldError = fieldErrorProps('workforceGroupId')
+
   return (
-    <Modal labelledBy="team-member-modal-title" onClose={onClose} className="modal-wide">
+    <Modal
+      labelledBy="team-member-modal-title"
+      onClose={onClose}
+      className="modal-wide"
+      closeOnBackdrop={false}
+    >
         <div className="modal-header">
           <span className="modal-title" id="team-member-modal-title">
             {isEdit ? 'Edit Team Member' : 'Add Team Member'}
@@ -266,9 +334,17 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
               id="tm-fullname"
               type="text"
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              onChange={(e) => {
+                setFullName(e.target.value)
+                clearFieldError('fullName')
+              }}
               required
+              aria-invalid={fullNameError.invalid || undefined}
+              aria-describedby={fullNameError.describedBy}
             />
+            {fullNameError.message && (
+              <FieldErrorMessage fieldId={fullNameError.fieldId} message={fullNameError.message} />
+            )}
           </div>
 
           {!isEdit && (
@@ -278,9 +354,17 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
                 id="tm-email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  clearFieldError('email')
+                }}
                 required
+                aria-invalid={emailError.invalid || undefined}
+                aria-describedby={emailError.describedBy}
               />
+              {emailError.message && (
+                <FieldErrorMessage fieldId={emailError.fieldId} message={emailError.message} />
+              )}
             </div>
           )}
 
@@ -290,9 +374,17 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
               id="tm-dept"
               type="text"
               value={department}
-              onChange={(e) => setDepartment(e.target.value)}
+              onChange={(e) => {
+                setDepartment(e.target.value)
+                clearFieldError('department')
+              }}
               required
+              aria-invalid={departmentError.invalid || undefined}
+              aria-describedby={departmentError.describedBy}
             />
+            {departmentError.message && (
+              <FieldErrorMessage fieldId={departmentError.fieldId} message={departmentError.message} />
+            )}
           </div>
 
           <div className="form-row-2col">
@@ -301,17 +393,25 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
               <select
                 id="tm-role"
                 value={role}
-                onChange={(e) => setRole(e.target.value as UserRole)}
+                onChange={(e) => {
+                  setRole(e.target.value as UserRole)
+                  clearFieldError('role')
+                }}
+                aria-invalid={roleError.invalid || undefined}
+                aria-describedby={roleError.describedBy}
               >
                 <option value="EMPLOYEE">Employee</option>
                 <option value="MANAGER">Manager</option>
                 <option value="HR_ADMIN">HR Admin</option>
               </select>
+              {roleError.message && (
+                <FieldErrorMessage fieldId={roleError.fieldId} message={roleError.message} />
+              )}
             </div>
 
             <div className="form-group">
               <label htmlFor="tm-group">
-                Workforce Group <span style={{ color: 'var(--color-danger)' }}>*</span>
+                Workforce Group <span className="field-required">*</span>
               </label>
               <select
                 id="tm-group"
@@ -319,9 +419,11 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
                 onChange={(e) => {
                   setWorkforceGroupId(e.target.value === '' ? '' : Number(e.target.value))
                   setGroupError(false)
+                  clearFieldError('workforceGroupId')
                 }}
                 required
-                aria-invalid={groupError}
+                aria-invalid={groupFieldError.invalid || undefined}
+                aria-describedby={groupFieldError.describedBy}
               >
                 <option value="">— Select group —</option>
                 {groups.map((g) => (
@@ -330,10 +432,8 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
                   </option>
                 ))}
               </select>
-              {groupError && (
-                <span className="field-error" role="alert">
-                  Workforce Group is required
-                </span>
+              {groupFieldError.message && (
+                <FieldErrorMessage fieldId={groupFieldError.fieldId} message={groupFieldError.message} />
               )}
             </div>
           </div>
@@ -407,6 +507,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
                   className="btn btn-primary"
                   onClick={handleUpgrade}
                   disabled={checkoutMutation.isPending}
+                  data-busy={checkoutMutation.isPending ? 'true' : undefined}
                 >
                   {checkoutMutation.isPending ? 'Opening…' : 'Upgrade'}
                 </button>
@@ -418,7 +519,12 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
             <button type="button" className="btn btn-outline" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={isPending}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isPending}
+              data-busy={isPending ? 'true' : undefined}
+            >
               {isPending ? 'Saving…' : 'Save'}
             </button>
           </div>
@@ -429,4 +535,16 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
 
 function isPlanLimitReached(err: unknown): err is ApiError {
   return err instanceof ApiError && err.problem.code === 'plan-limit-reached'
+}
+
+function teamMemberFieldErrors(fieldErrors: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(fieldErrors).filter(([field]) => field in TEAM_MEMBER_FIELD_IDS),
+  )
+}
+
+function translateFieldErrors(fieldErrors: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(fieldErrors).map(([field, message]) => [field, translateFieldViolation(field, message)]),
+  )
 }

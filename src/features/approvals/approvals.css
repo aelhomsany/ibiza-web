@@ -86,24 +86,6 @@
   color: var(--color-danger);
 }
 
-/* Transparent border matches .btn-danger-outline's 1px so the Approve/Decline
-   pair renders the same box height regardless of flex stretch behavior. */
-.btn-success {
-  background: var(--color-mint);
-  border: 1px solid transparent;
-  color: var(--color-foreground);
-}
-
-.btn-success:hover:not(:disabled) {
-  filter: brightness(0.97);
-}
-
-.btn-danger-outline {
-  background: var(--color-white);
-  border: 1px solid var(--color-danger);
-  color: var(--color-danger);
-}
-
 .approval-name-row {
   display: flex;
   flex-wrap: wrap;
@@ -218,6 +200,7 @@
 
 .recent-decisions-table {
   width: 100%;
+  min-width: 1040px;
   border-collapse: collapse;
 }
 
@@ -244,10 +227,6 @@
   align-items: center;
   gap: 8px;
   font-weight: 600;
-}
-
-.btn-danger-outline:hover:not(:disabled) {
-  background: var(--color-declined-bg);
 }
 
 .audit-history-panel {

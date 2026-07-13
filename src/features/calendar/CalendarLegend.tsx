@@ -1,10 +1,20 @@
+import type { CSSProperties } from 'react'
 import type { CalendarAbsenceResponse, CalendarHolidayResponse } from '../../api/generated/types'
-import { groupPillClass } from '../../components/groupPillClass'
-import { firstName, uniqueBy, userColorClass } from './calendarMonthUtils'
+import { chipColorStyle, pillColorStyle } from '../../utils/entityColor'
+import { firstName, uniqueBy } from './calendarMonthUtils'
 
 type CalendarLegendProps = {
   absences: CalendarAbsenceResponse[]
   holidays: CalendarHolidayResponse[]
+}
+
+function groupPillStyle(
+  workforceGroupId: number | undefined,
+  workforceGroupName: string,
+): CSSProperties {
+  return pillColorStyle(
+    workforceGroupId ?? workforceGroupName.trim().toLowerCase(),
+  ) as CSSProperties
 }
 
 export function CalendarLegend({ absences, holidays }: CalendarLegendProps) {
@@ -28,14 +38,20 @@ export function CalendarLegend({ absences, holidays }: CalendarLegendProps) {
 
       {users.map((absence) => (
         <span key={absence.userId} className="cal-legend-item">
-          <span className={`cal-user-dot ${userColorClass('cal-user-dot', absence.userColorKey)}`} />
+          <span
+            className="cal-user-dot"
+            style={chipColorStyle(absence.userId) as CSSProperties}
+          />
           <span>{firstName(absence.userFullName)}</span>
         </span>
       ))}
 
       {holidayGroups.map((holiday) => (
         <span key={holiday.workforceGroupId} className="cal-legend-item">
-          <span className={groupPillClass(holiday.workforceGroupName)}>
+          <span
+            className="group-pill"
+            style={groupPillStyle(holiday.workforceGroupId, holiday.workforceGroupName ?? '')}
+          >
             {holiday.workforceGroupName}
           </span>
           <span>holiday</span>

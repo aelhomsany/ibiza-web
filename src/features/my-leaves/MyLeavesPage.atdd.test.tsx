@@ -5,6 +5,7 @@ import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import type { BalanceCardResponse, RecentRequestResponse } from '../../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
+import { ToastProvider } from '../../components/ui/ToastProvider'
 import { MyLeavesPage } from './MyLeavesPage'
 
 const mockBalances: BalanceCardResponse[] = [
@@ -101,9 +102,11 @@ function renderMyLeavesPage() {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthTestProvider value={createMockAuthForRole('EMPLOYEE')}>
-        <MyLeavesPage />
-      </AuthTestProvider>
+      <ToastProvider>
+        <AuthTestProvider value={createMockAuthForRole('EMPLOYEE')}>
+          <MyLeavesPage />
+        </AuthTestProvider>
+      </ToastProvider>
     </QueryClientProvider>,
   )
 }

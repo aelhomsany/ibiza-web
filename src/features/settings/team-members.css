@@ -48,8 +48,8 @@
   margin-top: 2px;
 }
 
-/* ---- Role badges ---- */
-.badge {
+/* ---- Role badges (settings only — distinct from global .badge status/presence) ---- */
+.role-badge {
   display: inline-flex;
   align-items: center;
   font-size: 12px;
@@ -59,19 +59,29 @@
   white-space: nowrap;
 }
 
-.badge-EMPLOYEE {
+.role-badge-EMPLOYEE {
   background: var(--color-mint-tint);
   color: var(--color-foreground);
 }
 
-.badge-MANAGER {
+.role-badge-MANAGER {
   background: var(--color-teal-tint);
   color: var(--color-teal);
 }
 
-.badge-HR_ADMIN {
+.role-badge-HR_ADMIN {
   background: var(--color-admin-accent);
   color: var(--color-foreground);
+}
+
+.settings-list-hint {
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.member-details {
+  flex: 1;
+  min-width: 0;
 }
 
 .member-status-badge {

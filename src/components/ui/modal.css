@@ -45,7 +45,7 @@
   cursor: pointer;
   color: var(--color-muted);
   line-height: 1;
-  padding: 2px 4px;
+  padding: 8px;
 }
 
 .modal-close:hover {

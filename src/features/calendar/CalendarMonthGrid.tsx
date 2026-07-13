@@ -1,5 +1,6 @@
+import type { CSSProperties } from 'react'
 import type { CalendarMonthResponse } from '../../api/generated/types'
-import { groupPillClass } from '../../components/groupPillClass'
+import { pillColorStyle } from '../../utils/entityColor'
 import { CalendarEventChip } from './CalendarEventChip'
 import {
   DAY_NAMES,
@@ -12,6 +13,15 @@ import {
 type CalendarMonthGridProps = {
   calendar: CalendarMonthResponse
   month: string
+}
+
+function groupPillStyle(
+  workforceGroupId: number | undefined,
+  workforceGroupName: string,
+): CSSProperties {
+  return pillColorStyle(
+    workforceGroupId ?? workforceGroupName.trim().toLowerCase(),
+  ) as CSSProperties
 }
 
 export function CalendarMonthGrid({ calendar, month }: CalendarMonthGridProps) {
@@ -56,7 +66,10 @@ export function CalendarMonthGrid({ calendar, month }: CalendarMonthGridProps) {
                 {dayHolidays.map((holiday) => (
                   <div key={`${holiday.holidayId}-${cell.date}`} className="holiday-label">
                     <span>{holiday.name}</span>
-                    <span className={groupPillClass(holiday.workforceGroupName)}>
+                    <span
+                      className="group-pill"
+                      style={groupPillStyle(holiday.workforceGroupId, holiday.workforceGroupName ?? '')}
+                    >
                       {holiday.workforceGroupName}
                     </span>
                   </div>

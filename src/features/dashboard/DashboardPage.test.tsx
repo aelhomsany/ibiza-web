@@ -6,6 +6,7 @@ import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import type { BalanceCardResponse } from '../../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
+import { ToastProvider } from '../../components/ui/ToastProvider'
 import { DashboardPage } from './DashboardPage'
 
 const mockBalances: BalanceCardResponse[] = [
@@ -46,11 +47,13 @@ function renderDashboardPage(role: 'EMPLOYEE' | 'MANAGER' | 'HR_ADMIN' = 'EMPLOY
     queryClient,
     ...render(
       <QueryClientProvider client={queryClient}>
-        <MemoryRouter>
-          <AuthTestProvider value={createMockAuthForRole(role)}>
-            <DashboardPage />
-          </AuthTestProvider>
-        </MemoryRouter>
+        <ToastProvider>
+          <MemoryRouter>
+            <AuthTestProvider value={createMockAuthForRole(role)}>
+              <DashboardPage />
+            </AuthTestProvider>
+          </MemoryRouter>
+        </ToastProvider>
       </QueryClientProvider>,
     ),
   }

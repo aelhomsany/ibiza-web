@@ -148,6 +148,7 @@ export function EditSubscriptionModal({ organization, onClose, onSuccess }: Prop
               className="btn btn-admin"
               data-testid="edit-subscription-submit"
               disabled={updateMutation.isPending}
+              data-busy={updateMutation.isPending ? 'true' : undefined}
             >
               {updateMutation.isPending ? 'Saving...' : 'Save Subscription'}
             </button>
