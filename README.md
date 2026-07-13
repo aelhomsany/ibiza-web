@@ -67,16 +67,34 @@ Role nav rules live in `src/auth/rolePermissions.ts` (single source of truth for
 
 All HTTP calls go through `src/api/client.ts` with `credentials: 'include'`, Bearer auth, `X-Correlation-Id`, and a single 401 refresh retry.
 
-## Scripts
+## Testing
+
+| Purpose | Run from | Command |
+|---------|----------|---------|
+| All API tests | `ibiza-api` repository root | `./mvnw -q test` |
+| All Playwright tests | `ibiza-web` repository root | `npm run test:e2e:api` |
+| Exact seven-test Playwright smoke suite | `ibiza-web` repository root | `npm run test:e2e:smoke:api` |
+| Full Playwright regression suite | `ibiza-web` repository root | `npm run test:e2e:regression:api` |
+| All Vitest unit/component tests | `ibiza-web` repository root | `npm run test:ci` |
+
+The Playwright `:api` commands start the sibling `ibiza-api` service, so port 8080 must be free.
+The wrapper inherits exported `DB_*` variables and does not load `ibiza-api/.env`; without exports,
+it uses its documented localhost/root defaults. Use a disposable local database with pilot seed data
+because API-backed journeys can create or update records.
+
+The unfiltered all-Playwright command and the `@regression` command currently select the same 47
+maintained tests. The regression command states the intended selector explicitly.
+
+The canonical Playwright setup, taxonomy, exact smoke membership, and manual-running guidance live
+in [`tests/README.md`](tests/README.md). Playwright selectors supplement concrete test identities;
+they never replace paths in validation or trace artifacts.
+
+## Other Scripts
 
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Dev server on :5173 |
 | `npm run build` | Production build to `dist/` |
-| `npm run test:ci` | All Vitest unit/component tests (run once) |
-| `npm run test:e2e:api` | All 47 Playwright tests; starts sibling API |
-| `npm run test:e2e:smoke:api` | Exact seven-test Playwright smoke set; starts sibling API |
-| `npm run test:e2e:regression:api` | Full 47-test Playwright regression; starts sibling API |
 | `npm run test:e2e:ui-only` | Five browser-only Playwright tests without an API |
 | `npm run verify:e2e-tags` | Validate exact E2E manifest and tag invariants |
 | `npm run generate:api` | Regenerate OpenAPI types from running API (`http://localhost:8080/v3/api-docs`) |
@@ -91,10 +109,6 @@ npm run generate:api
 ```
 
 Commit updated generated files when API contracts change.
-
-The canonical Playwright setup, taxonomy, exact smoke membership, and manual-running guidance live
-in [`tests/README.md`](tests/README.md). Playwright selectors supplement concrete test identities;
-they never replace paths in validation or trace artifacts.
 
 ### Platform organization regression journeys
 
