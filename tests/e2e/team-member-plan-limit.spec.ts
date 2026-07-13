@@ -3,6 +3,7 @@ import { createHmac } from 'node:crypto'
 import type { APIRequestContext } from '@playwright/test'
 import { loginViaApi } from '../support/helpers/auth'
 import { apiRequest } from '../support/helpers/api-client'
+import { tags } from '../support/tags'
 
 const platformAdminCredentials = {
   email: process.env.E2E_PLATFORM_ADMIN_EMAIL ?? 'riley@ibiza.app',
@@ -14,7 +15,7 @@ type OrganizationSummary = {
   name: string
 }
 
-test.describe('Team member plan limit', () => {
+test.describe('Team member plan limit', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running with pilot seed data',

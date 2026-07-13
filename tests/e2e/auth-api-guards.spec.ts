@@ -1,8 +1,9 @@
 import { test, expect } from '../support/fixtures'
+import { tags } from '../support/tags'
 
 const apiUrl = process.env.API_URL ?? process.env.VITE_API_URL ?? 'http://localhost:8080'
 
-test.describe('Authentication API guards', () => {
+test.describe('Authentication API guards', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for API guard checks',

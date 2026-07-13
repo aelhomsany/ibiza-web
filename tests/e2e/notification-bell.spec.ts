@@ -1,9 +1,10 @@
 import { test, expect } from '../support/fixtures'
 import { loginViaUi } from '../support/helpers/auth'
+import { tags } from '../support/tags'
 
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
-test.describe('Notification bell — Story 5.1 / 7.11', () => {
+test.describe('Notification bell — Story 5.1 / 7.11', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for notification data',

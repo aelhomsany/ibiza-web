@@ -1,7 +1,13 @@
 import { test, expect } from '../support/fixtures'
 import { loginViaUi, logoutViaUi, navigateInApp, pilotCredentials } from '../support/helpers/auth'
+import { tags } from '../support/tags'
 
-test.describe('Auth session security', () => {
+test.describe('Auth session security', { tag: [tags.regression, tags.api] }, () => {
+  test.skip(
+    process.env.E2E_API_AVAILABLE !== 'true',
+    'Set E2E_API_AVAILABLE=true when ibiza-api is running for auth session checks',
+  )
+
   test('[P0-012] Given a signed-in user, When signing out, Then login page is shown', async ({ page }) => {
     await loginViaUi(page, pilotCredentials)
     await logoutViaUi(page)

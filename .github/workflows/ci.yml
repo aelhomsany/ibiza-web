@@ -30,8 +30,11 @@ jobs:
       - name: Build web app for preview
         run: npm run build
 
-      - name: Run E2E tests
-        run: npm run test:e2e
+      - name: Verify E2E tag integrity
+        run: npm run verify:e2e-tags
+
+      - name: Run UI-only E2E tests
+        run: npm run test:e2e:ui-only:ci
         env:
           CI: true
           TEST_ENV: ci
@@ -127,18 +130,21 @@ jobs:
         working-directory: ibiza-web
         run: npm run build
 
-      - name: Run E2E with API
+      - name: Verify E2E tag integrity
+        working-directory: ibiza-web
+        run: npm run verify:e2e-tags
+
+      - name: Run regression E2E with API
         working-directory: ibiza-web
         env:
           CI: true
           TEST_ENV: ci
           BASE_URL: http://localhost:5173
           API_URL: http://localhost:8080
-          # Story 3.7 approval-decision.spec.ts and other API-backed E2E specs
           E2E_API_AVAILABLE: 'true'
           E2E_USER_EMAIL: alex@company.com
           E2E_USER_PASSWORD: PilotDev123!
-        run: npm run test:e2e
+        run: npm run test:e2e:regression:ci
 
       - name: Stop ibiza-api
         if: always()

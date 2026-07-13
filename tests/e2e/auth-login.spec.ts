@@ -1,7 +1,8 @@
 import { test, expect } from '../support/fixtures'
 import { loginViaApi, pilotCredentials } from '../support/helpers/auth'
+import { tags } from '../support/tags'
 
-test.describe('Authentication API', () => {
+test.describe('Authentication API', { tag: [tags.smoke, tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for API auth checks',
@@ -16,7 +17,12 @@ test.describe('Authentication API', () => {
   })
 })
 
-test.describe('Authentication UI', () => {
+test.describe('Authentication UI', { tag: [tags.smoke, tags.regression, tags.api] }, () => {
+  test.skip(
+    process.env.E2E_API_AVAILABLE !== 'true',
+    'Set E2E_API_AVAILABLE=true when ibiza-api is running for UI auth checks',
+  )
+
   test('Given the login page, When signing in with valid credentials, Then dashboard loads', async ({
     page,
   }) => {

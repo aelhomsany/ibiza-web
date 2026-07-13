@@ -1,5 +1,6 @@
 import { test, expect } from '../support/fixtures'
 import { loginViaUi, navigateInApp } from '../support/helpers/auth'
+import { tags } from '../support/tags'
 
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
@@ -7,7 +8,7 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
  * Story 3.7 — sparse E2E for approve happy path + decline reason guard (FR-13 / UX-DR18).
  * Runs in CI via the ibiza-web `e2e-with-api` job (`E2E_API_AVAILABLE=true`).
  */
-test.describe('Approval decision — Story 3.7', () => {
+test.describe('Approval decision — Story 3.7', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot approval seed data',

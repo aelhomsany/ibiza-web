@@ -1,5 +1,6 @@
 import { test, expect } from '../support/fixtures'
 import { loginViaUi, navigateInApp } from '../support/helpers/auth'
+import { tags } from '../support/tags'
 
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
@@ -7,7 +8,7 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
  * Story 2.7 — unified Settings page composition.
  * Remove outer skip when ibiza-api is unavailable in CI; inner tests assert implemented UI.
  */
-test.describe('Settings unified UI — Story 2.7', () => {
+test.describe('Settings unified UI — Story 2.7', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for settings data',

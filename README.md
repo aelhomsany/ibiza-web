@@ -73,8 +73,12 @@ All HTTP calls go through `src/api/client.ts` with `credentials: 'include'`, Bea
 |---------|-------------|
 | `npm run dev` | Dev server on :5173 |
 | `npm run build` | Production build to `dist/` |
-| `npm test` | Vitest unit tests |
-| `npm run test:e2e` | Playwright E2E tests |
+| `npm run test:ci` | All Vitest unit/component tests (run once) |
+| `npm run test:e2e:api` | All 47 Playwright tests; starts sibling API |
+| `npm run test:e2e:smoke:api` | Exact seven-test Playwright smoke set; starts sibling API |
+| `npm run test:e2e:regression:api` | Full 47-test Playwright regression; starts sibling API |
+| `npm run test:e2e:ui-only` | Five browser-only Playwright tests without an API |
+| `npm run verify:e2e-tags` | Validate exact E2E manifest and tag invariants |
 | `npm run generate:api` | Regenerate OpenAPI types from running API (`http://localhost:8080/v3/api-docs`) |
 | `npm run lint` | ESLint |
 
@@ -88,22 +92,26 @@ npm run generate:api
 
 Commit updated generated files when API contracts change.
 
-### Platform create organization E2E
+The canonical Playwright setup, taxonomy, exact smoke membership, and manual-running guidance live
+in [`tests/README.md`](tests/README.md). Playwright selectors supplement concrete test identities;
+they never replace paths in validation or trace artifacts.
+
+### Platform organization regression journeys
 
 `tests/e2e/platform-create-organization.spec.ts` and
-`tests/e2e/platform-edit-subscription.spec.ts` are opt-in full-stack smokes. Start `ibiza-api` and
-`ibiza-web`, then run them with:
+`tests/e2e/platform-edit-subscription.spec.ts` are API-backed full-stack regression journeys. Run
+the full regression wrapper, or target a concrete file while the API is already running:
 
 ```bash
-E2E_API_AVAILABLE=true npm run test:e2e -- tests/e2e/platform-create-organization.spec.ts
-E2E_API_AVAILABLE=true npm run test:e2e -- tests/e2e/platform-edit-subscription.spec.ts
-E2E_API_AVAILABLE=true npm run test:e2e -- tests/e2e/team-member-plan-limit.spec.ts
+E2E_API_AVAILABLE=true npm run test:e2e:regression -- tests/e2e/platform-create-organization.spec.ts
+E2E_API_AVAILABLE=true npm run test:e2e:regression -- tests/e2e/platform-edit-subscription.spec.ts
+E2E_API_AVAILABLE=true npm run test:e2e:regression -- tests/e2e/team-member-plan-limit.spec.ts
 ```
 
-They sign in as the seeded Platform Admin. The create smoke creates a uniquely named organization
+They sign in as the seeded Platform Admin. The create journey creates a uniquely named organization
 and verifies the row appears with plan badge, initial HR contact, and user count. The edit
-subscription smoke opens the row action modal, updates the plan, and verifies the plan badge/user
-limit update on the Organizations table. The team-member plan-limit smoke creates a Free
+subscription journey opens the row action modal, updates the plan, and verifies the plan badge/user
+limit update on the Organizations table. The team-member plan-limit journey creates a Free
 organization through the platform API, seeds it to the 3-user limit, then verifies Settings shows
 the server warning detail and keeps the Add Member modal open.
 

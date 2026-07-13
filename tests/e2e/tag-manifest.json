@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "suites": {
+    "approval-decision.spec.ts::Approval decision — Story 3.7": {
+      "tags": ["@regression", "@api"],
+      "tests": [
+        "[P1] Manager approves a pending row and it disappears from the inbox",
+        "[P1] Decline confirm is blocked until a reason is entered",
+        "[P1] Manager declines a pending row and it disappears from the inbox"
+      ]
+    },
+    "approval-decisions-visibility.spec.ts::Approval visibility — Story 3.8": {
+      "tags": ["@regression", "@api"],
+      "tests": ["[P2] Manager sees Approvals badge and dashboard Review Now link"]
+    },
+    "approval-inbox.spec.ts::Approval inbox — Story 3.6": {
+      "tags": ["@smoke", "@regression", "@api"],
+      "tests": ["[P2] Manager sees direct-report pending row on Approvals page"]
+    },
+    "auth-api-guards.spec.ts::Authentication API guards": {
+      "tags": ["@regression", "@api"],
+      "tests": [
+        "[P0-001] Given no token, When calling /auth/me, Then 401 is returned",
+        "[P0-002] Given valid login, When calling /auth/me, Then org-scoped user is returned"
+      ]
+    },
+    "auth-login.spec.ts::Authentication API": {
+      "tags": ["@smoke", "@regression", "@api"],
+      "tests": ["Given pilot credentials, When logging in via API, Then an access token is returned"]
+    },
+    "auth-login.spec.ts::Authentication UI": {
+      "tags": ["@smoke", "@regression", "@api"],
+      "tests": ["Given the login page, When signing in with valid credentials, Then dashboard loads"]
+    },
+    "auth-session.spec.ts::Auth session security": {
+      "tags": ["@regression", "@api"],
+      "tests": [
+        "[P0-012] Given a signed-in user, When signing out, Then login page is shown",
+        "[P0-012] Given a signed-out user, When visiting a protected route, Then login page is shown",
+        "[P0-012] Given a failed session restore, When reloading the app, Then login page is shown",
+        "[P0-012] Given a signed-in user, When signing out, Then in-app navigation to dashboard shows login"
+      ]
+    },
+    "auth-validation.spec.ts::Auth validation — critical UX blocks": {
+      "tags": ["@regression", "@ui-only"],
+      "tests": [
+        "[P2] Given no reset token, When visiting reset-password, Then submit is disabled and error is shown",
+        "[P2] Given mismatched passwords, When submitting reset form, Then validation error is shown"
+      ]
+    },
+    "dashboard-balances.spec.ts::Dashboard balances — Story 3.1": {
+      "tags": ["@regression", "@api"],
+      "tests": ["[P1] Employee sees annual leave balance card with numbers after login"]
+    },
+    "dashboard-recent-and-sidebar.spec.ts::Dashboard recent requests and sidebar — Story 3.2": {
+      "tags": ["@regression", "@api"],
+      "tests": [
+        "[P1] Employee sees recent requests table and out-today sidebar after login",
+        "[P1] Pending row shows Waiting for approval hint",
+        "[P1] Out today shows teammate with WFH or Off badge"
+      ]
+    },
+    "example.spec.ts::Application shell": {
+      "tags": ["@regression", "@ui-only"],
+      "tests": [
+        "Given an unauthenticated visitor, When visiting the home page, Then the login page is shown",
+        "Given the user factory, When building a user, Then faker data is applied"
+      ]
+    },
+    "leave-request-validation.spec.ts::Leave request validation — FR-6 zero working days (Story 3.3)": {
+      "tags": ["@regression", "@api"],
+      "tests": ["[P0] Given a weekend-only date range, When preview renders, Then submit is blocked with group message"]
+    },
+    "my-leaves-history.spec.ts::My Leaves history — Story 3.5": {
+      "tags": ["@regression", "@api"],
+      "tests": ["[P2] Employee sees My Leaves balances, history, and shared request CTA"]
+    },
+    "notification-bell.spec.ts::Notification bell — Story 5.1 / 7.11": {
+      "tags": ["@regression", "@api"],
+      "tests": ["[P1] Org user opens notification panel from bell"]
+    },
+    "password-reset.spec.ts::Password reset form": {
+      "tags": ["@regression", "@ui-only"],
+      "tests": ["Given the forgot-password page, When visiting, Then the form is visible"]
+    },
+    "password-reset.spec.ts::Password reset submit": {
+      "tags": ["@regression", "@api"],
+      "tests": ["Given a known email, When submitting forgot-password, Then confirmation is shown"]
+    },
+    "platform-admin-auth.spec.ts::Platform Admin authentication": {
+      "tags": ["@smoke", "@regression", "@api"],
+      "tests": ["[P0] real Platform Admin login lands in admin shell without org navigation"]
+    },
+    "platform-create-organization.spec.ts::Platform create organization": {
+      "tags": ["@regression", "@api"],
+      "tests": ["[P0] Platform Admin creates organization and sees it in list"]
+    },
+    "platform-edit-subscription.spec.ts::Platform edit subscription": {
+      "tags": ["@regression", "@api"],
+      "tests": ["[P0] Platform Admin edits Acme subscription and row plan badge updates"]
+    },
+    "responsive-tables.spec.ts::Responsive tables — Story 10.3": {
+      "tags": ["@regression", "@api"],
+      "tests": [
+        "[P0] Dashboard recent requests scroll inside the table wrapper at 375px",
+        "[P0] My Leaves history scrolls inside the table wrapper at 375px",
+        "[P0] Approvals recent decisions expose the decision date at 375px"
+      ]
+    },
+    "role-navigation.spec.ts::Role-based navigation": {
+      "tags": ["@regression", "@api"],
+      "tests": [
+        "Employee sees base nav only",
+        "Manager sees Approvals without Settings",
+        "HR Admin sees Approvals and Settings",
+        "Employee direct URL to settings redirects to dashboard",
+        "Employee direct URL to approvals redirects to dashboard"
+      ]
+    },
+    "settings-api.spec.ts::Settings API — workforce groups and holidays": {
+      "tags": ["@regression", "@api"],
+      "tests": [
+        "[P1-004] US and Egypt groups expose different weekend day configurations",
+        "[P1-005] US group lists seeded public holidays"
+      ]
+    },
+    "settings-hr.spec.ts::HR Settings page": {
+      "tags": ["@smoke", "@regression", "@api"],
+      "tests": [
+        "[P1] HR Admin sees workforce group tabs and holidays on Settings",
+        "[P1] Switching workforce group tab updates the active weekend label",
+        "[P2] Leave Types card shows Annual Leave row"
+      ]
+    },
+    "settings-unified-ui.spec.ts::Settings unified UI — Story 2.7": {
+      "tags": ["@regression", "@api"],
+      "tests": [
+        "[P1] HR Admin sees subtitle and three policy cards in mockup order",
+        "[P1] Leave Types card shows five seeded types with uncapped Unpaid copy",
+        "[P1] + Add Group creates a new workforce group tab"
+      ]
+    },
+    "team-calendar.spec.ts::Team Calendar — Story 4.2 / 7.11": {
+      "tags": ["@regression", "@api"],
+      "tests": ["[P1] Employee sees calendar month nav and grid at /calendar"]
+    },
+    "team-member-plan-limit.spec.ts::Team member plan limit": {
+      "tags": ["@regression", "@api"],
+      "tests": ["[P0] HR blocked adding over-limit Free user sees warning toast and modal stays open"]
+    }
+  }
+}

@@ -1,9 +1,10 @@
 import { test, expect } from '../support/fixtures'
 import { loginViaUi, navigateInApp } from '../support/helpers/auth'
+import { tags } from '../support/tags'
 
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
-test.describe('Team Calendar — Story 4.2 / 7.11', () => {
+test.describe('Team Calendar — Story 4.2 / 7.11', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for calendar data',

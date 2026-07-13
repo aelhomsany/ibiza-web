@@ -1,12 +1,15 @@
 import { test, expect } from '../support/fixtures'
+import { tags } from '../support/tags'
 
-test.describe('Password reset UI', () => {
+test.describe('Password reset form', { tag: [tags.regression, tags.uiOnly] }, () => {
   test('Given the forgot-password page, When visiting, Then the form is visible', async ({ page }) => {
     await page.goto('/forgot-password')
     await expect(page.getByTestId('forgot-password-page')).toBeVisible()
     await expect(page.getByTestId('forgot-email')).toBeVisible()
   })
+})
 
+test.describe('Password reset submit', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for forgot-password submit flow',

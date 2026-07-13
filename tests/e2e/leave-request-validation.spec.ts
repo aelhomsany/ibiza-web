@@ -1,12 +1,18 @@
 import { test, expect } from '../support/fixtures'
 import { loginViaUi } from '../support/helpers/auth'
+import { tags } from '../support/tags'
 
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
 /**
  * FR-6 (P0): Zero working days must block submit with a visible message.
  */
-test.describe('Leave request validation — FR-6 zero working days (Story 3.3)', () => {
+test.describe('Leave request validation — FR-6 zero working days (Story 3.3)', { tag: [tags.regression, tags.api] }, () => {
+  test.skip(
+    process.env.E2E_API_AVAILABLE !== 'true',
+    'Set E2E_API_AVAILABLE=true when ibiza-api is running for leave preview data',
+  )
+
   test('[P0] Given a weekend-only date range, When preview renders, Then submit is blocked with group message', async ({
     page,
   }) => {
@@ -22,22 +28,5 @@ test.describe('Leave request validation — FR-6 zero working days (Story 3.3)',
     await expect(page.getByTestId('working-day-preview')).toContainText(/US Workforce Group/i)
     await expect(page.getByTestId('submit-request-btn')).toBeDisabled()
     await expect(page.getByRole('alert')).toContainText(/No working days/i)
-  })
-})
-
-/**
- * FR-13 (P1): Decline requires reason — deferred Epic 3.
- */
-test.describe('Approval validation — FR-13 decline reason', () => {
-  test.skip(true, 'Epic 3 backlog — enable when approve/decline UI exists')
-
-  test('[P1] Given decline without reason, When confirming, Then submit is blocked', async ({
-    page,
-  }) => {
-    await loginViaUi(page, { email: 'alex@company.com', password })
-    await page.goto('/approvals')
-    await page.getByTestId('decline-btn').first().click()
-    await page.getByRole('button', { name: 'Confirm decline' }).click()
-    await expect(page.getByRole('alert')).toHaveTextContent(/reason/i)
   })
 })

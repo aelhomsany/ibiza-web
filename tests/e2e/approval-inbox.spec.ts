@@ -1,12 +1,13 @@
 import { test, expect } from '../support/fixtures'
 import { loginViaUi, navigateInApp } from '../support/helpers/auth'
+import { tags } from '../support/tags'
 
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
 /**
- * Story 3.6 — Manager approval inbox smoke (FR-14).
+ * Story 3.6 — Manager approval inbox executable smoke (FR-14).
  */
-test.describe('Approval inbox — Story 3.6', () => {
+test.describe('Approval inbox — Story 3.6', { tag: [tags.smoke, tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot approval seed data',

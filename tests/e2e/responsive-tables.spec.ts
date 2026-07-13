@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { loginViaUi, navigateInApp } from '../support/helpers/auth'
+import { tags } from '../support/tags'
 
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 const mobileViewport = { width: 375, height: 812 }
@@ -64,7 +65,7 @@ async function viewPageAtMobileWidth(page: Page, path: string): Promise<void> {
 /**
  * Story 10.3 — Responsive tables.
  */
-test.describe('Responsive tables — Story 10.3', () => {
+test.describe('Responsive tables — Story 10.3', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot table data',

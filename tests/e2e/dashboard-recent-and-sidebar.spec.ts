@@ -1,9 +1,10 @@
 import { test, expect } from '../support/fixtures'
 import { loginViaUi, navigateInApp } from '../support/helpers/auth'
+import { tags } from '../support/tags'
 
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
-test.describe('Dashboard recent requests and sidebar — Story 3.2', () => {
+test.describe('Dashboard recent requests and sidebar — Story 3.2', { tag: [tags.regression, tags.api] }, () => {
   test.skip(process.env.E2E_API_AVAILABLE !== 'true', 'Set E2E_API_AVAILABLE=true to run against live API + pilot seed')
 
   test('[P1] Employee sees recent requests table and out-today sidebar after login', async ({

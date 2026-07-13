@@ -1,9 +1,15 @@
 import { test, expect } from '../support/fixtures'
 import { loginViaUi, navigateInApp } from '../support/helpers/auth'
+import { tags } from '../support/tags'
 
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
-test.describe('Role-based navigation', () => {
+test.describe('Role-based navigation', { tag: [tags.regression, tags.api] }, () => {
+  test.skip(
+    process.env.E2E_API_AVAILABLE !== 'true',
+    'Set E2E_API_AVAILABLE=true when ibiza-api is running for role navigation checks',
+  )
+
   test('Employee sees base nav only', async ({ page }) => {
     await loginViaUi(page, { email: 'sarah@company.com', password })
 

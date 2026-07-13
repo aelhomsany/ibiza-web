@@ -1,10 +1,11 @@
 import { test, expect } from '../support/fixtures'
+import { tags } from '../support/tags'
 
 const apiUrl = process.env.API_URL ?? process.env.VITE_API_URL ?? 'http://localhost:8080'
 const hrEmail = process.env.E2E_HR_EMAIL ?? 'jordan@company.com'
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
-test.describe('Settings API — workforce groups and holidays', () => {
+test.describe('Settings API — workforce groups and holidays', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for settings API checks',

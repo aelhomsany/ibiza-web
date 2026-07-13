@@ -1,11 +1,12 @@
 import { test, expect } from '../support/fixtures'
+import { tags } from '../support/tags'
 
 const platformAdminCredentials = {
   email: process.env.E2E_PLATFORM_ADMIN_EMAIL ?? 'riley@ibiza.app',
   password: process.env.E2E_PLATFORM_ADMIN_PASSWORD ?? 'PilotDev123!',
 }
 
-test.describe('Platform create organization', () => {
+test.describe('Platform create organization', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running with platform admin seed',

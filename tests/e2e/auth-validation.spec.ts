@@ -1,6 +1,7 @@
 import { test, expect } from '../support/fixtures'
+import { tags } from '../support/tags'
 
-test.describe('Auth validation — critical UX blocks', () => {
+test.describe('Auth validation — critical UX blocks', { tag: [tags.regression, tags.uiOnly] }, () => {
   test('[P2] Given no reset token, When visiting reset-password, Then submit is disabled and error is shown', async ({
     page,
   }) => {

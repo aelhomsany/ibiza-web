@@ -37,4 +37,4 @@ cd "$ROOT"
 export E2E_API_AVAILABLE=true
 export API_URL="http://localhost:${API_PORT}"
 export BASE_URL="http://localhost:${WEB_PORT}"
-npm run test:e2e
+npm run test:e2e:ci -- "$@"

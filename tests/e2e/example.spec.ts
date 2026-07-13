@@ -1,6 +1,7 @@
 import { test, expect } from '../support/fixtures'
+import { tags } from '../support/tags'
 
-test.describe('Application shell', () => {
+test.describe('Application shell', { tag: [tags.regression, tags.uiOnly] }, () => {
   test('Given an unauthenticated visitor, When visiting the home page, Then the login page is shown', async ({
     page,
   }) => {
