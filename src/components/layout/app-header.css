@@ -4,7 +4,7 @@
 .app-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-sm);
   height: 64px;
   padding: 0 var(--space-page);
   background: var(--color-white);
@@ -30,7 +30,7 @@
 }
 
 .app-header-actions {
-  margin-left: auto;
+  margin-inline-start: auto;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -49,8 +49,8 @@
 
 /* Panel opens from the right edge of the header, never past the viewport */
 .app-header .notification-panel {
-  left: auto;
-  right: 0;
+  inset-inline-start: auto;
+  inset-inline-end: 0;
   max-width: calc(100vw - 28px);
 }
 

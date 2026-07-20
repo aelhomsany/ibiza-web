@@ -151,7 +151,7 @@ describe('PublicHolidaysSection', () => {
       expect(screen.getByText(/Independence Day/)).toBeInTheDocument()
     })
 
-    await user.click(screen.getByRole('button', { name: 'Edit' }))
+    await user.click(screen.getByRole('button', { name: /edit.*independence day/i }))
     await user.clear(screen.getByLabelText(/Edit name for Independence Day/i))
     await user.type(
       screen.getByLabelText(/Edit name for Independence Day/i),
@@ -270,7 +270,7 @@ describe('PublicHolidaysSection', () => {
       expect(screen.getByText(/Juneteenth/)).toBeInTheDocument()
     })
 
-    await user.click(screen.getByRole('button', { name: 'Remove' }))
+    await user.click(screen.getByRole('button', { name: /remove.*juneteenth/i }))
 
     await waitFor(() => {
       expect(apiClient.deletePublicHoliday).toHaveBeenCalledWith(
@@ -278,5 +278,46 @@ describe('PublicHolidaysSection', () => {
         expect.anything(),
       )
     })
+  })
+})
+
+/**
+ * Story 10.10 — UXA-07 contextual accessible names on holiday card actions.
+ */
+describe('PublicHolidaysSection accessibility ATDD — Story 10.10', () => {
+  beforeEach(() => {
+    vi.spyOn(apiClient, 'getPublicHolidays').mockResolvedValue([
+      {
+        id: 2,
+        workforceGroupId: 1,
+        dateFrom: '2026-06-19',
+        dateTo: '2026-06-19',
+        name: 'Juneteenth',
+      },
+    ])
+    vi.spyOn(apiClient, 'deletePublicHoliday').mockResolvedValue(undefined)
+    vi.spyOn(apiClient, 'updatePublicHoliday').mockResolvedValue({
+      id: 2,
+      workforceGroupId: 1,
+      dateFrom: '2026-06-19',
+      dateTo: '2026-06-19',
+      name: 'Juneteenth',
+    })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  test('[P1] holiday Edit and Remove actions include the holiday name in their accessible name', async () => {
+    renderSection()
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /edit.*juneteenth/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /remove.*juneteenth/i })).toBeInTheDocument()
+    })
+
+    expect(screen.queryByRole('button', { name: /^edit$/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^remove$/i })).not.toBeInTheDocument()
   })
 })

@@ -35,4 +35,17 @@ describe('ApprovalRow query feedback ATDD — Story 10.8', () => {
     expect(screen.getByTestId('decline-btn-101')).toBeDisabled()
     expect(screen.getByTestId('decline-btn-101')).not.toHaveAttribute('data-busy')
   })
+
+  test('[P1][Story 10.10] qualifies repeated approval actions with the employee name', () => {
+    render(
+      <ApprovalRow
+        approval={approval}
+        onApprove={vi.fn()}
+        onDecline={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: /approve request.*sarah chen/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /decline request.*sarah chen/i })).toBeInTheDocument()
+  })
 })

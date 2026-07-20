@@ -58,7 +58,7 @@
 .balance-tag {
   position: absolute;
   top: 14px;
-  right: 14px;
+  inset-inline-end: var(--space-lg);
   font-size: 12px;
   font-weight: 700;
   padding: 2px 8px;

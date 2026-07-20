@@ -106,11 +106,9 @@ test.describe('Responsive tables — Story 10.3', { tag: [tags.regression, tags.
   test('[P0] Approvals recent decisions expose the decision date at 375px', async ({
     page,
   }) => {
-    // Uses alex@company.com's seeded recent decisions (Sarah declined-sick,
-    // Sarah approved-annual, Emma approved-wfh) rather than approving a pending
-    // row here, so this test doesn't compete with approval-decision.spec.ts for
-    // the pilot seed's limited pending-request budget.
-    await loginViaUi(page, { email: 'alex@company.com', password })
+    // Uses the HR Admin's org-wide seeded recent decisions, including the Audit
+    // column, rather than consuming the pilot seed's limited pending-request budget.
+    await loginViaUi(page, { email: 'jordan@company.com', password })
     await viewPageAtMobileWidth(page, '/approvals')
 
     const wrapper = page.getByTestId('recent-decisions-table')

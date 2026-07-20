@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ApiError,
   connectCalendarSync,
@@ -18,21 +19,21 @@ type CalendarSyncSettingsProps = {
   onWarning?: (message: string) => void
 }
 
-function providerLabel(provider: CalendarSyncStatusResponse['provider']) {
-  return provider === 'GOOGLE' ? 'Google Calendar' : 'Microsoft Outlook'
+function providerKey(provider: CalendarSyncStatusResponse['provider']) {
+  return provider === 'GOOGLE' ? 'calendarSync.providers.google' : 'calendarSync.providers.microsoft'
 }
 
-function statusText(status?: CalendarSyncStatusResponse) {
+function statusKey(status?: CalendarSyncStatusResponse) {
   if (!status || !status.connected) {
-    return 'Not connected'
+    return 'calendarSync.notConnected'
   }
   if (status.status === 'ERROR') {
-    return 'Connected with sync error'
+    return 'calendarSync.connectedError'
   }
   if (status.status === 'REVOKED') {
-    return 'Connection needs attention'
+    return 'calendarSync.needsAttention'
   }
-  return 'Connected'
+  return 'calendarSync.connected'
 }
 
 function mutationMessage(error: unknown, fallback: string) {
@@ -46,6 +47,7 @@ export function CalendarSyncSettings({
   onSuccess,
   onWarning,
 }: CalendarSyncSettingsProps) {
+  const { t } = useTranslation(['settings', 'common'])
   const queryClient = useQueryClient()
   const [confirmDisconnectOpen, setConfirmDisconnectOpen] = useState(false)
   const queryKey = ['calendar-sync', 'status'] as const
@@ -63,16 +65,16 @@ export function CalendarSyncSettings({
     onSuccess: (response) => {
       window.location.assign(response.authorizationUrl)
     },
-    onError: (error) => onWarning?.(mutationMessage(error, 'Unable to start calendar connection')),
+    onError: (error) => onWarning?.(mutationMessage(error, t('settings:calendarSync.errors.connect'))),
   })
 
   const retryMutation = useMutation({
     mutationFn: () => retryCalendarSync(provider),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey })
-      onSuccess?.('Calendar sync retry queued')
+      onSuccess?.(t('settings:calendarSync.success.retry'))
     },
-    onError: (error) => onWarning?.(mutationMessage(error, 'Unable to retry calendar sync')),
+    onError: (error) => onWarning?.(mutationMessage(error, t('settings:calendarSync.errors.retry'))),
   })
 
   const disconnectMutation = useMutation({
@@ -80,18 +82,18 @@ export function CalendarSyncSettings({
     onSuccess: () => {
       setConfirmDisconnectOpen(false)
       void queryClient.invalidateQueries({ queryKey })
-      onSuccess?.('Calendar sync disconnected')
+      onSuccess?.(t('settings:calendarSync.success.disconnected'))
     },
-    onError: (error) => onWarning?.(mutationMessage(error, 'Unable to disconnect calendar sync')),
+    onError: (error) => onWarning?.(mutationMessage(error, t('settings:calendarSync.errors.disconnect'))),
   })
 
   if (statusQuery.isPending) {
     return (
       <section className="settings-card settings-card-spaced" data-testid="calendar-sync-settings">
         <div className="card-section-header">
-          <span className="card-section-title">Calendar Sync</span>
+          <span className="card-section-title">{t('settings:calendarSync.title')}</span>
         </div>
-        <p className="settings-card-loading-inline">Loading calendar sync…</p>
+        <p className="settings-card-loading-inline">{t('settings:calendarSync.loading')}</p>
       </section>
     )
   }
@@ -100,9 +102,9 @@ export function CalendarSyncSettings({
     return (
       <section className="settings-card settings-card-spaced" data-testid="calendar-sync-settings">
         <div className="card-section-header">
-          <span className="card-section-title">Calendar Sync</span>
+          <span className="card-section-title">{t('settings:calendarSync.title')}</span>
         </div>
-        <p className="settings-card-error-inline">Unable to load calendar sync status.</p>
+        <p className="settings-card-error-inline">{t('settings:calendarSync.errors.load')}</p>
       </section>
     )
   }
@@ -113,21 +115,23 @@ export function CalendarSyncSettings({
   return (
     <section className="settings-card settings-card-spaced" data-testid="calendar-sync-settings">
       <div className="card-section-header">
-        <span className="card-section-title">Calendar Sync</span>
+        <span className="card-section-title">{t('settings:calendarSync.title')}</span>
       </div>
       <div className="calendar-sync-body">
         <div className="calendar-sync-icon" aria-hidden="true">
           <CalendarIcon size={20} />
         </div>
         <div className="calendar-sync-copy">
-          <p className="calendar-sync-title">{providerLabel(provider)}</p>
+          <p className="calendar-sync-title">{t(`settings:${providerKey(provider)}`)}</p>
           <p className="calendar-sync-status" data-testid="calendar-sync-status">
-            {statusText(status)}
+            {t(`settings:${statusKey(status)}`)}
             {status?.accountEmail ? ` · ${status.accountEmail}` : ''}
           </p>
           {hasError && (
             <p className="calendar-sync-warning">
-              Sync needs attention. Error category: {status?.lastErrorCategory ?? 'Unknown'}
+              {t('settings:calendarSync.statusWarning', {
+                category: status?.lastErrorCategory ?? t('common:unknown'),
+              })}
             </p>
           )}
         </div>
@@ -141,7 +145,7 @@ export function CalendarSyncSettings({
               data-busy={connectMutation.isPending ? 'true' : undefined}
               data-testid="calendar-sync-connect"
             >
-              <CalendarIcon size={14} /> Connect
+              <CalendarIcon size={14} /> {t('settings:calendarSync.actions.connect')}
             </button>
           )}
           {connected && hasError && (
@@ -153,7 +157,7 @@ export function CalendarSyncSettings({
               data-busy={retryMutation.isPending ? 'true' : undefined}
               data-testid="calendar-sync-retry"
             >
-              <RefreshCwIcon size={14} /> Retry
+              <RefreshCwIcon size={14} /> {t('settings:calendarSync.actions.retry')}
             </button>
           )}
           {connected && (
@@ -164,7 +168,7 @@ export function CalendarSyncSettings({
               disabled={disconnectMutation.isPending}
               data-testid="calendar-sync-disconnect"
             >
-              <CloseIcon size={14} /> Disconnect
+              <CloseIcon size={14} /> {t('settings:calendarSync.actions.disconnect')}
             </button>
           )}
         </div>
@@ -179,21 +183,22 @@ export function CalendarSyncSettings({
         >
           <div className="modal-header">
             <h2 className="modal-title" id="calendar-sync-disconnect-title">
-              Disconnect Calendar Sync
+              {t('settings:calendarSync.disconnectTitle')}
             </h2>
             <button
               type="button"
               className="modal-close"
               onClick={() => setConfirmDisconnectOpen(false)}
-              aria-label="Close"
+              aria-label={t('common:actions.close')}
               disabled={disconnectMutation.isPending}
             >
               <CloseIcon size={18} />
             </button>
           </div>
           <p className="calendar-sync-modal-copy">
-            Future approved leave will stop syncing to {providerLabel(provider)}. Existing
-            external calendar events are left unchanged.
+            {t('settings:calendarSync.disconnectCopy', {
+              provider: t(`settings:${providerKey(provider)}`),
+            })}
           </p>
           <div className="modal-actions">
             <button
@@ -202,7 +207,7 @@ export function CalendarSyncSettings({
               onClick={() => setConfirmDisconnectOpen(false)}
               disabled={disconnectMutation.isPending}
             >
-              Cancel
+              {t('common:actions.cancel')}
             </button>
             <button
               type="button"
@@ -211,7 +216,7 @@ export function CalendarSyncSettings({
               disabled={disconnectMutation.isPending}
               data-busy={disconnectMutation.isPending ? 'true' : undefined}
             >
-              Confirm Disconnect
+              {t('settings:calendarSync.actions.confirmDisconnect')}
             </button>
           </div>
         </Modal>

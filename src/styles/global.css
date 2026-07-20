@@ -23,6 +23,22 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Mixed-surface keyboard focus: the white inner ring contrasts with navy/teal,
+   while the navy outer ring contrasts with mist/white. Selector specificity keeps
+   this shared contract authoritative over legacy feature-level focus shadows. */
+a[href]:not([data-focus-ring='none']):focus-visible,
+button:not([data-focus-ring='none']):focus-visible,
+input:not([data-focus-ring='none']):focus-visible,
+select:not([data-focus-ring='none']):focus-visible,
+textarea:not([data-focus-ring='none']):focus-visible,
+summary:not([data-focus-ring='none']):focus-visible,
+[contenteditable='true']:not([data-focus-ring='none']):focus-visible,
+[tabindex]:not([tabindex='-1']):not([data-focus-ring='none']):focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-inner);
+  outline-offset: var(--focus-ring-gap);
+  box-shadow: 0 0 0 var(--focus-ring-outer-width) var(--focus-ring-outer);
+}
+
 /* Standard (Firefox) */
 html {
   scrollbar-width: thin;
@@ -219,11 +235,13 @@ html {
 
 .badge-wfh {
   background: var(--color-mint-tint);
+  border: 1px dashed var(--color-sage-strong);
   color: var(--color-teal);
 }
 
 .badge-off {
   background: var(--color-mist);
+  border: 1px solid var(--color-border);
   color: var(--color-muted);
 }
 
@@ -262,6 +280,24 @@ html {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.skip-to-main:focus-visible {
+  position: fixed;
+  z-index: 1000;
+  inset-block-start: var(--space-sm);
+  inset-inline-start: var(--space-sm);
+  width: auto;
+  height: auto;
+  padding: var(--space-sm) var(--space-md);
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: nowrap;
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  color: var(--color-teal);
+  font-weight: 700;
 }
 
 /* Respect the user's reduced-motion preference across the app. */

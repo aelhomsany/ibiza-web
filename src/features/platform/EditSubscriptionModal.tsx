@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ApiError } from '../../api/client'
 import type { OrganizationSummaryResponse, UpdateSubscriptionRequest } from '../../api/generated/types'
 import { DateField } from '../../components/DateField'
@@ -16,19 +17,12 @@ type Props = {
 type Plan = UpdateSubscriptionRequest['plan']
 type BillingStatus = UpdateSubscriptionRequest['billingStatus']
 
-const plans: { value: Plan; label: string }[] = [
-  { value: 'FREE', label: 'Free (3 users)' },
-  { value: 'STARTER', label: 'Starter (50 users)' },
-  { value: 'GROWTH', label: 'Growth (200 users)' },
-  { value: 'INTERNAL', label: 'Internal (unlimited)' },
-]
+const plans: Plan[] = ['FREE', 'STARTER', 'GROWTH', 'INTERNAL']
 
-const billingStatuses: { value: BillingStatus; label: string }[] = [
-  { value: 'ACTIVE', label: 'Active' },
-  { value: 'SUSPENDED', label: 'Suspended' },
-]
+const billingStatuses: BillingStatus[] = ['ACTIVE', 'SUSPENDED']
 
 export function EditSubscriptionModal({ organization, onClose, onSuccess }: Props) {
+  const { t } = useTranslation(['platform', 'common'])
   const updateMutation = useUpdateSubscription()
   const [plan, setPlan] = useState<Plan>(organization.plan ?? 'FREE')
   const [billingStatus, setBillingStatus] = useState<BillingStatus>(
@@ -42,7 +36,7 @@ export function EditSubscriptionModal({ organization, onClose, onSuccess }: Prop
     setErrorMessage(null)
 
     if (!organization.id) {
-      setErrorMessage('Unable to update subscription')
+      setErrorMessage(t('platform:edit.errors.submit'))
       return
     }
 
@@ -62,10 +56,10 @@ export function EditSubscriptionModal({ organization, onClose, onSuccess }: Prop
         },
         onError: (error) => {
           if (error instanceof ApiError) {
-            setErrorMessage(error.problem.detail ?? 'Unable to update subscription')
+            setErrorMessage(error.problem.detail ?? t('platform:edit.errors.submit'))
             return
           }
-          setErrorMessage('Unable to update subscription')
+          setErrorMessage(t('platform:edit.errors.submit'))
         },
       },
     )
@@ -80,16 +74,16 @@ export function EditSubscriptionModal({ organization, onClose, onSuccess }: Prop
     >
         <div className="modal-header">
           <h2 className="modal-title" id="edit-subscription-modal-title">
-            Edit Subscription — {organization.name}
+            {t('platform:edit.title', { name: organization.name })}
           </h2>
-          <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
+          <button type="button" className="modal-close" onClick={onClose} aria-label={t('common:actions.close')}>
             <CloseIcon size={18} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
-            <label htmlFor="edit-subscription-plan">Plan</label>
+            <label htmlFor="edit-subscription-plan">{t('platform:edit.fields.plan')}</label>
             <select
               id="edit-subscription-plan"
               data-testid="edit-subscription-plan"
@@ -98,15 +92,15 @@ export function EditSubscriptionModal({ organization, onClose, onSuccess }: Prop
               required
             >
               {plans.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
+                <option key={option} value={option}>
+                  {t(`platform:plans.${option.toLowerCase()}WithLimit`)}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="edit-subscription-billing-status">Billing status</label>
+            <label htmlFor="edit-subscription-billing-status">{t('platform:edit.fields.billingStatus')}</label>
             <select
               id="edit-subscription-billing-status"
               data-testid="edit-subscription-billing-status"
@@ -115,15 +109,15 @@ export function EditSubscriptionModal({ organization, onClose, onSuccess }: Prop
               required
             >
               {billingStatuses.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
+                <option key={option} value={option}>
+                  {t(`platform:statuses.${option.toLowerCase()}`)}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="edit-subscription-effective-date">Effective date</label>
+            <label htmlFor="edit-subscription-effective-date">{t('platform:edit.fields.effectiveDate')}</label>
             <DateField
               id="edit-subscription-effective-date"
               data-testid="edit-subscription-effective-date"
@@ -141,7 +135,7 @@ export function EditSubscriptionModal({ organization, onClose, onSuccess }: Prop
 
           <div className="modal-actions">
             <button type="button" className="btn btn-outline" onClick={onClose}>
-              Cancel
+              {t('common:actions.cancel')}
             </button>
             <button
               type="submit"
@@ -150,7 +144,7 @@ export function EditSubscriptionModal({ organization, onClose, onSuccess }: Prop
               disabled={updateMutation.isPending}
               data-busy={updateMutation.isPending ? 'true' : undefined}
             >
-              {updateMutation.isPending ? 'Saving...' : 'Save Subscription'}
+              {updateMutation.isPending ? t('platform:actions.saving') : t('platform:actions.saveSubscription')}
             </button>
           </div>
         </form>

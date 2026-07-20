@@ -10,7 +10,8 @@ import type {
   LeaveRequestContextResponse,
 } from '../../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
-import { CalendarMonthGrid } from './CalendarMonthGrid'
+import { CalendarAgenda } from './CalendarAgenda'
+import { CalendarTimeline } from './CalendarTimeline'
 import { TeamCalendarPage } from './TeamCalendarPage'
 import { mockCalendarMonth } from './calendarTestFixtures'
 import { RequestContextPage } from '../leave-requests/RequestContextPage'
@@ -90,28 +91,38 @@ describe('Team Calendar click-through ATDD - Story 8.6', () => {
     vi.restoreAllMocks()
   })
 
-  it('[P0] renders permitted absence chips as accessible request links', () => {
+  it('[P0] renders a permitted timeline bar as an accessible request link', () => {
     render(
       <MemoryRouter>
-        <CalendarMonthGrid calendar={clickThroughCalendar} month="2026-06" />
+        <CalendarTimeline
+          calendar={clickThroughCalendar}
+          weekStart="2026-06-07"
+          weekendDays={clickThroughCalendar.viewerWeekendDays}
+          locale="en-US"
+        />
       </MemoryRouter>,
     )
 
-    const links = screen.getAllByRole('link', {
-      name: /Open request context for Sarah Chen Annual Leave from Jun 10, 2026 to Jun 12, 2026/i,
+    const link = screen.getByRole('link', {
+      name: /Open request context for Sarah Chen, Annual Leave, Off, Jun 10, 2026 – Jun 12, 2026/i,
     })
-    const link = links[0]
 
-    expect(links).toHaveLength(3)
     expect(link).toHaveAttribute('href', '/leave-requests/86')
-    expect(link).toHaveAttribute('data-testid', 'calendar-event-86-2026-06-10')
-    expect(link).toHaveClass('cal-event--off')
+    expect(link).toHaveAttribute('data-testid', 'calendar-event-86')
+    expect(link).toHaveClass('calendar-timeline-bar', 'cal-event--off')
   })
 
-  it('[P0] keeps non-permitted absence chips read-only and out of tab order', () => {
+  it('[P0] keeps a non-permitted agenda card read-only and out of the tab order', () => {
     render(
       <MemoryRouter>
-        <CalendarMonthGrid calendar={clickThroughCalendar} month="2026-06" />
+        <CalendarAgenda
+          calendar={clickThroughCalendar}
+          month="2026-06"
+          weekendDays={clickThroughCalendar.viewerWeekendDays}
+          selectedDate={null}
+          onSelectedDateChange={() => undefined}
+          locale="en-US"
+        />
       </MemoryRouter>,
     )
 
@@ -122,28 +133,35 @@ describe('Team Calendar click-through ATDD - Story 8.6', () => {
     ).not.toBeInTheDocument()
     expect(screen.getByTestId('calendar-event-87')).toHaveTextContent('OH')
     expect(screen.getByTestId('calendar-event-87')).not.toHaveAttribute('tabindex')
-    expect(screen.getByTestId('calendar-event-87')).toHaveClass('cal-event--wfh')
+    expect(screen.getByTestId('calendar-event-87')).toHaveClass(
+      'calendar-agenda-card',
+      'cal-event--wfh',
+    )
   })
 
-  it('[P0] exposes informational aria-label on read-only calendar chips (Story 10.7)', () => {
+  it('[P0] exposes an informational accessible name on a read-only agenda card (Story 10.7)', () => {
     render(
       <MemoryRouter>
-        <CalendarMonthGrid calendar={clickThroughCalendar} month="2026-06" />
+        <CalendarAgenda
+          calendar={clickThroughCalendar}
+          month="2026-06"
+          weekendDays={clickThroughCalendar.viewerWeekendDays}
+          selectedDate={null}
+          onSelectedDateChange={() => undefined}
+          locale="en-US"
+        />
       </MemoryRouter>,
     )
 
     const chip = screen.getByTestId('calendar-event-87')
-    expect(chip).toHaveAccessibleName(/Omar Hassan, Work From Home, on Jun 15, 2026/i)
+    expect(chip).toHaveAccessibleName(/Omar Hassan, Work From Home, WFH, Jun 15, 2026/i)
     expect(chip.tagName).toBe('SPAN')
     expect(chip).not.toHaveAttribute('tabindex')
   })
 
-  it('[P0] navigates from a permitted calendar chip to the selected request context', async () => {
+  it('[P0] navigates from the Team Calendar page to the selected request context', async () => {
     vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(clickThroughCalendar)
-    vi.spyOn(
-      apiClient as CalendarClickThroughApiClient,
-      'getLeaveRequestContext',
-    ).mockResolvedValue(requestContext)
+    vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue([])
     const user = userEvent.setup()
 
     renderWithProviders(
@@ -156,11 +174,14 @@ describe('Team Calendar click-through ATDD - Story 8.6', () => {
       </Routes>,
     )
 
-    const links = await screen.findAllByRole('link', {
-      name: /Open request context for Sarah Chen Annual Leave/i,
+    await screen.findByTestId('calendar-timeline')
+    await user.click(screen.getByTestId('calendar-prev-week'))
+
+    const link = await screen.findByRole('link', {
+      name: /Open request context for Sarah Chen, Annual Leave, Off/i,
     })
-    links[0].focus()
-    expect(links[0]).toHaveFocus()
+    link.focus()
+    expect(link).toHaveFocus()
     await user.keyboard('{Enter}')
 
     expect(await screen.findByTestId('request-context-heading')).toHaveTextContent(

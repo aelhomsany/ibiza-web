@@ -1,4 +1,5 @@
 import { Suspense, lazy, type ReactElement } from 'react'
+import { useTranslation } from 'react-i18next'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from '../auth/AuthProvider'
 import { AdminShell } from '../components/layout/AdminShell'
@@ -55,56 +56,59 @@ const ApprovalsPage = lazy(() =>
 )
 
 function RouteFallback() {
+  const { t } = useTranslation('common')
   return (
     <div className="page" aria-busy="true">
-      <p className="body-text">Loading…</p>
+      <p className="body-text">{t('loading')}</p>
     </div>
   )
 }
 
-function TitledRoute({ title, children }: { title: string; children: ReactElement }) {
-  usePageTitle(title)
+function TitledRoute({ titleKey, children }: { titleKey: string; children: ReactElement }) {
+  const { t } = useTranslation('common')
+  usePageTitle(t(titleKey))
   return children
 }
 
-function withPageTitle(title: string, element: ReactElement) {
-  return <TitledRoute title={title}>{element}</TitledRoute>
+function withPageTitle(titleKey: string, element: ReactElement) {
+  return <TitledRoute titleKey={titleKey}>{element}</TitledRoute>
 }
 
 export function AppRoutes() {
+  const { t } = useTranslation('common')
   return (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
-        <Route path="/login" element={withPageTitle('Sign in', <LoginPage />)} />
-        <Route path="/forgot-password" element={withPageTitle('Forgot password', <ForgotPasswordPage />)} />
-        <Route path="/reset-password" element={withPageTitle('Reset password', <ResetPasswordPage />)} />
+        <Route path="/login" element={withPageTitle('routes.signIn', <LoginPage />)} />
+        <Route path="/forgot-password" element={withPageTitle('routes.forgotPassword', <ForgotPasswordPage />)} />
+        <Route path="/reset-password" element={withPageTitle('routes.resetPassword', <ResetPasswordPage />)} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<ProfileRouteShell />}>
             <Route
               path="/profile"
-              element={withPageTitle('Profile details', <ProfilePage />)}
+              element={withPageTitle('routes.profile', <ProfilePage />)}
             />
           </Route>
 
           <Route element={<RoleGuard shell="org" />}>
             <Route element={<OrgShell />}>
-              <Route path="/" element={withPageTitle('Dashboard', <DashboardPage />)} />
-              <Route path="/my-leaves" element={withPageTitle('My Leaves', <MyLeavesPage />)} />
+              <Route path="/" element={withPageTitle('routes.dashboard', <DashboardPage />)} />
+              <Route path="/my-leaves" element={withPageTitle('routes.myLeaves', <MyLeavesPage />)} />
               <Route
                 path="/leave-requests/:id"
-                element={withPageTitle('Request Details', <RequestContextPage />)}
+                element={withPageTitle('routes.requestDetails', <RequestContextPage />)}
               />
-              <Route path="/calendar" element={withPageTitle('Team Calendar', <TeamCalendarPage />)} />
-              <Route path="/approvals" element={withPageTitle('Approvals', <ApprovalsPage />)} />
-              <Route path="/settings" element={withPageTitle('Settings', <SettingsPage />)} />
+              <Route path="/calendar" element={withPageTitle('routes.calendar', <TeamCalendarPage />)} />
+              <Route path="/approvals" element={withPageTitle('routes.approvals', <ApprovalsPage />)} />
+              <Route path="/settings" element={withPageTitle('routes.settings', <SettingsPage />)} />
               <Route
                 path="*"
                 element={withPageTitle(
-                  'Page Not Found',
+                  'notFound.title',
                   <PagePlaceholder
-                    title="Page Not Found"
-                    subtitle="The page you're looking for doesn't exist."
+                    title={t('notFound.title')}
+                    subtitle={t('notFound.subtitle')}
                   />,
                 )}
               />
@@ -121,15 +125,15 @@ export function AppRoutes() {
               />
               <Route
                 path="/platform/organizations"
-                element={withPageTitle('Organizations', <OrganizationsPage />)}
+                element={withPageTitle('routes.organizations', <OrganizationsPage />)}
               />
               <Route
                 path="/platform/*"
                 element={withPageTitle(
-                  'Page Not Found',
+                  'notFound.title',
                   <PagePlaceholder
-                    title="Page Not Found"
-                    subtitle="The page you're looking for doesn't exist."
+                    title={t('notFound.title')}
+                    subtitle={t('notFound.subtitle')}
                   />,
                 )}
               />

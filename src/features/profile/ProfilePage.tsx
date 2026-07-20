@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import '../../i18n/config'
 import { ApiError, removeProfileImage, uploadProfileImage } from '../../api/client'
 import { useAuth } from '../../auth/useAuth'
-import { formatRole } from '../../auth/authUtils'
 import { Modal } from '../../components/ui/Modal'
 import { CloseIcon } from '../../components/ui/icons'
 import { useToast } from '../../components/ui/useToast'
@@ -13,7 +12,7 @@ import '../settings/group-tabs.css'
 import './profile-page.css'
 
 export function ProfilePage() {
-  const { t } = useTranslation(['layout', 'common'])
+  const { t } = useTranslation(['profile', 'layout', 'common'])
   const { user, refreshUser } = useAuth()
   const { showToast } = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -36,12 +35,12 @@ export function ProfilePage() {
     try {
       await uploadProfileImage(file)
       await refreshUser()
-      showToast('Profile photo updated.', 'success')
+      showToast(t('profile:success.updated'), 'success')
     } catch (error) {
       const message =
         error instanceof ApiError
-          ? error.problem.detail ?? 'Unable to upload profile photo.'
-          : 'Unable to upload profile photo.'
+          ? error.problem.detail ?? t('profile:errors.upload')
+          : t('profile:errors.upload')
       showToast(message, 'warning')
     } finally {
       setIsUploading(false)
@@ -54,12 +53,12 @@ export function ProfilePage() {
       await removeProfileImage()
       await refreshUser()
       setRemoveOpen(false)
-      showToast('Profile photo removed.', 'success')
+      showToast(t('profile:success.removed'), 'success')
     } catch (error) {
       const message =
         error instanceof ApiError
-          ? error.problem.detail ?? 'Unable to remove profile photo.'
-          : 'Unable to remove profile photo.'
+          ? error.problem.detail ?? t('profile:errors.remove')
+          : t('profile:errors.remove')
       showToast(message, 'warning')
     } finally {
       setIsRemoving(false)
@@ -70,39 +69,39 @@ export function ProfilePage() {
     <div className="page page-wide" data-testid="profile-page">
       <header className="page-header">
         <div>
-          <h1 className="page-title">Profile details</h1>
-          <p className="page-sub">Your account information and profile photo</p>
+          <h1 className="page-title">{t('profile:title')}</h1>
+          <p className="page-sub">{t('profile:subtitle')}</p>
         </div>
       </header>
 
       <div className="profile-layout">
-        <section className="settings-card profile-summary-card" aria-label="Profile summary">
+        <section className="settings-card profile-summary-card" aria-label={t('profile:summary')}>
           <div className="card-section-header">
-            <h2 className="card-title">Account</h2>
+            <h2 className="card-title">{t('profile:account')}</h2>
           </div>
           <dl className="profile-summary-list">
             <div className="profile-summary-row">
-              <dt>Name</dt>
+              <dt>{t('profile:fields.name')}</dt>
               <dd>{user.fullName}</dd>
             </div>
             <div className="profile-summary-row">
-              <dt>Email</dt>
+              <dt>{t('profile:fields.email')}</dt>
               <dd>{user.email}</dd>
             </div>
             <div className="profile-summary-row">
-              <dt>Role</dt>
-              <dd>{formatRole(user.role)}</dd>
+              <dt>{t('profile:fields.role')}</dt>
+              <dd>{t(`common:roles.${roleKey(user.role)}`)}</dd>
             </div>
             <div className="profile-summary-row">
-              <dt>Workforce group</dt>
+              <dt>{t('profile:fields.workforceGroup')}</dt>
               <dd>{user.workforceGroupName?.trim() || t('common:profile.notApplicable')}</dd>
             </div>
             <div className="profile-summary-row">
-              <dt>Timezone</dt>
+              <dt>{t('profile:fields.timezone')}</dt>
               <dd>{user.timezone?.trim() || t('common:profile.notApplicable')}</dd>
             </div>
             <div className="profile-summary-row">
-              <dt>Preferred language</dt>
+              <dt>{t('profile:fields.preferredLanguage')}</dt>
               <dd>
                 {isSupportedLocale(user.preferredLanguage)
                   ? t(`layout:language.${user.preferredLanguage}`)
@@ -112,9 +111,9 @@ export function ProfilePage() {
           </dl>
         </section>
 
-        <section className="settings-card profile-image-card" aria-label="Profile photo">
+        <section className="settings-card profile-image-card" aria-label={t('profile:photo.summary')}>
           <div className="card-section-header">
-            <h2 className="card-title">Profile Photo</h2>
+            <h2 className="card-title">{t('profile:photo.title')}</h2>
           </div>
           <div className="profile-image-body">
             <ProfileAvatar
@@ -127,7 +126,7 @@ export function ProfilePage() {
                 ref={fileInputRef}
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
-                className="sr-only"
+                hidden
                 data-testid="profile-image-input"
                 onChange={(event) => void handleFileChange(event)}
               />
@@ -138,7 +137,7 @@ export function ProfilePage() {
                 data-busy={isUploading ? 'true' : undefined}
                 onClick={() => fileInputRef.current?.click()}
               >
-                {user.profileImageUrl ? 'Replace Photo' : 'Upload Photo'}
+                {user.profileImageUrl ? t('profile:actions.replace') : t('profile:actions.upload')}
               </button>
               {user.profileImageUrl ? (
                 <button
@@ -148,7 +147,7 @@ export function ProfilePage() {
                   disabled={isUploading || isRemoving}
                   onClick={() => setRemoveOpen(true)}
                 >
-                  Remove Photo
+                  {t('profile:actions.remove')}
                 </button>
               ) : null}
             </div>
@@ -165,20 +164,20 @@ export function ProfilePage() {
         >
           <div className="modal-header">
             <h2 className="modal-title" id="profile-remove-title">
-              Remove Profile Photo
+              {t('profile:photo.removeTitle')}
             </h2>
             <button
               type="button"
               className="modal-close"
               onClick={() => setRemoveOpen(false)}
-              aria-label="Close"
+              aria-label={t('common:actions.close')}
               disabled={isRemoving}
             >
               <CloseIcon size={18} />
             </button>
           </div>
           <div className="modal-body">
-            <p className="body-text">Your profile photo will be removed from your account.</p>
+            <p className="body-text">{t('profile:photo.removeCopy')}</p>
           </div>
           <div className="modal-actions">
             <button
@@ -187,7 +186,7 @@ export function ProfilePage() {
               onClick={() => setRemoveOpen(false)}
               disabled={isRemoving}
             >
-              Cancel
+              {t('common:actions.cancel')}
             </button>
             <button
               type="button"
@@ -197,7 +196,7 @@ export function ProfilePage() {
               data-busy={isRemoving ? 'true' : undefined}
               onClick={() => void handleConfirmRemove()}
             >
-              Remove Photo
+              {t('profile:actions.remove')}
             </button>
           </div>
         </Modal>
@@ -205,4 +204,10 @@ export function ProfilePage() {
 
     </div>
   )
+}
+
+function roleKey(role: string): string {
+  if (role === 'HR_ADMIN') return 'hrAdmin'
+  if (role === 'PLATFORM_ADMIN') return 'platformAdmin'
+  return role.toLowerCase()
 }

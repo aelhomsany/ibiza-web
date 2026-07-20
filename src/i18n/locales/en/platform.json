@@ -1,0 +1,72 @@
+{
+  "actions": {
+    "create": "Create Organization",
+    "editSubscription": "Edit Subscription",
+    "saveSubscription": "Save Subscription",
+    "saving": "Saving…"
+  },
+  "aria": {
+    "editSubscription": "Edit Subscription for {{name}}"
+  },
+  "create": {
+    "creating": "Creating…",
+    "errors": {
+      "submit": "Unable to create organization"
+    },
+    "fields": {
+      "hrEmail": "Initial HR Admin email",
+      "name": "Organization name",
+      "plan": "Subscription plan",
+      "primaryContact": "Primary contact"
+    },
+    "title": "Create Organization"
+  },
+  "edit": {
+    "errors": {
+      "submit": "Unable to update subscription"
+    },
+    "fields": {
+      "billingStatus": "Billing status",
+      "effectiveDate": "Effective date",
+      "plan": "Plan"
+    },
+    "title": "Edit Subscription — {{name}}"
+  },
+  "empty": {
+    "copy": "Create the first customer organization to start provisioning HR access.",
+    "title": "No organizations yet"
+  },
+  "errors": {
+    "load": "Unable to load organizations."
+  },
+  "loading": "Loading organizations…",
+  "plans": {
+    "free": "Free",
+    "freeWithLimit": "Free (3 users)",
+    "growth": "Growth",
+    "growthWithLimit": "Growth (200 users)",
+    "internal": "Internal",
+    "internalWithLimit": "Internal (unlimited)",
+    "starter": "Starter",
+    "starterWithLimit": "Starter (50 users)"
+  },
+  "statuses": {
+    "active": "Active",
+    "suspended": "Suspended"
+  },
+  "subtitle": "Provision orgs and manage subscriptions — no workforce leave data",
+  "success": {
+    "subscription": "Subscription updated"
+  },
+  "table": {
+    "actions": "Actions",
+    "all": "All Organizations",
+    "atLimit": "AT LIMIT",
+    "effective": "Effective",
+    "organization": "Organization",
+    "plan": "Plan",
+    "status": "Status",
+    "users": "Users"
+  },
+  "title": "Organizations"
+}

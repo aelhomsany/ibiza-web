@@ -40,7 +40,7 @@ describe('tenant-generic group/user colors ATDD — Story 10.5', () => {
     expect(css).not.toMatch(/\.cal-event--user-\d/)
     expect(css).not.toMatch(/\.cal-user-dot--user-\d/)
     expect(css).toMatch(/\.cal-event[^-\w][\s\S]*?var\(--chip-bg[,)]/)
-    expect(css).toMatch(/\.cal-user-dot[^-\w][\s\S]*?var\(--chip-bg[,)]/)
+    expect(css).toMatch(/\.calendar-person-avatar[^-\w][\s\S]*?var\(--chip-bg[,)]/)
   })
 
   it('[P1] --color-group-us / --color-group-egypt tokens are removed and consumers migrated', () => {

@@ -1,4 +1,5 @@
 import { CheckIcon } from '../../components/ui/icons'
+import { useTranslation } from 'react-i18next'
 import { LeaveTypeTag } from '../dashboard/LeaveTypeTag'
 import { formatDateRange } from '../dashboard/leaveRequestFormatting'
 import type { PendingApprovalResponse } from '../../api/generated/types'
@@ -11,10 +12,6 @@ type ApprovalRowProps = {
   isDeclining?: boolean
 }
 
-function workingDaysLabel(days: number): string {
-  return `${days} working day${days === 1 ? '' : 's'}`
-}
-
 export function ApprovalRow({
   approval,
   onApprove,
@@ -22,8 +19,9 @@ export function ApprovalRow({
   isApproving = false,
   isDeclining = false,
 }: ApprovalRowProps) {
+  const { t, i18n } = useTranslation(['approvals', 'common'])
   const requestId = approval.requestId ?? 0
-  const employeeName = approval.employeeFullName?.trim() || 'Unknown'
+  const employeeName = approval.employeeFullName?.trim() || t('common:unknown')
   const note = approval.note?.trim()
   const actionsDisabled = isApproving || isDeclining
 
@@ -34,11 +32,11 @@ export function ApprovalRow({
           <span className="approval-name">{employeeName}</span>
           {approval.decidedOnBehalf && approval.nominalManagerFirstName ? (
             <span className="approval-on-behalf-pill" data-testid={`on-behalf-pill-${requestId}`}>
-              On behalf of {approval.nominalManagerFirstName}
+              {t('approvals:manager.onBehalf', { name: approval.nominalManagerFirstName })}
             </span>
           ) : approval.nominalManagerFirstName ? (
             <span className="approval-reports-to-pill" data-testid={`reports-to-pill-${requestId}`}>
-              Reports to {approval.nominalManagerFirstName}
+              {t('approvals:manager.reportsTo', { name: approval.nominalManagerFirstName })}
             </span>
           ) : null}
         </div>
@@ -52,9 +50,9 @@ export function ApprovalRow({
           />
           <span className="approval-meta">
             {' · '}
-            {formatDateRange(approval.dateFrom ?? '', approval.dateTo ?? '')}
+            {formatDateRange(approval.dateFrom ?? '', approval.dateTo ?? '', i18n.language)}
             {' · '}
-            <strong>{workingDaysLabel(approval.workingDays ?? 0)}</strong>
+            <strong>{t('approvals:table.workingDays', { count: approval.workingDays ?? 0 })}</strong>
             {approval.workforceGroupName ? (
               <span className="approval-group-pill">{approval.workforceGroupName}</span>
             ) : null}
@@ -72,8 +70,9 @@ export function ApprovalRow({
           onClick={onDecline}
           disabled={actionsDisabled}
           data-busy={isDeclining ? 'true' : undefined}
+          aria-label={t('approvals:aria.declineRequest', { name: employeeName })}
         >
-          Decline
+          {t('approvals:actions.decline')}
         </button>
         <button
           type="button"
@@ -82,8 +81,9 @@ export function ApprovalRow({
           onClick={onApprove}
           disabled={actionsDisabled}
           data-busy={isApproving ? 'true' : undefined}
+          aria-label={t('approvals:aria.approveRequest', { name: employeeName })}
         >
-          Approve <CheckIcon size={14} />
+          {t('approvals:actions.approve')} <CheckIcon size={14} />
         </button>
       </div>
     </div>

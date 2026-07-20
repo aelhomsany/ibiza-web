@@ -1,21 +1,71 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import { DEFAULT_LOCALE } from './documentLanguage'
+import { applyDocumentLanguage, DEFAULT_LOCALE, getStoredPreferredLanguage } from './documentLanguage'
 import enCommon from './locales/en/common.json'
 import enErrors from './locales/en/errors.json'
 import enLayout from './locales/en/layout.json'
+import enCalendar from './locales/en/calendar.json'
+import enDashboard from './locales/en/dashboard.json'
+import enLeaves from './locales/en/leaves.json'
+import enApprovals from './locales/en/approvals.json'
+import enSettings from './locales/en/settings.json'
+import enProfile from './locales/en/profile.json'
+import enAuth from './locales/en/auth.json'
+import enPlatform from './locales/en/platform.json'
 import arCommon from './locales/ar/common.json'
 import arErrors from './locales/ar/errors.json'
 import arLayout from './locales/ar/layout.json'
+import arCalendar from './locales/ar/calendar.json'
+import arDashboard from './locales/ar/dashboard.json'
+import arLeaves from './locales/ar/leaves.json'
+import arApprovals from './locales/ar/approvals.json'
+import arSettings from './locales/ar/settings.json'
+import arProfile from './locales/ar/profile.json'
+import arAuth from './locales/ar/auth.json'
+import arPlatform from './locales/ar/platform.json'
+
+const initialLocale = getStoredPreferredLanguage()
+applyDocumentLanguage(initialLocale)
 
 void i18n.use(initReactI18next).init({
   resources: {
-    en: { common: enCommon, errors: enErrors, layout: enLayout },
-    ar: { common: arCommon, errors: arErrors, layout: arLayout },
+    en: {
+      approvals: enApprovals,
+      auth: enAuth,
+      calendar: enCalendar,
+      common: enCommon,
+      dashboard: enDashboard,
+      errors: enErrors,
+      layout: enLayout,
+      leaves: enLeaves,
+      platform: enPlatform,
+      profile: enProfile,
+      settings: enSettings,
+    },
+    ar: {
+      approvals: arApprovals,
+      auth: arAuth,
+      calendar: arCalendar,
+      common: arCommon,
+      dashboard: arDashboard,
+      errors: arErrors,
+      layout: arLayout,
+      leaves: arLeaves,
+      platform: arPlatform,
+      profile: arProfile,
+      settings: arSettings,
+    },
   },
-  lng: DEFAULT_LOCALE,
+  lng: initialLocale,
   fallbackLng: DEFAULT_LOCALE,
   defaultNS: 'common',
+  returnNull: false,
+  parseMissingKeyHandler: (key) => {
+    if (import.meta.env.DEV) {
+      console.warn(`[i18n] missing translation key: ${key}`)
+    }
+    return ''
+  },
   interpolation: { escapeValue: false },
 })
 

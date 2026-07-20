@@ -5,6 +5,7 @@ import { ApiError } from '../../api/client'
 import { useToast } from '../../components/ui/useToast'
 import { CheckCircleIcon } from '../../components/ui/icons'
 import { LoadingState } from '../../components/ui/LoadingState'
+import { HorizontalScrollRegion } from '../../components/ui/HorizontalScrollRegion'
 import { ApprovalRow } from './ApprovalRow'
 import { DeclineModal } from './DeclineModal'
 import { RecentDecisionRow } from './RecentDecisionRow'
@@ -15,9 +16,6 @@ import { useRecentApprovalDecisions } from './useRecentApprovalDecisions'
 import '../dashboard/dashboard.css'
 import './approvals.css'
 
-const MANAGER_SUBTITLE = "Review and action your team's leave requests"
-const HR_SUBTITLE = 'Review all requests — you can approve on behalf of any manager'
-
 type DeclineTarget = {
   requestId: number
   employeeUserId: number
@@ -25,7 +23,7 @@ type DeclineTarget = {
 }
 
 export function ApprovalsPage() {
-  const { t } = useTranslation('layout')
+  const { t } = useTranslation(['approvals', 'layout', 'common'])
   const { user } = useAuth()
   const { data: pendingApprovals = [], isPending, isError } = usePendingApprovals()
   const {
@@ -40,7 +38,7 @@ export function ApprovalsPage() {
   const [declineReason, setDeclineReason] = useState('')
   const [declineSubmitError, setDeclineSubmitError] = useState<string | null>(null)
   const isHrAdmin = user?.role === 'HR_ADMIN'
-  const subtitle = isHrAdmin ? HR_SUBTITLE : MANAGER_SUBTITLE
+  const subtitle = isHrAdmin ? t('approvals:subtitle.hr') : t('approvals:subtitle.manager')
 
   const resolveMutationError = (error: unknown, fallback: string): string => {
     if (error instanceof ApiError) {
@@ -54,10 +52,10 @@ export function ApprovalsPage() {
       { requestId, employeeUserId },
       {
         onSuccess: () => {
-          showToast(`${employeeName}'s request approved`)
+          showToast(t('approvals:success.approved', { name: employeeName }))
         },
         onError: (error) => {
-          showToast(resolveMutationError(error, 'Unable to approve request'), 'warning')
+          showToast(resolveMutationError(error, t('approvals:errors.approve')), 'warning')
         },
       },
     )
@@ -79,10 +77,10 @@ export function ApprovalsPage() {
           setDeclineTarget(null)
           setDeclineReason('')
           setDeclineSubmitError(null)
-          showToast(`${declineTarget.employeeName}'s request declined`)
+          showToast(t('approvals:success.declined', { name: declineTarget.employeeName }))
         },
         onError: (error) => {
-          setDeclineSubmitError(resolveMutationError(error, 'Unable to decline request'))
+          setDeclineSubmitError(resolveMutationError(error, t('approvals:errors.decline')))
         },
       },
     )
@@ -92,26 +90,26 @@ export function ApprovalsPage() {
     <div className="page page-wide" data-testid="approvals-page">
       <header className="page-header">
         <div>
-          <h1 className="page-title">Approvals</h1>
+          <h1 className="page-title">{t('approvals:title')}</h1>
           <p className="page-sub">{subtitle}</p>
         </div>
       </header>
 
       {isPending ? (
         <LoadingState
-          label={t('loading.pendingApprovals')}
+          label={t('layout:loading.pendingApprovals')}
           testId="approvals-pending-loading"
         />
       ) : isError ? (
         <div className="approvals-error-state" data-testid="approvals-error-state" role="alert">
-          <p>We couldn’t load pending requests. Please try again.</p>
+          <p>{t('approvals:errors.pending')}</p>
         </div>
       ) : pendingApprovals.length === 0 ? (
-        <div className="approvals-empty-state" data-testid="approvals-empty-state">
+        <div className="approvals-empty-state" data-testid="approvals-empty-state" role="status">
           <div aria-hidden="true" className="approvals-empty-icon">
             <CheckCircleIcon size={40} />
           </div>
-          <p>All caught up!</p>
+          <p>{t('approvals:empty')}</p>
         </div>
       ) : (
         <div className="approvals-card" data-testid="approvals-pending-list">
@@ -121,7 +119,7 @@ export function ApprovalsPage() {
             }
             const requestId = approval.requestId
             const employeeUserId = approval.employeeUserId ?? 0
-            const employeeName = approval.employeeFullName?.trim() || 'Unknown'
+            const employeeName = approval.employeeFullName?.trim() || t('common:unknown')
             return (
               <ApprovalRow
                 key={requestId}
@@ -141,33 +139,40 @@ export function ApprovalsPage() {
       )}
 
       <section className="recent-decisions-section" data-testid="recent-decisions-section">
-        <h2 className="recent-decisions-title">Recent Decisions</h2>
+        <h2 id="recent-decisions-title" className="recent-decisions-title">
+          {t('approvals:recent.title')}
+        </h2>
         {isRecentPending ? (
           <LoadingState
-            label={t('loading.recentDecisions')}
+            label={t('layout:loading.recentDecisions')}
             testId="approvals-recent-loading"
           />
         ) : isRecentError ? (
           <div className="approvals-error-state" data-testid="recent-decisions-error" role="alert">
-            <p>We couldn’t load recent decisions. Please try again.</p>
+            <p>{t('approvals:errors.recent')}</p>
           </div>
         ) : recentDecisions.length === 0 ? (
-          <div className="recent-decisions-empty" data-testid="recent-decisions-empty">
-            <p>No recent decisions yet.</p>
+          <div className="recent-decisions-empty" data-testid="recent-decisions-empty" role="status">
+            <p>{t('approvals:recent.empty')}</p>
           </div>
         ) : (
-          <div className="card table-wrap" data-testid="recent-decisions-table">
+          <HorizontalScrollRegion
+            className="card table-wrap"
+            testId="recent-decisions-table"
+            labelledBy="recent-decisions-title"
+            describedById="recent-decisions-scroll-hint"
+          >
             <table className="recent-decisions-table">
               <thead>
                 <tr>
-                  <th scope="col">Employee</th>
-                  <th scope="col">Leave type</th>
-                  <th scope="col">Dates</th>
-                  <th scope="col">Days</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Decided by</th>
-                  <th scope="col">Decision date</th>
-                  {isHrAdmin ? <th scope="col">Audit</th> : null}
+                  <th scope="col">{t('approvals:table.employee')}</th>
+                  <th scope="col">{t('approvals:table.leaveType')}</th>
+                  <th scope="col">{t('approvals:table.dates')}</th>
+                  <th scope="col">{t('approvals:table.days')}</th>
+                  <th scope="col">{t('approvals:table.status')}</th>
+                  <th scope="col">{t('approvals:table.decidedBy')}</th>
+                  <th scope="col">{t('approvals:table.decisionDate')}</th>
+                  {isHrAdmin ? <th scope="col">{t('approvals:table.audit')}</th> : null}
                 </tr>
               </thead>
               <tbody>
@@ -185,7 +190,7 @@ export function ApprovalsPage() {
                 })}
               </tbody>
             </table>
-          </div>
+          </HorizontalScrollRegion>
         )}
       </section>
 

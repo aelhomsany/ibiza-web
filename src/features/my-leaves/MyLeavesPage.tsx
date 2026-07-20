@@ -5,6 +5,7 @@ import { useAuth } from '../../auth/useAuth'
 import { LeaveStatusBadge } from '../../components/ui/LeaveStatusBadge'
 import { LoadingState } from '../../components/ui/LoadingState'
 import { PlusIcon } from '../../components/ui/icons'
+import { HorizontalScrollRegion } from '../../components/ui/HorizontalScrollRegion'
 import { useToast } from '../../components/ui/useToast'
 import { AuditHistoryExpander } from '../approvals/AuditHistoryExpander'
 import { BalanceCard } from '../dashboard/BalanceCard'
@@ -35,24 +36,29 @@ function HistoryTable({
   requests: RecentRequestResponse[]
   showAuditHistory: boolean
 }) {
+  const { t, i18n } = useTranslation('leaves')
   if (requests.length === 0) {
     return (
-      <div className="dashboard-empty-state" data-testid="my-leaves-empty-state">
-        <p>No leave requests yet. Start a request when you need time away.</p>
+      <div className="dashboard-empty-state" data-testid="my-leaves-empty-state" role="status">
+        <p>{t('history.empty')}</p>
       </div>
     )
   }
 
   return (
-    <div className="table-wrap" data-testid="my-leaves-history-table">
+    <HorizontalScrollRegion
+      labelledBy="my-leaves-history-title"
+      describedById="my-leaves-history-scroll-hint"
+      testId="my-leaves-history-table"
+    >
       <table className="dashboard-table">
         <thead>
           <tr>
-            <th scope="col">Type</th>
-            <th scope="col">Dates</th>
-            <th scope="col">Days</th>
-            <th scope="col">Status</th>
-            {showAuditHistory ? <th scope="col">Audit</th> : null}
+            <th scope="col">{t('table.type')}</th>
+            <th scope="col">{t('table.dates')}</th>
+            <th scope="col">{t('table.days')}</th>
+            <th scope="col">{t('table.status')}</th>
+            {showAuditHistory ? <th scope="col">{t('table.audit')}</th> : null}
           </tr>
         </thead>
         <tbody>
@@ -71,10 +77,10 @@ function HistoryTable({
                   borderColor={request.leaveTypeBorderColor ?? 'transparent'}
                 />
               </td>
-              <td>{formatDateRange(request.dateFrom ?? '', request.dateTo ?? '')}</td>
+              <td>{formatDateRange(request.dateFrom ?? '', request.dateTo ?? '', i18n.language)}</td>
               <td>
                 <strong>{request.workingDays}</strong>{' '}
-                <span className="working-caption">working</span>
+                <span className="working-caption">{t('table.working')}</span>
               </td>
               <td>
                 <HistoryStatusCell request={request} />
@@ -88,12 +94,12 @@ function HistoryTable({
           ))}
         </tbody>
       </table>
-    </div>
+    </HorizontalScrollRegion>
   )
 }
 
 export function MyLeavesPage() {
-  const { t } = useTranslation('layout')
+  const { t } = useTranslation(['leaves', 'layout', 'dashboard'])
   const { user } = useAuth()
   const isHrAdmin = user?.role === 'HR_ADMIN'
   const [modalOpen, setModalOpen] = useState(false)
@@ -102,15 +108,15 @@ export function MyLeavesPage() {
   const historyQuery = useMyLeaveRequests()
 
   const showSubmitSuccessToast = useCallback(() => {
-    showToast('Leave request submitted — waiting for approval')
-  }, [showToast])
+    showToast(t('dashboard:request.success'))
+  }, [showToast, t])
 
   return (
     <div className="page page-wide" data-testid="my-leaves-page">
       <header className="page-header">
         <div>
-          <h1 className="page-title">My Leaves</h1>
-          <p className="page-sub">Your leave history and balances</p>
+          <h1 className="page-title">{t('leaves:title')}</h1>
+          <p className="page-sub">{t('leaves:subtitle')}</p>
         </div>
         <button
           type="button"
@@ -118,17 +124,17 @@ export function MyLeavesPage() {
           data-testid="request-leave-btn"
           onClick={() => setModalOpen(true)}
         >
-          <PlusIcon size={16} /> Request Leave
+          <PlusIcon size={16} /> {t('leaves:actions.requestLeave')}
         </button>
       </header>
 
       <section className="my-leaves-balances" aria-labelledby="my-leaves-balances-title">
         <h2 id="my-leaves-balances-title" className="my-leaves-section-title">
-          Balances
+          {t('leaves:balances')}
         </h2>
         {balancesQuery.isPending && (
           <LoadingState
-            label={t('loading.leaveBalances')}
+            label={t('layout:loading.leaveBalances')}
             variant="skeleton"
             testId="my-leaves-balance-grid-loading"
           >
@@ -141,8 +147,8 @@ export function MyLeavesPage() {
         )}
 
         {balancesQuery.isError && (
-          <p className="dashboard-error" data-testid="my-leaves-balances-error">
-            Unable to load your leave balances.
+          <p className="dashboard-error" data-testid="my-leaves-balances-error" role="alert">
+            {t('leaves:errors.balances')}
           </p>
         )}
 
@@ -155,24 +161,24 @@ export function MyLeavesPage() {
         )}
       </section>
 
-      <section className="card my-leaves-history" aria-labelledby="my-leaves-history-title">
+      <section className="card my-leaves-history">
         <div className="card-header">
           <h2 id="my-leaves-history-title" className="card-title">
-            Leave History
+            {t('leaves:history.title')}
           </h2>
         </div>
 
         {historyQuery.isPending && (
           <LoadingState
-            label={t('loading.leaveHistory')}
+            label={t('layout:loading.leaveHistory')}
             variant="block"
             testId="my-leaves-history-loading"
           />
         )}
 
         {historyQuery.isError && (
-          <p className="dashboard-error" data-testid="my-leaves-history-error">
-            Unable to load your leave history.
+          <p className="dashboard-error" data-testid="my-leaves-history-error" role="alert">
+            {t('leaves:errors.history')}
           </p>
         )}
 

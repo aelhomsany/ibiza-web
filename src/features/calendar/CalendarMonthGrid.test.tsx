@@ -1,79 +1,90 @@
-import { render, screen, within } from '@testing-library/react'
+import type { ComponentProps } from 'react'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { CalendarMonthGrid } from './CalendarMonthGrid'
 import { mockCalendarMonth } from './calendarTestFixtures'
 
-function renderGrid(calendar = mockCalendarMonth) {
+type GridProps = ComponentProps<typeof CalendarMonthGrid>
+
+function renderGrid(overrides: Partial<GridProps> = {}) {
+  const props: GridProps = {
+    calendar: mockCalendarMonth,
+    month: '2026-06',
+    ...overrides,
+  }
+
   return render(
     <MemoryRouter>
-      <CalendarMonthGrid calendar={calendar} month="2026-06" />
+      <CalendarMonthGrid {...props} />
     </MemoryRouter>,
   )
 }
 
 describe('CalendarMonthGrid', () => {
-  it('[P0] renders weekday headers and month day cells', () => {
-    renderGrid()
+  it('[P0] renders the mini month as accessible day buttons and reports selection', async () => {
+    const user = userEvent.setup()
+    const onSelectDate = vi.fn()
+    renderGrid({ onSelectDate })
 
-    expect(screen.getByTestId('calendar-month-grid')).toBeInTheDocument()
-    for (const dayName of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']) {
-      expect(screen.getByText(dayName)).toBeInTheDocument()
-    }
-    expect(screen.getByTestId('calendar-day-2026-06-01')).toHaveTextContent('1')
-    expect(screen.getByTestId('calendar-day-2026-06-30')).toHaveTextContent('30')
+    expect(screen.getByTestId('calendar-mini-month')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'June 2026' })).toBeInTheDocument()
+    expect(screen.getAllByRole('button')).toHaveLength(30)
+
+    const absenceDay = screen.getByRole('button', { name: 'June 10, 1 absence' })
+    expect(absenceDay).toHaveAttribute('type', 'button')
+    expect(absenceDay).toHaveAttribute('aria-pressed', 'false')
+
+    await user.click(absenceDay)
+
+    expect(onSelectDate).toHaveBeenCalledOnce()
+    expect(onSelectDate).toHaveBeenCalledWith('2026-06-10')
   })
 
-  it('[P0] renders approved absences as initials chips on every overlapping day', () => {
-    renderGrid()
+  it('[P0/P1] exposes selected, today, weekend, and holiday states on their day buttons', () => {
+    renderGrid({ selectedDate: '2026-06-18' })
 
-    for (const date of ['2026-06-10', '2026-06-11', '2026-06-12']) {
-      expect(within(screen.getByTestId(`calendar-day-${date}`)).getByText('SC')).toBeInTheDocument()
-    }
+    const today = screen.getByTestId('calendar-day-2026-06-15')
+    const weekend = screen.getByTestId('calendar-day-2026-06-14')
+    const selectedHoliday = screen.getByRole('button', {
+      name: 'June 18, no absences, 1 holiday',
+    })
+
+    expect(today).toHaveClass('calendar-mini-day', 'today')
+    expect(today).toHaveAttribute('aria-current', 'date')
+    expect(today).toHaveAttribute('aria-pressed', 'false')
+    expect(weekend).not.toHaveAttribute('aria-current')
+    expect(weekend).toHaveClass('calendar-mini-day', 'weekend')
+    expect(selectedHoliday).toHaveClass('calendar-mini-day', 'selected', 'holiday')
+    expect(selectedHoliday).toHaveAttribute('aria-pressed', 'true')
   })
 
-  it('[P0/P1] applies today, weekend, holiday, and presence classes from API data', () => {
+  it('[P1] marks absence days with a single decorative user-colored dot', () => {
     renderGrid()
 
-    expect(screen.getByTestId('calendar-day-2026-06-15')).toHaveClass('today')
-    expect(screen.getByTestId('calendar-day-2026-06-14')).toHaveClass('weekend')
-    expect(screen.getByTestId('calendar-day-2026-06-18')).toHaveClass('holiday')
-    expect(screen.getByTestId('calendar-event-11')).toHaveClass('cal-event--wfh')
-    expect(screen.getByTestId('calendar-event-10-2026-06-10')).toHaveClass('cal-event--off')
-  })
+    for (const date of ['2026-06-10', '2026-06-11', '2026-06-12', '2026-06-15']) {
+      const day = screen.getByTestId(`calendar-day-${date}`)
+      const dots = day.querySelectorAll('.calendar-mini-absence-dot')
 
-  it('[P1] user-11 chip uses hash-based inline style, not a modulo-8 class', () => {
-    const calendar = {
-      ...mockCalendarMonth,
-      absences: [
-        {
-          ...mockCalendarMonth.absences[0],
-          requestId: 99,
-          userId: 99,
-          userInitials: 'ZZ',
-          userColorKey: 'user-11',
-          dateFrom: '2026-06-05',
-          dateTo: '2026-06-05',
-        },
-      ],
+      expect(dots).toHaveLength(1)
+      expect(dots[0]).toHaveAttribute('aria-hidden', 'true')
+      expect(day.style.getPropertyValue('--chip-bg')).toBeTruthy()
     }
-    renderGrid(calendar)
 
-    const chip = screen.getByTestId('calendar-event-99')
-    expect(chip.className).not.toMatch(/cal-event--user-\d/)
-    expect(chip.style.getPropertyValue('--chip-bg')).toBeTruthy()
-    expect(chip.style.getPropertyValue('--chip-fg')).toBeTruthy()
+    const clearDay = screen.getByRole('button', { name: 'June 13, no absences' })
+    expect(clearDay.querySelector('.calendar-mini-absence-dot')).not.toBeInTheDocument()
   })
+})
 
-  it('[P1] renders holiday names and workforce group pills for every holiday range day', () => {
+/**
+ * Story 10.10 — UXA-10 labelled month grid for screen-reader navigation.
+ */
+describe('CalendarMonthGrid accessibility ATDD — Story 10.10', () => {
+  test('[P1] exposes a labelled month grid with per-day accessible names', () => {
     renderGrid()
 
-    for (const date of ['2026-06-18', '2026-06-19']) {
-      const cell = within(screen.getByTestId(`calendar-day-${date}`))
-      expect(cell.getByText('Founders Day')).toBeInTheDocument()
-      const pill = cell.getByText('US')
-      expect(pill).toHaveClass('group-pill')
-      expect(pill).not.toHaveClass('group-pill-us')
-      expect((pill as HTMLElement).style.getPropertyValue('--pill-bg')).toBeTruthy()
-    }
+    expect(screen.getByRole('grid', { name: /june 2026/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /june 10, 1 absence/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /june 19, no absences, 1 holiday/i })).toBeInTheDocument()
   })
 })

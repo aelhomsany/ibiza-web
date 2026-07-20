@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import '../../i18n/config'
 import type { UserRole } from '../../api/generated/types'
-import { formatRole } from '../../auth/authUtils'
 import { ProfileAvatar } from '../../features/profile/ProfileAvatar'
 import { ORG_NAV_ITEMS } from '../../auth/rolePermissions'
 import {
@@ -45,7 +44,7 @@ type MenuAction = {
 }
 
 export function UserMenu({ userName, userRole, profileImageUrl, onSignOut, variant, languageSwitcher }: UserMenuProps) {
-  const { t } = useTranslation('layout')
+  const { t } = useTranslation(['layout', 'common'])
   const [open, setOpen] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -273,7 +272,7 @@ export function UserMenu({ userName, userRole, profileImageUrl, onSignOut, varia
         >
           <div className="user-menu-header">
             <div className="user-menu-name">{userName}</div>
-            <div className="user-menu-role">{formatRole(userRole)}</div>
+            <div className="user-menu-role">{t(`common:roles.${roleKey(userRole)}`)}</div>
           </div>
 
           {languageSwitcher}
@@ -332,4 +331,10 @@ export function UserMenu({ userName, userRole, profileImageUrl, onSignOut, varia
       ) : null}
     </div>
   )
+}
+
+function roleKey(role: UserRole): string {
+  if (role === 'HR_ADMIN') return 'hrAdmin'
+  if (role === 'PLATFORM_ADMIN') return 'platformAdmin'
+  return role.toLowerCase()
 }

@@ -111,6 +111,29 @@ describe('OrgShell ATDD — Story 10.7 mobile drawer focus and inert', () => {
     })
   })
 
+  test(
+    '[P0] keeps header actions out of the Tab order while the mobile drawer is open',
+    async () => {
+      const user = userEvent.setup()
+      renderOrgShell()
+
+      await user.click(screen.getByTestId('shell-topbar-menu'))
+      await screen.findByTestId('sidebar')
+
+      const bell = screen.getByTestId('notification-bell')
+      const userMenu = screen.getByTestId('user-menu-trigger')
+
+      for (let step = 0; step < 12; step += 1) {
+        expect(bell).not.toHaveFocus()
+        expect(userMenu).not.toHaveFocus()
+        await user.tab()
+      }
+
+      expect(bell).not.toHaveFocus()
+      expect(userMenu).not.toHaveFocus()
+    },
+  )
+
   test('[P1] clears the drawer and inert state when the viewport widens to desktop', async () => {
     const originalInnerWidth = window.innerWidth
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: 375 })

@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ApiError } from '../../api/client'
 import { useAuth } from '../../auth/useAuth'
 import { LeaveStatusBadge } from '../../components/ui/LeaveStatusBadge'
@@ -18,6 +19,7 @@ function parseRequestId(id: string | undefined): number | undefined {
 }
 
 export function RequestContextPage() {
+  const { t, i18n } = useTranslation('leaves')
   const { id } = useParams()
   const requestId = parseRequestId(id)
   const { user } = useAuth()
@@ -28,10 +30,10 @@ export function RequestContextPage() {
     return (
       <div className="page page-wide" data-testid="request-context-page">
         <section className="card request-context-card">
-          <h1 className="card-title">Request Not Found</h1>
-          <p className="dashboard-error">This request link is invalid.</p>
+          <h1 className="card-title">{t('requestContext.notFound')}</h1>
+          <p className="dashboard-error">{t('requestContext.invalid')}</p>
           <Link className="btn btn-primary request-context-back-link" to="/calendar">
-            Back To Calendar
+            {t('actions.backCalendar')}
           </Link>
         </section>
       </div>
@@ -42,7 +44,7 @@ export function RequestContextPage() {
     return (
       <div className="page page-wide" data-testid="request-context-page">
         <div className="dashboard-section-loading" data-testid="request-context-loading">
-          Loading request context...
+          {t('requestContext.loading')}
         </div>
       </div>
     )
@@ -51,22 +53,22 @@ export function RequestContextPage() {
   if (query.isError) {
     const detail =
       query.error instanceof ApiError
-        ? (query.error.problem.detail ?? 'Request context is unavailable.')
-        : 'Request context is unavailable.'
+        ? (query.error.problem.detail ?? t('requestContext.unavailable'))
+        : t('requestContext.unavailable')
 
     return (
       <div className="page page-wide" data-testid="request-context-page">
         <section className="card request-context-card">
-          <h1 className="card-title">Request Not Found</h1>
+          <h1 className="card-title">{t('requestContext.notFound')}</h1>
           <p className="dashboard-error" data-testid="request-context-error">
             {detail}
           </p>
           <div className="request-context-actions">
             <Link className="btn btn-primary request-context-back-link" to="/calendar">
-              Back To Calendar
+              {t('actions.backCalendar')}
             </Link>
             <Link className="btn request-context-back-link" to="/my-leaves">
-              My Leaves
+              {t('actions.myLeaves')}
             </Link>
           </div>
         </section>
@@ -80,25 +82,25 @@ export function RequestContextPage() {
     <div className="page page-wide" data-testid="request-context-page">
       <header className="page-header request-context-header">
         <div>
-          <p className="page-kicker">Leave Request</p>
+          <p className="page-kicker">{t('requestContext.kicker')}</p>
           <h1 className="page-title">{request.leaveTypeName}</h1>
           <p className="page-sub">{request.requesterFullName}</p>
         </div>
         <Link className="btn request-context-back-link" to="/calendar">
-          Back To Calendar
+          {t('actions.backCalendar')}
         </Link>
       </header>
 
       <section className="card request-context-card" aria-labelledby="request-context-title">
         <div className="card-header">
           <h2 id="request-context-title" className="card-title">
-            Request Details
+            {t('requestContext.details')}
           </h2>
         </div>
 
         <dl className="request-context-summary">
           <div>
-            <dt>Leave type</dt>
+            <dt>{t('requestContext.leaveType')}</dt>
             <dd>
               <LeaveTypeTag
                 icon={request.leaveTypeIcon ?? ''}
@@ -110,19 +112,19 @@ export function RequestContextPage() {
             </dd>
           </div>
           <div>
-            <dt>Requester</dt>
+            <dt>{t('requestContext.requester')}</dt>
             <dd>{request.requesterFullName}</dd>
           </div>
           <div>
-            <dt>Dates</dt>
-            <dd>{formatDateRange(request.dateFrom ?? '', request.dateTo ?? '')}</dd>
+            <dt>{t('requestContext.dates')}</dt>
+            <dd>{formatDateRange(request.dateFrom ?? '', request.dateTo ?? '', i18n.language)}</dd>
           </div>
           <div>
-            <dt>Working days</dt>
-            <dd>{request.workingDays} working days</dd>
+            <dt>{t('requestContext.workingDays')}</dt>
+            <dd>{t('requestContext.workingDaysValue', { count: request.workingDays })}</dd>
           </div>
           <div>
-            <dt>Status</dt>
+            <dt>{t('requestContext.status')}</dt>
             <dd>
               <LeaveStatusBadge status={request.status} />
               {request.statusHint ? <span className="status-hint">{request.statusHint}</span> : null}
@@ -133,7 +135,7 @@ export function RequestContextPage() {
           </div>
           {isHrAdmin && request.id != null ? (
             <div>
-              <dt>Audit</dt>
+              <dt>{t('requestContext.audit')}</dt>
               <dd>
                 <AuditHistoryExpander requestId={request.id} />
               </dd>

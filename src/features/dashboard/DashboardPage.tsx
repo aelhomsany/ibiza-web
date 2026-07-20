@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../auth/useAuth'
 import { PlusIcon } from '../../components/ui/icons'
@@ -18,14 +19,15 @@ function firstName(fullName: string): string {
   return fullName.split(' ')[0] ?? fullName
 }
 
-function timeGreeting(): string {
+function timeGreetingKey(): string {
   const hour = new Date().getHours()
-  if (hour < 12) return 'Good morning'
-  if (hour < 17) return 'Good afternoon'
-  return 'Good evening'
+  if (hour < 12) return 'greetings.morning'
+  if (hour < 17) return 'greetings.afternoon'
+  return 'greetings.evening'
 }
 
 export function DashboardPage() {
+  const { t } = useTranslation('dashboard')
   const { user } = useAuth()
   const [modalOpen, setModalOpen] = useState(false)
   const { showToast } = useToast()
@@ -39,17 +41,20 @@ export function DashboardPage() {
     (user?.role === 'MANAGER' || user?.role === 'HR_ADMIN') && pendingCount > 0
 
   const showSubmitSuccessToast = useCallback(() => {
-    showToast('Leave request submitted — waiting for approval')
-  }, [showToast])
+    showToast(t('request.success'))
+  }, [showToast, t])
 
   return (
-    <div className="page page-wide" data-testid="dashboard-page">
+    <div className="page page-wide dashboard-layout" data-testid="dashboard-page">
       <header className="page-header">
         <div>
           <h1 className="page-title">
-            {timeGreeting()}, {user ? firstName(user.fullName) : 'there'}!
+            {t('greeting', {
+              time: t(timeGreetingKey()),
+              name: user ? firstName(user.fullName) : t('nameFallback'),
+            })}
           </h1>
-          <p className="page-sub">Here&apos;s your leave overview</p>
+          <p className="page-sub">{t('subtitle')}</p>
         </div>
         <button
           type="button"
@@ -57,15 +62,15 @@ export function DashboardPage() {
           data-testid="request-leave-btn"
           onClick={() => setModalOpen(true)}
         >
-          <PlusIcon size={16} /> Request Leave
+          <PlusIcon size={16} /> {t('actions.requestLeave')}
         </button>
       </header>
 
       {showPendingAlert ? (
         <div className="dashboard-pending-alert" data-testid="dashboard-pending-alert" role="status">
-          <span>{pendingCount} Pending Approvals</span>
+          <span>{t('pendingApprovals', { count: pendingCount })}</span>
           <Link to="/approvals" className="dashboard-pending-alert-link">
-            Review Now
+            {t('actions.reviewNow')}
           </Link>
         </div>
       ) : null}
@@ -80,7 +85,7 @@ export function DashboardPage() {
 
       {balancesQuery.isError && (
         <p className="dashboard-error" data-testid="dashboard-balances-error">
-          Unable to load your leave balances.
+          {t('errors.balances')}
         </p>
       )}
 

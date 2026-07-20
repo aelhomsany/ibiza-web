@@ -1,6 +1,70 @@
 {
-  "actions": { "retry": "Retry", "reload": "Reload" },
-  "toast": { "dismiss": "Dismiss notification" },
-  "recovery": { "heading": "Something went wrong", "app": "Reload Ibiza or try again to recover your workspace.", "route": "This page could not load. Your navigation is still available." },
-  "profile": { "languageNotSet": "Not set", "notApplicable": "Not applicable" }
+  "actions": {
+    "add": "Add",
+    "cancel": "Cancel",
+    "close": "Close",
+    "create": "Create",
+    "edit": "Edit",
+    "reload": "Reload",
+    "remove": "Remove",
+    "retry": "Retry",
+    "save": "Save",
+    "saving": "Saving…"
+  },
+  "brand": {
+    "admin": "Ibiza Admin",
+    "name": "Ibiza",
+    "platformConsole": "Platform Console",
+    "tagline": "Team Leave Management"
+  },
+  "comingSoon": "Coming soon.",
+  "loading": "Loading…",
+  "notFound": {
+    "subtitle": "The page you're looking for doesn't exist.",
+    "title": "Page Not Found"
+  },
+  "presence": {
+    "off": "Off",
+    "wfh": "WFH"
+  },
+  "profile": {
+    "languageNotSet": "Not set",
+    "notApplicable": "Not applicable"
+  },
+  "recovery": {
+    "app": "Reload Ibiza or try again to recover your workspace.",
+    "heading": "Something went wrong",
+    "route": "This page could not load. Your navigation is still available."
+  },
+  "roles": {
+    "employee": "Employee",
+    "hrAdmin": "HR Admin",
+    "manager": "Manager",
+    "platformAdmin": "Platform Admin"
+  },
+  "routes": {
+    "approvals": "Approvals",
+    "calendar": "Team Calendar",
+    "dashboard": "Dashboard",
+    "forgotPassword": "Forgot password",
+    "myLeaves": "My Leaves",
+    "organizations": "Organizations",
+    "profile": "Profile details",
+    "requestDetails": "Request Details",
+    "resetPassword": "Reset password",
+    "settings": "Settings",
+    "signIn": "Sign in"
+  },
+  "status": {
+    "active": "Active",
+    "approved": "Approved",
+    "declined": "Declined",
+    "deactivated": "Deactivated",
+    "pending": "Pending",
+    "suspended": "Suspended"
+  },
+  "toast": {
+    "dismiss": "Dismiss notification"
+  },
+  "unknown": "Unknown"
 }

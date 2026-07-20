@@ -1,7 +1,9 @@
 {
   "nav": { "dashboard": "Dashboard", "myLeaves": "My Leaves", "calendar": "Calendar", "approvals": "Approvals", "settings": "Settings", "organizations": "Organizations" },
-  "navigation": { "main": "Main navigation" },
-  "header": { "openNavigation": "Open navigation", "closeNavigation": "Close navigation", "userMenu": "User menu, {{name}}", "accountMenu": "Account menu", "language": "Language" },
+  "navigation": { "main": "Main navigation", "pending": "{{label}}, {{count}} pending" },
+  "skipToMain": "Skip to main content",
+  "tableRegion": { "scrollHint": "Use the left and right arrow keys to scroll this table horizontally." },
+  "header": { "openNavigation": "Open navigation", "closeNavigation": "Close navigation", "userMenu": "User menu, {{name}}", "accountMenu": "Account menu", "language": "Language", "userFallback": "User" },
   "menu": { "profile": "Profile details", "myRequests": "My Requests", "signOut": "Sign out" },
   "notifications": { "label": "Notifications", "unread": "Notifications, {{count}} unread", "markAllRead": "Mark all read", "loading": "Loading notifications...", "empty": "No notifications yet" },
   "loading": { "pendingApprovals": "Loading pending requests…", "recentDecisions": "Loading recent decisions…", "leaveBalances": "Loading leave balances", "leaveHistory": "Loading leave history", "teamMembers": "Loading team members…" },

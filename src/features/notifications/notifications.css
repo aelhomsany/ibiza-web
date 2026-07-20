@@ -35,7 +35,7 @@
 .notification-badge {
   position: absolute;
   top: 4px;
-  right: 4px;
+  inset-inline-end: var(--space-xs);
   min-width: 18px;
   height: 18px;
   padding: 0 6px;
@@ -50,7 +50,7 @@
 .notification-panel {
   position: absolute;
   top: 46px;
-  left: 0;
+  inset-inline-start: 0;
   z-index: 30;
   width: 360px;
   max-height: 420px;
@@ -103,7 +103,7 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  text-align: left;
+  text-align: start;
   font-family: inherit;
   cursor: pointer;
 }

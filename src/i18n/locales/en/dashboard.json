@@ -1,0 +1,77 @@
+{
+  "actions": {
+    "requestLeave": "Request Leave",
+    "reviewNow": "Review Now"
+  },
+  "balance": {
+    "daysUsed": "{{count}} working days used",
+    "left": "{{count}} left",
+    "overLimit": "{{count}} over limit"
+  },
+  "errors": {
+    "balances": "Unable to load your leave balances.",
+    "outToday": "Unable to load out today.",
+    "recent": "Unable to load recent requests.",
+    "upcoming": "Unable to load upcoming leaves."
+  },
+  "greeting": "{{time}}, {{name}}!",
+  "greetings": {
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "morning": "Good morning"
+  },
+  "nameFallback": "there",
+  "pendingApprovals": "{{count}} Pending Approvals",
+  "recent": {
+    "empty": "No leave requests yet",
+    "loading": "Loading recent requests…",
+    "title": "My Recent Requests"
+  },
+  "request": {
+    "actions": {
+      "submit": "Submit Request",
+      "submitting": "Submitting…"
+    },
+    "errors": {
+      "preview": "Unable to preview working days",
+      "submit": "Unable to submit leave request"
+    },
+    "fields": {
+      "from": "From",
+      "fromDate": "From date",
+      "leaveType": "Leave Type",
+      "note": "Note (optional)",
+      "selectLeaveType": "— Select leave type —",
+      "to": "To",
+      "toDate": "To date"
+    },
+    "preview": {
+      "calculating": "Calculating working days…",
+      "charged": "{{count}} working days will be charged",
+      "context": "Based on {{name}} Workforce Group weekends & holidays",
+      "dateRange": "End date must be on or after start date",
+      "excluded": "{{count}} weekend/holiday days excluded from balance",
+      "selectDates": "Select dates to preview working days",
+      "zero": "No working days in the selected range for your {{name}} Workforce Group"
+    },
+    "success": "Leave request submitted — waiting for approval",
+    "title": "Request Leave"
+  },
+  "sidebar": {
+    "everyoneIn": "Everyone is in today!",
+    "loading": "Loading…",
+    "noUpcoming": "No upcoming leaves in next 30 days",
+    "outToday": "Out Today",
+    "upcoming": "Upcoming Leaves",
+    "workingDays": "{{count}}d working"
+  },
+  "subtitle": "Here's your leave overview",
+  "title": "Dashboard",
+  "table": {
+    "dates": "Dates",
+    "days": "Days",
+    "status": "Status",
+    "type": "Type",
+    "working": "working"
+  }
+}

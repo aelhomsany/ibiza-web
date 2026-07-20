@@ -11,7 +11,13 @@ import type { UserSummaryResponse } from '../api/generated/types'
 import { getBrowserTimezone } from './timezone'
 import { clearAccessToken } from './tokenStorage'
 import i18n from '../i18n/config'
-import { applyDocumentLanguage } from '../i18n/documentLanguage'
+import {
+  applyDocumentLanguage,
+  DEFAULT_LOCALE,
+  getStoredPreferredLanguage,
+  isSupportedLocale,
+  storePreferredLanguage,
+} from '../i18n/documentLanguage'
 import { AuthContext, type AuthContextValue } from './useAuth'
 
 type AuthProviderProps = {
@@ -56,9 +62,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [restoreSession])
 
   useEffect(() => {
-    const locale = user?.preferredLanguage ?? 'en'
-    void i18n.changeLanguage(locale)
-    applyDocumentLanguage(locale)
+    const locale = user
+      ? isSupportedLocale(user.preferredLanguage)
+        ? user.preferredLanguage
+        : DEFAULT_LOCALE
+      : getStoredPreferredLanguage()
+    if (user) {
+      storePreferredLanguage(locale)
+    }
+    let cancelled = false
+    void i18n.changeLanguage(locale).then(() => {
+      if (!cancelled) {
+        applyDocumentLanguage(locale)
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only preferredLanguage should re-trigger the locale sync, not every user-object change
   }, [user?.preferredLanguage])
 
   useEffect(() => {

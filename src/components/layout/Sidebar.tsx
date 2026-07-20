@@ -28,12 +28,12 @@ type SidebarProps = {
 export function Sidebar({
   variant,
   navItems,
-  logoTitle = 'Ibiza',
-  logoSubtitle = 'Team Leave Management',
+  logoTitle,
+  logoSubtitle,
   mobileOpen = false,
   onNavigate,
 }: SidebarProps) {
-  const { t } = useTranslation('layout')
+  const { t } = useTranslation(['layout', 'common'])
   const variantClass = variant === 'org' ? 'sidebar--org' : 'sidebar--admin'
 
   return (
@@ -47,8 +47,8 @@ export function Sidebar({
           <UmbrellaIcon size={26} />
         </span>
         <div>
-          <div className="sidebar-logo-text">{logoTitle}</div>
-          <div className="sidebar-logo-sub">{logoSubtitle}</div>
+          <div className="sidebar-logo-text">{logoTitle ?? t('common:brand.name')}</div>
+          <div className="sidebar-logo-sub">{logoSubtitle ?? t('common:brand.tagline')}</div>
         </div>
       </div>
 
@@ -56,7 +56,9 @@ export function Sidebar({
         {navItems.map((item) => {
           const badge = item.badge
           const accessibleLabel =
-            badge != null && badge > 0 ? `${item.label}, ${badge} pending` : item.label
+            badge != null && badge > 0
+              ? t('layout:navigation.pending', { label: item.label, count: badge })
+              : item.label
           const Icon = item.icon
 
           return (

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ApiError,
   createCheckoutSession,
@@ -45,6 +46,7 @@ type LeaveTypeOption = {
 }
 
 export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }: Props) {
+  const { t } = useTranslation(['settings', 'common'])
   const { user } = useAuth()
   const orgId = user?.organizationId
   const queryClient = useQueryClient()
@@ -154,12 +156,12 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
     onSuccess: (created) => {
       void queryClient.invalidateQueries({ queryKey: ['team-members', orgId] })
       setUpgradePrompt(null)
-      onSuccess(`${created.fullName} added to Ibiza!`)
+      onSuccess(t('settings:memberModal.success.added', { name: created.fullName }))
     },
     onError: (err) => {
       if (isPlanLimitReached(err)) {
         setUpgradePrompt({
-          detail: err.problem.detail ?? 'Your organization is at its plan user limit',
+          detail: err.problem.detail ?? t('settings:memberModal.errors.planLimit'),
           checkoutUnavailable: false,
         })
         return
@@ -177,7 +179,9 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
         }
       }
       const msg =
-        err instanceof ApiError ? err.problem.detail ?? 'Failed to add member' : 'Failed to add member'
+        err instanceof ApiError
+          ? err.problem.detail ?? t('settings:memberModal.errors.add')
+          : t('settings:memberModal.errors.add')
       onWarning?.(msg)
     },
   })
@@ -206,7 +210,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['team-members', orgId] })
       void queryClient.invalidateQueries({ queryKey: ['team-member', editMemberId] })
-      onSuccess('Team member updated.')
+      onSuccess(t('settings:memberModal.success.updated'))
     },
     onError: (err) => {
       if (err instanceof ApiError) {
@@ -222,7 +226,9 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
         }
       }
       const msg =
-        err instanceof ApiError ? err.problem.detail ?? 'Failed to update member' : 'Failed to update member'
+        err instanceof ApiError
+          ? err.problem.detail ?? t('settings:memberModal.errors.update')
+          : t('settings:memberModal.errors.update')
       onWarning?.(msg)
     },
   })
@@ -293,7 +299,9 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
     const fieldId = TEAM_MEMBER_FIELD_IDS[field]
     const message =
       fieldErrors[field] ??
-      (field === 'workforceGroupId' && groupError ? 'Workforce Group is required' : undefined)
+      (field === 'workforceGroupId' && groupError
+        ? t('settings:memberModal.errors.groupRequired')
+        : undefined)
     if (!message) {
       return { message: undefined, fieldId, invalid: false, describedBy: undefined }
     }
@@ -320,16 +328,16 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
     >
         <div className="modal-header">
           <span className="modal-title" id="team-member-modal-title">
-            {isEdit ? 'Edit Team Member' : 'Add Team Member'}
+            {isEdit ? t('settings:memberModal.titleEdit') : t('settings:memberModal.titleAdd')}
           </span>
-          <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
+          <button type="button" className="modal-close" onClick={onClose} aria-label={t('common:actions.close')}>
             <CloseIcon size={18} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
-            <label htmlFor="tm-fullname">Full name</label>
+            <label htmlFor="tm-fullname">{t('settings:memberModal.fields.fullName')}</label>
             <input
               id="tm-fullname"
               type="text"
@@ -349,7 +357,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
 
           {!isEdit && (
             <div className="form-group">
-              <label htmlFor="tm-email">Email</label>
+              <label htmlFor="tm-email">{t('settings:memberModal.fields.email')}</label>
               <input
                 id="tm-email"
                 type="email"
@@ -369,7 +377,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
           )}
 
           <div className="form-group">
-            <label htmlFor="tm-dept">Department</label>
+            <label htmlFor="tm-dept">{t('settings:memberModal.fields.department')}</label>
             <input
               id="tm-dept"
               type="text"
@@ -389,7 +397,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
 
           <div className="form-row-2col">
             <div className="form-group">
-              <label htmlFor="tm-role">Role</label>
+              <label htmlFor="tm-role">{t('settings:memberModal.fields.role')}</label>
               <select
                 id="tm-role"
                 value={role}
@@ -400,9 +408,9 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
                 aria-invalid={roleError.invalid || undefined}
                 aria-describedby={roleError.describedBy}
               >
-                <option value="EMPLOYEE">Employee</option>
-                <option value="MANAGER">Manager</option>
-                <option value="HR_ADMIN">HR Admin</option>
+                <option value="EMPLOYEE">{t('settings:memberModal.roles.employee')}</option>
+                <option value="MANAGER">{t('settings:memberModal.roles.manager')}</option>
+                <option value="HR_ADMIN">{t('settings:memberModal.roles.hrAdmin')}</option>
               </select>
               {roleError.message && (
                 <FieldErrorMessage fieldId={roleError.fieldId} message={roleError.message} />
@@ -411,7 +419,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
 
             <div className="form-group">
               <label htmlFor="tm-group">
-                Workforce Group <span className="field-required">*</span>
+                {t('settings:memberModal.fields.workforceGroup')} <span className="field-required">*</span>
               </label>
               <select
                 id="tm-group"
@@ -425,7 +433,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
                 aria-invalid={groupFieldError.invalid || undefined}
                 aria-describedby={groupFieldError.describedBy}
               >
-                <option value="">— Select group —</option>
+                <option value="">{t('settings:memberModal.fields.selectGroup')}</option>
                 {groups.map((g) => (
                   <option key={g.id} value={g.id}>
                     {g.name}
@@ -440,7 +448,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
 
           {role === 'EMPLOYEE' && (
             <div className="form-group" data-testid="manager-field">
-              <label htmlFor="tm-manager">Reports to</label>
+              <label htmlFor="tm-manager">{t('settings:memberModal.fields.reportsTo')}</label>
               <select
                 id="tm-manager"
                 value={managerId}
@@ -448,7 +456,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
                   setManagerId(e.target.value === '' ? '' : Number(e.target.value))
                 }
               >
-                <option value="">— None —</option>
+                <option value="">{t('settings:memberModal.fields.none')}</option>
                 {managers.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.fullName}
@@ -460,7 +468,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
 
           {cappedLeaveTypes.length > 0 && (
             <div className="form-group">
-              <label>Annual entitlements (working days per year)</label>
+              <label>{t('settings:memberModal.fields.entitlements')}</label>
               {cappedLeaveTypes.map((lt) => (
                 <div key={lt.id} className="entitlement-row" data-testid={`ent-row-${lt.id}`}>
                   <label htmlFor={`ent-${lt.id}`}>{lt.name}</label>
@@ -485,22 +493,22 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
           {upgradePrompt && (
             <div className="upgrade-prompt" role="alert" tabIndex={-1} ref={upgradePromptRef}>
               <div>
-                <strong>Upgrade Required</strong>
+                <strong>{t('settings:memberModal.upgrade.title')}</strong>
                 <p>{upgradePrompt.detail}</p>
                 {upgradePrompt.checkoutUnavailable && (
-                  <p>Self-serve checkout is unavailable. Use the manual path below.</p>
+                  <p>{t('settings:memberModal.upgrade.checkoutUnavailable')}</p>
                 )}
-                <p>Manual fallback: Contact Platform Admin to upgrade.</p>
+                <p>{t('settings:memberModal.upgrade.manual')}</p>
               </div>
               <div className="upgrade-prompt-actions">
-                <label htmlFor="upgrade-plan">Paid plan</label>
+                <label htmlFor="upgrade-plan">{t('settings:memberModal.upgrade.paidPlan')}</label>
                 <select
                   id="upgrade-plan"
                   value={upgradePlan}
                   onChange={(event) => setUpgradePlan(event.target.value as UpgradePlan)}
                 >
-                  <option value="STARTER">Starter</option>
-                  <option value="GROWTH">Growth</option>
+                  <option value="STARTER">{t('settings:memberModal.plans.starter')}</option>
+                  <option value="GROWTH">{t('settings:memberModal.plans.growth')}</option>
                 </select>
                 <button
                   type="button"
@@ -509,7 +517,9 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
                   disabled={checkoutMutation.isPending}
                   data-busy={checkoutMutation.isPending ? 'true' : undefined}
                 >
-                  {checkoutMutation.isPending ? 'Opening…' : 'Upgrade'}
+                  {checkoutMutation.isPending
+                    ? t('settings:memberModal.actions.opening')
+                    : t('settings:memberModal.actions.upgrade')}
                 </button>
               </div>
             </div>
@@ -517,7 +527,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
 
           <div className="modal-actions">
             <button type="button" className="btn btn-outline" onClick={onClose}>
-              Cancel
+              {t('common:actions.cancel')}
             </button>
             <button
               type="submit"
@@ -525,7 +535,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
               disabled={isPending}
               data-busy={isPending ? 'true' : undefined}
             >
-              {isPending ? 'Saving…' : 'Save'}
+              {isPending ? t('common:actions.saving') : t('common:actions.save')}
             </button>
           </div>
         </form>

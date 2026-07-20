@@ -1,0 +1,33 @@
+{
+  "account": "Account",
+  "actions": {
+    "remove": "Remove Photo",
+    "replace": "Replace Photo",
+    "upload": "Upload Photo"
+  },
+  "errors": {
+    "remove": "Unable to remove profile photo.",
+    "upload": "Unable to upload profile photo."
+  },
+  "fields": {
+    "email": "Email",
+    "name": "Name",
+    "preferredLanguage": "Preferred language",
+    "role": "Role",
+    "timezone": "Timezone",
+    "workforceGroup": "Workforce group"
+  },
+  "photo": {
+    "removeCopy": "Your profile photo will be removed from your account.",
+    "removeTitle": "Remove Profile Photo",
+    "summary": "Profile photo",
+    "title": "Profile Photo"
+  },
+  "summary": "Profile summary",
+  "subtitle": "Your account information and profile photo",
+  "success": {
+    "removed": "Profile photo removed.",
+    "updated": "Profile photo updated."
+  },
+  "title": "Profile details"
+}

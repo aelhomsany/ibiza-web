@@ -1,5 +1,3 @@
-import type { UserRole } from '../api/generated/types'
-
 export { getForbiddenRedirect, getHomePath } from './rolePermissions'
 
 export function getInitials(fullName: string): string {
@@ -13,16 +11,6 @@ export function getInitials(fullName: string): string {
   const first = [...parts[0]][0]
   const last = [...parts[parts.length - 1]][0]
   return `${first}${last}`.toUpperCase()
-}
-
-export function formatRole(role: UserRole): string {
-  const labels: Record<UserRole, string> = {
-    EMPLOYEE: 'Employee',
-    MANAGER: 'Manager',
-    HR_ADMIN: 'HR Admin',
-    PLATFORM_ADMIN: 'Platform Admin',
-  }
-  return labels[role] ?? role
 }
 
 export function getSafeRedirectPath(pathname: string | undefined): string | null {

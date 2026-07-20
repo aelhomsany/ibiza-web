@@ -122,6 +122,76 @@
   font-size: var(--font-body-size);
 }
 
+.auth-password-field {
+  position: relative;
+}
+
+.auth-password-field .auth-input {
+  padding-inline-end: 44px;
+}
+
+.auth-password-toggle {
+  position: absolute;
+  inset-inline-end: var(--space-xs);
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 36px;
+  min-height: 36px;
+  padding: var(--space-sm);
+  color: var(--color-muted);
+}
+
+.auth-field-hint {
+  margin: calc(var(--space-sm) * -1) 0 var(--space-md);
+  font-size: var(--font-caption-size, var(--font-body-size));
+  color: var(--color-declined-fg);
+}
+
+.auth-password-hints {
+  margin: calc(var(--space-sm) * -1) 0 var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  background: var(--color-mist);
+  border: 1px solid var(--color-border);
+}
+
+.auth-password-hints-title {
+  font-size: var(--font-body-size);
+  font-weight: 600;
+  color: var(--color-foreground);
+  margin-bottom: var(--space-sm);
+}
+
+.auth-password-hints-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.auth-password-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-body-size);
+  color: var(--color-muted);
+}
+
+.auth-password-hint svg {
+  flex-shrink: 0;
+  color: var(--color-border);
+}
+
+.auth-password-hint-met {
+  color: var(--color-foreground);
+}
+
+.auth-password-hint-met svg {
+  color: var(--color-success);
+}
+
 .auth-success {
   margin-bottom: 16px;
   padding: 10px 12px;

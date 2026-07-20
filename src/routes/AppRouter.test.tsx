@@ -146,15 +146,15 @@ describe('AppRoutes', () => {
   it('renders the real Team Calendar page at /calendar', async () => {
     renderAppRoutes(['/calendar'], createMockAuthForRole('EMPLOYEE'))
 
-    // Lazy page chunk + month reconciliation refetch can exceed the default 1s
+    // Lazy page chunk + server-date reconciliation can exceed the default 1s
     // findBy timeout under parallel test load.
     expect(
       await screen.findByTestId('team-calendar-page', undefined, { timeout: 3000 }),
     ).toBeInTheDocument()
     expect(
-      await screen.findByTestId('calendar-month-grid', undefined, { timeout: 3000 }),
+      await screen.findByTestId('calendar-timeline', undefined, { timeout: 3000 }),
     ).toBeInTheDocument()
-    expect(screen.queryByText('Org-wide leave coverage')).not.toBeInTheDocument()
+    expect(screen.getByText('Org-wide leave coverage and holidays')).toBeInTheDocument()
   })
 
   it('renders org shell Page Not Found for unknown routes when authenticated', () => {

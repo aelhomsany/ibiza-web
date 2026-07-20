@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { BalanceCardResponse } from '../../api/generated/types'
 import { balanceCardSlug } from './balanceCardSlug'
 import './balance-card.css'
@@ -8,6 +9,7 @@ type BalanceCardProps = {
 }
 
 export function BalanceCard({ balance }: BalanceCardProps) {
+  const { t } = useTranslation('dashboard')
   const slug = balanceCardSlug(balance.name)
   const cardStyle = {
     backgroundColor: balance.backgroundColor,
@@ -27,7 +29,7 @@ export function BalanceCard({ balance }: BalanceCardProps) {
         <div className="balance-icon">{balance.icon}</div>
         <div className="balance-label">{balance.name}</div>
         {balance.usedDays > 0 && (
-          <div className="balance-used">{balance.usedDays} working days used</div>
+          <div className="balance-used">{t('balance.daysUsed', { count: balance.usedDays })}</div>
         )}
       </div>
     )
@@ -47,11 +49,11 @@ export function BalanceCard({ balance }: BalanceCardProps) {
     >
       {isOverdraft ? (
         <span className="balance-tag balance-tag--overdraft" data-testid={`balance-tag-overdraft-${slug}`}>
-          {Math.abs(remaining)} over limit
+          {t('balance.overLimit', { count: Math.abs(remaining) })}
         </span>
       ) : (
         <span className="balance-tag balance-tag--remaining" data-testid={`balance-tag-remaining-${slug}`}>
-          {remaining} left
+          {t('balance.left', { count: remaining })}
         </span>
       )}
       <div className="balance-icon">{balance.icon}</div>
@@ -67,7 +69,7 @@ export function BalanceCard({ balance }: BalanceCardProps) {
           data-testid={`balance-bar-${slug}`}
         />
       </div>
-      <div className="balance-used">{used} working days used</div>
+      <div className="balance-used">{t('balance.daysUsed', { count: used })}</div>
     </div>
   )
 }

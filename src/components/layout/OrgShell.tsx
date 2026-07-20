@@ -9,11 +9,12 @@ import { AppHeader } from './AppHeader'
 import { Sidebar } from './Sidebar'
 import { UserMenu } from './UserMenu'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { SkipToMainLink } from './SkipToMainLink'
 import { useMobileNavDrawer } from './useMobileNavDrawer'
 import './org-shell.css'
 
 export function OrgShell() {
-  const { t, i18n } = useTranslation('layout')
+  const { t, i18n } = useTranslation(['layout', 'common'])
   const { user, logout } = useAuth()
   const role = user?.role ?? 'EMPLOYEE'
   const { data: pendingCountData } = usePendingApprovalCount()
@@ -33,6 +34,7 @@ export function OrgShell() {
 
   return (
     <div className="org-shell" data-testid="org-shell">
+      <SkipToMainLink inert={navOpen} />
       <div className="org-shell__body">
         <Sidebar
           variant="org"
@@ -44,7 +46,7 @@ export function OrgShell() {
           <button
             type="button"
             className="sidebar-backdrop"
-            aria-label="Close navigation"
+            aria-label={t('layout:header.closeNavigation')}
             data-testid="sidebar-backdrop"
             onMouseDown={(event) => event.preventDefault()}
             onClick={closeNav}
@@ -53,14 +55,14 @@ export function OrgShell() {
         <div className="org-shell__content">
           <AppHeader
             variant="org"
-            title="Ibiza"
+            title={t('common:brand.name')}
             contextLabel={user?.organizationName}
             actions={
               <>
                 <LanguageSwitcher />
                 <NotificationBell />
                 <UserMenu
-                  userName={user?.fullName ?? 'User'}
+                  userName={user?.fullName ?? t('layout:header.userFallback')}
                   userRole={role}
                   profileImageUrl={user?.profileImageUrl}
                   onSignOut={logout}
@@ -72,8 +74,14 @@ export function OrgShell() {
             navOpen={navOpen}
             menuButtonRef={menuButtonRef}
             onToggleNav={toggleNav}
+            actionsInert={navOpen}
           />
-          <main className="org-shell__main" {...(navOpen ? { inert: true } : {})}>
+          <main
+            id="main-content"
+            className="org-shell__main"
+            tabIndex={-1}
+            {...(navOpen ? { inert: true } : {})}
+          >
             <ErrorBoundary variant="route" key={location.pathname}>
               <Outlet />
             </ErrorBoundary>

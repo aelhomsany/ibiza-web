@@ -33,9 +33,9 @@ End-to-end tests for the `ibiza-web` SPA against the local Vite dev server (and 
 
 | Command | Purpose |
 |---------|---------|
-| `npm run test:e2e:api` | All 47 Playwright tests; starts `ibiza-api` from `../ibiza-api` |
+| `npm run test:e2e:api` | All 48 Playwright tests; starts `ibiza-api` from `../ibiza-api` |
 | `npm run test:e2e:smoke:api` | Exact seven-test executable smoke set; starts the API |
-| `npm run test:e2e:regression:api` | Full 47-test regression; starts the API |
+| `npm run test:e2e:regression:api` | Full 48-test regression; starts the API |
 | `npm run test:e2e:ui-only` | Five browser-only tests; no API required |
 | `E2E_API_AVAILABLE=true npm run test:e2e:smoke` | Smoke against an API already running on `:8080` |
 | `E2E_API_AVAILABLE=true npm run test:e2e:regression` | Regression against an API already running on `:8080` |

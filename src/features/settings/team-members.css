@@ -176,7 +176,7 @@
   border-radius: var(--radius-sm);
   padding: 6px 8px;
   font-size: 13px;
-  text-align: right;
+  text-align: end;
 }
 
 /* ---- Plan-limit upgrade prompt ---- */

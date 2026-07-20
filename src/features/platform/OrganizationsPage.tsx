@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { OrganizationSummaryResponse } from '../../api/generated/types'
 import { PlusIcon } from '../../components/ui/icons'
 import { useToast } from '../../components/ui/useToast'
@@ -8,6 +9,7 @@ import { usePlatformOrganizations } from './usePlatformOrganizations'
 import './organizations-page.css'
 
 export function OrganizationsPage() {
+  const { t } = useTranslation('platform')
   const { data: organizations = [], isPending, isError } = usePlatformOrganizations()
   const [createOpen, setCreateOpen] = useState(false)
   const [editingOrganization, setEditingOrganization] =
@@ -15,40 +17,36 @@ export function OrganizationsPage() {
   const { showToast } = useToast()
 
   function showSubscriptionSavedToast() {
-    showToast('Subscription updated')
+    showToast(t('success.subscription'))
   }
 
   return (
     <div className="page page-wide organizations-page" data-testid="organizations-page">
       <header className="page-header organizations-page__header">
         <div>
-          <h1 className="page-title">Organizations</h1>
-          <p className="page-sub">
-            Provision orgs and manage subscriptions — no workforce leave data
-          </p>
+          <h1 className="page-title">{t('title')}</h1>
+          <p className="page-sub">{t('subtitle')}</p>
         </div>
         <button type="button" className="btn btn-admin" onClick={() => setCreateOpen(true)}>
-          <PlusIcon size={14} /> Create Organization
+          <PlusIcon size={14} /> {t('actions.create')}
         </button>
       </header>
 
       {isPending ? (
         <section className="organizations-page__empty" aria-live="polite">
-          <p className="body-text">Loading organizations…</p>
+          <p className="body-text">{t('loading')}</p>
         </section>
       ) : isError ? (
         <section className="organizations-page__empty" aria-live="polite">
-          <p className="body-text">Unable to load organizations.</p>
+          <p className="body-text">{t('errors.load')}</p>
         </section>
       ) : organizations.length === 0 ? (
         <section className="organizations-page__empty" aria-live="polite">
           <>
-            <h2>No organizations yet</h2>
-            <p>
-              Create the first customer organization to start provisioning HR access.
-            </p>
+            <h2>{t('empty.title')}</h2>
+            <p>{t('empty.copy')}</p>
             <button type="button" className="btn btn-admin" onClick={() => setCreateOpen(true)}>
-              <PlusIcon size={14} /> Create Organization
+              <PlusIcon size={14} /> {t('actions.create')}
             </button>
           </>
         </section>
@@ -78,20 +76,21 @@ function OrganizationsTable({
   organizations: OrganizationSummaryResponse[]
   onEditSubscription: (organization: OrganizationSummaryResponse) => void
 }) {
+  const { t } = useTranslation('platform')
   return (
     <section className="card table-wrap organizations-table-card" aria-labelledby="org-table-title">
       <div className="organizations-table-card__header">
-        <h2 id="org-table-title">All Organizations</h2>
+        <h2 id="org-table-title">{t('table.all')}</h2>
       </div>
       <table className="organizations-table">
         <thead>
           <tr>
-            <th scope="col">Organization</th>
-            <th scope="col">Plan</th>
-            <th scope="col">Users</th>
-            <th scope="col">Status</th>
-            <th scope="col">Effective</th>
-            <th scope="col">Actions</th>
+            <th scope="col">{t('table.organization')}</th>
+            <th scope="col">{t('table.plan')}</th>
+            <th scope="col">{t('table.users')}</th>
+            <th scope="col">{t('table.status')}</th>
+            <th scope="col">{t('table.effective')}</th>
+            <th scope="col">{t('table.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -108,7 +107,7 @@ function OrganizationsTable({
               </td>
               <td>
                 <span className={`plan-badge plan-${planClass(organization.plan)}`}>
-                  {planLabel(organization.plan)}
+                  {t(`plans.${(organization.plan ?? 'FREE').toLowerCase()}`)}
                 </span>
               </td>
               <td>
@@ -119,7 +118,7 @@ function OrganizationsTable({
                       className="org-at-limit"
                       data-testid={`org-at-limit-${organization.id}`}
                     >
-                      AT LIMIT
+                      {t('table.atLimit')}
                     </span>
                   ) : null}
                 </span>
@@ -127,7 +126,7 @@ function OrganizationsTable({
               <td>
                 <span className="status-label">
                   <span className={`status-dot status-${statusClass(organization.status)}`} />
-                  {statusLabel(organization.status)}
+                  {t(`statuses.${organization.status === 'SUSPENDED' ? 'suspended' : 'active'}`)}
                 </span>
               </td>
               <td>{organization.effectiveDate ?? '—'}</td>
@@ -136,8 +135,9 @@ function OrganizationsTable({
                   type="button"
                   className="btn btn-outline btn-sm organizations-table__action"
                   onClick={() => onEditSubscription(organization)}
+                  aria-label={t('aria.editSubscription', { name: organization.name })}
                 >
-                  Edit Subscription
+                  {t('actions.editSubscription')}
                 </button>
               </td>
             </tr>
@@ -152,17 +152,8 @@ function planClass(plan: OrganizationSummaryResponse['plan']): string {
   return (plan ?? 'free').toLowerCase()
 }
 
-function planLabel(plan: OrganizationSummaryResponse['plan']): string {
-  if (!plan) return 'Free'
-  return plan.charAt(0) + plan.slice(1).toLowerCase()
-}
-
 function statusClass(status: OrganizationSummaryResponse['status']): string {
   return (status ?? 'active').toLowerCase()
-}
-
-function statusLabel(status: OrganizationSummaryResponse['status']): string {
-  return status === 'SUSPENDED' ? 'Suspended' : 'Active'
 }
 
 function isAtPlanLimit(organization: OrganizationSummaryResponse): boolean {

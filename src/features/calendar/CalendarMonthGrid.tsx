@@ -1,93 +1,114 @@
 import type { CSSProperties } from 'react'
-import type { CalendarMonthResponse } from '../../api/generated/types'
-import { pillColorStyle } from '../../utils/entityColor'
-import { CalendarEventChip } from './CalendarEventChip'
+import { useTranslation } from 'react-i18next'
+import type { CalendarMonthResponse, DayOfWeek } from '../../api/generated/types'
+import { chipColorStyle } from '../../utils/entityColor'
 import {
-  DAY_NAMES,
   absencesForDate,
   buildCalendarCells,
-  formatFullDate,
+  formatMonthDay,
+  formatWeekdayLetters,
+  formatYearMonthLabel,
   holidaysForDate,
 } from './calendarMonthUtils'
 
 type CalendarMonthGridProps = {
   calendar: CalendarMonthResponse
   month: string
+  weekendDays?: DayOfWeek[]
+  selectedDate?: string | null
+  onSelectDate?: (date: string) => void
+  locale?: string
 }
 
-function groupPillStyle(
-  workforceGroupId: number | undefined,
-  workforceGroupName: string,
-): CSSProperties {
-  return pillColorStyle(
-    workforceGroupId ?? workforceGroupName.trim().toLowerCase(),
-  ) as CSSProperties
-}
-
-export function CalendarMonthGrid({ calendar, month }: CalendarMonthGridProps) {
-  const weekendDays = new Set(calendar.viewerWeekendDays)
+export function CalendarMonthGrid({
+  calendar,
+  month,
+  weekendDays = calendar.viewerWeekendDays,
+  selectedDate = null,
+  onSelectDate,
+  locale = 'en-US',
+}: CalendarMonthGridProps) {
+  const { t } = useTranslation('calendar')
+  const weekendDaySet = new Set(weekendDays)
   const cells = buildCalendarCells(month)
+  const weekdayLetters = formatWeekdayLetters(locale)
 
   return (
-    <div className="cal-scroll" data-testid="calendar-scroll-wrap">
-      <div className="card cal-card">
-        <div className="cal-grid" data-testid="calendar-month-grid">
-          {DAY_NAMES.map((dayName) => (
-            <div key={dayName} className="cal-weekday">
-              {dayName}
-            </div>
-          ))}
+    <div className="calendar-mini calendar-glass-card" data-testid="calendar-mini-month">
+      <h2 id="calendar-mini-title" className="calendar-mini-title">
+        {formatYearMonthLabel(month, locale)}
+      </h2>
+      <div
+        className="calendar-mini-grid"
+        data-testid="calendar-month-grid"
+        role="grid"
+        aria-labelledby="calendar-mini-title"
+      >
+        {weekdayLetters.map((letter, index) => (
+          <span key={`${letter}-${index}`} className="calendar-mini-weekday" aria-hidden="true">
+            {letter}
+          </span>
+        ))}
 
-          {cells.map((cell) => {
-            if (cell.kind === 'blank') {
-              return <div key={cell.key} className="cal-cell blank" aria-hidden="true" />
-            }
+        {cells.map((cell) => {
+          if (cell.kind === 'blank') {
+            return <span key={cell.key} className="calendar-mini-day-blank" aria-hidden="true" />
+          }
 
-            const dayAbsences = absencesForDate(cell.date, calendar.absences)
-            const dayHolidays = holidaysForDate(cell.date, calendar.holidays)
-            const classNames = [
-              'cal-cell',
-              cell.date === calendar.today ? 'today' : '',
-              weekendDays.has(cell.dayOfWeek) ? 'weekend' : '',
-              dayHolidays.length > 0 ? 'holiday' : '',
-            ]
-              .filter(Boolean)
-              .join(' ')
+          const dayAbsences = absencesForDate(cell.date, calendar.absences)
+          const dayHolidays = holidaysForDate(cell.date, calendar.holidays)
+          const isToday = cell.date === calendar.today
+          const isSelected = cell.date === selectedDate
+          const className = [
+            'calendar-mini-day',
+            isToday ? 'today' : '',
+            isSelected ? 'selected' : '',
+            weekendDaySet.has(cell.dayOfWeek) ? 'weekend' : '',
+            dayHolidays.length > 0 ? 'holiday' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')
+          const absenceLabel = t('agenda.dayLabel', {
+            date: formatMonthDay(cell.date, locale),
+            count: dayAbsences.length,
+          })
+          const accessibleName = dayHolidays.length > 0
+            ? `${absenceLabel}, ${t('agenda.holidayCount', { count: dayHolidays.length })}`
+            : absenceLabel
+          const colorStyle = dayAbsences.length > 0
+            ? chipColorStyle(dayAbsences[0].userId) as CSSProperties
+            : undefined
 
-            return (
-              <div key={cell.date} className={classNames} data-testid={`calendar-day-${cell.date}`}>
-                <div
-                  className={`cal-day-num${cell.date === calendar.today ? ' today-num' : ''}`}
-                >
-                  <span aria-hidden="true">{cell.dayNumber}</span>
-                  <span className="sr-only">{formatFullDate(cell.date)}</span>
-                </div>
+          return (
+            <button
+              key={cell.date}
+              type="button"
+              className={className}
+              data-testid={`calendar-day-${cell.date}`}
+              aria-label={accessibleName}
+              aria-current={isToday ? 'date' : undefined}
+              aria-pressed={isSelected}
+              style={colorStyle}
+              onClick={() => onSelectDate?.(cell.date)}
+            >
+              <span aria-hidden="true">{cell.dayNumber}</span>
+              {dayAbsences.length > 0 ? (
+                <span className="calendar-mini-absence-dot" aria-hidden="true" />
+              ) : null}
+            </button>
+          )
+        })}
+      </div>
 
-                {dayHolidays.map((holiday) => (
-                  <div key={`${holiday.holidayId}-${cell.date}`} className="holiday-label">
-                    <span>{holiday.name}</span>
-                    <span
-                      className="group-pill"
-                      style={groupPillStyle(holiday.workforceGroupId, holiday.workforceGroupName ?? '')}
-                    >
-                      {holiday.workforceGroupName}
-                    </span>
-                  </div>
-                ))}
-
-                <div className="cal-events">
-                  {dayAbsences.map((absence) => (
-                    <CalendarEventChip
-                      key={`${absence.requestId}-${cell.date}`}
-                      absence={absence}
-                      date={cell.date}
-                    />
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-        </div>
+      <div className="calendar-mini-legend" aria-label={t('legend.label')}>
+        <span>
+          <span className="calendar-mini-legend-dot calendar-mini-legend-dot--leave" />
+          {t('legend.leave')}
+        </span>
+        <span>
+          <span className="calendar-mini-legend-dot calendar-mini-legend-dot--holiday" />
+          {t('legend.holiday')}
+        </span>
       </div>
     </div>
   )

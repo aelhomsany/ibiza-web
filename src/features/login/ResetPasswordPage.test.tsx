@@ -34,28 +34,60 @@ describe('ResetPasswordPage', () => {
     expect(screen.getByTestId('reset-password')).toBeInTheDocument()
     expect(screen.getByTestId('reset-password-confirm')).toBeInTheDocument()
     expect(screen.getByTestId('reset-password-submit')).toBeInTheDocument()
+    expect(screen.getByTestId('password-requirements')).toBeInTheDocument()
   })
 
-  it('Given mismatched passwords, When submitting, Then shows validation error', async () => {
+  it('Given mismatched passwords that meet strength rules, When submitting, Then shows validation error', async () => {
     const user = userEvent.setup()
     renderResetPage()
 
     await user.type(screen.getByTestId('reset-password'), 'NewPassword1!')
     await user.type(screen.getByTestId('reset-password-confirm'), 'Different1!')
-    await user.click(screen.getByTestId('reset-password-submit'))
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Passwords do not match.')
+    expect(screen.getByTestId('reset-password-submit')).toBeDisabled()
   })
 
-  it('Given password shorter than 8 characters, When submitting, Then shows min length error', async () => {
+  it('Given a weak password, When fields are filled, Then submit stays disabled and hints stay unmet', async () => {
     const user = userEvent.setup()
     renderResetPage()
 
     await user.type(screen.getByTestId('reset-password'), 'short1')
     await user.type(screen.getByTestId('reset-password-confirm'), 'short1')
-    await user.click(screen.getByTestId('reset-password-submit'))
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Password must be at least 8 characters.')
+    expect(screen.getByTestId('reset-password-submit')).toBeDisabled()
+    expect(screen.getByTestId('password-requirement-minLength')).toHaveAttribute('data-met', 'false')
+  })
+
+  it('Given typing a strong password, When requirements are met, Then hints turn met and show toggle reveals text', async () => {
+    const user = userEvent.setup()
+    renderResetPage()
+
+    await user.type(screen.getByTestId('reset-password'), 'NewPassword1!')
+
+    expect(screen.getByTestId('password-requirement-minLength')).toHaveAttribute('data-met', 'true')
+    expect(screen.getByTestId('password-requirement-letterAndNumber')).toHaveAttribute(
+      'data-met',
+      'true',
+    )
+    expect(screen.getByTestId('password-requirement-upperAndLower')).toHaveAttribute(
+      'data-met',
+      'true',
+    )
+    expect(screen.getByTestId('password-requirement-special')).toHaveAttribute('data-met', 'true')
+
+    expect(screen.getByTestId('reset-password')).toHaveAttribute('type', 'password')
+    await user.click(screen.getByTestId('reset-password-toggle'))
+    expect(screen.getByTestId('reset-password')).toHaveAttribute('type', 'text')
+  })
+
+  it('Given matching strong passwords, When submit is enabled, Then user can proceed', async () => {
+    const user = userEvent.setup()
+    renderResetPage()
+
+    await user.type(screen.getByTestId('reset-password'), 'NewPassword1!')
+    await user.type(screen.getByTestId('reset-password-confirm'), 'NewPassword1!')
+
+    expect(screen.getByTestId('reset-password-submit')).toBeEnabled()
   })
 
   it('Given no token in URL, When page loads, Then shows invalid link error', () => {

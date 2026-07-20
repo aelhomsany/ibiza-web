@@ -183,3 +183,39 @@ describe('TeamMembersCard', () => {
     })
   })
 })
+
+/**
+ * Story 10.10 — UXA-07 contextual accessible names for repeated row actions.
+ */
+describe('TeamMembersCard accessibility ATDD — Story 10.10', () => {
+  beforeEach(() => {
+    vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(mockMembers)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  test('[P0] exposes member-qualified Edit and Deactivate accessible names', async () => {
+    renderCard()
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /edit.*jordan lee/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /deactivate.*jordan lee/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /edit.*sarah chen/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /deactivate.*sarah chen/i })).toBeInTheDocument()
+    })
+  })
+
+  test('[P0] exposes member-qualified Reactivate accessible name for deactivated rows', async () => {
+    vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue([
+      { ...mockMembers[1], status: 'DEACTIVATED', deactivatedAt: '2026-07-04T10:00:00Z' },
+    ] as TeamMemberSummaryResponse[])
+
+    renderCard()
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /reactivate.*sarah chen/i })).toBeInTheDocument()
+    })
+  })
+})

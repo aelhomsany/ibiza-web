@@ -175,7 +175,7 @@ describe('RequestLeaveModal ATDD - Story 10.4 field-level server validation', ()
       expect(screen.getByRole('option', { name: /Annual Leave/i })).toBeInTheDocument()
     })
 
-    await user.selectOptions(screen.getByLabelText(/Leave Type/i), '1')
+    await user.selectOptions(screen.getByLabelText(/نوع الإجازة/i), '1')
     await setLeaveDates('2026-06-10', '2026-06-12')
     await waitFor(() => {
       expect(screen.getByTestId('submit-request-btn')).toBeEnabled()

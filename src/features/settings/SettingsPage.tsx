@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useToast } from '../../components/ui/useToast'
 import { LeaveTypesCard } from './LeaveTypesCard'
 import { TeamMembersCard } from './TeamMembersCard'
@@ -8,6 +9,7 @@ import { NotificationPreferencesSettings } from './NotificationPreferencesSettin
 import './group-tabs.css'
 
 export function SettingsPage() {
+  const { t } = useTranslation('settings')
   const { showToast } = useToast()
 
   const showSuccessToast = useCallback(
@@ -24,8 +26,8 @@ export function SettingsPage() {
     <div className="page page-wide">
       <header className="page-header">
         <div>
-          <h1 className="page-title">Settings</h1>
-          <p className="page-sub">Company policy, team, and leave entitlements</p>
+          <h1 className="page-title">{t('title')}</h1>
+          <p className="page-sub">{t('subtitle')}</p>
         </div>
       </header>
 

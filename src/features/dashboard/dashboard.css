@@ -1,3 +1,8 @@
+.dashboard-layout {
+  container-name: dashboard;
+  container-type: inline-size;
+}
+
 .balance-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
@@ -33,13 +38,23 @@
 
 .dash-grid {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: minmax(0, 1fr) 320px;
   gap: 24px;
+}
+
+.dash-grid > * {
+  min-width: 0;
+}
+
+@container dashboard (max-width: 720px) {
+  .dash-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 900px) {
   .dash-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -71,7 +86,14 @@
 }
 
 .table-wrap {
+  min-width: 0;
+  max-width: 100%;
   overflow-x: auto;
+}
+
+.table-wrap:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
 }
 
 .dashboard-table {
@@ -86,7 +108,7 @@
 
 .dashboard-table th {
   padding: 12px var(--space-card-padding);
-  text-align: left;
+  text-align: start;
   font-size: 12px;
   color: var(--color-muted);
   font-weight: 600;

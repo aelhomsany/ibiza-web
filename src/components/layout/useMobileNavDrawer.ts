@@ -45,6 +45,32 @@ export function useMobileNavDrawer() {
       if (event.key === 'Escape') {
         event.preventDefault()
         closeNav()
+        return
+      }
+
+      if (event.key === 'Tab') {
+        const sidebarControls = Array.from(
+          document.querySelectorAll<HTMLElement>(
+            '#app-sidebar a[href], #app-sidebar button:not(:disabled), #app-sidebar [tabindex]:not([tabindex="-1"])',
+          ),
+        )
+        const backdrop = document.querySelector<HTMLElement>('[data-testid="sidebar-backdrop"]')
+        const focusable = [
+          ...sidebarControls,
+          ...(backdrop ? [backdrop] : []),
+          ...(menuButtonRef.current ? [menuButtonRef.current] : []),
+        ]
+
+        if (focusable.length === 0) {
+          return
+        }
+
+        event.preventDefault()
+        const currentIndex = focusable.indexOf(document.activeElement as HTMLElement)
+        const nextIndex = event.shiftKey
+          ? currentIndex <= 0 ? focusable.length - 1 : currentIndex - 1
+          : currentIndex < 0 || currentIndex === focusable.length - 1 ? 0 : currentIndex + 1
+        focusable[nextIndex].focus()
       }
     }
 

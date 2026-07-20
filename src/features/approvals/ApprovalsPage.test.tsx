@@ -250,6 +250,9 @@ describe('ApprovalsPage', () => {
       expect(screen.getByTestId('recent-decisions-table')).toBeInTheDocument()
     })
 
+    const recentDecisionsRegion = screen.getByRole('region', { name: 'Recent Decisions' })
+    expect(recentDecisionsRegion).toHaveAttribute('tabindex', '0')
+
     expect(screen.getByTestId('recent-decision-row-201')).toBeInTheDocument()
     expect(screen.getByText('Approved')).toBeInTheDocument()
     expect(screen.getByText('Alex')).toBeInTheDocument()

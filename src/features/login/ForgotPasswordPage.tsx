@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { ApiError, postForgotPassword } from '../../api/client'
 import { UmbrellaIcon } from '../../components/ui/icons'
 import './auth-form.css'
 
 export function ForgotPasswordPage() {
+  const { t } = useTranslation(['auth', 'common'])
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -20,9 +22,9 @@ export function ForgotPasswordPage() {
       setSubmitted(true)
     } catch (err) {
       if (err instanceof ApiError && err.status === 429) {
-        setError('Too many attempts. Please try again shortly.')
+        setError(t('auth:errors.tooMany'))
       } else {
-        setError('Unable to process request. Please try again.')
+        setError(t('auth:errors.forgot'))
       }
     } finally {
       setSubmitting(false)
@@ -36,15 +38,15 @@ export function ForgotPasswordPage() {
           <div className="auth-logo-icon" aria-hidden="true">
             <UmbrellaIcon size={34} />
           </div>
-          <div className="auth-logo-title">Ibiza</div>
-          <div className="auth-logo-sub">Team Leave Management</div>
+          <div className="auth-logo-title">{t('common:brand.name')}</div>
+          <div className="auth-logo-sub">{t('common:brand.tagline')}</div>
         </div>
 
-        <div className="auth-form-title">Reset your password</div>
+        <div className="auth-form-title">{t('auth:forgot.title')}</div>
 
         {submitted ? (
           <div className="auth-success" role="status">
-            If an account exists for that email, you will receive reset instructions shortly.
+            {t('auth:forgot.success')}
           </div>
         ) : (
           <>
@@ -56,7 +58,7 @@ export function ForgotPasswordPage() {
 
             <form onSubmit={handleSubmit}>
               <div className="auth-form-group">
-                <label htmlFor="forgot-email">Email</label>
+                <label htmlFor="forgot-email">{t('auth:fields.email')}</label>
                 <input
                   id="forgot-email"
                   data-testid="forgot-email"
@@ -70,14 +72,14 @@ export function ForgotPasswordPage() {
               </div>
 
               <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
-                {submitting ? 'Sending…' : 'Send reset link'}
+                {submitting ? t('auth:actions.sending') : t('auth:actions.sendReset')}
               </button>
             </form>
           </>
         )}
 
         <Link className="auth-link" to="/login">
-          Back to sign in
+          {t('auth:actions.backToSignIn')}
         </Link>
       </div>
     </div>

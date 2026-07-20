@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Modal } from '../../components/ui/Modal'
 import './approvals.css'
 
@@ -23,6 +24,7 @@ export function DeclineModal({
   isSubmitting = false,
   submitError = null,
 }: DeclineModalProps) {
+  const { t } = useTranslation(['approvals', 'common'])
   const titleId = useId()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const confirmEnabled = reason.trim().length > 0 && !isSubmitting
@@ -40,11 +42,11 @@ export function DeclineModal({
       closeOnBackdrop={false}
     >
         <h2 id={titleId} className="decline-modal-title">
-          Decline request for {employeeName}
+          {t('approvals:declineModal.title', { name: employeeName })}
         </h2>
-        <p className="decline-modal-sub">A reason is required — it will be shown to the employee.</p>
+        <p className="decline-modal-sub">{t('approvals:declineModal.subtitle')}</p>
         <label className="decline-modal-label" htmlFor={`decline-reason-${requestId}`}>
-          Decline reason
+          {t('approvals:declineModal.label')}
         </label>
         <textarea
           ref={textareaRef}
@@ -77,7 +79,7 @@ export function DeclineModal({
             onClick={onCancel}
             disabled={isSubmitting}
           >
-            Cancel
+            {t('common:actions.cancel')}
           </button>
           <button
             type="button"
@@ -87,7 +89,7 @@ export function DeclineModal({
             data-busy={isSubmitting ? 'true' : undefined}
             onClick={() => onConfirm(reason.trim())}
           >
-            Confirm Decline
+            {t('approvals:actions.confirmDecline')}
           </button>
         </div>
     </Modal>

@@ -1,135 +1,299 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { ApiError, getWorkforceGroups } from '../../api/client'
-import { CloseIcon } from '../../components/ui/icons'
+import type { CalendarMonthResponse, DayOfWeek } from '../../api/generated/types'
+import { useAuth } from '../../auth/useAuth'
+import { LoadingState } from '../../components/ui/LoadingState'
+import { CalendarAgenda } from './CalendarAgenda'
 import { CalendarLegend } from './CalendarLegend'
-import { CalendarMonthGrid } from './CalendarMonthGrid'
 import { CalendarNav } from './CalendarNav'
-import { yearMonthFromDate } from './calendarMonthUtils'
-import { useCalendarMonth } from './useCalendarMonth'
+import { CalendarTimeline } from './CalendarTimeline'
+import {
+  addDays,
+  addMonths,
+  currentLocalDate,
+  formatWeekLabel,
+  formatYearMonthLabel,
+  monthsForWeek,
+  startOfWeek,
+  uniqueBy,
+  yearMonthFromDate,
+} from './calendarMonthUtils'
+import { useCalendarMonths } from './useCalendarMonth'
 import './calendar.css'
 
-// Bootstrap guess only — the authoritative month is reconciled from the server `today`
-// (viewer IANA timezone, AC1/AC4) once the first response lands. Use the viewer's LOCAL
-// calendar month rather than UTC (`toISOString`) so the first request matches the
-// server-derived month in the common case and avoids a wrong-month flash + double fetch
-// at month boundaries for timezones offset from UTC.
-function currentYearMonth(): string {
-  const now = new Date()
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-}
+type CalendarView = 'timeline' | 'agenda'
 
-function errorMessage(error: unknown): string {
+function errorMessage(error: unknown, fallback: string): string {
   if (error instanceof ApiError) {
-    return error.problem.detail ?? error.problem.title ?? 'Unable to load the team calendar.'
+    return error.problem.detail ?? error.problem.title ?? fallback
   }
   if (error instanceof Error) {
     return error.message
   }
-  return 'Unable to load the team calendar.'
+  return fallback
+}
+
+// A Timeline week can span two months (two queries). If only one failed,
+// show its specific message; if more than one failed, a single message
+// would misattribute the failure to the wrong month, so fall back to the
+// generic loading-error copy instead.
+function combinedErrorMessage(errors: unknown[], fallback: string): string {
+  return errors.length === 1 ? errorMessage(errors[0], fallback) : fallback
+}
+
+function mergeCalendarMonths(
+  responses: CalendarMonthResponse[],
+  preferredMonth: string,
+): CalendarMonthResponse {
+  const primary = responses.find((response) => response.month === preferredMonth) ?? responses[0]
+  if (!primary) {
+    throw new Error('Calendar month data is required.')
+  }
+  return {
+    ...primary,
+    absences: uniqueBy(
+      responses.flatMap((response) => response.absences),
+      (absence) => absence.requestId,
+    ),
+    holidays: uniqueBy(
+      responses.flatMap((response) => response.holidays),
+      (holiday) => holiday.holidayId,
+    ),
+  }
 }
 
 export function TeamCalendarPage() {
-  const [month, setMonth] = useState(currentYearMonth)
+  const { t, i18n } = useTranslation('calendar')
+  const { user } = useAuth()
+  const [initialDate] = useState(currentLocalDate)
+  const [view, setView] = useState<CalendarView>('timeline')
+  const [anchorDate, setAnchorDate] = useState(initialDate)
   const [workforceGroupId, setWorkforceGroupId] = useState<number | undefined>(undefined)
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const initializedFromServerToday = useRef(false)
-  const calendarQuery = useCalendarMonth(month, workforceGroupId)
+  const lastServerToday = useRef<string | null>(null)
+  const month = yearMonthFromDate(anchorDate)
   const workforceGroupsQuery = useQuery({
-    queryKey: ['workforce-groups', 'calendar-filter'],
+    queryKey: ['workforce-groups', user?.organizationId ?? user?.id],
     queryFn: getWorkforceGroups,
+    enabled: user != null,
   })
+  // Available independently of the calendar fetch, so a selected group's
+  // weekend can inform the week boundary before calendar data loads. When no
+  // group is selected, the viewer's own weekend isn't known yet at this
+  // point (it comes from the calendar response itself), so this falls back
+  // to a Sunday-start week — same as prior behavior for that case.
+  const selectedGroupForWeekStart = workforceGroupsQuery.data?.find(
+    (group) => group.id === workforceGroupId,
+  )
+  const weekStart = startOfWeek(anchorDate, selectedGroupForWeekStart?.weekendDays ?? [])
+  const requestedMonths = useMemo(
+    () => view === 'timeline' ? monthsForWeek(weekStart) : [month],
+    [month, view, weekStart],
+  )
+  const calendarQuery = useCalendarMonths(requestedMonths, workforceGroupId)
+  const calendar = useMemo(() => (
+    calendarQuery.data == null
+      ? undefined
+      : mergeCalendarMonths(
+          calendarQuery.data,
+          view === 'timeline' ? yearMonthFromDate(weekStart) : month,
+        )
+  ), [calendarQuery.data, month, view, weekStart])
 
   useEffect(() => {
-    if (!calendarQuery.data || initializedFromServerToday.current) {
+    if (!calendar) {
       return undefined
     }
 
-    initializedFromServerToday.current = true
-    const serverMonth = yearMonthFromDate(calendarQuery.data.today)
-    if (serverMonth !== month) {
-      const timer = window.setTimeout(() => setMonth(serverMonth), 0)
+    lastServerToday.current = calendar.today
+    if (initializedFromServerToday.current) {
+      return undefined
+    }
+
+    if (calendar.today !== anchorDate) {
+      const timer = window.setTimeout(() => {
+        initializedFromServerToday.current = true
+        setAnchorDate(calendar.today)
+      }, 0)
       return () => window.clearTimeout(timer)
     }
-    return undefined
-  }, [calendarQuery.data, month])
 
-  const displayMonth = calendarQuery.data?.month ?? month
-  const filterId = 'calendar-workforce-group-filter'
+    initializedFromServerToday.current = true
+    return undefined
+  }, [anchorDate, calendar])
+
+  const locale = i18n.resolvedLanguage ?? i18n.language ?? 'en-US'
+  const selectedGroup = selectedGroupForWeekStart
+  const weekendDays: DayOfWeek[] = selectedGroup?.weekendDays
+    ?? calendar?.viewerWeekendDays
+    ?? []
+  const periodLabel = view === 'timeline'
+    ? formatWeekLabel(weekStart, locale)
+    : formatYearMonthLabel(month, locale)
+
+  const changeMonth = (delta: number) => {
+    setAnchorDate(`${addMonths(month, delta)}-01`)
+    setSelectedDate(null)
+  }
+
+  const changeView = (nextView: CalendarView) => {
+    if (nextView === view) {
+      return
+    }
+
+    if (nextView === 'agenda') {
+      // Use the middle of the visible week so a cross-month week opens the
+      // month containing most of its days instead of whichever weekday was
+      // retained in the Timeline anchor.
+      setAnchorDate(addDays(weekStart, 3))
+    } else if (selectedDate != null) {
+      setAnchorDate(selectedDate)
+    }
+    setView(nextView)
+    setSelectedDate(null)
+  }
+
+  const goToToday = () => {
+    const authoritativeToday = lastServerToday.current ?? calendar?.today ?? initialDate
+    setAnchorDate(authoritativeToday)
+    setSelectedDate(null)
+  }
 
   return (
-    <div className="page page-wide" data-testid="team-calendar-page">
+    <div className="page page-wide team-calendar-page" data-testid="team-calendar-page">
       <header className="page-header calendar-page-header">
         <div>
-          <h1 className="page-title">Team Calendar</h1>
-          <p className="page-sub">Org-wide leave coverage and holidays</p>
+          <h1 className="page-title">{t('title')}</h1>
+          <p className="page-sub">{t('subtitle')}</p>
         </div>
         <div className="calendar-header-actions">
-          <div className="calendar-filter">
-            <label htmlFor={filterId}>Workforce Group</label>
-            <select
-              id={filterId}
-              className="calendar-filter-select"
-              value={workforceGroupId ?? ''}
-              onChange={(event) => {
-                const nextValue = event.target.value
-                setWorkforceGroupId(nextValue === '' ? undefined : Number(nextValue))
-              }}
-              aria-invalid={workforceGroupsQuery.isError ? true : undefined}
-            >
-              <option value="">All Groups</option>
-              {workforceGroupsQuery.data?.map((group) => (
-                <option key={group.id} value={group.id}>
-                  {group.name}
-                </option>
-              ))}
-            </select>
+          <div
+            className="calendar-view-toggle calendar-glass-control"
+            role="group"
+            aria-label={t('view.label')}
+          >
+            {(['timeline', 'agenda'] as const).map((option) => (
+              <button
+                key={option}
+                type="button"
+                className={`calendar-view-button${view === option ? ' active' : ''}`}
+                aria-pressed={view === option}
+                onClick={() => changeView(option)}
+              >
+                {t(`view.${option}`)}
+              </button>
+            ))}
           </div>
-          {workforceGroupId != null && (
-            <button
-              type="button"
-              className="calendar-filter-clear"
-              onClick={() => setWorkforceGroupId(undefined)}
-              aria-label="Clear Workforce Group filter"
-            >
-              <CloseIcon size={16} />
-            </button>
-          )}
-          <CalendarNav month={displayMonth} onMonthChange={setMonth} />
+
+          <label className="sr-only" htmlFor="calendar-workforce-group-filter">
+            {t('filter.label')}
+          </label>
+          <select
+            id="calendar-workforce-group-filter"
+            className="calendar-filter-select calendar-glass-control"
+            value={workforceGroupId ?? ''}
+            onChange={(event) => {
+              const nextValue = event.target.value
+              setWorkforceGroupId(nextValue === '' ? undefined : Number(nextValue))
+            }}
+            aria-label={t('filter.label')}
+            aria-invalid={workforceGroupsQuery.isError ? true : undefined}
+          >
+            <option value="">{t('filter.all')}</option>
+            {workforceGroupsQuery.data?.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.name}
+              </option>
+            ))}
+          </select>
+
+          <button
+            type="button"
+            className="btn btn-primary calendar-today-button"
+            onClick={goToToday}
+          >
+            {t('today')}
+          </button>
+
+          <CalendarNav
+            period={view === 'timeline' ? 'week' : 'month'}
+            label={periodLabel}
+            onPrevious={() => (
+              view === 'timeline'
+                ? setAnchorDate((currentDate) => addDays(currentDate, -7))
+                : changeMonth(-1)
+            )}
+            onNext={() => (
+              view === 'timeline'
+                ? setAnchorDate((currentDate) => addDays(currentDate, 7))
+                : changeMonth(1)
+            )}
+          />
         </div>
       </header>
 
-      {workforceGroupsQuery.isError && (
-        <p className="calendar-filter-error" role="status">
-          Workforce Group options could not be loaded.
-        </p>
-      )}
+      <CalendarLegend />
 
-      {calendarQuery.isPending && (
-        <div className="card cal-card" data-testid="team-calendar-loading" aria-busy="true">
-          <span className="sr-only">Loading team calendar</span>
-          <div className="cal-grid cal-grid-skeleton" aria-hidden="true">
-            {Array.from({ length: 35 }).map((_, index) => (
-              <div key={index} className="cal-cell cal-cell-skeleton" />
+      {workforceGroupsQuery.isError ? (
+        <p className="calendar-filter-error" role="status">
+          {t('filter.loadError')}
+        </p>
+      ) : null}
+
+      {calendarQuery.isPending && !calendarQuery.isError ? (
+        <LoadingState
+          label={t('loading')}
+          variant="skeleton"
+          testId="team-calendar-loading"
+        >
+          <div className="calendar-loading calendar-glass-card" aria-hidden="true">
+            {Array.from({ length: 5 }, (_, index) => (
+              <span key={index} className="calendar-loading-row" />
             ))}
           </div>
-        </div>
-      )}
+        </LoadingState>
+      ) : null}
 
-      {calendarQuery.isError && (
-        <div className="calendar-state card calendar-error" data-testid="team-calendar-error">
-          {errorMessage(calendarQuery.error)}
+      {calendarQuery.isError ? (
+        <div
+          className="calendar-state calendar-error"
+          data-testid="team-calendar-error"
+          role="alert"
+        >
+          {combinedErrorMessage(calendarQuery.errors, t('loadError'))}
         </div>
-      )}
+      ) : null}
 
-      {calendarQuery.isSuccess && (
-        <section className="calendar-section" aria-label="Team calendar month">
-          <CalendarLegend
-            absences={calendarQuery.data.absences}
-            holidays={calendarQuery.data.holidays}
-          />
-          <CalendarMonthGrid calendar={calendarQuery.data} month={displayMonth} />
-        </section>
-      )}
+      {calendarQuery.isSuccess && calendar ? (
+        <div className="calendar-section">
+          {view === 'agenda' && calendar.absences.length === 0 ? (
+            <div className="calendar-empty-month">
+              {t('emptyMonth')}
+            </div>
+          ) : null}
+
+          {view === 'timeline' ? (
+            <CalendarTimeline
+              calendar={calendar}
+              weekStart={weekStart}
+              weekendDays={weekendDays}
+              locale={locale}
+            />
+          ) : (
+            <CalendarAgenda
+              calendar={calendar}
+              month={month}
+              weekendDays={weekendDays}
+              selectedDate={selectedDate}
+              onSelectedDateChange={setSelectedDate}
+              locale={locale}
+            />
+          )}
+        </div>
+      ) : null}
     </div>
   )
 }

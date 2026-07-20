@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AuditHistoryPanel } from './AuditHistoryPanel'
 
 type AuditHistoryExpanderProps = {
@@ -6,6 +7,7 @@ type AuditHistoryExpanderProps = {
 }
 
 export function AuditHistoryExpander({ requestId }: AuditHistoryExpanderProps) {
+  const { t } = useTranslation('approvals')
   const [expanded, setExpanded] = useState(false)
 
   return (
@@ -16,7 +18,7 @@ export function AuditHistoryExpander({ requestId }: AuditHistoryExpanderProps) {
         aria-expanded={expanded}
         onClick={() => setExpanded((open) => !open)}
       >
-        {expanded ? 'Hide audit history' : 'Audit history'}
+        {expanded ? t('audit.hide') : t('audit.show')}
       </button>
       {expanded ? <AuditHistoryPanel requestId={requestId} /> : null}
     </div>

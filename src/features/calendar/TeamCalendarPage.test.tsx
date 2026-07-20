@@ -1,10 +1,11 @@
+import { StrictMode } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
-import type { WorkforceGroupResponse } from '../../api/generated/types'
+import type { CalendarMonthResponse, WorkforceGroupResponse } from '../../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
 import { TeamCalendarPage } from './TeamCalendarPage'
 import { mockCalendarMonth } from './calendarTestFixtures'
@@ -22,7 +23,20 @@ const workforceGroups: WorkforceGroupResponse[] = [
   },
 ]
 
-function renderTeamCalendarPage() {
+function calendarForMonth(month: string): CalendarMonthResponse {
+  const [year, monthValue] = month.split('-').map(Number)
+  const finalDay = new Date(Date.UTC(year, monthValue, 0)).getUTCDate()
+  return {
+    ...mockCalendarMonth,
+    month,
+    monthStart: `${month}-01`,
+    monthEnd: `${month}-${String(finalDay).padStart(2, '0')}`,
+    absences: month === '2026-06' ? mockCalendarMonth.absences : [],
+    holidays: month === '2026-06' ? mockCalendarMonth.holidays : [],
+  }
+}
+
+function renderTeamCalendarPage({ strict = false }: { strict?: boolean } = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -30,23 +44,24 @@ function renderTeamCalendarPage() {
     },
   })
 
-  return render(
+  const page = (
     <QueryClientProvider client={queryClient}>
       <AuthTestProvider value={createMockAuthForRole('EMPLOYEE')}>
         <MemoryRouter>
           <TeamCalendarPage />
         </MemoryRouter>
       </AuthTestProvider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   )
+
+  return {
+    ...render(strict ? <StrictMode>{page}</StrictMode> : page),
+    queryClient,
+  }
 }
 
 describe('TeamCalendarPage', () => {
   beforeEach(() => {
-    // Pin Date to the fixture month (June 2026). The page bootstraps its month
-    // from the real clock and reconciles against the server `today`; if they
-    // differ (e.g. real month rolled past the fixture) every test does a racy
-    // double-fetch. Fake only Date so timers/userEvent stay real.
     vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-06-15T12:00:00Z') })
     vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue(workforceGroups)
   })
@@ -56,107 +71,293 @@ describe('TeamCalendarPage', () => {
     vi.restoreAllMocks()
   })
 
-  it('[P0/P1] renders the real page full-bleed with calendar landmarks', async () => {
+  it('[P0/P1] opens on the current Timeline week in a full-bleed page', async () => {
     vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
 
     renderTeamCalendarPage()
 
     expect(screen.getByTestId('team-calendar-page')).toHaveClass('page', 'page-wide')
     expect(await screen.findByRole('heading', { name: 'Team Calendar' })).toBeInTheDocument()
-    expect(await screen.findByText('June 2026')).toBeInTheDocument()
-    expect(screen.getByTestId('calendar-month-grid')).toBeInTheDocument()
+    expect(await screen.findByText('Jun 14 – Jun 20, 2026')).toBeInTheDocument()
+    expect(screen.getByTestId('calendar-timeline')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Timeline' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByTestId('calendar-scroll-wrap')).toBeInTheDocument()
   })
 
-  it('[P0] refetches with yyyy-MM month when navigating months', async () => {
+  it('[P0] scopes and shares Workforce Group cache data by organization', async () => {
+    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
+
+    const { queryClient } = renderTeamCalendarPage()
+
+    await screen.findByRole('option', { name: 'Egypt' })
+    expect(queryClient.getQueryData(['workforce-groups', 1])).toEqual(workforceGroups)
+    expect(queryClient.getQueryData(['workforce-groups', 'calendar-filter'])).toBeUndefined()
+  })
+
+  it('[P0] switches to Agenda and refetches with yyyy-MM when navigating months', async () => {
     const calendarSpy = vi
       .spyOn(apiClient, 'getCalendarMonth')
-      .mockResolvedValueOnce(mockCalendarMonth)
-      .mockResolvedValue({
-        ...mockCalendarMonth,
-        month: '2026-07',
-        monthStart: '2026-07-01',
-        monthEnd: '2026-07-31',
-        today: '2026-06-15',
-      })
+      .mockImplementation(async (requestedMonth) => calendarForMonth(requestedMonth))
     const user = userEvent.setup()
 
     renderTeamCalendarPage()
 
-    await screen.findByText('June 2026')
+    await screen.findByTestId('calendar-timeline')
+    await user.click(screen.getByRole('button', { name: 'Agenda' }))
+    expect(await screen.findByTestId('calendar-mini-month')).toHaveTextContent('June 2026')
+    expect(screen.getByTestId('calendar-agenda')).toBeInTheDocument()
+
     await user.click(screen.getByTestId('calendar-next-month'))
 
     await waitFor(() => {
       expect(calendarSpy).toHaveBeenCalledWith('2026-07')
     })
-    expect(await screen.findByText('July 2026')).toBeInTheDocument()
+    expect(await screen.findByTestId('calendar-mini-month')).toHaveTextContent('July 2026')
   })
 
-  it('[P0] renders org-wide absences with All Groups as the default filter', async () => {
-    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
-
-    renderTeamCalendarPage()
-
-    expect(await screen.findByRole('combobox', { name: /Workforce Group/i })).toHaveDisplayValue(
-      'All Groups',
+  it('[P1] preserves a historical Timeline period when switching to Agenda', async () => {
+    vi.setSystemTime(new Date('2026-07-15T12:00:00Z'))
+    vi.spyOn(apiClient, 'getCalendarMonth').mockImplementation(
+      async (requestedMonth) => ({
+        ...calendarForMonth(requestedMonth),
+        today: '2026-07-15',
+      }),
     )
-    expect(await screen.findByText('Sarah')).toBeInTheDocument()
-    expect(screen.getByText('Omar')).toBeInTheDocument()
-  })
-
-  it('[P0] loads Workforce Group options and renders a reversible accessible filter', async () => {
-    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
-    vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue(workforceGroups)
     const user = userEvent.setup()
 
     renderTeamCalendarPage()
 
-    const filter = await screen.findByRole('combobox', { name: /Workforce Group/i })
+    expect(await screen.findByText('Jul 12 – Jul 18, 2026')).toBeInTheDocument()
+    for (let week = 0; week < 4; week += 1) {
+      await user.click(screen.getByTestId('calendar-prev-week'))
+    }
+    expect(await screen.findByText('Jun 14 – Jun 20, 2026')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Agenda' }))
+
+    expect(await screen.findByTestId('calendar-mini-month')).toHaveTextContent('June 2026')
+    expect(screen.getByText('Sarah Chen — Annual Leave')).toBeInTheDocument()
+  })
+
+  it('[P1] opens the majority month for a cross-month Timeline week', async () => {
+    vi.setSystemTime(new Date('2026-07-18T12:00:00Z'))
+    const julyVacation = {
+      ...mockCalendarMonth.absences[0],
+      requestId: 99,
+      dateFrom: '2026-07-29',
+      dateTo: '2026-07-30',
+      workingDays: 2,
+    }
+    vi.spyOn(apiClient, 'getCalendarMonth').mockImplementation(
+      async (requestedMonth) => ({
+        ...calendarForMonth(requestedMonth),
+        today: '2026-07-18',
+        absences: requestedMonth === '2026-07' ? [julyVacation] : [],
+      }),
+    )
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    await screen.findByTestId('calendar-timeline')
+    await user.click(screen.getByTestId('calendar-next-week'))
+    await user.click(screen.getByTestId('calendar-next-week'))
+    expect(await screen.findByText('Jul 26 – Aug 1, 2026')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Agenda' }))
+
+    expect(await screen.findByTestId('calendar-mini-month')).toHaveTextContent('July 2026')
+    expect(screen.getByText('Sarah Chen — Annual Leave')).toBeInTheDocument()
+  })
+
+  it('[P1] opens the selected Agenda date week when switching to Timeline', async () => {
+    vi.spyOn(apiClient, 'getCalendarMonth').mockImplementation(
+      async (requestedMonth) => calendarForMonth(requestedMonth),
+    )
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    await user.click(await screen.findByRole('button', { name: 'Agenda' }))
+    await user.click(screen.getByTestId('calendar-prev-month'))
+    expect(await screen.findByTestId('calendar-mini-month')).toHaveTextContent('May 2026')
+    await user.click(screen.getByTestId('calendar-day-2026-05-20'))
+
+    await user.click(screen.getByRole('button', { name: 'Timeline' }))
+
+    expect(await screen.findByText('May 17 – May 23, 2026')).toBeInTheDocument()
+  })
+
+  it('[P0] fetches both months for a cross-month Timeline week and deduplicates entries', async () => {
+    const crossingAbsence = {
+      ...mockCalendarMonth.absences[0],
+      requestId: 88,
+      dateFrom: '2026-06-30',
+      dateTo: '2026-07-02',
+      workingDays: 3,
+    }
+    const julyOnlyAbsence = {
+      ...mockCalendarMonth.absences[1],
+      requestId: 89,
+      dateFrom: '2026-07-03',
+      dateTo: '2026-07-03',
+    }
+    const calendarSpy = vi.spyOn(apiClient, 'getCalendarMonth').mockImplementation(
+      async (requestedMonth) => ({
+        ...calendarForMonth(requestedMonth),
+        absences: requestedMonth === '2026-07'
+          ? [crossingAbsence, julyOnlyAbsence]
+          : [crossingAbsence],
+      }),
+    )
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    await screen.findByTestId('calendar-timeline')
+    await user.click(screen.getByTestId('calendar-next-week'))
+    await user.click(screen.getByTestId('calendar-next-week'))
+
+    await waitFor(() => {
+      expect(calendarSpy).toHaveBeenCalledWith('2026-07')
+    })
+    expect(await screen.findByText('Jun 28 – Jul 4, 2026')).toBeInTheDocument()
+    expect(screen.getAllByTestId('calendar-event-88')).toHaveLength(1)
+    expect(screen.getByTestId('calendar-event-89')).toBeInTheDocument()
+  })
+
+  it('[P0] reconciles the browser date to server today under Strict Mode', async () => {
+    const calendarSpy = vi.spyOn(apiClient, 'getCalendarMonth').mockImplementation(
+      async (requestedMonth) => ({
+        ...calendarForMonth(requestedMonth),
+        today: '2026-07-08',
+      }),
+    )
+
+    renderTeamCalendarPage({ strict: true })
+
+    expect(await screen.findByText('Jul 5 – Jul 11, 2026')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(calendarSpy).toHaveBeenCalledWith('2026-07')
+    })
+  })
+
+  it('[P1] Today retains the last server date while a boundary month is pending', async () => {
+    vi.setSystemTime(new Date('2026-05-10T12:00:00Z'))
+    let resolveJuly: ((calendar: CalendarMonthResponse) => void) | undefined
+    const julyResponse = new Promise<CalendarMonthResponse>((resolve) => {
+      resolveJuly = resolve
+    })
+    vi.spyOn(apiClient, 'getCalendarMonth').mockImplementation(async (requestedMonth) => {
+      if (requestedMonth === '2026-07') {
+        return julyResponse
+      }
+      return {
+        ...calendarForMonth(requestedMonth),
+        today: '2026-06-15',
+      }
+    })
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    expect(await screen.findByText('Jun 14 – Jun 20, 2026')).toBeInTheDocument()
+    await user.click(screen.getByTestId('calendar-next-week'))
+    await user.click(screen.getByTestId('calendar-next-week'))
+    expect(await screen.findByTestId('team-calendar-loading')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Today' }))
+
+    expect(await screen.findByText('Jun 14 – Jun 20, 2026')).toBeInTheDocument()
+    resolveJuly?.({
+      ...calendarForMonth('2026-07'),
+      today: '2026-06-15',
+    })
+  })
+
+  it('[P0] renders org-wide Agenda cards with All Groups selected by default', async () => {
+    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    await screen.findByRole('option', { name: 'Egypt' })
+    const filter = await screen.findByRole('combobox', { name: 'Workforce Group' })
     expect(filter).toHaveDisplayValue('All Groups')
+    await user.click(screen.getByRole('button', { name: 'Agenda' }))
+
+    expect(await screen.findByText('Sarah Chen — Annual Leave')).toBeInTheDocument()
+    expect(screen.getByText('Omar Hassan — Work From Home')).toBeInTheDocument()
+  })
+
+  it('[P0] loads Workforce Group options and resets through All Groups', async () => {
+    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    await screen.findByRole('option', { name: 'Egypt' })
+    const filter = await screen.findByRole('combobox', { name: 'Workforce Group' })
     expect(screen.getByRole('option', { name: 'All Groups' })).toHaveValue('')
     expect(await screen.findByRole('option', { name: 'US' })).toHaveValue('1')
     expect(screen.getByRole('option', { name: 'Egypt' })).toHaveValue('2')
 
     await user.selectOptions(filter, '2')
     expect(filter).toHaveDisplayValue('Egypt')
-
-    await user.click(screen.getByRole('button', { name: /Clear Workforce Group filter/i }))
+    await user.selectOptions(filter, '')
     expect(filter).toHaveDisplayValue('All Groups')
   })
 
-  it('[P0] refetches calendar with workforceGroupId and clears back to org-wide', async () => {
+  it('[P0] refetches with workforceGroupId and clears back to org-wide', async () => {
     const calendarSpy = vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
-    vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue(workforceGroups)
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    await screen.findByRole('option', { name: 'Egypt' })
+    const filter = await screen.findByRole('combobox', { name: 'Workforce Group' })
+    await user.selectOptions(filter, '2')
+    await waitFor(() => {
+      expect(calendarSpy).toHaveBeenCalledWith('2026-06', 2)
+    })
+
+    await user.selectOptions(filter, '')
+    await waitFor(() => {
+      expect(calendarSpy).toHaveBeenLastCalledWith('2026-06')
+    })
+  })
+
+  it('[P0/P1] uses the selected group weekend definition in Agenda', async () => {
+    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
     const user = userEvent.setup()
 
     renderTeamCalendarPage()
 
     await screen.findByRole('option', { name: 'Egypt' })
     await user.selectOptions(
-      await screen.findByRole('combobox', { name: /Workforce Group/i }),
+      await screen.findByRole('combobox', { name: 'Workforce Group' }),
       '2',
     )
-    await waitFor(() => {
-      expect(calendarSpy).toHaveBeenCalledWith('2026-06', 2)
-    })
+    await user.click(screen.getByRole('button', { name: 'Agenda' }))
 
-    await user.click(screen.getByRole('button', { name: /Clear Workforce Group filter/i }))
-    await waitFor(() => {
-      expect(calendarSpy).toHaveBeenLastCalledWith('2026-06')
-    })
+    expect(await screen.findByTestId('calendar-day-2026-06-12')).toHaveClass('weekend')
+    expect(screen.getByTestId('calendar-day-2026-06-14')).not.toHaveClass('weekend')
   })
 
-  it('[P0] keeps selected Workforce Group when navigating months', async () => {
-    const calendarSpy = vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
-    vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue(workforceGroups)
+  it('[P0] keeps selected Workforce Group when navigating Agenda months', async () => {
+    const calendarSpy = vi
+      .spyOn(apiClient, 'getCalendarMonth')
+      .mockImplementation(async (requestedMonth) => calendarForMonth(requestedMonth))
     const user = userEvent.setup()
 
     renderTeamCalendarPage()
 
     await screen.findByRole('option', { name: 'US' })
     await user.selectOptions(
-      await screen.findByRole('combobox', { name: /Workforce Group/i }),
+      await screen.findByRole('combobox', { name: 'Workforce Group' }),
       '1',
     )
+    await user.click(screen.getByRole('button', { name: 'Agenda' }))
     await user.click(screen.getByTestId('calendar-next-month'))
 
     await waitFor(() => {
@@ -164,7 +365,44 @@ describe('TeamCalendarPage', () => {
     })
   })
 
-  it('[P1] surfaces API problem details without rendering an empty success grid', async () => {
+  it('[P0] filters Agenda cards by day and clears selection with Show all', async () => {
+    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    await user.click(await screen.findByRole('button', { name: 'Agenda' }))
+    const selectedDay = await screen.findByRole('button', { name: /June 11, 1 absence/i })
+    await user.click(selectedDay)
+
+    expect(selectedDay).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('heading', { name: 'Thursday, June 11' })).toBeInTheDocument()
+    expect(screen.getByText('Sarah Chen — Annual Leave')).toBeInTheDocument()
+    expect(screen.queryByText('Omar Hassan — Work From Home')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Show all' }))
+    expect(selectedDay).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('heading', { name: 'This month' })).toBeInTheDocument()
+  })
+
+  it('[P1] Today restores the current period and clears Agenda day selection', async () => {
+    vi.spyOn(apiClient, 'getCalendarMonth').mockImplementation(
+      async (requestedMonth) => calendarForMonth(requestedMonth),
+    )
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    await user.click(await screen.findByRole('button', { name: 'Agenda' }))
+    await user.click(screen.getByRole('button', { name: /June 11, 1 absence/i }))
+    await user.click(screen.getByTestId('calendar-next-month'))
+    await user.click(screen.getByRole('button', { name: 'Today' }))
+
+    expect(await screen.findByTestId('calendar-mini-month')).toHaveTextContent('June 2026')
+    expect(screen.getByRole('heading', { name: 'This month' })).toBeInTheDocument()
+  })
+
+  it('[P1] surfaces API problem details without rendering a success view', async () => {
     vi.spyOn(apiClient, 'getCalendarMonth').mockRejectedValue(
       new apiClient.ApiError(400, {
         title: 'Validation failed',
@@ -175,9 +413,105 @@ describe('TeamCalendarPage', () => {
 
     renderTeamCalendarPage()
 
-    expect(await screen.findByTestId('team-calendar-error')).toHaveTextContent(
+    expect(await screen.findByRole('alert')).toHaveTextContent(
       'Viewer must belong to a Workforce Group to view the calendar.',
     )
-    expect(screen.queryByTestId('calendar-month-grid')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('calendar-timeline')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('calendar-agenda')).not.toBeInTheDocument()
+  })
+
+  it('[P1] gives a cross-month error precedence while another month is pending', async () => {
+    vi.setSystemTime(new Date('2026-06-30T12:00:00Z'))
+    let rejectJune: ((error: unknown) => void) | undefined
+    let resolveJuly: ((calendar: CalendarMonthResponse) => void) | undefined
+    const juneResponse = new Promise<CalendarMonthResponse>((_resolve, reject) => {
+      rejectJune = reject
+    })
+    const julyResponse = new Promise<CalendarMonthResponse>((resolve) => {
+      resolveJuly = resolve
+    })
+    vi.spyOn(apiClient, 'getCalendarMonth').mockImplementation(async (requestedMonth) => (
+      requestedMonth === '2026-06' ? juneResponse : julyResponse
+    ))
+
+    renderTeamCalendarPage()
+
+    expect(await screen.findByTestId('team-calendar-loading')).toBeInTheDocument()
+    await act(async () => {
+      rejectJune?.(new Error('June calendar is unavailable.'))
+    })
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('June calendar is unavailable.')
+    expect(screen.queryByTestId('team-calendar-loading')).not.toBeInTheDocument()
+
+    await act(async () => {
+      resolveJuly?.({
+        ...calendarForMonth('2026-07'),
+        today: '2026-06-30',
+      })
+    })
+  })
+
+  it('[P2] keeps both empty-month messages visible but announces only the Agenda result', async () => {
+    vi.spyOn(apiClient, 'getCalendarMonth').mockImplementation(
+      async (requestedMonth) => calendarForMonth(requestedMonth),
+    )
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    await user.click(await screen.findByRole('button', { name: 'Agenda' }))
+    await user.click(screen.getByTestId('calendar-next-month'))
+    await screen.findByText('No approved leave scheduled this month.')
+
+    expect(screen.getByText('No absences or holidays this month — full coverage.')).toBeVisible()
+    const liveStatuses = screen.getAllByRole('status')
+    expect(liveStatuses).toHaveLength(1)
+    expect(liveStatuses[0]).toHaveTextContent(
+      'No absences or holidays this month — full coverage.',
+    )
+  })
+
+  it('[P1] keeps the calendar usable when group options fail', async () => {
+    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
+    vi.spyOn(apiClient, 'getWorkforceGroups').mockRejectedValue(new Error('Unavailable'))
+
+    renderTeamCalendarPage()
+
+    expect(await screen.findByText('Workforce Group options could not be loaded.')).toBeInTheDocument()
+    const filter = screen.getByRole('combobox', { name: 'Workforce Group' })
+    expect(filter).toHaveAttribute('aria-invalid', 'true')
+    expect(await screen.findByTestId('calendar-timeline')).toBeInTheDocument()
+    expect(within(filter).getByRole('option', { name: 'All Groups' })).toBeInTheDocument()
+  })
+})
+
+/**
+ * Story 10.10 — UXA-10 keyboard-reachable agenda alternative on Team Calendar.
+ */
+describe('TeamCalendarPage accessibility ATDD — Story 10.10', () => {
+  beforeEach(() => {
+    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
+    vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue(workforceGroups)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  test('[P1] exposes a keyboard-operable agenda view toggle with labelled agenda content', async () => {
+    const user = userEvent.setup()
+    renderTeamCalendarPage()
+
+    const agendaToggle = await screen.findByRole('button', { name: /agenda/i })
+    expect(agendaToggle).toBeInTheDocument()
+
+    agendaToggle.focus()
+    expect(agendaToggle).toHaveFocus()
+    await user.keyboard('{Enter}')
+
+    await waitFor(() => {
+      expect(screen.getByRole('region', { name: /agenda/i })).toBeInTheDocument()
+    })
   })
 })

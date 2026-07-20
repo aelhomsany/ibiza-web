@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   createPublicHoliday,
   deletePublicHoliday,
@@ -18,20 +19,20 @@ type PublicHolidaysSectionProps = {
   onWarning?: (message: string) => void
 }
 
-function formatHolidayDate(isoDate: string): string {
+function formatHolidayDate(isoDate: string, locale: string): string {
   const date = new Date(`${isoDate}T00:00:00`)
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(locale, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   })
 }
 
-function formatHolidayRange(dateFrom: string, dateTo: string): string {
+function formatHolidayRange(dateFrom: string, dateTo: string, locale: string): string {
   if (!dateTo || dateTo === dateFrom) {
-    return formatHolidayDate(dateFrom)
+    return formatHolidayDate(dateFrom, locale)
   }
-  return `${formatHolidayDate(dateFrom)} – ${formatHolidayDate(dateTo)}`
+  return `${formatHolidayDate(dateFrom, locale)} – ${formatHolidayDate(dateTo, locale)}`
 }
 
 export function PublicHolidaysSection({
@@ -40,6 +41,7 @@ export function PublicHolidaysSection({
   onSuccess,
   onWarning,
 }: PublicHolidaysSectionProps) {
+  const { t, i18n } = useTranslation(['settings', 'common'])
   const { user } = useAuth()
   const orgId = user?.organizationId
   const queryClient = useQueryClient()
@@ -73,9 +75,9 @@ export function PublicHolidaysSection({
       setNewDateFrom('')
       setNewDateTo('')
       setNewName('')
-      onSuccess?.(`Holiday added to ${activeGroupName}`)
+      onSuccess?.(t('settings:holidays.success.added', { name: activeGroupName }))
     },
-    onError: () => onWarning?.('Failed to add holiday'),
+    onError: () => onWarning?.(t('settings:holidays.errors.add')),
   })
 
   const updateMutation = useMutation({
@@ -93,18 +95,18 @@ export function PublicHolidaysSection({
     onSuccess: (updated) => {
       invalidate()
       setEditingId(null)
-      onSuccess?.(`${updated.name} updated`)
+      onSuccess?.(t('settings:holidays.success.updated', { name: updated.name }))
     },
-    onError: () => onWarning?.('Failed to update holiday'),
+    onError: () => onWarning?.(t('settings:holidays.errors.update')),
   })
 
   const deleteMutation = useMutation({
     mutationFn: deletePublicHoliday,
     onSuccess: () => {
       invalidate()
-      onSuccess?.('Holiday removed')
+      onSuccess?.(t('settings:holidays.success.removed'))
     },
-    onError: () => onWarning?.('Failed to remove holiday'),
+    onError: () => onWarning?.(t('settings:holidays.errors.remove')),
   })
 
   const holidays = holidaysQuery.data ?? []
@@ -130,12 +132,12 @@ export function PublicHolidaysSection({
   const handleAdd = async () => {
     const trimmedName = newName.trim()
     if (!newDateFrom || !trimmedName) {
-      onWarning?.('Enter a start date and name')
+      onWarning?.(t('settings:holidays.errors.required'))
       return
     }
     const dateTo = newDateTo || newDateFrom
     if (dateTo < newDateFrom) {
-      onWarning?.('End date must be on or after start date')
+      onWarning?.(t('settings:holidays.errors.dateRange'))
       return
     }
     await createMutation.mutateAsync({
@@ -149,12 +151,12 @@ export function PublicHolidaysSection({
   const handleSaveEdit = async (id: number) => {
     const trimmedName = editName.trim()
     if (!editDateFrom || !trimmedName) {
-      onWarning?.('Enter a start date and name')
+      onWarning?.(t('settings:holidays.errors.required'))
       return
     }
     const dateTo = editDateTo || editDateFrom
     if (dateTo < editDateFrom) {
-      onWarning?.('End date must be on or after start date')
+      onWarning?.(t('settings:holidays.errors.dateRange'))
       return
     }
     await updateMutation.mutateAsync({
@@ -166,21 +168,23 @@ export function PublicHolidaysSection({
   }
 
   if (holidaysQuery.isPending) {
-    return <p className="settings-card-loading">Loading holidays…</p>
+    return <p className="settings-card-loading" role="status">{t('settings:holidays.loading')}</p>
   }
 
   if (holidaysQuery.isError) {
-    return <p className="settings-card-error">Unable to load holidays.</p>
+    return <p className="settings-card-error" role="alert">{t('settings:holidays.errors.load')}</p>
   }
 
   return (
     <section className="public-holidays-section" data-testid="public-holidays-section">
       <p className="public-holidays-label">
-        Public holidays — <span>{activeGroupName}</span>
+        {t('settings:holidays.title')} <span>{activeGroupName}</span>
       </p>
 
       {holidays.length === 0 && (
-        <div className="public-holidays-empty">No holidays yet</div>
+        <div className="public-holidays-empty" role="status">
+          {t('settings:holidays.none')}
+        </div>
       )}
 
       {holidays.length > 0 && (
@@ -189,21 +193,21 @@ export function PublicHolidaysSection({
             editingId === holiday.id ? (
               <div key={holiday.id} className="holiday-card holiday-card-edit">
                 <label className="holiday-date-field">
-                  <span>From</span>
+                  <span>{t('settings:holidays.fields.from')}</span>
                   <DateField
                     value={editDateFrom}
                     onChange={setEditDateFrom}
-                    aria-label={`Edit start date for ${holiday.name}`}
+                    aria-label={t('settings:holidays.aria.editStart', { name: holiday.name })}
                     disabled={isSaving}
                   />
                 </label>
                 <label className="holiday-date-field">
-                  <span>To</span>
+                  <span>{t('settings:holidays.fields.to')}</span>
                   <DateField
                     value={editDateTo}
                     min={editDateFrom || undefined}
                     onChange={setEditDateTo}
-                    aria-label={`Edit end date for ${holiday.name}`}
+                    aria-label={t('settings:holidays.aria.editEnd', { name: holiday.name })}
                     disabled={isSaving}
                   />
                 </label>
@@ -211,7 +215,7 @@ export function PublicHolidaysSection({
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  aria-label={`Edit name for ${holiday.name}`}
+                  aria-label={t('settings:holidays.aria.editName', { name: holiday.name })}
                   disabled={isSaving}
                 />
                 <div className="holiday-card-actions">
@@ -222,7 +226,7 @@ export function PublicHolidaysSection({
                     disabled={isSaving}
                     data-busy={isSaving ? 'true' : undefined}
                   >
-                    Save
+                    {t('common:actions.save')}
                   </button>
                   <button
                     type="button"
@@ -230,7 +234,7 @@ export function PublicHolidaysSection({
                     onClick={cancelEdit}
                     disabled={isSaving}
                   >
-                    Cancel
+                    {t('common:actions.cancel')}
                   </button>
                 </div>
               </div>
@@ -241,7 +245,7 @@ export function PublicHolidaysSection({
                     {holiday.name}
                   </span>
                   <span className="holiday-card-date">
-                    {formatHolidayRange(holiday.dateFrom, holiday.dateTo)}
+                    {formatHolidayRange(holiday.dateFrom, holiday.dateTo, i18n.language)}
                   </span>
                 </div>
                 <div className="holiday-card-actions">
@@ -250,8 +254,9 @@ export function PublicHolidaysSection({
                     className="btn btn-ghost btn-sm"
                     onClick={() => startEdit(holiday)}
                     disabled={isSaving}
+                    aria-label={t('settings:holidays.aria.editAction', { name: holiday.name })}
                   >
-                    Edit
+                    {t('common:actions.edit')}
                   </button>
                   <button
                     type="button"
@@ -259,8 +264,9 @@ export function PublicHolidaysSection({
                     onClick={() => void deleteMutation.mutateAsync(holiday.id)}
                     disabled={isSaving}
                     data-busy={isSaving ? 'true' : undefined}
+                    aria-label={t('settings:holidays.aria.removeAction', { name: holiday.name })}
                   >
-                    Remove
+                    {t('settings:holidays.actions.remove')}
                   </button>
                 </div>
               </div>
@@ -271,23 +277,23 @@ export function PublicHolidaysSection({
 
       <div className="holiday-add">
         <label className="holiday-date-field">
-          <span>From</span>
+          <span>{t('settings:holidays.fields.from')}</span>
           <DateField
             className="holiday-add-date"
             value={newDateFrom}
             onChange={setNewDateFrom}
-            aria-label={`New holiday start date for ${activeGroupName}`}
+            aria-label={t('settings:holidays.aria.newStart', { name: activeGroupName })}
             disabled={isSaving}
           />
         </label>
         <label className="holiday-date-field">
-          <span>To</span>
+          <span>{t('settings:holidays.fields.to')}</span>
           <DateField
             className="holiday-add-date"
             value={newDateTo}
             min={newDateFrom || undefined}
             onChange={setNewDateTo}
-            aria-label={`New holiday end date for ${activeGroupName}`}
+            aria-label={t('settings:holidays.aria.newEnd', { name: activeGroupName })}
             disabled={isSaving}
           />
         </label>
@@ -295,9 +301,9 @@ export function PublicHolidaysSection({
           type="text"
           className="holiday-add-name"
           value={newName}
-          placeholder="Holiday name"
+          placeholder={t('settings:holidays.fields.name')}
           onChange={(e) => setNewName(e.target.value)}
-          aria-label={`New holiday name for ${activeGroupName}`}
+          aria-label={t('settings:holidays.aria.newName', { name: activeGroupName })}
           disabled={isSaving}
         />
         <button
@@ -307,7 +313,7 @@ export function PublicHolidaysSection({
           disabled={isSaving}
           data-busy={isSaving ? 'true' : undefined}
         >
-          Add
+          {t('settings:holidays.actions.add')}
         </button>
       </div>
     </section>

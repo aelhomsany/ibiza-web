@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { ApiError } from '../../api/client'
 import { getHomePath, getSafeRedirectPath } from '../../auth/authUtils'
@@ -7,6 +8,7 @@ import { UmbrellaIcon } from '../../components/ui/icons'
 import './auth-form.css'
 
 export function LoginPage() {
+  const { t } = useTranslation(['auth', 'common'])
   const { login, isAuthenticated, isLoading, user } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -37,12 +39,12 @@ export function LoginPage() {
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 429) {
-          setError('Too many attempts. Please try again shortly.')
+          setError(t('auth:errors.tooMany'))
         } else {
           setError(err.message)
         }
       } else {
-        setError('Unable to sign in. Please try again.')
+        setError(t('auth:errors.signIn'))
       }
     } finally {
       setSubmitting(false)
@@ -50,7 +52,7 @@ export function LoginPage() {
   }
 
   if (isLoading) {
-    return <div className="auth-loading">Loading…</div>
+    return <div className="auth-loading">{t('auth:loading')}</div>
   }
 
   return (
@@ -60,17 +62,17 @@ export function LoginPage() {
           <div className="auth-logo-icon" aria-hidden="true">
             <UmbrellaIcon size={34} />
           </div>
-          <div className="auth-logo-title">Ibiza</div>
-          <div className="auth-logo-sub">Team Leave Management</div>
+          <div className="auth-logo-title">{t('common:brand.name')}</div>
+          <div className="auth-logo-sub">{t('common:brand.tagline')}</div>
         </div>
 
-        <div className="auth-form-title">Sign in to your account</div>
+        <div className="auth-form-title">{t('auth:login.title')}</div>
 
         {location.state &&
           typeof location.state === 'object' &&
           'passwordReset' in location.state && (
             <div className="auth-success" role="status">
-              Password updated. Sign in with your new password.
+              {t('auth:login.resetSuccess')}
             </div>
           )}
 
@@ -82,7 +84,7 @@ export function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="auth-form-group">
-            <label htmlFor="sign-in-email">Email</label>
+            <label htmlFor="sign-in-email">{t('auth:fields.email')}</label>
             <input
               id="sign-in-email"
               data-testid="sign-in-email"
@@ -96,7 +98,7 @@ export function LoginPage() {
           </div>
 
           <div className="auth-form-group">
-            <label htmlFor="sign-in-password">Password</label>
+            <label htmlFor="sign-in-password">{t('auth:fields.password')}</label>
             <input
               id="sign-in-password"
               data-testid="sign-in-password"
@@ -115,12 +117,12 @@ export function LoginPage() {
             data-testid="sign-in-submit"
             disabled={submitting}
           >
-            {submitting ? 'Signing in…' : 'Sign in'}
+            {submitting ? t('auth:actions.signingIn') : t('auth:actions.signIn')}
           </button>
         </form>
 
         <Link className="auth-link" to="/forgot-password">
-          Forgot password?
+          {t('auth:actions.forgotPassword')}
         </Link>
       </div>
     </div>

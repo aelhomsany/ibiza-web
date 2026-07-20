@@ -49,7 +49,11 @@ export function NotificationBell() {
       }
 
       const markAllButton = panel.querySelector<HTMLButtonElement>('.notification-mark-all')
-      markAllButton?.focus() ?? panel.focus()
+      if (markAllButton) {
+        markAllButton.focus()
+      } else {
+        panel.focus()
+      }
     })
   }, [])
 

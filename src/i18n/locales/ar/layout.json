@@ -1,7 +1,9 @@
 {
   "nav": { "dashboard": "لوحة المعلومات", "myLeaves": "إجازاتي", "calendar": "التقويم", "approvals": "الموافقات", "settings": "الإعدادات", "organizations": "المؤسسات" },
-  "navigation": { "main": "التنقل الرئيسي" },
-  "header": { "openNavigation": "فتح التنقل", "closeNavigation": "إغلاق التنقل", "userMenu": "قائمة المستخدم، {{name}}", "accountMenu": "قائمة الحساب", "language": "اللغة" },
+  "navigation": { "main": "التنقل الرئيسي", "pending": "{{label}}، {{count}} قيد الانتظار" },
+  "skipToMain": "تخطَّ إلى المحتوى الرئيسي",
+  "tableRegion": { "scrollHint": "استخدم مفتاحي السهم الأيسر والأيمن لتمرير هذا الجدول أفقيًا." },
+  "header": { "openNavigation": "فتح التنقل", "closeNavigation": "إغلاق التنقل", "userMenu": "قائمة المستخدم، {{name}}", "accountMenu": "قائمة الحساب", "language": "اللغة", "userFallback": "مستخدم" },
   "menu": { "profile": "تفاصيل الملف الشخصي", "myRequests": "طلباتي", "signOut": "تسجيل الخروج" },
   "notifications": { "label": "الإشعارات", "unread": "الإشعارات، {{count}} غير مقروءة", "markAllRead": "تحديد الكل كمقروء", "loading": "جارٍ تحميل الإشعارات...", "empty": "لا توجد إشعارات بعد" },
   "loading": { "pendingApprovals": "جارٍ تحميل الطلبات المعلّقة…", "recentDecisions": "جارٍ تحميل القرارات الأخيرة…", "leaveBalances": "جارٍ تحميل أرصدة الإجازات", "leaveHistory": "جارٍ تحميل سجل الإجازات", "teamMembers": "جارٍ تحميل أعضاء الفريق…" },

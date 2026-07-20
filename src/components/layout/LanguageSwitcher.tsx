@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { updateUserPreferences } from '../../api/client'
 import { useAuth } from '../../auth/useAuth'
-import { applyDocumentLanguage, type SupportedLocale } from '../../i18n/documentLanguage'
+import {
+  applyDocumentLanguage,
+  isSupportedLocale,
+  storePreferredLanguage,
+  type SupportedLocale,
+} from '../../i18n/documentLanguage'
 import i18n from '../../i18n/config'
 import { CheckIcon, GlobeIcon } from '../ui/icons'
 import { useToast } from '../ui/useToast'
@@ -21,7 +26,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const selectRequestIdRef = useRef(0)
-  const selected = user?.preferredLanguage === 'ar' ? 'ar' : 'en'
+  const selected: SupportedLocale = i18n.resolvedLanguage === 'ar' ? 'ar' : 'en'
 
   useEffect(() => onOtherHeaderMenuOpen(HEADER_MENU_ID, () => setOpen(false)), [])
 
@@ -39,9 +44,19 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
 
   async function select(locale: SupportedLocale) {
     const requestId = ++selectRequestIdRef.current
-    const previousLocale = selected
+    // Roll back to the authoritative persisted preference, not just whatever
+    // locale happens to be applied in-flight — avoids reverting to a stale
+    // optimistic value when selections overlap.
+    const previousLocale: SupportedLocale = isSupportedLocale(user?.preferredLanguage)
+      ? user.preferredLanguage
+      : selected
     await i18n.changeLanguage(locale)
+    if (requestId !== selectRequestIdRef.current) {
+      // A newer selection superseded this one while changeLanguage was in flight.
+      return
+    }
     applyDocumentLanguage(locale)
+    storePreferredLanguage(locale)
     setOpen(false)
     try {
       await updateUserPreferences({ preferredLanguage: locale })
@@ -56,6 +71,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
       }
       await i18n.changeLanguage(previousLocale)
       applyDocumentLanguage(previousLocale)
+      storePreferredLanguage(previousLocale)
       showToast(t('language.saveFailed'), 'warning')
     }
   }

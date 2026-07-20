@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ApiError,
   getNotificationPreferences,
@@ -19,10 +20,10 @@ type NotificationPreferencesProps = {
 
 type MutePreset = '1_HOUR' | '1_DAY' | '1_WEEK'
 
-const MUTE_PRESETS: { value: MutePreset; label: string; ms: number }[] = [
-  { value: '1_HOUR', label: '1 hour', ms: 60 * 60 * 1000 },
-  { value: '1_DAY', label: '1 day', ms: 24 * 60 * 60 * 1000 },
-  { value: '1_WEEK', label: '1 week', ms: 7 * 24 * 60 * 60 * 1000 },
+const MUTE_PRESETS: { value: MutePreset; labelKey: string; ms: number }[] = [
+  { value: '1_HOUR', labelKey: 'notifications.presets.hour', ms: 60 * 60 * 1000 },
+  { value: '1_DAY', labelKey: 'notifications.presets.day', ms: 24 * 60 * 60 * 1000 },
+  { value: '1_WEEK', labelKey: 'notifications.presets.week', ms: 7 * 24 * 60 * 60 * 1000 },
 ]
 
 function findChannel(
@@ -44,20 +45,21 @@ function mutationMessage(error: unknown, fallback: string) {
   return fallback
 }
 
-function emailStatusText(enabled: boolean, mutedUntil: string | null): string {
+function emailStatusKey(enabled: boolean, mutedUntil: string | null): string {
   if (!enabled) {
-    return 'Email workflow notifications are turned off.'
+    return 'notifications.status.off'
   }
   if (mutedUntil && new Date(mutedUntil).getTime() > Date.now()) {
-    return `Email workflow notifications are muted until ${new Date(mutedUntil).toLocaleString()}.`
+    return 'notifications.status.muted'
   }
-  return 'Email workflow notifications are on.'
+  return 'notifications.status.on'
 }
 
 export function NotificationPreferencesSettings({
   onSuccess,
   onWarning,
 }: NotificationPreferencesProps) {
+  const { t, i18n } = useTranslation('settings')
   const queryClient = useQueryClient()
   const queryKey = ['notification-preferences'] as const
 
@@ -102,7 +104,7 @@ export function NotificationPreferencesSettings({
       if (emailPref) {
         syncFromServer(emailPref)
       }
-      onWarning?.(mutationMessage(error, 'Unable to update notification preferences'))
+      onWarning?.(mutationMessage(error, t('notifications.errors.update')))
     },
   })
 
@@ -114,7 +116,7 @@ export function NotificationPreferencesSettings({
         enabled: emailEnabled,
         mutedUntil: emailMutedUntil,
       },
-      successMessage: 'Notification preferences saved',
+      successMessage: t('notifications.success.saved'),
     })
   }
 
@@ -126,7 +128,7 @@ export function NotificationPreferencesSettings({
         enabled: emailEnabled,
         mutedUntil: mutedUntilFromPreset(mutePreset),
       },
-      successMessage: 'Email notifications muted',
+      successMessage: t('notifications.success.muted'),
     })
   }
 
@@ -138,7 +140,7 @@ export function NotificationPreferencesSettings({
         enabled: emailEnabled,
         mutedUntil: null,
       },
-      successMessage: 'Email mute cleared',
+      successMessage: t('notifications.success.cleared'),
     })
   }
 
@@ -149,9 +151,9 @@ export function NotificationPreferencesSettings({
         data-testid="notification-preferences-settings"
       >
         <div className="card-section-header">
-          <span className="card-section-title">Notification Preferences</span>
+          <span className="card-section-title">{t('notifications.title')}</span>
         </div>
-        <p className="settings-card-loading-inline">Loading notification preferences…</p>
+        <p className="settings-card-loading-inline">{t('notifications.loading')}</p>
       </section>
     )
   }
@@ -163,9 +165,9 @@ export function NotificationPreferencesSettings({
         data-testid="notification-preferences-settings"
       >
         <div className="card-section-header">
-          <span className="card-section-title">Notification Preferences</span>
+          <span className="card-section-title">{t('notifications.title')}</span>
         </div>
-        <p className="settings-card-error-inline">Unable to load notification preferences.</p>
+        <p className="settings-card-error-inline">{t('notifications.errors.load')}</p>
       </section>
     )
   }
@@ -179,12 +181,11 @@ export function NotificationPreferencesSettings({
     >
       <div className="card-section-header">
         <span className="card-section-title">
-          <BellIcon size={18} /> Notification Preferences
+          <BellIcon size={18} /> {t('notifications.title')}
         </span>
       </div>
       <p className="notification-pref-intro">
-        Tune how you receive leave workflow updates. Critical workflow notifications always stay on
-        in at least one channel.
+        {t('notifications.intro')}
       </p>
 
       <div
@@ -194,14 +195,14 @@ export function NotificationPreferencesSettings({
         <div className="notification-pref-main">
           <label className="notification-pref-toggle">
             <input type="checkbox" checked disabled />
-            <span>In-app workflow notifications</span>
+            <span>{t('notifications.inApp')}</span>
           </label>
           <span className="notification-pref-badge notification-pref-badge-required">
-            Required
+            {t('notifications.badges.required')}
           </span>
         </div>
         <p className="notification-pref-help">
-          Always on so leave workflow accountability stays visible in the app.
+          {t('notifications.inAppHelp')}
         </p>
       </div>
 
@@ -219,18 +220,20 @@ export function NotificationPreferencesSettings({
                 setEmailDirty(true)
               }}
             />
-            <span>Email workflow notifications</span>
+            <span>{t('notifications.email')}</span>
           </label>
           <span className="notification-pref-badge notification-pref-badge-optional">
-            Optional
+            {t('notifications.badges.optional')}
           </span>
         </div>
         <p className="notification-pref-help" data-testid="notification-preference-email-status">
-          {emailStatusText(emailEnabled, emailMutedUntil)}
+          {t(emailStatusKey(emailEnabled, emailMutedUntil), {
+            date: emailMutedUntil ? new Date(emailMutedUntil).toLocaleString(i18n.language) : '',
+          })}
         </p>
 
         <div className="notification-pref-mute">
-          <label htmlFor="mute-email-select">Mute email workflow for</label>
+          <label htmlFor="mute-email-select">{t('notifications.muteFor')}</label>
           <select
             id="mute-email-select"
             value={mutePreset}
@@ -238,7 +241,7 @@ export function NotificationPreferencesSettings({
           >
             {MUTE_PRESETS.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.label}
+                {t(option.labelKey)}
               </option>
             ))}
           </select>
@@ -249,7 +252,7 @@ export function NotificationPreferencesSettings({
             disabled={saving}
             data-busy={saving ? 'true' : undefined}
           >
-            Mute Email
+            {t('notifications.actions.mute')}
           </button>
           <button
             type="button"
@@ -258,7 +261,7 @@ export function NotificationPreferencesSettings({
             disabled={saving}
             data-busy={saving ? 'true' : undefined}
           >
-            Clear Mute
+            {t('notifications.actions.clearMute')}
           </button>
         </div>
 
@@ -270,7 +273,7 @@ export function NotificationPreferencesSettings({
             disabled={saving}
             data-busy={saving ? 'true' : undefined}
           >
-            Save Preferences
+            {t('notifications.actions.save')}
           </button>
         </div>
       </div>

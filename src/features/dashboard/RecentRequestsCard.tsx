@@ -1,5 +1,7 @@
 import { LeaveStatusBadge } from '../../components/ui/LeaveStatusBadge'
+import { useTranslation } from 'react-i18next'
 import { InboxIcon } from '../../components/ui/icons'
+import { HorizontalScrollRegion } from '../../components/ui/HorizontalScrollRegion'
 import type { RecentRequestResponse } from '../../api/generated/types'
 import { LeaveTypeTag } from './LeaveTypeTag'
 import { formatDateRange } from './leaveRequestFormatting'
@@ -11,13 +13,15 @@ type Props = {
 }
 
 export function RecentRequestsCard({ requests, isLoading, isError }: Props) {
+  const { t, i18n } = useTranslation('dashboard')
+  const titleId = 'recent-requests-title'
   if (isLoading) {
     return (
       <div className="card" data-testid="recent-requests-card">
         <div className="card-header">
-          <h2 className="card-title">My Recent Requests</h2>
+          <h2 id={titleId} className="card-title">{t('recent.title')}</h2>
         </div>
-        <div className="dashboard-section-loading">Loading recent requests…</div>
+        <div className="dashboard-section-loading">{t('recent.loading')}</div>
       </div>
     )
   }
@@ -26,10 +30,10 @@ export function RecentRequestsCard({ requests, isLoading, isError }: Props) {
     return (
       <div className="card" data-testid="recent-requests-card">
         <div className="card-header">
-          <h2 className="card-title">My Recent Requests</h2>
+          <h2 id={titleId} className="card-title">{t('recent.title')}</h2>
         </div>
         <p className="dashboard-error" data-testid="recent-requests-error">
-          Unable to load recent requests.
+          {t('errors.recent')}
         </p>
       </div>
     )
@@ -38,24 +42,27 @@ export function RecentRequestsCard({ requests, isLoading, isError }: Props) {
   return (
     <div className="card" data-testid="recent-requests-card">
       <div className="card-header">
-        <h2 className="card-title">My Recent Requests</h2>
+        <h2 id={titleId} className="card-title">{t('recent.title')}</h2>
       </div>
       {requests.length === 0 ? (
         <div className="dashboard-empty-state">
           <span className="dashboard-empty-icon" aria-hidden="true">
             <InboxIcon size={36} />
           </span>
-          <p>No leave requests yet</p>
+          <p>{t('recent.empty')}</p>
         </div>
       ) : (
-        <div className="table-wrap">
+        <HorizontalScrollRegion
+          labelledBy={titleId}
+          describedById="recent-requests-scroll-hint"
+        >
           <table className="dashboard-table">
             <thead>
               <tr>
-                <th scope="col">Type</th>
-                <th scope="col">Dates</th>
-                <th scope="col">Days</th>
-                <th scope="col">Status</th>
+                <th scope="col">{t('table.type')}</th>
+                <th scope="col">{t('table.dates')}</th>
+                <th scope="col">{t('table.days')}</th>
+                <th scope="col">{t('table.status')}</th>
               </tr>
             </thead>
             <tbody>
@@ -74,10 +81,10 @@ export function RecentRequestsCard({ requests, isLoading, isError }: Props) {
                       borderColor={request.leaveTypeBorderColor ?? 'transparent'}
                     />
                   </td>
-                  <td>{formatDateRange(request.dateFrom ?? '', request.dateTo ?? '')}</td>
+                  <td>{formatDateRange(request.dateFrom ?? '', request.dateTo ?? '', i18n.language)}</td>
                   <td>
                     <strong>{request.workingDays}</strong>{' '}
-                    <span className="working-caption">working</span>
+                    <span className="working-caption">{t('table.working')}</span>
                   </td>
                   <td>
                     <LeaveStatusBadge status={request.status} />
@@ -95,7 +102,7 @@ export function RecentRequestsCard({ requests, isLoading, isError }: Props) {
               ))}
             </tbody>
           </table>
-        </div>
+        </HorizontalScrollRegion>
       )}
     </div>
   )

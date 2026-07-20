@@ -1,0 +1,231 @@
+{
+  "calendarSync": {
+    "actions": {
+      "confirmDisconnect": "Confirm Disconnect",
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "retry": "Retry"
+    },
+    "connected": "Connected",
+    "connectedError": "Connected with sync error",
+    "disconnectCopy": "Future approved leave will stop syncing to {{provider}}. Existing external calendar events are left unchanged.",
+    "disconnectTitle": "Disconnect Calendar Sync",
+    "errors": {
+      "connect": "Unable to start calendar connection",
+      "disconnect": "Unable to disconnect calendar sync",
+      "load": "Unable to load calendar sync status.",
+      "retry": "Unable to retry calendar sync"
+    },
+    "needsAttention": "Connection needs attention",
+    "notConnected": "Not connected",
+    "providers": {
+      "google": "Google Calendar",
+      "microsoft": "Microsoft Outlook"
+    },
+    "statusWarning": "Sync needs attention. Error category: {{category}}",
+    "success": {
+      "disconnected": "Calendar sync disconnected",
+      "retry": "Calendar sync retry queued"
+    },
+    "title": "Calendar Sync",
+    "loading": "Loading calendar sync…"
+  },
+  "days": {
+    "FRIDAY": "Fri",
+    "MONDAY": "Mon",
+    "SATURDAY": "Sat",
+    "SUNDAY": "Sun",
+    "THURSDAY": "Thu",
+    "TUESDAY": "Tue",
+    "WEDNESDAY": "Wed"
+  },
+  "groups": {
+    "actions": {
+      "add": "Add Group",
+      "create": "Create Group"
+    },
+    "aria": {
+      "list": "Workforce groups",
+      "weekendDay": "{{day}} weekend day",
+      "weekendDayFor": "{{day}} weekend day for {{name}}"
+    },
+    "created": "Workforce Group \"{{name}}\" created",
+    "createdPartial": "Group created — open the new tab to update weekend days",
+    "defaultWeekend": "Default weekend days",
+    "errors": {
+      "create": "Failed to create workforce group",
+      "load": "Unable to load workforce groups.",
+      "saveWeekend": "Weekend days could not be saved. Update them from the new tab.",
+      "updateWeekend": "Failed to update weekend days"
+    },
+    "groupName": "Group name",
+    "helper": "Each group has its own weekends and holidays. Users are assigned to exactly one group.",
+    "loading": "Loading workforce groups…",
+    "modalTitle": "Add Workforce Group",
+    "namePlaceholder": "e.g. UK",
+    "none": "No workforce groups configured yet.",
+    "selectWeekend": "Select at least one weekend day",
+    "title": "Workforce Groups",
+    "updated": "{{name}} weekend days updated",
+    "weekendLabel": "Weekend days —"
+  },
+  "holidays": {
+    "actions": {
+      "add": "Add",
+      "remove": "Remove"
+    },
+    "aria": {
+      "editAction": "Edit {{name}}",
+      "editEnd": "Edit end date for {{name}}",
+      "editName": "Edit name for {{name}}",
+      "editStart": "Edit start date for {{name}}",
+      "newEnd": "New holiday end date for {{name}}",
+      "newName": "New holiday name for {{name}}",
+      "newStart": "New holiday start date for {{name}}",
+      "removeAction": "Remove {{name}}"
+    },
+    "errors": {
+      "add": "Failed to add holiday",
+      "dateRange": "End date must be on or after start date",
+      "load": "Unable to load holidays.",
+      "remove": "Failed to remove holiday",
+      "required": "Enter a start date and name",
+      "update": "Failed to update holiday"
+    },
+    "fields": {
+      "from": "From",
+      "name": "Holiday name",
+      "to": "To"
+    },
+    "loading": "Loading holidays…",
+    "none": "No holidays yet",
+    "success": {
+      "added": "Holiday added to {{name}}",
+      "removed": "Holiday removed",
+      "updated": "{{name}} updated"
+    },
+    "title": "Public holidays —"
+  },
+  "leaveTypes": {
+    "defaultDays": "{{count}} days default",
+    "errors": {
+      "load": "Unable to load leave types.",
+      "loadToast": "Unable to load leave types"
+    },
+    "loading": "Loading leave types…",
+    "none": "No leave types configured yet.",
+    "title": "Leave Types",
+    "unlimited": "Unlimited / custom"
+  },
+  "members": {
+    "actions": {
+      "add": "Add Member",
+      "confirmDeactivate": "Confirm Deactivation",
+      "confirmReactivate": "Confirm Reactivation",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate"
+    },
+    "aria": {
+      "deactivate": "Deactivate {{name}}",
+      "edit": "Edit {{name}}",
+      "reactivate": "Reactivate {{name}}"
+    },
+    "deactivateCopy": "{{name}} will lose access and stop counting toward the active seat limit. Historical records stay visible.",
+    "deactivateTitle": "Deactivate Team Member",
+    "errors": {
+      "status": "Unable to update team member status"
+    },
+    "none": "No team members yet.",
+    "reactivateCopy": "{{name}} will regain access if the active seat limit allows it.",
+    "reactivateTitle": "Reactivate Team Member",
+    "reportsTo": "Reports to {{name}}",
+    "success": {
+      "deactivated": "{{name}} deactivated",
+      "reactivated": "{{name}} reactivated"
+    },
+    "title": "Team Members"
+  },
+  "memberModal": {
+    "actions": {
+      "opening": "Opening…",
+      "upgrade": "Upgrade"
+    },
+    "errors": {
+      "add": "Failed to add member",
+      "groupRequired": "Workforce Group is required",
+      "planLimit": "Your organization is at its plan user limit",
+      "update": "Failed to update member"
+    },
+    "fields": {
+      "department": "Department",
+      "email": "Email",
+      "entitlements": "Annual entitlements (working days per year)",
+      "fullName": "Full name",
+      "none": "— None —",
+      "reportsTo": "Reports to",
+      "role": "Role",
+      "selectGroup": "— Select group —",
+      "workforceGroup": "Workforce Group"
+    },
+    "plans": {
+      "growth": "Growth",
+      "starter": "Starter"
+    },
+    "roles": {
+      "employee": "Employee",
+      "hrAdmin": "HR Admin",
+      "manager": "Manager"
+    },
+    "success": {
+      "added": "{{name}} added to Ibiza!",
+      "updated": "Team member updated."
+    },
+    "titleAdd": "Add Team Member",
+    "titleEdit": "Edit Team Member",
+    "upgrade": {
+      "checkoutUnavailable": "Self-serve checkout is unavailable. Use the manual path below.",
+      "manual": "Manual fallback: Contact Platform Admin to upgrade.",
+      "paidPlan": "Paid plan",
+      "title": "Upgrade Required"
+    }
+  },
+  "notifications": {
+    "actions": {
+      "clearMute": "Clear Mute",
+      "mute": "Mute Email",
+      "save": "Save Preferences"
+    },
+    "badges": {
+      "optional": "Optional",
+      "required": "Required"
+    },
+    "email": "Email workflow notifications",
+    "errors": {
+      "load": "Unable to load notification preferences.",
+      "update": "Unable to update notification preferences"
+    },
+    "inApp": "In-app workflow notifications",
+    "inAppHelp": "Always on so leave workflow accountability stays visible in the app.",
+    "intro": "Tune how you receive leave workflow updates. Critical workflow notifications always stay on in at least one channel.",
+    "loading": "Loading notification preferences…",
+    "muteFor": "Mute email workflow for",
+    "presets": {
+      "day": "1 day",
+      "hour": "1 hour",
+      "week": "1 week"
+    },
+    "status": {
+      "muted": "Email workflow notifications are muted until {{date}}.",
+      "off": "Email workflow notifications are turned off.",
+      "on": "Email workflow notifications are on."
+    },
+    "success": {
+      "cleared": "Email mute cleared",
+      "muted": "Email notifications muted",
+      "saved": "Notification preferences saved"
+    },
+    "title": "Notification Preferences"
+  },
+  "subtitle": "Company policy, team, and leave entitlements",
+  "title": "Settings"
+}

@@ -1,4 +1,5 @@
 import { LeaveTypeTag } from '../dashboard/LeaveTypeTag'
+import { useTranslation } from 'react-i18next'
 import { formatDateRange } from '../dashboard/leaveRequestFormatting'
 import { LeaveStatusBadge } from '../../components/ui/LeaveStatusBadge'
 import type { RecentApprovalDecisionResponse } from '../../api/generated/types'
@@ -9,16 +10,12 @@ type RecentDecisionRowProps = {
   showAuditHistory?: boolean
 }
 
-function workingDaysLabel(days: number): string {
-  return `${days} working day${days === 1 ? '' : 's'}`
-}
-
-function formatDecisionDate(isoTimestamp: string): string {
+function formatDecisionDate(isoTimestamp: string, locale: string): string {
   const date = new Date(isoTimestamp)
   if (Number.isNaN(date.getTime())) {
     return isoTimestamp
   }
-  return date.toLocaleDateString(undefined, {
+  return date.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -26,8 +23,9 @@ function formatDecisionDate(isoTimestamp: string): string {
 }
 
 export function RecentDecisionRow({ decision, showAuditHistory = false }: RecentDecisionRowProps) {
+  const { t, i18n } = useTranslation(['approvals', 'common'])
   const requestId = decision.requestId ?? 0
-  const employeeName = decision.employeeFullName?.trim() || 'Unknown'
+  const employeeName = decision.employeeFullName?.trim() || t('common:unknown')
 
   return (
     <tr data-testid={`recent-decision-row-${requestId}`}>
@@ -39,7 +37,7 @@ export function RecentDecisionRow({ decision, showAuditHistory = false }: Recent
               className="approval-on-behalf-pill"
               data-testid={`recent-on-behalf-pill-${requestId}`}
             >
-              On behalf of {decision.nominalManagerFirstName}
+              {t('approvals:manager.onBehalf', { name: decision.nominalManagerFirstName })}
             </span>
           ) : null}
         </div>
@@ -53,13 +51,13 @@ export function RecentDecisionRow({ decision, showAuditHistory = false }: Recent
           borderColor={decision.leaveTypeBorderColor ?? 'transparent'}
         />
       </td>
-      <td>{formatDateRange(decision.dateFrom ?? '', decision.dateTo ?? '')}</td>
-      <td>{workingDaysLabel(decision.workingDays ?? 0)}</td>
+      <td>{formatDateRange(decision.dateFrom ?? '', decision.dateTo ?? '', i18n.language)}</td>
+      <td>{t('approvals:table.workingDays', { count: decision.workingDays ?? 0 })}</td>
       <td>
         <LeaveStatusBadge status={decision.status ?? 'PENDING'} />
       </td>
-      <td>{decision.actorFirstName ?? 'Unknown'}</td>
-      <td>{formatDecisionDate(decision.decidedAt ?? '')}</td>
+      <td>{decision.actorFirstName ?? t('common:unknown')}</td>
+      <td>{formatDecisionDate(decision.decidedAt ?? '', i18n.language)}</td>
       {showAuditHistory ? (
         <td>
           <AuditHistoryExpander requestId={requestId} />

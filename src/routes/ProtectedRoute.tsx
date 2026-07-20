@@ -1,14 +1,16 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
+import { useTranslation } from 'react-i18next'
 
 export function ProtectedRoute() {
+  const { t } = useTranslation('common')
   const { isAuthenticated, isLoading } = useAuth()
   const location = useLocation()
 
   if (isLoading) {
     return (
       <div className="auth-loading" data-testid="auth-loading">
-        Loading…
+        {t('loading')}
       </div>
     )
   }

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ApiError, getLeaveTypes } from '../../api/client'
 import { fieldErrorsFromApiError, LEAVE_REQUEST_FIELD_IDS } from '../../api/fieldViolations'
 import { DateField } from '../../components/DateField'
@@ -31,11 +32,8 @@ function useDebouncedValue<T>(value: T, delayMs: number): T {
   return debounced
 }
 
-function workingDayLabel(count: number): string {
-  return count === 1 ? 'working day' : 'working days'
-}
-
 export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModalProps) {
+  const { t } = useTranslation(['dashboard', 'common'])
   const { user } = useAuth()
   const orgId = user?.organizationId
   const createMutation = useCreateLeaveRequest()
@@ -69,9 +67,9 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
 
   const previewErrorMessage =
     previewQuery.error instanceof ApiError
-      ? previewQuery.error.problem.detail ?? 'Unable to preview working days'
+      ? previewQuery.error.problem.detail ?? t('dashboard:request.errors.preview')
       : previewQuery.isError
-        ? 'Unable to preview working days'
+        ? t('dashboard:request.errors.preview')
         : null
 
   const submitDisabled =
@@ -138,10 +136,10 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
               )
               return
             }
-            setSubmitErrorMessage(error.problem.detail ?? 'Unable to submit leave request')
+            setSubmitErrorMessage(error.problem.detail ?? t('dashboard:request.errors.submit'))
             return
           }
-          setSubmitErrorMessage('Unable to submit leave request')
+          setSubmitErrorMessage(t('dashboard:request.errors.submit'))
         },
       },
     )
@@ -185,16 +183,16 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
     >
       <div className="modal-header">
           <span className="modal-title" id="request-leave-modal-title">
-            Request Leave
+            {t('dashboard:request.title')}
           </span>
-          <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
+          <button type="button" className="modal-close" onClick={onClose} aria-label={t('common:actions.close')}>
             <CloseIcon size={18} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
-            <label htmlFor="leave-type">Leave Type</label>
+            <label htmlFor="leave-type">{t('dashboard:request.fields.leaveType')}</label>
             <select
               id="leave-type"
               value={leaveTypeId}
@@ -206,7 +204,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
               aria-invalid={leaveTypeError.invalid || undefined}
               aria-describedby={leaveTypeError.describedBy}
             >
-              <option value="">— Select leave type —</option>
+              <option value="">{t('dashboard:request.fields.selectLeaveType')}</option>
               {(leaveTypesQuery.data ?? []).map((leaveType) => (
                 <option key={leaveType.id} value={leaveType.id}>
                   {leaveType.icon ? `${leaveType.icon} ` : ''}
@@ -221,7 +219,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
 
           <div className="form-group date-row">
             <div className="form-group">
-              <label htmlFor="leave-from-date">From</label>
+              <label htmlFor="leave-from-date">{t('dashboard:request.fields.from')}</label>
               <DateField
                 id="leave-from-date"
                 data-testid="leave-from-date"
@@ -230,7 +228,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
                   setDateFrom(value)
                   clearFieldError('dateFrom')
                 }}
-                aria-label="From date"
+                aria-label={t('dashboard:request.fields.fromDate')}
                 aria-invalid={dateFromError.invalid || undefined}
                 aria-describedby={dateFromError.describedBy}
               />
@@ -239,7 +237,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
               )}
             </div>
             <div className="form-group">
-              <label htmlFor="leave-to-date">To</label>
+              <label htmlFor="leave-to-date">{t('dashboard:request.fields.to')}</label>
               <DateField
                 id="leave-to-date"
                 data-testid="leave-to-date"
@@ -249,7 +247,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
                   setDateTo(value)
                   clearFieldError('dateTo')
                 }}
-                aria-label="To date"
+                aria-label={t('dashboard:request.fields.toDate')}
                 aria-invalid={dateToError.invalid || undefined}
                 aria-describedby={dateToError.describedBy}
               />
@@ -262,16 +260,16 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
           <div className="days-indicator" data-testid="working-day-preview">
             {clientDateInvalid && (
               <p className="preview-error" role="alert">
-                End date must be on or after start date
+                {t('dashboard:request.preview.dateRange')}
               </p>
             )}
 
             {!clientDateInvalid && !previewEnabled && (
-              <p className="preview-loading">Select dates to preview working days</p>
+              <p className="preview-loading">{t('dashboard:request.preview.selectDates')}</p>
             )}
 
             {!clientDateInvalid && previewEnabled && previewQuery.isPending && (
-              <p className="preview-loading">Calculating working days…</p>
+              <p className="preview-loading">{t('dashboard:request.preview.calculating')}</p>
             )}
 
             {!clientDateInvalid && previewEnabled && previewErrorMessage && (
@@ -284,17 +282,15 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
               <>
                 {preview.workingDays > 0 && (
                   <p className="preview-primary">
-                    <strong>{preview.workingDays}</strong> {workingDayLabel(preview.workingDays)} will
-                    be charged
+                    {t('dashboard:request.preview.charged', { count: preview.workingDays })}
                   </p>
                 )}
                 <p className="group-context">
-                  Based on {preview.workforceGroupName} Workforce Group weekends &amp; holidays
+                  {t('dashboard:request.preview.context', { name: preview.workforceGroupName })}
                 </p>
                 {excludedTotal > 0 && (
                   <p className="preview-excluded">
-                    {excludedTotal} weekend/holiday day{excludedTotal === 1 ? '' : 's'} excluded
-                    from balance
+                    {t('dashboard:request.preview.excluded', { count: excludedTotal })}
                   </p>
                 )}
               </>
@@ -303,8 +299,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
 
           {previewEnabled && preview && preview.workingDays === 0 && !previewQuery.isPending && (
             <p className="zero-day-alert" role="alert">
-              No working days in selected range for your {preview.workforceGroupName} Workforce
-              Group
+              {t('dashboard:request.preview.zero', { name: preview.workforceGroupName })}
             </p>
           )}
 
@@ -315,7 +310,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
           )}
 
           <div className="form-group">
-            <label htmlFor="leave-note">Note (optional)</label>
+            <label htmlFor="leave-note">{t('dashboard:request.fields.note')}</label>
             <textarea
               id="leave-note"
               value={note}
@@ -334,7 +329,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
 
           <div className="modal-actions">
             <button type="button" className="btn btn-outline" onClick={onClose}>
-              Cancel
+              {t('common:actions.cancel')}
             </button>
             <button
               type="submit"
@@ -343,7 +338,9 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
               disabled={submitDisabled}
               data-busy={createMutation.isPending ? 'true' : undefined}
             >
-              {createMutation.isPending ? 'Submitting…' : 'Submit Request'}
+              {createMutation.isPending
+                ? t('dashboard:request.actions.submitting')
+                : t('dashboard:request.actions.submit')}
             </button>
           </div>
         </form>

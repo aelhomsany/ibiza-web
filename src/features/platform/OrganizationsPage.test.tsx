@@ -98,7 +98,7 @@ describe('OrganizationsPage', () => {
     expect(screen.getByText('1 / 200')).toBeInTheDocument()
     expect(screen.queryByText('AT LIMIT')).not.toBeInTheDocument()
     expect(screen.getByText('Suspended')).toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: 'Edit Subscription' })).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: /edit subscription.*(acme corp|nile tech)/i })).toHaveLength(2)
   })
 
   it('[P0] shows AT LIMIT only for limited-plan organizations at or above user limit', async () => {
@@ -215,7 +215,7 @@ describe('OrganizationsPage', () => {
     renderOrganizationsPage()
 
     expect(await screen.findByText('Acme Corp')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Edit Subscription' }))
+    await user.click(screen.getByRole('button', { name: /edit subscription.*acme corp/i }))
 
     expect(screen.getByTestId('edit-subscription-modal')).toBeInTheDocument()
     expect(
@@ -224,5 +224,55 @@ describe('OrganizationsPage', () => {
     expect(screen.getByTestId('edit-subscription-plan')).toHaveValue('INTERNAL')
     expect(screen.getByTestId('edit-subscription-billing-status')).toHaveValue('ACTIVE')
     expect(screen.getByTestId('edit-subscription-effective-date')).toHaveValue('2026-06-05')
+  })
+})
+
+/**
+ * Story 10.10 — UXA-07 contextual accessible name for repeated row actions.
+ */
+describe('OrganizationsPage accessibility ATDD — Story 10.10', () => {
+  beforeEach(() => {
+    vi.spyOn(apiClient, 'getPlatformOrganizations').mockResolvedValue([])
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  test('[P0] Edit Subscription buttons include the organization name in their accessible name', async () => {
+    vi.mocked(apiClient.getPlatformOrganizations).mockResolvedValue([
+      {
+        id: 1,
+        name: 'Acme Corp',
+        primaryContact: 'Jordan Lee',
+        initialHrAdminEmail: 'jordan@company.com',
+        plan: 'INTERNAL',
+        userCount: 6,
+        userLimit: 9999,
+        status: 'ACTIVE',
+        effectiveDate: '2026-06-05',
+      },
+      {
+        id: 2,
+        name: 'Nile Tech',
+        primaryContact: 'Fatima Hassan',
+        initialHrAdminEmail: 'fatima@niletech.eg',
+        plan: 'GROWTH',
+        userCount: 1,
+        userLimit: 200,
+        status: 'SUSPENDED',
+        effectiveDate: '2026-06-25',
+      },
+    ])
+
+    renderOrganizationsPage()
+
+    expect(
+      await screen.findByRole('button', { name: /edit subscription.*acme corp/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /edit subscription.*nile tech/i }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^edit subscription$/i })).not.toBeInTheDocument()
   })
 })

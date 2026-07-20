@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { createWorkforceGroup, putWorkforceGroupWeekendDays } from '../../api/client'
 import type { DayOfWeek } from '../../api/generated/types'
 import { Modal } from '../../components/ui/Modal'
@@ -16,6 +17,7 @@ type WorkforceGroupModalProps = {
 const DEFAULT_WEEKEND_DAYS: DayOfWeek[] = ['FRIDAY', 'SATURDAY']
 
 export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: WorkforceGroupModalProps) {
+  const { t } = useTranslation(['settings', 'common'])
   const [name, setName] = useState('')
   const [weekendDays, setWeekendDays] = useState<DayOfWeek[]>(DEFAULT_WEEKEND_DAYS)
   const [submitting, setSubmitting] = useState(false)
@@ -26,7 +28,7 @@ export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: Workforce
       : weekendDays.filter((value) => value !== day)
 
     if (next.length === 0) {
-      onWarning?.('Select at least one weekend day')
+      onWarning?.(t('settings:groups.selectWeekend'))
       return
     }
 
@@ -42,7 +44,7 @@ export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: Workforce
     }
 
     if (weekendDays.length === 0) {
-      onWarning?.('Select at least one weekend day')
+      onWarning?.(t('settings:groups.selectWeekend'))
       return
     }
 
@@ -50,20 +52,20 @@ export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: Workforce
     try {
       const created = await createWorkforceGroup({ name: trimmedName })
       if (!created.id) {
-        onWarning?.('Failed to create workforce group')
+        onWarning?.(t('settings:groups.errors.create'))
         return
       }
       const groupId = created.id
       try {
         await putWorkforceGroupWeekendDays(groupId, weekendDays)
-        onSuccess(`Workforce Group "${trimmedName}" created`, groupId)
+        onSuccess(t('settings:groups.created', { name: trimmedName }), groupId)
       } catch {
-        onSuccess('Group created — open the new tab to update weekend days', groupId)
-        onWarning?.('Weekend days could not be saved. Update them from the new tab.')
+        onSuccess(t('settings:groups.createdPartial'), groupId)
+        onWarning?.(t('settings:groups.errors.saveWeekend'))
       }
       onClose()
     } catch {
-      onWarning?.('Failed to create workforce group')
+      onWarning?.(t('settings:groups.errors.create'))
     } finally {
       setSubmitting(false)
     }
@@ -73,30 +75,31 @@ export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: Workforce
     <Modal labelledBy="group-modal-title" onClose={onClose} testId="workforce-group-modal">
         <div className="modal-header">
           <span className="modal-title" id="group-modal-title">
-            Add Workforce Group
+            {t('settings:groups.modalTitle')}
           </span>
-          <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
+          <button type="button" className="modal-close" onClick={onClose} aria-label={t('common:actions.close')}>
             <CloseIcon size={18} />
           </button>
         </div>
 
         <form onSubmit={(event) => void handleSubmit(event)}>
           <div className="form-group">
-            <label htmlFor="group-name">Group name</label>
+            <label htmlFor="group-name">{t('settings:groups.groupName')}</label>
             <input
               id="group-name"
               type="text"
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="e.g. UK"
+              placeholder={t('settings:groups.namePlaceholder')}
               required
             />
           </div>
 
           <div className="form-group">
-            <label>Default weekend days</label>
+            <label>{t('settings:groups.defaultWeekend')}</label>
             <div className="weekend-chips">
-              {WEEKEND_DAYS_DISPLAY.map(({ label, value }) => {
+              {WEEKEND_DAYS_DISPLAY.map(({ value }) => {
+                const label = t(`settings:days.${value}`)
                 const isActive = weekendDays.includes(value)
                 return (
                   <label
@@ -107,7 +110,7 @@ export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: Workforce
                       type="checkbox"
                       checked={isActive}
                       disabled={submitting}
-                      aria-label={`${label} weekend day`}
+                      aria-label={t('settings:groups.aria.weekendDay', { day: label })}
                       onChange={(event) => toggleWeekendDay(value, event.target.checked)}
                     />
                     {label}
@@ -119,7 +122,7 @@ export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: Workforce
 
           <div className="modal-actions">
             <button type="button" className="btn btn-outline" onClick={onClose} disabled={submitting}>
-              Cancel
+              {t('common:actions.cancel')}
             </button>
             <button
               type="submit"
@@ -127,7 +130,7 @@ export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: Workforce
               data-testid="create-group-submit"
               disabled={submitting || name.trim().length === 0}
             >
-              Create Group
+              {t('settings:groups.actions.create')}
             </button>
           </div>
         </form>

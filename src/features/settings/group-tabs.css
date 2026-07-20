@@ -1,11 +1,24 @@
 .group-tabs {
   display: flex;
+  max-width: 100%;
+  min-width: 0;
   gap: 4px;
   padding: 12px 20px 0;
   border-bottom: 1px solid var(--color-border-light);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  scrollbar-color: var(--color-teal) transparent;
+  scrollbar-width: thin;
+  white-space: nowrap;
+}
+
+.group-tabs::-webkit-scrollbar {
+  height: 6px;
 }
 
 .group-tab {
+  flex: 0 0 auto;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
@@ -24,13 +37,14 @@
 
 .group-tab:focus-visible {
   outline: 2px solid var(--color-teal);
-  outline-offset: 2px;
+  outline-offset: -2px;
 }
 
 .settings-card {
   background: var(--color-white);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -108,14 +122,14 @@
   padding-bottom: 8px;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 901px) {
   .settings-card-body {
     grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
     align-items: stretch;
   }
 
   .settings-col-weekends {
-    border-right: 1px solid var(--color-border-light);
+    border-inline-end: 1px solid var(--color-border-light);
     padding-bottom: 20px;
   }
 }

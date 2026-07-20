@@ -11,6 +11,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - run: npm run verify:i18n
       - run: npm run build
       - run: npm test -- --run
 

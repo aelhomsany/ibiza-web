@@ -61,6 +61,26 @@ describe('AdminShell ATDD — Story 10.7 mobile drawer focus and inert', () => {
     })
   })
 
+  test(
+    '[P0] keeps the header user menu out of the Tab order while the mobile drawer is open',
+    async () => {
+      const user = userEvent.setup()
+      renderAdminShell()
+
+      await user.click(screen.getByTestId('shell-topbar-menu'))
+      await screen.findByTestId('sidebar')
+
+      const userMenu = screen.getByTestId('user-menu-trigger')
+
+      for (let step = 0; step < 10; step += 1) {
+        expect(userMenu).not.toHaveFocus()
+        await user.tab()
+      }
+
+      expect(userMenu).not.toHaveFocus()
+    },
+  )
+
   test('[P0] returns focus to the hamburger when the drawer closes via backdrop click', async () => {
     const user = userEvent.setup()
     renderAdminShell()

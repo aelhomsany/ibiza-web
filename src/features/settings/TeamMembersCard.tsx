@@ -34,25 +34,8 @@ function roleBadgeClass(role: string): string {
   return `role-badge role-badge-${role}`
 }
 
-function roleLabel(role: string): string {
-  switch (role) {
-    case 'HR_ADMIN':
-      return 'HR Admin'
-    case 'MANAGER':
-      return 'Manager'
-    case 'EMPLOYEE':
-      return 'Employee'
-    default:
-      return role
-  }
-}
-
-function statusLabel(status: TeamMemberSummaryResponse['status']): string {
-  return status === 'DEACTIVATED' ? 'Deactivated' : 'Active'
-}
-
 export function TeamMembersCard({ onSuccess, onWarning }: Props) {
-  const { t } = useTranslation('layout')
+  const { t } = useTranslation(['settings', 'layout', 'common'])
   const { user } = useAuth()
   const orgId = user?.organizationId
   const queryClient = useQueryClient()
@@ -72,11 +55,11 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
   const members = membersQuery.data ?? []
   const isLifecycleDeactivation = lifecycleTarget?.status !== 'DEACTIVATED'
   const lifecycleTitle = isLifecycleDeactivation
-    ? 'Deactivate Team Member'
-    : 'Reactivate Team Member'
+    ? t('settings:members.deactivateTitle')
+    : t('settings:members.reactivateTitle')
   const lifecycleConfirmLabel = isLifecycleDeactivation
-    ? 'Confirm Deactivation'
-    : 'Confirm Reactivation'
+    ? t('settings:members.actions.confirmDeactivate')
+    : t('settings:members.actions.confirmReactivate')
 
   function openAdd() {
     setEditMemberId(null)
@@ -104,14 +87,21 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
       void queryClient.invalidateQueries({ queryKey })
       void queryClient.invalidateQueries({ queryKey: ['platform', 'organizations'] })
       setLifecycleTarget(null)
-      const name = updated.fullName ?? member.fullName ?? 'Team member'
-      onSuccess?.(`${name} ${updated.status === 'DEACTIVATED' ? 'deactivated' : 'reactivated'}`)
+      const name = updated.fullName ?? member.fullName ?? t('settings:members.title')
+      onSuccess?.(
+        t(
+          updated.status === 'DEACTIVATED'
+            ? 'settings:members.success.deactivated'
+            : 'settings:members.success.reactivated',
+          { name },
+        ),
+      )
     },
     onError: (err) => {
       const message =
         err instanceof ApiError
-          ? err.problem.detail ?? 'Unable to update team member status'
-          : 'Unable to update team member status'
+          ? err.problem.detail ?? t('settings:members.errors.status')
+          : t('settings:members.errors.status')
       onWarning?.(message)
     },
   })
@@ -129,27 +119,27 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
   return (
     <section className="settings-card settings-card-spaced" data-testid="team-members-card">
       <div className="card-section-header">
-        <span className="card-section-title">Team Members</span>
+        <span className="card-section-title">{t('settings:members.title')}</span>
         <button
           type="button"
           className="btn btn-primary btn-sm"
           onClick={openAdd}
           data-testid="add-member-btn"
         >
-          <PlusIcon size={14} /> Add Member
+          <PlusIcon size={14} /> {t('settings:members.actions.add')}
         </button>
       </div>
 
       {membersQuery.isPending && (
         <LoadingState
-          label={t('loading.teamMembers')}
+          label={t('layout:loading.teamMembers')}
           testId="team-members-loading"
           className="settings-list-hint"
         />
       )}
 
       {!membersQuery.isPending && members.length === 0 && (
-        <p className="settings-list-hint">No team members yet.</p>
+        <p className="settings-list-hint">{t('settings:members.none')}</p>
       )}
 
       <div className="settings-list-body" data-testid="team-members-list">
@@ -180,30 +170,43 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
               <div className="member-meta">
                 {member.email}
                 {member.department ? ` · ${member.department}` : ''}
-                {member.managerName ? ` · Reports to ${member.managerName.split(' ')[0]}` : ''}
+                {member.managerName
+                  ? ` · ${t('settings:members.reportsTo', { name: member.managerName.split(' ')[0] })}`
+                  : ''}
               </div>
             </div>
             <span className={roleBadgeClass(member.role ?? '')}>
-              {roleLabel(member.role ?? '')}
+              {member.role
+                ? t(`common:roles.${roleKey(member.role)}`)
+                : t('common:unknown')}
             </span>
             <span className={`member-status-badge${isDeactivated ? ' is-deactivated' : ''}`}>
-              {statusLabel(member.status)}
+              {t(member.status === 'DEACTIVATED' ? 'common:status.deactivated' : 'common:status.active')}
             </span>
             <button
               type="button"
               className="btn btn-outline btn-sm"
               onClick={() => openLifecycleConfirm(member)}
               data-testid={`${isDeactivated ? 'reactivate' : 'deactivate'}-member-${member.id}`}
+              aria-label={t(
+                isDeactivated
+                  ? 'settings:members.aria.reactivate'
+                  : 'settings:members.aria.deactivate',
+                { name: member.fullName },
+              )}
             >
-              {isDeactivated ? 'Reactivate' : 'Deactivate'}
+              {isDeactivated
+                ? t('settings:members.actions.reactivate')
+                : t('settings:members.actions.deactivate')}
             </button>
             <button
               type="button"
               className="btn btn-outline btn-sm"
               onClick={() => openEdit(member.id!)}
               data-testid={`edit-member-${member.id}`}
+              aria-label={t('settings:members.aria.edit', { name: member.fullName })}
             >
-              Edit
+              {t('common:actions.edit')}
             </button>
           </div>
           )
@@ -224,7 +227,7 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
               type="button"
               className="modal-close"
               onClick={closeLifecycleConfirm}
-              aria-label="Close"
+              aria-label={t('common:actions.close')}
               disabled={lifecycleMutation.isPending}
             >
               <CloseIcon size={18} />
@@ -233,8 +236,8 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
           <div className="modal-body">
             <p className="body-text">
               {isLifecycleDeactivation
-                ? `${lifecycleTarget.fullName} will lose access and stop counting toward the active seat limit. Historical records stay visible.`
-                : `${lifecycleTarget.fullName} will regain access if the active seat limit allows it.`}
+                ? t('settings:members.deactivateCopy', { name: lifecycleTarget.fullName })
+                : t('settings:members.reactivateCopy', { name: lifecycleTarget.fullName })}
             </p>
           </div>
           <div className="modal-actions">
@@ -244,7 +247,7 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
               onClick={closeLifecycleConfirm}
               disabled={lifecycleMutation.isPending}
             >
-              Cancel
+              {t('common:actions.cancel')}
             </button>
             <button
               type="button"
@@ -253,7 +256,7 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
               disabled={lifecycleMutation.isPending}
               data-busy={lifecycleMutation.isPending ? 'true' : undefined}
             >
-              {lifecycleMutation.isPending ? 'Saving…' : lifecycleConfirmLabel}
+              {lifecycleMutation.isPending ? t('common:actions.saving') : lifecycleConfirmLabel}
             </button>
           </div>
         </Modal>
@@ -272,4 +275,9 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
       )}
     </section>
   )
+}
+
+function roleKey(role: string): string {
+  if (role === 'HR_ADMIN') return 'hrAdmin'
+  return role.toLowerCase()
 }

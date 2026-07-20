@@ -1,6 +1,12 @@
 {
   "version": 1,
   "suites": {
+    "arabic-rtl-release-gate.spec.ts::Arabic RTL release gate — Story 9.5": {
+      "tags": ["@regression", "@ui-only", "@story-9-5"],
+      "tests": [
+        "[P0] Given Arabic preferred, When Employee opens Dashboard, Then Request Leave is Arabic and html dir=rtl (no raw keys)"
+      ]
+    },
     "approval-decision.spec.ts::Approval decision — Story 3.7": {
       "tags": ["@regression", "@api"],
       "tests": [
@@ -45,7 +51,7 @@
       "tags": ["@regression", "@ui-only"],
       "tests": [
         "[P2] Given no reset token, When visiting reset-password, Then submit is disabled and error is shown",
-        "[P2] Given mismatched passwords, When submitting reset form, Then validation error is shown"
+        "[P2] Given mismatched passwords, When submitting reset form, Then submit stays disabled"
       ]
     },
     "dashboard-balances.spec.ts::Dashboard balances — Story 3.1": {
@@ -99,6 +105,15 @@
       "tags": ["@regression", "@api"],
       "tests": ["[P0] Platform Admin edits Acme subscription and row plan badge updates"]
     },
+    "responsive-containment.spec.ts::Responsive containment — Story 10.9": {
+      "tags": ["@regression", "@api", "@story-10-9"],
+      "tests": [
+        "[P0] Dashboard has no page-level overflow at 390px",
+        "[P0] Dashboard has no page-level overflow at 901px",
+        "[P0] Settings Workforce Group navigation is fully reachable at 390px",
+        "[P1] Dashboard recent-requests trailing column is keyboard-reachable at 390px"
+      ]
+    },
     "responsive-tables.spec.ts::Responsive tables — Story 10.3": {
       "tags": ["@regression", "@api"],
       "tests": [
@@ -142,11 +157,18 @@
     },
     "team-calendar.spec.ts::Team Calendar — Story 4.2 / 7.11": {
       "tags": ["@regression", "@api"],
-      "tests": ["[P1] Employee sees calendar month nav and grid at /calendar"]
+      "tests": ["[P1] Employee sees calendar week nav and timeline at /calendar"]
     },
     "team-member-plan-limit.spec.ts::Team member plan limit": {
       "tags": ["@regression", "@api"],
       "tests": ["[P0] HR blocked adding over-limit Free user sees warning toast and modal stays open"]
+    },
+    "accessibility-completion.spec.ts::Accessibility completion — Story 10.10": {
+      "tags": ["@regression", "@ui-only", "@story-10-10"],
+      "tests": [
+        "[P1] Skip link moves focus to main content",
+        "[P0] Mobile drawer constrains focus away from header actions"
+      ]
     }
   }
 }

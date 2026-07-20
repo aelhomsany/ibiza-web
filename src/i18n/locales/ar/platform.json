@@ -1,0 +1,72 @@
+{
+  "actions": {
+    "create": "إنشاء مؤسسة",
+    "editSubscription": "تعديل الاشتراك",
+    "saveSubscription": "حفظ الاشتراك",
+    "saving": "جارٍ الحفظ…"
+  },
+  "aria": {
+    "editSubscription": "تعديل اشتراك {{name}}"
+  },
+  "create": {
+    "creating": "جارٍ الإنشاء…",
+    "errors": {
+      "submit": "تعذر إنشاء المؤسسة"
+    },
+    "fields": {
+      "hrEmail": "البريد الإلكتروني لمسؤول الموارد البشرية الأول",
+      "name": "اسم المؤسسة",
+      "plan": "خطة الاشتراك",
+      "primaryContact": "جهة الاتصال الرئيسية"
+    },
+    "title": "إنشاء مؤسسة"
+  },
+  "edit": {
+    "errors": {
+      "submit": "تعذر تحديث الاشتراك"
+    },
+    "fields": {
+      "billingStatus": "حالة الفوترة",
+      "effectiveDate": "تاريخ السريان",
+      "plan": "الخطة"
+    },
+    "title": "تعديل اشتراك {{name}}"
+  },
+  "empty": {
+    "copy": "أنشئ أول مؤسسة عميلة لبدء تجهيز وصول الموارد البشرية.",
+    "title": "لا توجد مؤسسات بعد"
+  },
+  "errors": {
+    "load": "تعذر تحميل المؤسسات."
+  },
+  "loading": "جارٍ تحميل المؤسسات…",
+  "plans": {
+    "free": "المجانية",
+    "freeWithLimit": "المجانية (3 مستخدمين)",
+    "growth": "النمو",
+    "growthWithLimit": "النمو (200 مستخدم)",
+    "internal": "الداخلية",
+    "internalWithLimit": "الداخلية (غير محدودة)",
+    "starter": "المبتدئة",
+    "starterWithLimit": "المبتدئة (50 مستخدمًا)"
+  },
+  "statuses": {
+    "active": "نشط",
+    "suspended": "موقوف"
+  },
+  "subtitle": "تجهيز المؤسسات وإدارة الاشتراكات — دون الوصول إلى بيانات إجازات الموظفين",
+  "success": {
+    "subscription": "تم تحديث الاشتراك"
+  },
+  "table": {
+    "actions": "الإجراءات",
+    "all": "كل المؤسسات",
+    "atLimit": "بلغ الحد",
+    "effective": "السريان",
+    "organization": "المؤسسة",
+    "plan": "الخطة",
+    "status": "الحالة",
+    "users": "المستخدمون"
+  },
+  "title": "المؤسسات"
+}

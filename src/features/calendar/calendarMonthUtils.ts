@@ -1,6 +1,8 @@
-import type { CalendarAbsenceResponse, CalendarHolidayResponse, DayOfWeek } from '../../api/generated/types'
-
-export const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const
+import type {
+  CalendarAbsenceResponse,
+  CalendarHolidayResponse,
+  DayOfWeek,
+} from '../../api/generated/types'
 
 const dayOfWeekByIndex: DayOfWeek[] = [
   'SUNDAY',
@@ -21,29 +23,154 @@ export type CalendarCell =
       dayOfWeek: DayOfWeek
     }
 
+function parseIsoDate(date: string): Date {
+  const [year, month, day] = date.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, day))
+}
+
+function toIsoDate(date: Date): string {
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`
+}
+
+function formatIsoDate(
+  date: string,
+  locale: string,
+  options: Intl.DateTimeFormatOptions,
+): string {
+  return new Intl.DateTimeFormat(locale, { ...options, timeZone: 'UTC' }).format(
+    parseIsoDate(date),
+  )
+}
+
+export function currentLocalDate(): string {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+}
+
 export function yearMonthFromDate(date: string): string {
   return date.slice(0, 7)
 }
 
-export function formatYearMonthLabel(month: string): string {
-  const [year, monthValue] = month.split('-').map(Number)
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(Date.UTC(year, monthValue - 1, 1)))
+export function dayOfWeekForDate(date: string): DayOfWeek {
+  return dayOfWeekByIndex[parseIsoDate(date).getUTCDay()]
 }
 
-/** Full human-readable date ("Friday, July 3, 2026") for screen-reader labels. */
-export function formatFullDate(date: string): string {
-  const [year, monthValue, day] = date.split('-').map(Number)
-  return new Intl.DateTimeFormat('en-US', {
+export function addDays(date: string, delta: number): string {
+  const nextDate = parseIsoDate(date)
+  nextDate.setUTCDate(nextDate.getUTCDate() + delta)
+  return toIsoDate(nextDate)
+}
+
+const dayIndexByDayOfWeek: Record<DayOfWeek, number> = {
+  SUNDAY: 0,
+  MONDAY: 1,
+  TUESDAY: 2,
+  WEDNESDAY: 3,
+  THURSDAY: 4,
+  FRIDAY: 5,
+  SATURDAY: 6,
+}
+
+// The day after the end of the configured (contiguous) weekend block, so a
+// non-Sunday-start weekend (e.g. Friday+Saturday) still renders as a
+// contiguous block instead of being split across the first/last columns.
+// Falls back to Sunday (index 0) when no weekend is configured yet.
+function weekStartDayIndex(weekendDays: DayOfWeek[]): number {
+  if (weekendDays.length === 0) {
+    return 0
+  }
+  const weekendIndices = new Set(weekendDays.map((day) => dayIndexByDayOfWeek[day]))
+  const lastWeekendIndex = [...weekendIndices].find(
+    (index) => !weekendIndices.has((index + 1) % 7),
+  )
+  return lastWeekendIndex == null ? 0 : (lastWeekendIndex + 1) % 7
+}
+
+export function startOfWeek(date: string, weekendDays: DayOfWeek[] = []): string {
+  const weekStartIndex = weekStartDayIndex(weekendDays)
+  const currentIndex = parseIsoDate(date).getUTCDay()
+  const offset = (currentIndex - weekStartIndex + 7) % 7
+  return addDays(date, -offset)
+}
+
+export function buildWeekDates(weekStart: string): string[] {
+  return Array.from({ length: 7 }, (_, index) => addDays(weekStart, index))
+}
+
+export function monthsForWeek(weekStart: string): string[] {
+  return uniqueBy(buildWeekDates(weekStart).map(yearMonthFromDate), (month) => month)
+}
+
+export function formatYearMonthLabel(month: string, locale = 'en-US'): string {
+  return formatIsoDate(`${month}-01`, locale, { month: 'long', year: 'numeric' })
+}
+
+export function formatWeekLabel(weekStart: string, locale = 'en-US'): string {
+  const weekEnd = addDays(weekStart, 6)
+  const startYear = weekStart.slice(0, 4)
+  const endYear = weekEnd.slice(0, 4)
+  const startLabel = formatIsoDate(weekStart, locale, {
+    month: 'short',
+    day: 'numeric',
+    ...(startYear === endYear ? {} : { year: 'numeric' }),
+  })
+  const endLabel = formatIsoDate(weekEnd, locale, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+  return `${startLabel} – ${endLabel}`
+}
+
+export function formatTimelineDay(date: string, locale = 'en-US'): string {
+  const weekday = formatIsoDate(date, locale, { weekday: 'short' })
+  const day = formatIsoDate(date, locale, { day: 'numeric' })
+  return `${weekday} ${day}`
+}
+
+export function formatWeekdayLetters(locale = 'en-US'): string[] {
+  return Array.from({ length: 7 }, (_, index) => (
+    formatIsoDate(addDays('2026-01-04', index), locale, { weekday: 'narrow' })
+  ))
+}
+
+/** Full human-readable date for visible ranges and screen-reader labels. */
+export function formatFullDate(date: string, locale = 'en-US'): string {
+  return formatIsoDate(date, locale, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(Date.UTC(year, monthValue - 1, day)))
+  })
+}
+
+export function formatMonthDay(date: string, locale = 'en-US'): string {
+  return formatIsoDate(date, locale, { month: 'long', day: 'numeric' })
+}
+
+export function formatAgendaHeading(date: string, locale = 'en-US'): string {
+  return formatIsoDate(date, locale, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  })
+}
+
+export function formatDateRange(dateFrom: string, dateTo: string, locale = 'en-US'): string {
+  const from = formatIsoDate(dateFrom, locale, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+  if (dateFrom === dateTo) {
+    return from
+  }
+  const to = formatIsoDate(dateTo, locale, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+  return `${from} – ${to}`
 }
 
 export function addMonths(month: string, delta: number): string {
@@ -63,12 +190,11 @@ export function buildCalendarCells(month: string): CalendarCell[] {
 
   for (let day = 1; day <= daysInMonth; day += 1) {
     const date = `${month}-${String(day).padStart(2, '0')}`
-    const dayOfWeek = dayOfWeekByIndex[new Date(Date.UTC(year, monthValue - 1, day)).getUTCDay()]
     cells.push({
       kind: 'day',
       date,
       dayNumber: day,
-      dayOfWeek,
+      dayOfWeek: dayOfWeekForDate(date),
     })
   }
 
@@ -77,6 +203,15 @@ export function buildCalendarCells(month: string): CalendarCell[] {
 
 export function dateInRange(date: string, dateFrom: string, dateTo: string): boolean {
   return date >= dateFrom && date <= dateTo
+}
+
+export function rangesOverlap(
+  firstFrom: string,
+  firstTo: string,
+  secondFrom: string,
+  secondTo: string,
+): boolean {
+  return firstFrom <= secondTo && firstTo >= secondFrom
 }
 
 export function absencesForDate(

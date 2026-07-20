@@ -208,7 +208,9 @@ describe('MyLeavesPage', () => {
 
     expect(screen.getByTestId('balance-card-annual-leave')).toBeInTheDocument()
     expect(screen.getByTestId('balance-card-unpaid-leave')).toBeInTheDocument()
-    expect(screen.getByTestId('my-leaves-history-table')).toBeInTheDocument()
+    const historyRegion = screen.getByRole('region', { name: 'Leave History' })
+    expect(historyRegion).toBe(screen.getByTestId('my-leaves-history-table'))
+    expect(historyRegion).toHaveAttribute('tabindex', '0')
     expect(screen.getByTestId('my-leaves-request-row-3')).toHaveTextContent('Approved')
     expect(screen.getByTestId('my-leaves-request-row-2')).toHaveTextContent('Declined')
     expect(screen.getByTestId('my-leaves-request-row-1')).toHaveTextContent('Pending')

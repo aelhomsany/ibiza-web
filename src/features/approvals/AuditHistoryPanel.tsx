@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { getLeaveRequestAuditEvents } from '../../api/client'
 import type { AuditEventResponse } from '../../api/generated/types'
 import './approvals.css'
@@ -7,25 +8,25 @@ type AuditHistoryPanelProps = {
   requestId: number
 }
 
-function formatActionLabel(action: AuditEventResponse['action']): string {
+function actionKey(action: AuditEventResponse['action']): string | null {
   switch (action) {
     case 'SUBMITTED':
-      return 'Submitted'
+      return 'audit.actions.submitted'
     case 'APPROVED':
-      return 'Approved'
+      return 'audit.actions.approved'
     case 'DECLINED':
-      return 'Declined'
+      return 'audit.actions.declined'
     default:
-      return action ?? 'Unknown'
+      return null
   }
 }
 
-function formatTimestamp(isoTimestamp: string): string {
+function formatTimestamp(isoTimestamp: string, locale: string): string {
   const date = new Date(isoTimestamp)
   if (Number.isNaN(date.getTime())) {
     return isoTimestamp
   }
-  return date.toLocaleString(undefined, {
+  return date.toLocaleString(locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -35,6 +36,7 @@ function formatTimestamp(isoTimestamp: string): string {
 }
 
 export function AuditHistoryPanel({ requestId }: AuditHistoryPanelProps) {
+  const { t, i18n } = useTranslation(['approvals', 'common'])
   const { data: events = [], isPending, isError } = useQuery({
     queryKey: ['leave-requests', requestId, 'audit-events'],
     queryFn: () => getLeaveRequestAuditEvents(requestId),
@@ -43,7 +45,7 @@ export function AuditHistoryPanel({ requestId }: AuditHistoryPanelProps) {
   if (isPending) {
     return (
       <div className="audit-history-panel" data-testid="audit-history-panel">
-        <p className="body-text">Loading audit history…</p>
+        <p className="body-text">{t('approvals:audit.loading')}</p>
       </div>
     )
   }
@@ -51,7 +53,7 @@ export function AuditHistoryPanel({ requestId }: AuditHistoryPanelProps) {
   if (isError) {
     return (
       <div className="audit-history-panel" data-testid="audit-history-panel" role="alert">
-        <p className="body-text">Unable to load audit history.</p>
+        <p className="body-text">{t('approvals:audit.loadError')}</p>
       </div>
     )
   }
@@ -59,14 +61,14 @@ export function AuditHistoryPanel({ requestId }: AuditHistoryPanelProps) {
   if (events.length === 0) {
     return (
       <div className="audit-history-panel" data-testid="audit-history-panel">
-        <p className="body-text">No audit events recorded yet.</p>
+        <p className="body-text">{t('approvals:audit.empty')}</p>
       </div>
     )
   }
 
   return (
     <div className="audit-history-panel" data-testid="audit-history-panel">
-      <h3 className="audit-history-title">Audit History</h3>
+      <h3 className="audit-history-title">{t('approvals:audit.title')}</h3>
       <ol className="audit-history-timeline">
         {events.map((event) => {
           const eventId = event.id ?? 0
@@ -77,19 +79,21 @@ export function AuditHistoryPanel({ requestId }: AuditHistoryPanelProps) {
               data-testid={`audit-event-${eventId}`}
             >
               <div className="audit-history-event-header">
-                <span className="audit-history-action">{formatActionLabel(event.action)}</span>
+                <span className="audit-history-action">
+                  {actionKey(event.action) ? t(`approvals:${actionKey(event.action)}`) : event.action ?? t('common:unknown')}
+                </span>
                 <span className="audit-history-timestamp">
-                  {formatTimestamp(event.occurredAt ?? '')}
+                  {formatTimestamp(event.occurredAt ?? '', i18n.language)}
                 </span>
               </div>
               <div className="audit-history-actor">
-                <span>{event.actorFirstName ?? 'Unknown'}</span>
+                <span>{event.actorFirstName ?? t('common:unknown')}</span>
                 {event.onBehalf && event.nominalManagerFirstName ? (
                   <span
                     className="approval-on-behalf-pill"
                     data-testid={`audit-on-behalf-pill-${eventId}`}
                   >
-                    On behalf of {event.nominalManagerFirstName}
+                    {t('approvals:audit.onBehalf', { name: event.nominalManagerFirstName })}
                   </span>
                 ) : null}
               </div>

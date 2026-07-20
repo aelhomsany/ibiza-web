@@ -162,15 +162,15 @@ describe('TeamMemberModal ATDD - Story 10.4 field-level server validation', () =
     renderModal()
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/Full name/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/الاسم الكامل/i)).toBeInTheDocument()
     })
 
-    await user.type(screen.getByLabelText(/Full name/i), 'Jordan Lee')
-    await user.type(screen.getByLabelText(/Email/i), 'jordan@example.com')
-    await user.type(screen.getByLabelText(/Department/i), 'People Ops')
-    await user.selectOptions(screen.getByLabelText(/Role/i), 'EMPLOYEE')
-    await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
-    await user.click(screen.getByRole('button', { name: /Save/i }))
+    await user.type(screen.getByLabelText(/الاسم الكامل/i), 'Jordan Lee')
+    await user.type(screen.getByLabelText(/البريد الإلكتروني/i), 'jordan@example.com')
+    await user.type(screen.getByLabelText(/القسم/i), 'People Ops')
+    await user.selectOptions(screen.getByLabelText(/الدور/i), 'EMPLOYEE')
+    await user.selectOptions(screen.getByLabelText(/مجموعة العمل/i), '1')
+    await user.click(screen.getByRole('button', { name: /حفظ/i }))
 
     // Mapped fields render the Arabic translation, not the raw English server message.
     await waitFor(() => {

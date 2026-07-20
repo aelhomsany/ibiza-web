@@ -17,6 +17,8 @@ type AppHeaderProps = {
   onToggleNav: () => void
   /** Ref for focus return when the mobile drawer closes. */
   menuButtonRef?: RefObject<HTMLButtonElement | null>
+  /** Removes non-drawer header actions from focus and accessibility scope while nav is open. */
+  actionsInert?: boolean
 }
 
 /**
@@ -32,6 +34,7 @@ export function AppHeader({
   navOpen,
   onToggleNav,
   menuButtonRef,
+  actionsInert = false,
 }: AppHeaderProps) {
   const { t } = useTranslation('layout')
   return (
@@ -64,7 +67,12 @@ export function AppHeader({
           {contextLabel}
         </span>
       ) : null}
-      <div className="app-header-actions">{actions}</div>
+      <div
+        className="app-header-actions"
+        {...(actionsInert ? { inert: true, 'aria-hidden': true } : {})}
+      >
+        {actions}
+      </div>
     </header>
   )
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ApiError } from '../../api/client'
 import type { CreateOrganizationRequest } from '../../api/generated/types'
 import { Modal } from '../../components/ui/Modal'
@@ -12,14 +13,10 @@ type Props = {
 
 type Plan = CreateOrganizationRequest['plan']
 
-const plans: { value: Plan; label: string }[] = [
-  { value: 'FREE', label: 'Free' },
-  { value: 'STARTER', label: 'Starter' },
-  { value: 'GROWTH', label: 'Growth' },
-  { value: 'INTERNAL', label: 'Internal' },
-]
+const plans: Plan[] = ['FREE', 'STARTER', 'GROWTH', 'INTERNAL']
 
 export function CreateOrganizationModal({ onClose }: Props) {
+  const { t } = useTranslation(['platform', 'common'])
   const createMutation = useCreateOrganization()
   const [name, setName] = useState('')
   const [primaryContact, setPrimaryContact] = useState('')
@@ -44,10 +41,10 @@ export function CreateOrganizationModal({ onClose }: Props) {
         },
         onError: (error) => {
           if (error instanceof ApiError) {
-            setErrorMessage(error.problem.detail ?? 'Unable to create organization')
+            setErrorMessage(error.problem.detail ?? t('platform:create.errors.submit'))
             return
           }
-          setErrorMessage('Unable to create organization')
+          setErrorMessage(t('platform:create.errors.submit'))
         },
       },
     )
@@ -61,16 +58,16 @@ export function CreateOrganizationModal({ onClose }: Props) {
     >
         <div className="modal-header">
           <span className="modal-title" id="create-organization-modal-title">
-            Create Organization
+            {t('platform:create.title')}
           </span>
-          <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
+          <button type="button" className="modal-close" onClick={onClose} aria-label={t('common:actions.close')}>
             <CloseIcon size={18} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="form-group">
-            <label htmlFor="org-name">Organization name</label>
+            <label htmlFor="org-name">{t('platform:create.fields.name')}</label>
             <input
               id="org-name"
               type="text"
@@ -82,7 +79,7 @@ export function CreateOrganizationModal({ onClose }: Props) {
 
           <div className="form-row-2col">
             <div className="form-group">
-              <label htmlFor="org-primary-contact">Primary contact</label>
+              <label htmlFor="org-primary-contact">{t('platform:create.fields.primaryContact')}</label>
               <input
                 id="org-primary-contact"
                 type="text"
@@ -93,7 +90,7 @@ export function CreateOrganizationModal({ onClose }: Props) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="org-initial-hr">Initial HR Admin email</label>
+              <label htmlFor="org-initial-hr">{t('platform:create.fields.hrEmail')}</label>
               <input
                 id="org-initial-hr"
                 type="email"
@@ -105,7 +102,7 @@ export function CreateOrganizationModal({ onClose }: Props) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="org-plan">Subscription plan</label>
+            <label htmlFor="org-plan">{t('platform:create.fields.plan')}</label>
             <select
               id="org-plan"
               value={plan}
@@ -113,8 +110,8 @@ export function CreateOrganizationModal({ onClose }: Props) {
               required
             >
               {plans.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
+                <option key={option} value={option}>
+                  {t(`platform:plans.${option.toLowerCase()}`)}
                 </option>
               ))}
             </select>
@@ -128,7 +125,7 @@ export function CreateOrganizationModal({ onClose }: Props) {
 
           <div className="modal-actions">
             <button type="button" className="btn" onClick={onClose}>
-              Cancel
+              {t('common:actions.cancel')}
             </button>
             <button
               type="submit"
@@ -136,7 +133,7 @@ export function CreateOrganizationModal({ onClose }: Props) {
               disabled={createMutation.isPending}
               data-busy={createMutation.isPending ? 'true' : undefined}
             >
-              {createMutation.isPending ? 'Creating...' : 'Create Organization'}
+              {createMutation.isPending ? t('platform:create.creating') : t('platform:actions.create')}
             </button>
           </div>
         </form>

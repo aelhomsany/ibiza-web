@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { DayOfWeek } from '../../api/generated/types'
 import { WEEKEND_DAYS_DISPLAY } from './weekendDays'
 import './weekend-day-chips.css'
@@ -18,6 +19,7 @@ export function WeekendDayChips({
   onChange,
   onBlockedDeselect,
 }: WeekendDayChipsProps) {
+  const { t } = useTranslation('settings')
   const [selected, setSelected] = useState<DayOfWeek[]>(weekendDays)
   const [saving, setSaving] = useState(false)
 
@@ -57,7 +59,8 @@ export function WeekendDayChips({
 
   return (
     <div className="weekend-chips" data-testid="weekend-chips">
-      {WEEKEND_DAYS_DISPLAY.map(({ label, value }) => {
+      {WEEKEND_DAYS_DISPLAY.map(({ value }) => {
+        const label = t(`days.${value}`)
         const isActive = selected.includes(value)
         return (
           <label
@@ -69,7 +72,7 @@ export function WeekendDayChips({
               checked={isActive}
               disabled={disabled || saving}
               data-busy={saving ? 'true' : undefined}
-              aria-label={`${label} weekend day for ${groupName}`}
+              aria-label={t('groups.aria.weekendDayFor', { day: label, name: groupName })}
               onChange={(event) => {
                 void handleToggle(value, event.target.checked)
               }}

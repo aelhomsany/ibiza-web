@@ -15,7 +15,7 @@ type NotificationPanelProps = {
   onAfterMarkAllRead?: () => void
 }
 
-function formatNotificationTime(isoTimestamp: string | undefined): string {
+function formatNotificationTime(isoTimestamp: string | undefined, locale: string): string {
   if (!isoTimestamp) {
     return ''
   }
@@ -23,7 +23,7 @@ function formatNotificationTime(isoTimestamp: string | undefined): string {
   if (Number.isNaN(date.getTime())) {
     return isoTimestamp
   }
-  return date.toLocaleString(undefined, {
+  return date.toLocaleString(locale, {
     month: 'short',
     day: 'numeric',
     hour: 'numeric',
@@ -36,7 +36,7 @@ export const NotificationPanel = forwardRef<HTMLDivElement, NotificationPanelPro
     { notifications, isPending = false, onClose, onAfterMarkAllRead },
     ref,
   ) {
-    const { t } = useTranslation('layout')
+    const { t, i18n } = useTranslation('layout')
     const navigate = useNavigate()
     const markRead = useMarkNotificationRead()
     const markAllRead = useMarkAllNotificationsRead()
@@ -114,7 +114,7 @@ export const NotificationPanel = forwardRef<HTMLDivElement, NotificationPanelPro
             className="notification-empty"
           />
         ) : notifications.length === 0 ? (
-          <p className="notification-empty">{t('notifications.empty')}</p>
+          <p className="notification-empty" role="status">{t('notifications.empty')}</p>
         ) : (
           <div className="notification-list" role="list">
           {notifications.map((notification, index) => {
@@ -132,7 +132,7 @@ export const NotificationPanel = forwardRef<HTMLDivElement, NotificationPanelPro
                     <span className="notification-content">
                       <span className="notification-text">{notification.message}</span>
                       <span className="notification-time">
-                        {formatNotificationTime(notification.occurredAt)}
+                        {formatNotificationTime(notification.occurredAt, i18n.language)}
                       </span>
                     </span>
                   </button>

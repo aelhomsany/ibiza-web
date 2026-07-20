@@ -4,6 +4,7 @@ type PagePlaceholderProps = {
 }
 
 export function PagePlaceholder({ title, subtitle }: PagePlaceholderProps) {
+  const { t } = useTranslation('common')
   return (
     <div className="page">
       <header className="page-header">
@@ -12,7 +13,8 @@ export function PagePlaceholder({ title, subtitle }: PagePlaceholderProps) {
           {subtitle && <p className="page-sub">{subtitle}</p>}
         </div>
       </header>
-      <p className="body-text">Coming soon.</p>
+      <p className="body-text">{t('comingSoon')}</p>
     </div>
   )
 }
+import { useTranslation } from 'react-i18next'

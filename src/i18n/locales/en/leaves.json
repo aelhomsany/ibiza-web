@@ -1,0 +1,41 @@
+{
+  "actions": {
+    "backCalendar": "Back To Calendar",
+    "myLeaves": "My Leaves",
+    "requestLeave": "Request Leave"
+  },
+  "balances": "Balances",
+  "errors": {
+    "balances": "Unable to load your leave balances.",
+    "history": "Unable to load your leave history."
+  },
+  "history": {
+    "empty": "No leave requests yet. Start a request when you need time away.",
+    "title": "Leave History"
+  },
+  "requestContext": {
+    "audit": "Audit",
+    "dates": "Dates",
+    "details": "Request Details",
+    "invalid": "This request link is invalid.",
+    "kicker": "Leave Request",
+    "leaveType": "Leave type",
+    "loading": "Loading request context…",
+    "notFound": "Request Not Found",
+    "requester": "Requester",
+    "status": "Status",
+    "unavailable": "Request context is unavailable.",
+    "workingDays": "Working days",
+    "workingDaysValue": "{{count}} working days"
+  },
+  "subtitle": "Your leave history and balances",
+  "table": {
+    "audit": "Audit",
+    "dates": "Dates",
+    "days": "Days",
+    "status": "Status",
+    "type": "Type",
+    "working": "working"
+  },
+  "title": "My Leaves"
+}

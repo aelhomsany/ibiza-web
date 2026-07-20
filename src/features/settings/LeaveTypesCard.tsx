@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { getLeaveTypes } from '../../api/client'
 import { useAuth } from '../../auth/useAuth'
@@ -8,14 +9,15 @@ type LeaveTypesCardProps = {
   onWarning?: (message: string) => void
 }
 
-function formatDefaultBalance(defaultBalanceDays: number | null | undefined): string {
+function formatDefaultBalance(defaultBalanceDays: number | null | undefined, t: (key: string, options?: { count: number }) => string): string {
   if (defaultBalanceDays != null) {
-    return `${defaultBalanceDays} days default`
+    return t('leaveTypes.defaultDays', { count: defaultBalanceDays })
   }
-  return 'Unlimited / custom'
+  return t('leaveTypes.unlimited')
 }
 
 export function LeaveTypesCard({ onWarning }: LeaveTypesCardProps) {
+  const { t } = useTranslation('settings')
   const { user } = useAuth()
   const orgId = user?.organizationId
 
@@ -27,17 +29,17 @@ export function LeaveTypesCard({ onWarning }: LeaveTypesCardProps) {
 
   useEffect(() => {
     if (leaveTypesQuery.isError) {
-      onWarning?.('Unable to load leave types')
+      onWarning?.(t('leaveTypes.errors.loadToast'))
     }
-  }, [leaveTypesQuery.isError, onWarning])
+  }, [leaveTypesQuery.isError, onWarning, t])
 
   if (leaveTypesQuery.isPending) {
     return (
       <section className="settings-card settings-card-spaced" data-testid="leave-types-card">
         <div className="card-section-header">
-          <span className="card-section-title">Leave Types</span>
+          <span className="card-section-title">{t('leaveTypes.title')}</span>
         </div>
-        <p className="settings-card-loading-inline">Loading leave types…</p>
+        <p className="settings-card-loading-inline">{t('leaveTypes.loading')}</p>
       </section>
     )
   }
@@ -46,9 +48,9 @@ export function LeaveTypesCard({ onWarning }: LeaveTypesCardProps) {
     return (
       <section className="settings-card settings-card-spaced" data-testid="leave-types-card">
         <div className="card-section-header">
-          <span className="card-section-title">Leave Types</span>
+          <span className="card-section-title">{t('leaveTypes.title')}</span>
         </div>
-        <p className="settings-card-error-inline">Unable to load leave types.</p>
+        <p className="settings-card-error-inline">{t('leaveTypes.errors.load')}</p>
       </section>
     )
   }
@@ -58,11 +60,11 @@ export function LeaveTypesCard({ onWarning }: LeaveTypesCardProps) {
   return (
     <section className="settings-card settings-card-spaced" data-testid="leave-types-card">
       <div className="card-section-header">
-        <span className="card-section-title">Leave Types</span>
+        <span className="card-section-title">{t('leaveTypes.title')}</span>
       </div>
 
       {leaveTypes.length === 0 ? (
-        <p className="settings-card-loading-inline">No leave types configured yet.</p>
+        <p className="settings-card-loading-inline">{t('leaveTypes.none')}</p>
       ) : (
         <div className="settings-list-body" data-testid="leave-types-list">
           {leaveTypes.map((leaveType) => (
@@ -77,7 +79,7 @@ export function LeaveTypesCard({ onWarning }: LeaveTypesCardProps) {
               <div className="leave-type-details">
                 <div className="leave-type-name">{leaveType.name}</div>
                 <div className="leave-type-subtitle">
-                  {formatDefaultBalance(leaveType.defaultBalanceDays ?? null)}
+                  {formatDefaultBalance(leaveType.defaultBalanceDays ?? null, t)}
                 </div>
               </div>
             </div>

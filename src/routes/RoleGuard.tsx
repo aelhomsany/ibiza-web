@@ -2,6 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import type { UserRole } from '../api/generated/types'
 import { canAccessOrgRoute, getHomePath } from '../auth/rolePermissions'
 import { useAuth } from '../auth/useAuth'
+import { useTranslation } from 'react-i18next'
 
 type RoleGuardProps = {
   allowedRoles?: UserRole[]
@@ -9,13 +10,14 @@ type RoleGuardProps = {
 }
 
 export function RoleGuard({ allowedRoles, shell }: RoleGuardProps) {
+  const { t } = useTranslation('common')
   const { user, isLoading } = useAuth()
   const location = useLocation()
 
   if (isLoading) {
     return (
       <div className="auth-loading" data-testid="auth-loading">
-        Loading…
+        {t('loading')}
       </div>
     )
   }

@@ -1,6 +1,70 @@
 {
-  "actions": { "retry": "إعادة المحاولة", "reload": "إعادة التحميل" },
-  "toast": { "dismiss": "إغلاق الإشعار" },
-  "recovery": { "heading": "حدث خطأ ما", "app": "أعد تحميل Ibiza أو حاول مرة أخرى لاستعادة مساحة العمل.", "route": "تعذر تحميل هذه الصفحة. ما زال التنقل متاحًا." },
-  "profile": { "languageNotSet": "غير محدد", "notApplicable": "لا ينطبق" }
+  "actions": {
+    "add": "إضافة",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "create": "إنشاء",
+    "edit": "تعديل",
+    "reload": "إعادة التحميل",
+    "remove": "إزالة",
+    "retry": "إعادة المحاولة",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ…"
+  },
+  "brand": {
+    "admin": "إدارة Ibiza",
+    "name": "Ibiza",
+    "platformConsole": "منصة الإدارة",
+    "tagline": "إدارة إجازات الفريق"
+  },
+  "comingSoon": "قريبًا.",
+  "loading": "جارٍ التحميل…",
+  "notFound": {
+    "subtitle": "الصفحة التي تبحث عنها غير موجودة.",
+    "title": "الصفحة غير موجودة"
+  },
+  "presence": {
+    "off": "خارج العمل",
+    "wfh": "عمل من المنزل"
+  },
+  "profile": {
+    "languageNotSet": "غير محدد",
+    "notApplicable": "لا ينطبق"
+  },
+  "recovery": {
+    "app": "أعد تحميل Ibiza أو حاول مرة أخرى لاستعادة مساحة العمل.",
+    "heading": "حدث خطأ ما",
+    "route": "تعذر تحميل هذه الصفحة. ما زال التنقل متاحًا."
+  },
+  "roles": {
+    "employee": "موظف",
+    "hrAdmin": "مسؤول الموارد البشرية",
+    "manager": "مدير",
+    "platformAdmin": "مسؤول المنصة"
+  },
+  "routes": {
+    "approvals": "الموافقات",
+    "calendar": "تقويم الفريق",
+    "dashboard": "لوحة المعلومات",
+    "forgotPassword": "نسيت كلمة المرور",
+    "myLeaves": "إجازاتي",
+    "organizations": "المؤسسات",
+    "profile": "تفاصيل الملف الشخصي",
+    "requestDetails": "تفاصيل الطلب",
+    "resetPassword": "إعادة تعيين كلمة المرور",
+    "settings": "الإعدادات",
+    "signIn": "تسجيل الدخول"
+  },
+  "status": {
+    "active": "نشط",
+    "approved": "مقبول",
+    "declined": "مرفوض",
+    "deactivated": "غير نشط",
+    "pending": "قيد الانتظار",
+    "suspended": "موقوف"
+  },
+  "toast": {
+    "dismiss": "إغلاق الإشعار"
+  },
+  "unknown": "غير معروف"
 }

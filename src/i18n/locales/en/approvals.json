@@ -1,0 +1,65 @@
+{
+  "actions": {
+    "approve": "Approve",
+    "confirmDecline": "Confirm Decline",
+    "decline": "Decline"
+  },
+  "aria": {
+    "approveRequest": "Approve request from {{name}}",
+    "declineRequest": "Decline request from {{name}}"
+  },
+  "audit": {
+    "actions": {
+      "approved": "Approved",
+      "declined": "Declined",
+      "submitted": "Submitted"
+    },
+    "empty": "No audit events recorded yet.",
+    "hide": "Hide audit history",
+    "loading": "Loading audit history…",
+    "loadError": "Unable to load audit history.",
+    "onBehalf": "On behalf of {{name}}",
+    "show": "Audit history",
+    "title": "Audit History"
+  },
+  "declineModal": {
+    "label": "Decline reason",
+    "subtitle": "A reason is required — it will be shown to the employee.",
+    "title": "Decline request for {{name}}"
+  },
+  "empty": "All caught up!",
+  "errors": {
+    "approve": "Unable to approve request",
+    "decline": "Unable to decline request",
+    "pending": "We couldn't load pending requests. Please try again.",
+    "recent": "We couldn't load recent decisions. Please try again."
+  },
+  "manager": {
+    "onBehalf": "On behalf of {{name}}",
+    "reportsTo": "Reports to {{name}}"
+  },
+  "recent": {
+    "empty": "No recent decisions yet.",
+    "title": "Recent Decisions"
+  },
+  "subtitle": {
+    "hr": "Review all requests — you can approve on behalf of any manager",
+    "manager": "Review and action your team's leave requests"
+  },
+  "success": {
+    "approved": "{{name}}'s request approved",
+    "declined": "{{name}}'s request declined"
+  },
+  "table": {
+    "audit": "Audit",
+    "dates": "Dates",
+    "days": "Days",
+    "decidedBy": "Decided by",
+    "decisionDate": "Decision date",
+    "employee": "Employee",
+    "leaveType": "Leave type",
+    "status": "Status",
+    "workingDays": "{{count}} working days"
+  },
+  "title": "Approvals"
+}

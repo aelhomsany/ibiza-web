@@ -1,62 +1,26 @@
-import type { CSSProperties } from 'react'
-import type { CalendarAbsenceResponse, CalendarHolidayResponse } from '../../api/generated/types'
-import { chipColorStyle, pillColorStyle } from '../../utils/entityColor'
-import { firstName, uniqueBy } from './calendarMonthUtils'
+import { useTranslation } from 'react-i18next'
 
-type CalendarLegendProps = {
-  absences: CalendarAbsenceResponse[]
-  holidays: CalendarHolidayResponse[]
-}
-
-function groupPillStyle(
-  workforceGroupId: number | undefined,
-  workforceGroupName: string,
-): CSSProperties {
-  return pillColorStyle(
-    workforceGroupId ?? workforceGroupName.trim().toLowerCase(),
-  ) as CSSProperties
-}
-
-export function CalendarLegend({ absences, holidays }: CalendarLegendProps) {
-  const users = uniqueBy(absences, (absence) => absence.userId)
-  const holidayGroups = uniqueBy(holidays, (holiday) => holiday.workforceGroupId)
+export function CalendarLegend() {
+  const { t } = useTranslation('calendar')
 
   return (
-    <div className="cal-legend" aria-label="Calendar legend">
+    <div className="cal-legend" aria-label={t('legend.label')}>
       <span className="cal-legend-item">
-        <span className="cal-event cal-event--sample cal-event--off">AA</span>
-        <span>Off</span>
-      </span>
-      <span className="cal-legend-item">
-        <span className="cal-event cal-event--sample cal-event--wfh">AA</span>
-        <span>WFH</span>
-      </span>
-      <span className="cal-legend-item">
-        <span className="cal-holiday-swatch" />
-        <span>Holiday</span>
-      </span>
-
-      {users.map((absence) => (
-        <span key={absence.userId} className="cal-legend-item">
-          <span
-            className="cal-user-dot"
-            style={chipColorStyle(absence.userId) as CSSProperties}
-          />
-          <span>{firstName(absence.userFullName)}</span>
+        <span className="cal-legend-presence cal-legend-presence--off" aria-hidden="true">
+          AA
         </span>
-      ))}
-
-      {holidayGroups.map((holiday) => (
-        <span key={holiday.workforceGroupId} className="cal-legend-item">
-          <span
-            className="group-pill"
-            style={groupPillStyle(holiday.workforceGroupId, holiday.workforceGroupName ?? '')}
-          >
-            {holiday.workforceGroupName}
-          </span>
-          <span>holiday</span>
+        <span>{t('legend.off')}</span>
+      </span>
+      <span className="cal-legend-item">
+        <span className="cal-legend-presence cal-legend-presence--wfh" aria-hidden="true">
+          AA
         </span>
-      ))}
+        <span>{t('legend.wfh')}</span>
+      </span>
+      <span className="cal-legend-item">
+        <span className="cal-holiday-swatch" aria-hidden="true" />
+        <span>{t('legend.holiday')}</span>
+      </span>
     </div>
   )
 }
