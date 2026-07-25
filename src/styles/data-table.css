@@ -1,0 +1,95 @@
+/* Shared scroll-region and data-table chrome. The legacy dashboard-table name is stable API. */
+
+.table-wrap {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.table-wrap:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-inner);
+  outline-offset: var(--focus-ring-gap);
+  box-shadow: 0 0 0 var(--focus-ring-outer-width) var(--focus-ring-outer);
+}
+
+.dashboard-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.dashboard-table thead tr {
+  background: var(--color-sage-tint);
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding-block: var(--space-md);
+  padding-inline: var(--space-card-padding);
+  text-align: start;
+}
+
+.dashboard-table th {
+  color: var(--color-muted);
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+}
+
+.dashboard-table td {
+  border-block-start: 1px solid var(--color-border-light);
+  color: var(--color-muted);
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.dashboard-table tbody tr:hover td {
+  background: var(--color-mist);
+}
+
+.dashboard-table tr.row-pending td {
+  background: var(--color-pending-bg);
+}
+
+.leave-type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding-block: 2px;
+  padding-inline: 10px;
+  border: 1px solid;
+  border-radius: var(--radius-full);
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+}
+
+.status-hint,
+.decline-reason {
+  margin-block-start: 2px;
+  font-size: var(--font-caption-size);
+}
+
+.status-hint,
+.working-caption {
+  color: var(--color-muted-foreground);
+}
+
+.decline-reason {
+  color: var(--color-declined-fg);
+  font-style: italic;
+}
+
+.working-caption {
+  font-size: var(--font-caption-size);
+}
+
+.dashboard-empty-state {
+  padding-block: var(--space-3xl);
+  padding-inline: var(--space-card-padding);
+  text-align: center;
+}
+
+.dashboard-empty-state p {
+  margin: 0;
+  color: var(--color-muted-foreground);
+  font-size: 13px;
+}

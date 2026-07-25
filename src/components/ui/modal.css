@@ -17,7 +17,11 @@
 }
 
 .modal::backdrop {
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--color-modal-backdrop);
+}
+
+.modal.modal-backdrop-accent::backdrop {
+  background: var(--color-modal-backdrop-accent);
 }
 
 .modal-wide {

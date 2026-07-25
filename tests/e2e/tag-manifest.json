@@ -66,6 +66,13 @@
         "[P1] Out today shows teammate with WFH or Off badge"
       ]
     },
+    "demo-data-curated.spec.ts::Demo data curated — Story 10.12": {
+      "tags": ["@regression", "@api", "@story-10-12"],
+      "tests": [
+        "[P1] Employee sees curated leave history after reset",
+        "[P1] HR Settings and Platform Organizations show curated data after reset"
+      ]
+    },
     "example.spec.ts::Application shell": {
       "tags": ["@regression", "@ui-only"],
       "tests": [
@@ -103,7 +110,7 @@
     },
     "platform-edit-subscription.spec.ts::Platform edit subscription": {
       "tags": ["@regression", "@api"],
-      "tests": ["[P0] Platform Admin edits Acme subscription and row plan badge updates"]
+      "tests": ["[P0] Platform Admin edits Nile Harbor subscription and row plan badge updates"]
     },
     "responsive-containment.spec.ts::Responsive containment — Story 10.9": {
       "tags": ["@regression", "@api", "@story-10-9"],

@@ -50,7 +50,7 @@
 }
 
 .notification-pref-badge-optional {
-  background: var(--color-surface-muted, #eef2f4);
+  background: var(--color-surface-muted);
   color: var(--color-muted);
 }
 
@@ -81,7 +81,7 @@
   padding: 0 8px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  background: var(--color-background, #fff);
+  background: var(--color-background);
   color: var(--color-foreground);
   font-size: 13px;
 }

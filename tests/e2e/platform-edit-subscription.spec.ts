@@ -12,19 +12,19 @@ test.describe('Platform edit subscription', { tag: [tags.regression, tags.api] }
     'Set E2E_API_AVAILABLE=true when ibiza-api is running with platform admin seed',
   )
 
-  test('[P0] Platform Admin edits Acme subscription and row plan badge updates', async ({ page }) => {
+  test('[P0] Platform Admin edits Nile Harbor subscription and row plan badge updates', async ({ page }) => {
     await page.goto('/login')
     await page.getByTestId('sign-in-email').fill(platformAdminCredentials.email)
     await page.getByTestId('sign-in-password').fill(platformAdminCredentials.password)
     await page.getByTestId('sign-in-submit').click()
 
     await expect(page).toHaveURL(/\/platform\/organizations/)
-    await expect(page.getByText('Acme Corp')).toBeVisible()
+    await expect(page.getByText('Nile Harbor')).toBeVisible()
 
     await page.getByRole('button', { name: 'Edit Subscription' }).first().click()
     await expect(page.getByTestId('edit-subscription-modal')).toBeVisible()
     await expect(
-      page.getByRole('heading', { name: /Edit Subscription — Acme Corp/i }),
+      page.getByRole('heading', { name: /Edit Subscription — Nile Harbor/i }),
     ).toBeVisible()
 
     await page.getByTestId('edit-subscription-plan').selectOption('STARTER')

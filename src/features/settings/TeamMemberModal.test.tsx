@@ -146,7 +146,7 @@ describe('TeamMemberModal — add mode', () => {
     const user = userEvent.setup()
     const onSuccess = vi.fn()
     const onWarning = vi.fn()
-    const detail = 'Acme Corp is at the 3-user Free limit'
+    const detail = 'Nile Harbor is at the 3-user Free limit'
     vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
       new ApiError(409, {
         type: 'https://ibiza.app/errors/conflict',
@@ -204,7 +204,7 @@ describe('TeamMemberModal — add mode', () => {
 
   it('calls checkout and redirects when upgrade CTA succeeds', async () => {
     const user = userEvent.setup()
-    const detail = 'Acme Corp is at the 3-user Free limit'
+    const detail = 'Nile Harbor is at the 3-user Free limit'
     vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
       new ApiError(409, {
         type: 'https://ibiza.app/errors/conflict',
@@ -236,7 +236,7 @@ describe('TeamMemberModal — add mode', () => {
 
   it('shows manual fallback when checkout is rejected', async () => {
     const user = userEvent.setup()
-    const detail = 'Acme Corp is at the 3-user Free limit'
+    const detail = 'Nile Harbor is at the 3-user Free limit'
     vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
       new ApiError(409, {
         type: 'https://ibiza.app/errors/conflict',
@@ -282,7 +282,7 @@ describe('TeamMemberModal — add mode', () => {
         type: 'https://ibiza.app/errors/conflict',
         title: 'Conflict',
         status: 409,
-        detail: 'Acme Corp is at the 3-user Free limit',
+        detail: 'Nile Harbor is at the 3-user Free limit',
         instance: '/api/v1/team-members',
         code: 'plan-limit-reached',
       }),

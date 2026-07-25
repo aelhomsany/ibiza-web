@@ -35,7 +35,7 @@ function roleBadgeClass(role: string): string {
 }
 
 export function TeamMembersCard({ onSuccess, onWarning }: Props) {
-  const { t } = useTranslation(['settings', 'layout', 'common'])
+  const { t, i18n } = useTranslation(['settings', 'layout', 'common'])
   const { user } = useAuth()
   const orgId = user?.organizationId
   const queryClient = useQueryClient()
@@ -87,7 +87,7 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
       void queryClient.invalidateQueries({ queryKey })
       void queryClient.invalidateQueries({ queryKey: ['platform', 'organizations'] })
       setLifecycleTarget(null)
-      const name = updated.fullName ?? member.fullName ?? t('settings:members.title')
+      const name = updated.fullName ?? member.fullName ?? t('common:unknown')
       onSuccess?.(
         t(
           updated.status === 'DEACTIVATED'
@@ -176,9 +176,9 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
               </div>
             </div>
             <span className={roleBadgeClass(member.role ?? '')}>
-              {member.role
+              {member.role && i18n.exists(`common:roles.${roleKey(member.role)}`)
                 ? t(`common:roles.${roleKey(member.role)}`)
-                : t('common:unknown')}
+                : member.role ?? t('common:unknown')}
             </span>
             <span className={`member-status-badge${isDeactivated ? ' is-deactivated' : ''}`}>
               {t(member.status === 'DEACTIVATED' ? 'common:status.deactivated' : 'common:status.active')}

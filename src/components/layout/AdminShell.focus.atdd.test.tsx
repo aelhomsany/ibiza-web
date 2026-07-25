@@ -81,6 +81,27 @@ describe('AdminShell ATDD — Story 10.7 mobile drawer focus and inert', () => {
     },
   )
 
+  test('[P0] wraps Tab from the hamburger back to the first sidebar link, and Shift+Tab back to the hamburger', async () => {
+    const user = userEvent.setup()
+    renderAdminShell()
+
+    const menu = screen.getByTestId('shell-topbar-menu')
+    await user.click(menu)
+    await screen.findByTestId('sidebar')
+
+    const firstNavLink = screen.getByTestId('nav-organizations')
+    await waitFor(() => {
+      expect(firstNavLink).toHaveFocus()
+    })
+
+    menu.focus()
+    await user.tab()
+    expect(firstNavLink).toHaveFocus()
+
+    await user.tab({ shift: true })
+    expect(menu).toHaveFocus()
+  })
+
   test('[P0] returns focus to the hamburger when the drawer closes via backdrop click', async () => {
     const user = userEvent.setup()
     renderAdminShell()

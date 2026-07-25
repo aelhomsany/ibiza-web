@@ -9,15 +9,15 @@ describe('AppHeader', () => {
       <AppHeader
         variant="org"
         title="Ibiza"
-        contextLabel="Acme Corp"
+        contextLabel="Nile Harbor"
         navOpen={false}
         onToggleNav={vi.fn()}
       />,
     )
 
     const context = screen.getByTestId('app-header-context')
-    expect(context).toHaveTextContent('Acme Corp')
-    expect(context).toHaveAttribute('title', 'Acme Corp')
+    expect(context).toHaveTextContent('Nile Harbor')
+    expect(context).toHaveAttribute('title', 'Nile Harbor')
   })
 
   it('omits the context label when no organization name is available', () => {

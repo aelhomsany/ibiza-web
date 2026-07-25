@@ -192,8 +192,4 @@
     max-width: 100%;
     overflow-x: auto;
   }
-
-  .form-row-2col {
-    grid-template-columns: 1fr;
-  }
 }

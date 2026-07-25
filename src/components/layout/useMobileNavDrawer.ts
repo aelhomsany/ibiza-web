@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { announceHeaderMenuOpen } from './headerMenuCoordination'
+
+const MOBILE_NAV_DRAWER_MENU_ID = 'mobile-nav-drawer'
 
 export function useMobileNavDrawer() {
   const [navOpen, setNavOpen] = useState(false)
@@ -15,6 +18,7 @@ export function useMobileNavDrawer() {
       closeNav()
       return
     }
+    announceHeaderMenuOpen(MOBILE_NAV_DRAWER_MENU_ID)
     setNavOpen(true)
   }, [navOpen, closeNav])
 
@@ -51,7 +55,10 @@ export function useMobileNavDrawer() {
       if (event.key === 'Tab') {
         const sidebarControls = Array.from(
           document.querySelectorAll<HTMLElement>(
-            '#app-sidebar a[href], #app-sidebar button:not(:disabled), #app-sidebar [tabindex]:not([tabindex="-1"])',
+            '#app-sidebar a[href], #app-sidebar button:not(:disabled), ' +
+              '#app-sidebar input:not(:disabled), #app-sidebar select:not(:disabled), ' +
+              '#app-sidebar textarea:not(:disabled), #app-sidebar [contenteditable="true"], ' +
+              '#app-sidebar [tabindex]:not([tabindex="-1"])',
           ),
         )
         const backdrop = document.querySelector<HTMLElement>('[data-testid="sidebar-backdrop"]')

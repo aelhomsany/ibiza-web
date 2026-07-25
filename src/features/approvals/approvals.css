@@ -121,11 +121,6 @@
   width: min(100%, 480px);
 }
 
-.modal.decline-modal-panel::backdrop {
-  background: rgba(9, 60, 93, 0.45);
-  background: color-mix(in srgb, var(--color-teal) 45%, transparent);
-}
-
 .decline-modal-title {
   margin: 0 0 8px;
   font-size: 18px;

@@ -11,7 +11,6 @@ import { useAuth } from '../../auth/useAuth'
 import { useCreateLeaveRequest } from './useCreateLeaveRequest'
 import { useLeaveRequestPreview } from './useLeaveRequestPreview'
 import { translateFieldViolation } from '../../i18n/fieldViolationMessage'
-import '../settings/team-members.css'
 import './request-leave.css'
 
 type RequestLeaveModalProps = {

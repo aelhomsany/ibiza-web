@@ -37,6 +37,7 @@
   --color-sage-tint: #E4F5DC;
   --color-mist-soft: #F2F8EE;
   --color-mist-deep: #E2F0DF;
+  --color-surface-muted: #EEF2F4;
   --color-sage-strong: #4C8A57;
   --color-holiday-highlight: #FDE68A;
   --color-holiday-accent: #F59E0B;
@@ -47,6 +48,8 @@
   --color-calendar-glass-border: rgba(255, 255, 255, 0.9);
   --color-calendar-glass-border-strong: rgba(255, 255, 255, 0.95);
   --color-mint-alpha-45: rgba(171, 231, 178, 0.45);
+  --color-modal-backdrop: rgba(0, 0, 0, 0.45);
+  --color-modal-backdrop-accent: color-mix(in srgb, var(--color-teal) 45%, transparent);
 
   /* Typography */
   --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

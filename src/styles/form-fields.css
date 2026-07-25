@@ -1,0 +1,55 @@
+/* Shared labelled-field and form-grid contracts. */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-block-end: var(--space-lg);
+}
+
+.form-group label {
+  color: var(--color-foreground);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  color: var(--color-foreground);
+  font-family: inherit;
+  font-size: var(--font-body-size);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-teal);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.field-error {
+  color: var(--color-danger);
+  font-size: var(--font-caption-size);
+}
+
+.form-group .field-error {
+  margin-block-start: 2px;
+}
+
+.form-row-2col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-lg);
+}
+
+@media (max-width: 900px) {
+  .form-row-2col {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

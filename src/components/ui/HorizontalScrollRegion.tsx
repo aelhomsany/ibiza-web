@@ -18,7 +18,7 @@ export function HorizontalScrollRegion({
   labelledBy,
   testId,
 }: HorizontalScrollRegionProps) {
-  const { t, i18n } = useTranslation('layout')
+  const { t } = useTranslation('layout')
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (
@@ -34,9 +34,10 @@ export function HorizontalScrollRegion({
     }
 
     event.preventDefault()
+    // Physical mapping: ArrowRight always moves the view right. The standardized
+    // scrollLeft model (negative range in RTL) makes this correct in both directions.
     const physicalDirection = event.key === 'ArrowRight' ? 1 : -1
-    const logicalDirection = i18n.dir() === 'rtl' ? -physicalDirection : physicalDirection
-    region.scrollLeft += logicalDirection * KEYBOARD_SCROLL_STEP
+    region.scrollLeft += physicalDirection * KEYBOARD_SCROLL_STEP
   }
 
   return (

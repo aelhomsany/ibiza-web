@@ -79,7 +79,7 @@ describe('LoginPage', () => {
             user: {
               id: 2,
               email: 'riley@ibiza.app',
-              fullName: 'Riley Ops',
+              fullName: 'Riley Morgan',
               role: 'PLATFORM_ADMIN',
             },
             isAuthenticated: true,

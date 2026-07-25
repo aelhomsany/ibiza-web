@@ -13,7 +13,6 @@ import { useApproveRequest } from './useApproveRequest'
 import { useDeclineRequest } from './useDeclineRequest'
 import { usePendingApprovals } from './usePendingApprovals'
 import { useRecentApprovalDecisions } from './useRecentApprovalDecisions'
-import '../dashboard/dashboard.css'
 import './approvals.css'
 
 type DeclineTarget = {

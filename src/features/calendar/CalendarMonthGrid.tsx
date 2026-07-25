@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { CalendarMonthResponse, DayOfWeek } from '../../api/generated/types'
 import { chipColorStyle } from '../../utils/entityColor'
@@ -32,6 +33,10 @@ export function CalendarMonthGrid({
   const weekendDaySet = new Set(weekendDays)
   const cells = buildCalendarCells(month)
   const weekdayLetters = formatWeekdayLetters(locale)
+  const listFormatter = useMemo(
+    () => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }),
+    [locale],
+  )
 
   return (
     <div className="calendar-mini calendar-glass-card" data-testid="calendar-mini-month">
@@ -41,7 +46,7 @@ export function CalendarMonthGrid({
       <div
         className="calendar-mini-grid"
         data-testid="calendar-month-grid"
-        role="grid"
+        role="group"
         aria-labelledby="calendar-mini-title"
       >
         {weekdayLetters.map((letter, index) => (
@@ -72,8 +77,9 @@ export function CalendarMonthGrid({
             date: formatMonthDay(cell.date, locale),
             count: dayAbsences.length,
           })
-          const accessibleName = dayHolidays.length > 0
-            ? `${absenceLabel}, ${t('agenda.holidayCount', { count: dayHolidays.length })}`
+          const holidayNames = listFormatter.format(dayHolidays.map((holiday) => holiday.name))
+          const accessibleName = holidayNames
+            ? `${absenceLabel}, ${holidayNames}`
             : absenceLabel
           const colorStyle = dayAbsences.length > 0
             ? chipColorStyle(dayAbsences[0].userId) as CSSProperties

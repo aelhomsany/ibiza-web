@@ -23,13 +23,16 @@ test.describe('Platform create organization', { tag: [tags.regression, tags.api]
     await page.getByTestId('sign-in-submit').click()
 
     await expect(page).toHaveURL(/\/platform\/organizations$/)
-    await page.getByRole('button', { name: /^\+ Create Organization$/ }).first().click()
+    await page.getByRole('button', { name: /^Create Organization$/ }).first().click()
 
     await page.getByLabel('Organization name').fill(orgName)
     await page.getByLabel('Primary contact').fill('Fatima Hassan')
     await page.getByLabel('Initial HR Admin email').fill(hrEmail)
     await page.getByLabel('Subscription plan').selectOption('GROWTH')
-    await page.getByRole('button', { name: 'Create Organization' }).click()
+    await page
+      .getByRole('dialog', { name: 'Create Organization' })
+      .getByRole('button', { name: 'Create Organization' })
+      .click()
 
     await expect(page.getByRole('dialog', { name: 'Create Organization' })).toHaveCount(0)
     await expect(page.getByText(orgName)).toBeVisible()

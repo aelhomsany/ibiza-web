@@ -7,7 +7,6 @@ import { AuditHistoryExpander } from '../approvals/AuditHistoryExpander'
 import { LeaveTypeTag } from '../dashboard/LeaveTypeTag'
 import { formatDateRange } from '../dashboard/leaveRequestFormatting'
 import { useLeaveRequestContext } from './useLeaveRequestContext'
-import '../my-leaves/my-leaves.css'
 import './request-context.css'
 
 function parseRequestId(id: string | undefined): number | undefined {

@@ -59,7 +59,12 @@
     "employee": "Employee",
     "leaveType": "Leave type",
     "status": "Status",
-    "workingDays": "{{count}} working days"
+    "workingDays_zero": "No working days",
+    "workingDays_one": "{{count}} working day",
+    "workingDays_two": "{{count}} working days",
+    "workingDays_few": "{{count}} working days",
+    "workingDays_many": "{{count}} working days",
+    "workingDays_other": "{{count}} working days"
   },
   "title": "Approvals"
 }

@@ -38,7 +38,7 @@ describe('EditSubscriptionModal', () => {
 
     expect(screen.getByTestId('edit-subscription-modal')).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { name: 'Edit Subscription — Acme Corp' }),
+      screen.getByRole('heading', { name: 'Edit Subscription — Nile Harbor' }),
     ).toBeInTheDocument()
     expect(screen.getByTestId('edit-subscription-plan')).toHaveValue('INTERNAL')
     expect(screen.getByTestId('edit-subscription-billing-status')).toHaveValue('ACTIVE')

@@ -4,7 +4,6 @@ import { ApiError } from '../../api/client'
 import type { CreateOrganizationRequest } from '../../api/generated/types'
 import { Modal } from '../../components/ui/Modal'
 import { CloseIcon } from '../../components/ui/icons'
-import '../settings/team-members.css'
 import { useCreateOrganization } from './useCreateOrganization'
 
 type Props = {

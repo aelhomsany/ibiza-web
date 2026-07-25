@@ -60,7 +60,7 @@ describe('UserMenu ATDD — Story 9.3 profile image avatar', () => {
     renderUserMenu(
       'PLATFORM_ADMIN',
       'admin',
-      'Riley Ops',
+      'Riley Morgan',
       '/api/v1/users/me/profile-image/content?v=3',
     )
 

@@ -35,7 +35,12 @@ export function WorkforceGroupsWeekendsCard({
   })
 
   const groups = groupsQuery.data ?? []
-  const resolvedActiveGroupId = activeGroupId ?? groups[0]?.id ?? null
+  // Resolve against actual membership so a stale/not-yet-loaded activeGroupId (e.g. during
+  // the create-group refetch window) never leaves every tab with tabIndex={-1} and the
+  // tabpanel unmounted — exactly one tab must always be tabbable.
+  const resolvedActiveGroupId = groups.some((group) => group.id === activeGroupId)
+    ? activeGroupId
+    : groups[0]?.id ?? null
   const activeGroup = groups.find((group) => group.id === resolvedActiveGroupId) ?? null
 
   const activateTab = (groupId: number) => {

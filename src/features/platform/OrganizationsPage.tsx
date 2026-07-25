@@ -76,7 +76,7 @@ function OrganizationsTable({
   organizations: OrganizationSummaryResponse[]
   onEditSubscription: (organization: OrganizationSummaryResponse) => void
 }) {
-  const { t } = useTranslation('platform')
+  const { t, i18n } = useTranslation('platform')
   return (
     <section className="card table-wrap organizations-table-card" aria-labelledby="org-table-title">
       <div className="organizations-table-card__header">
@@ -107,7 +107,12 @@ function OrganizationsTable({
               </td>
               <td>
                 <span className={`plan-badge plan-${planClass(organization.plan)}`}>
-                  {t(`plans.${(organization.plan ?? 'FREE').toLowerCase()}`)}
+                  {(() => {
+                    const planKey = (organization.plan ?? 'FREE').toLowerCase()
+                    return i18n.exists(`plans.${planKey}`, { ns: 'platform' })
+                      ? t(`plans.${planKey}`)
+                      : organization.plan ?? t('plans.free')
+                  })()}
                 </span>
               </td>
               <td>

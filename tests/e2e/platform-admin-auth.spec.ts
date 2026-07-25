@@ -22,8 +22,8 @@ test.describe('Platform Admin authentication', { tag: [tags.smoke, tags.regressi
 
     await expect(page).toHaveURL(/\/platform\/organizations$/)
     await expect(page.getByTestId('admin-shell')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Organizations' })).toBeVisible()
-    await expect(page.getByText('Ibiza Admin')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Organizations', exact: true })).toBeVisible()
+    await expect(page.getByTestId('sidebar').getByText('Ibiza Admin')).toBeVisible()
     await expect(page.getByText('Platform Console')).toBeVisible()
     await expect(page.getByTestId('nav-organizations')).toBeVisible()
 

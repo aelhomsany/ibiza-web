@@ -105,52 +105,6 @@
 
 /* ---- Modal chrome lives in src/components/ui/modal.css (shared Modal component) ---- */
 
-/* ---- Form groups ---- */
-.form-group {
-  margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-foreground);
-}
-
-.form-group input,
-.form-group select {
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 8px 12px;
-  font-family: inherit;
-  font-size: 14px;
-  color: var(--color-foreground);
-  background: var(--color-white);
-  width: 100%;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: var(--color-teal);
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
-}
-
-.form-group .field-error {
-  font-size: 12px;
-  color: var(--color-danger);
-  margin-top: 2px;
-}
-
-/* ---- Two-column form row ---- */
-.form-row-2col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
 /* ---- Entitlement rows ---- */
 .entitlement-row {
   display: flex;
@@ -238,17 +192,4 @@
   .upgrade-prompt-actions {
     grid-template-columns: 1fr;
   }
-}
-
-/* ---- Card section header with CTA ---- */
-.card-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.card-section-title {
-  font-size: var(--font-card-title-size);
-  font-weight: var(--font-card-title-weight);
-  color: var(--color-foreground);
 }

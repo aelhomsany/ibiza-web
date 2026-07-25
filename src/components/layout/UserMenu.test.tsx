@@ -213,7 +213,7 @@ describe('UserMenu', () => {
   })
 
   it('[P1] admin variant omits My Requests and Settings', async () => {
-    renderUserMenu('PLATFORM_ADMIN', 'admin', 'Riley Ops')
+    renderUserMenu('PLATFORM_ADMIN', 'admin', 'Riley Morgan')
     await openMenu()
 
     expect(screen.getByTestId('user-menu-item-profile')).toBeInTheDocument()

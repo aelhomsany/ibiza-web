@@ -37,7 +37,7 @@ export function DeclineModal({
     <Modal
       labelledBy={titleId}
       onClose={onCancel}
-      className="decline-modal-panel"
+      className="decline-modal-panel modal-backdrop-accent"
       testId="decline-modal"
       closeOnBackdrop={false}
     >

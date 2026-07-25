@@ -134,6 +134,27 @@ describe('OrgShell ATDD — Story 10.7 mobile drawer focus and inert', () => {
     },
   )
 
+  test('[P0] wraps Tab from the hamburger back to the first sidebar link, and Shift+Tab back to the hamburger', async () => {
+    const user = userEvent.setup()
+    renderOrgShell()
+
+    const menu = screen.getByTestId('shell-topbar-menu')
+    await user.click(menu)
+    await screen.findByTestId('sidebar')
+
+    const firstNavLink = screen.getByTestId('nav-dashboard')
+    await waitFor(() => {
+      expect(firstNavLink).toHaveFocus()
+    })
+
+    menu.focus()
+    await user.tab()
+    expect(firstNavLink).toHaveFocus()
+
+    await user.tab({ shift: true })
+    expect(menu).toHaveFocus()
+  })
+
   test('[P1] clears the drawer and inert state when the viewport widens to desktop', async () => {
     const originalInnerWidth = window.innerWidth
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: 375 })

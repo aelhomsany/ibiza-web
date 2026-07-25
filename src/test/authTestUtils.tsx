@@ -9,7 +9,7 @@ export const mockUsers = {
     fullName: 'Sarah Chen',
     role: 'EMPLOYEE',
     organizationId: 1,
-    organizationName: 'Acme Corp',
+    organizationName: 'Nile Harbor',
     timezone: 'America/New_York',
     workforceGroupName: 'US',
   },
@@ -19,7 +19,7 @@ export const mockUsers = {
     fullName: 'Alex Johnson',
     role: 'MANAGER',
     organizationId: 1,
-    organizationName: 'Acme Corp',
+    organizationName: 'Nile Harbor',
     timezone: 'America/New_York',
   },
   hrAdmin: {
@@ -28,13 +28,13 @@ export const mockUsers = {
     fullName: 'Jordan Lee',
     role: 'HR_ADMIN',
     organizationId: 1,
-    organizationName: 'Acme Corp',
+    organizationName: 'Nile Harbor',
     timezone: 'America/New_York',
   },
   platformAdmin: {
     id: 99,
     email: 'riley@ibiza.app',
-    fullName: 'Riley Ops',
+    fullName: 'Riley Morgan',
     role: 'PLATFORM_ADMIN',
   },
 } as const satisfies Record<string, UserSummaryResponse>

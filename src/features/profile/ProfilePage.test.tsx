@@ -12,7 +12,7 @@ const mockUserWithImage = {
   fullName: 'Sarah Chen',
   role: 'EMPLOYEE' as const,
   organizationId: 1,
-  organizationName: 'Acme Corp',
+  organizationName: 'Nile Harbor',
   timezone: 'America/New_York',
   workforceGroupName: 'US',
   preferredLanguage: null,
@@ -112,7 +112,7 @@ describe('ProfilePage', () => {
   it('[P1] renders null-safe profile fields for platform admin', () => {
     renderProfilePage(createMockAuthForRole('PLATFORM_ADMIN'))
 
-    expect(screen.getByText('Riley Ops')).toBeInTheDocument()
+    expect(screen.getByText('Riley Morgan')).toBeInTheDocument()
     expect(screen.getByText('Platform Admin')).toBeInTheDocument()
     expect(screen.getAllByText('Not applicable')).toHaveLength(2)
     expect(screen.getByText('Not set')).toBeInTheDocument()

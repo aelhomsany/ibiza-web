@@ -211,8 +211,8 @@ describe('OrgShell', () => {
     renderOrgShell('EMPLOYEE')
 
     const context = screen.getByTestId('app-header-context')
-    expect(context).toHaveTextContent('Acme Corp')
-    expect(context).toHaveAttribute('title', 'Acme Corp')
+    expect(context).toHaveTextContent('Nile Harbor')
+    expect(context).toHaveAttribute('title', 'Nile Harbor')
   })
 
   it('[P0] renders user menu in the header and removes sidebar sign-out', async () => {

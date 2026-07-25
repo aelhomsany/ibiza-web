@@ -47,7 +47,7 @@ describe('CalendarMonthGrid', () => {
     const today = screen.getByTestId('calendar-day-2026-06-15')
     const weekend = screen.getByTestId('calendar-day-2026-06-14')
     const selectedHoliday = screen.getByRole('button', {
-      name: 'June 18, no absences, 1 holiday',
+      name: 'June 18, no absences, Founders Day',
     })
 
     expect(today).toHaveClass('calendar-mini-day', 'today')
@@ -83,8 +83,8 @@ describe('CalendarMonthGrid accessibility ATDD — Story 10.10', () => {
   test('[P1] exposes a labelled month grid with per-day accessible names', () => {
     renderGrid()
 
-    expect(screen.getByRole('grid', { name: /june 2026/i })).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: /june 2026/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /june 10, 1 absence/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /june 19, no absences, 1 holiday/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /june 19, no absences, founders day/i })).toBeInTheDocument()
   })
 })

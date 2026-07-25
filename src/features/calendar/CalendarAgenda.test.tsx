@@ -51,7 +51,7 @@ describe('CalendarAgenda', () => {
     const user = userEvent.setup()
     render(<AgendaHarness />)
 
-    await user.click(screen.getByRole('button', { name: /June 19, no absences, 1 holiday/i }))
+    await user.click(screen.getByRole('button', { name: /June 19, no absences, Founders Day/i }))
 
     expect(screen.getByRole('heading', { name: 'Friday, June 19' })).toBeInTheDocument()
     expect(screen.getByText('Founders Day — Public Holiday')).toBeInTheDocument()

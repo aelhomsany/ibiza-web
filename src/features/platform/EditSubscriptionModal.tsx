@@ -5,7 +5,6 @@ import type { OrganizationSummaryResponse, UpdateSubscriptionRequest } from '../
 import { DateField } from '../../components/DateField'
 import { Modal } from '../../components/ui/Modal'
 import { CloseIcon } from '../../components/ui/icons'
-import '../settings/team-members.css'
 import { useUpdateSubscription } from './useUpdateSubscription'
 
 type Props = {

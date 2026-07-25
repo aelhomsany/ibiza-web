@@ -8,7 +8,6 @@ import { CloseIcon } from '../../components/ui/icons'
 import { useToast } from '../../components/ui/useToast'
 import { isSupportedLocale } from '../../i18n/documentLanguage'
 import { ProfileAvatar } from './ProfileAvatar'
-import '../settings/group-tabs.css'
 import './profile-page.css'
 
 export function ProfilePage() {

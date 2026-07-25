@@ -2,7 +2,7 @@ import type { OrganizationSummaryResponse, UpdateSubscriptionRequest } from '../
 
 export const mockAcmeForEditSubscription: OrganizationSummaryResponse = {
   id: 1,
-  name: 'Acme Corp',
+  name: 'Nile Harbor',
   primaryContact: 'Jordan Lee',
   initialHrAdminEmail: 'jordan@company.com',
   plan: 'INTERNAL',

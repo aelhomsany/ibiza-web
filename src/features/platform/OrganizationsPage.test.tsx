@@ -65,7 +65,7 @@ describe('OrganizationsPage', () => {
     vi.mocked(apiClient.getPlatformOrganizations).mockResolvedValue([
       {
         id: 1,
-        name: 'Acme Corp',
+        name: 'Nile Harbor',
         primaryContact: 'Jordan Lee',
         initialHrAdminEmail: 'jordan@company.com',
         plan: 'INTERNAL',
@@ -90,7 +90,7 @@ describe('OrganizationsPage', () => {
     renderOrganizationsPage()
 
     expect(await screen.findByRole('heading', { name: 'All Organizations' })).toBeInTheDocument()
-    expect(screen.getByText('Acme Corp')).toBeInTheDocument()
+    expect(screen.getByText('Nile Harbor')).toBeInTheDocument()
     expect(screen.getByText('Jordan Lee · jordan@company.com')).toBeInTheDocument()
     expect(screen.getByText('Internal')).toHaveClass('plan-badge', 'plan-internal')
     expect(screen.getByText('6 / ∞')).toBeInTheDocument()
@@ -98,7 +98,7 @@ describe('OrganizationsPage', () => {
     expect(screen.getByText('1 / 200')).toBeInTheDocument()
     expect(screen.queryByText('AT LIMIT')).not.toBeInTheDocument()
     expect(screen.getByText('Suspended')).toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: /edit subscription.*(acme corp|nile tech)/i })).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: /edit subscription.*(nile harbor|nile tech)/i })).toHaveLength(2)
   })
 
   it('[P0] shows AT LIMIT only for limited-plan organizations at or above user limit', async () => {
@@ -214,12 +214,12 @@ describe('OrganizationsPage', () => {
 
     renderOrganizationsPage()
 
-    expect(await screen.findByText('Acme Corp')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: /edit subscription.*acme corp/i }))
+    expect(await screen.findByText('Nile Harbor')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /edit subscription.*nile harbor/i }))
 
     expect(screen.getByTestId('edit-subscription-modal')).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { name: 'Edit Subscription — Acme Corp' }),
+      screen.getByRole('heading', { name: 'Edit Subscription — Nile Harbor' }),
     ).toBeInTheDocument()
     expect(screen.getByTestId('edit-subscription-plan')).toHaveValue('INTERNAL')
     expect(screen.getByTestId('edit-subscription-billing-status')).toHaveValue('ACTIVE')
@@ -243,7 +243,7 @@ describe('OrganizationsPage accessibility ATDD — Story 10.10', () => {
     vi.mocked(apiClient.getPlatformOrganizations).mockResolvedValue([
       {
         id: 1,
-        name: 'Acme Corp',
+        name: 'Nile Harbor',
         primaryContact: 'Jordan Lee',
         initialHrAdminEmail: 'jordan@company.com',
         plan: 'INTERNAL',
@@ -268,7 +268,7 @@ describe('OrganizationsPage accessibility ATDD — Story 10.10', () => {
     renderOrganizationsPage()
 
     expect(
-      await screen.findByRole('button', { name: /edit subscription.*acme corp/i }),
+      await screen.findByRole('button', { name: /edit subscription.*nile harbor/i }),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /edit subscription.*nile tech/i }),

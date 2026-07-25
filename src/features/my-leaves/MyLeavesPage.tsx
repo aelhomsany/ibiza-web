@@ -14,7 +14,6 @@ import { RequestLeaveModal } from '../dashboard/RequestLeaveModal'
 import { formatDateRange } from '../dashboard/leaveRequestFormatting'
 import { useDashboardBalances } from '../dashboard/useDashboardBalances'
 import { useMyLeaveRequests } from './useMyLeaveRequests'
-import '../dashboard/dashboard.css'
 import './my-leaves.css'
 
 function HistoryStatusCell({ request }: { request: RecentRequestResponse }) {

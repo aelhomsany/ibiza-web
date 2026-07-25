@@ -59,7 +59,12 @@
     "employee": "الموظف",
     "leaveType": "نوع الإجازة",
     "status": "الحالة",
-    "workingDays": "أيام العمل: {{count}}"
+    "workingDays_zero": "لا توجد أيام عمل",
+    "workingDays_one": "يوم عمل واحد",
+    "workingDays_two": "يوما عمل",
+    "workingDays_few": "{{count}} أيام عمل",
+    "workingDays_many": "{{count}} يوم عمل",
+    "workingDays_other": "{{count}} يوم عمل"
   },
   "title": "الموافقات"
 }
