@@ -4,9 +4,68 @@
     "reviewNow": "مراجعة الآن"
   },
   "balance": {
-    "daysUsed": "أيام العمل المستخدمة: {{count}}",
+    "allocationLabel": "المتبقي {{remaining}} من أصل {{allocated}} يوم عمل مخصص",
+    "daysUsed_zero": "لم تُستخدم أيام عمل",
+    "daysUsed_one": "تم استخدام يوم عمل واحد",
+    "daysUsed_two": "تم استخدام يومي عمل",
+    "daysUsed_few": "تم استخدام {{count}} أيام عمل",
+    "daysUsed_many": "تم استخدام {{count}} يوم عمل",
+    "daysUsed_other": "أيام العمل المستخدمة: {{count}}",
     "left": "المتبقي: {{count}}",
-    "overLimit": "تجاوز الحد بمقدار {{count}}"
+    "overLimit": "تجاوز الحد بمقدار {{count}}",
+    "uncapped": "إجازة غير محدودة",
+    "usageLabel": "تم استخدام {{used}} من أصل {{allocated}} يوم عمل مخصص"
+  },
+  "balances": {
+    "empty": "لم تُخصّص لك أرصدة إجازات بعد.",
+    "eyebrow": "خطّط",
+    "loading": "جارٍ تحميل أرصدة إجازاتك…",
+    "summary": "تظهر أيام العمل المتبقية والمستخدمة والمخصصة معًا بوضوح.",
+    "title": "أرصدة إجازاتك"
+  },
+  "attention": {
+    "approvedTitle": "تمت الموافقة على طلبك الأخير",
+    "declinedTitle": "هناك طلب يحتاج إلى مراجعتك",
+    "emptyDescription": "خطة إجازاتك محدّثة. يمكنك بدء طلب عندما تحتاج إلى إجازة.",
+    "emptyTitle": "لا شيء يحتاج إلى انتباهك",
+    "errorDescription": "لا يزال بإمكانك الاطلاع على الأرصدة وتغطية الفريق أدناه.",
+    "errorTitle": "تعذر التحقق من خطوتك التالية",
+    "eyebrow": "خطوتك التالية",
+    "loadingApprovalsDescription": "جارٍ البحث عن الطلبات التي تحتاج إلى قرارك.",
+    "loadingApprovalsTitle": "جارٍ التحقق من الموافقات المعلّقة…",
+    "loadingRequestsDescription": "جارٍ البحث عن أهم تحديث في طلباتك.",
+    "loadingRequestsTitle": "جارٍ التحقق من حالة طلبك…",
+    "pendingApprovals_zero": "لا توجد موافقات معلّقة",
+    "pendingApprovals_one": "موافقة معلّقة واحدة",
+    "pendingApprovals_two": "موافقتان معلّقتان",
+    "pendingApprovals_few": "{{count}} موافقات معلّقة",
+    "pendingApprovals_many": "{{count}} موافقة معلّقة",
+    "pendingApprovals_other": "{{count}} موافقة معلّقة",
+    "pendingApprovalsDescription": "يساعد اتخاذ القرار على تحديث أرصدة الموظفين وخطط الفريق.",
+    "pendingRequestTitle": "طلب بانتظار الموافقة",
+    "requestDescription": "{{type}} · {{dates}}",
+    "requestDescriptionWithStatus": "{{type}} · {{dates}}. {{status}}",
+    "upcomingDescription": "تمت الموافقة على {{type}} لمدة {{days}}.",
+    "upcomingTitle": "تبدأ إجازتك في {{date}}",
+    "viewRequests": "عرض إجازاتي"
+  },
+  "coverage": {
+    "eyebrow": "تابع",
+    "loading": "جارٍ تحديث تغطية الفريق…",
+    "loadingToday": "جارٍ تحميل غيابات الفريق اليوم…",
+    "loadingUpcoming": "جارٍ تحميل غيابات الفريق القادمة…",
+    "nextThirtyDays": "الثلاثون يومًا القادمة",
+    "offState_zero": "لا أحد مسجل في إجازة اليوم.",
+    "offState_one": "هناك عضو واحد في الفريق مسجل في إجازة اليوم.",
+    "offState_two": "هناك عضوان في الفريق مسجلان في إجازة اليوم.",
+    "offState_few": "هناك {{count}} أعضاء في الفريق مسجلون في إجازة اليوم.",
+    "offState_many": "هناك {{count}} عضوًا في الفريق مسجلون في إجازة اليوم.",
+    "offState_other": "هناك {{count}} عضو في الفريق مسجلون في إجازة اليوم.",
+    "offToday": "في إجازة اليوم",
+    "partial": "بعض بيانات التغطية غير متاحة؛ تظهر الحقائق المتوفرة.",
+    "summaryLabel": "ملخص تغطية الفريق",
+    "title": "تغطية الفريق",
+    "workingFromHomeToday": "يعملون من المنزل اليوم"
   },
   "errors": {
     "balances": "تعذر تحميل أرصدة إجازاتك.",
@@ -21,9 +80,10 @@
     "morning": "صباح الخير"
   },
   "nameFallback": "بك",
-  "pendingApprovals": "الموافقات المعلّقة: {{count}}",
   "recent": {
-    "empty": "لا توجد طلبات إجازة بعد",
+    "empty": "سيظهر طلبك الأول ونتيجة أيام العمل الخاصة به هنا.",
+    "emptyTitle": "لا توجد طلبات إجازة بعد",
+    "eyebrow": "اتخذ إجراءً وتابع",
     "loading": "جارٍ تحميل الطلبات الأخيرة…",
     "title": "طلباتي الأخيرة"
   },
@@ -52,7 +112,8 @@
       "dateRange": "يجب أن يكون تاريخ الانتهاء في تاريخ البدء أو بعده",
       "excluded": "أيام نهاية الأسبوع أو العطلات المستبعدة من الرصيد: {{count}}",
       "selectDates": "اختر التواريخ لعرض أيام العمل",
-      "zero": "لا توجد أيام عمل في النطاق المحدد لمجموعة عمل {{name}}"
+      "zero": "لا توجد أيام عمل في النطاق المحدد لمجموعة عمل {{name}}",
+      "zeroResult": "لا توجد أيام عمل"
     },
     "success": "تم إرسال طلب الإجازة — في انتظار الموافقة",
     "title": "طلب إجازة"
@@ -65,7 +126,12 @@
     "upcoming": "الإجازات القادمة",
     "workingDays": "{{count}} يوم عمل"
   },
-  "subtitle": "إليك نظرة عامة على إجازاتك",
+  "statusHints": {
+    "approved": "تمت الموافقة",
+    "approvedBy": "وافق عليه {{name}}",
+    "pending": "بانتظار الموافقة"
+  },
+  "subtitle": "خطّط لإجازتك، وافهم ما يُحتسب، واعرف ما يحتاج إلى إجراء.",
   "title": "لوحة المعلومات",
   "table": {
     "dates": "التواريخ",
@@ -73,5 +139,26 @@
     "status": "الحالة",
     "type": "النوع",
     "working": "عمل"
+  },
+  "valueProof": {
+    "details": "كيف يتم هذا الحساب",
+    "educationEyebrow": "دليل احتساب أيام العمل",
+    "educationResult": "أيام العمل محسوبة بوضوح",
+    "educationSummary": "يستبعد Ibiza عطلات نهاية الأسبوع والعطلات الرسمية المحددة لمجموعة عملك قبل الخصم من الرصيد. ابدأ طلب إجازة لرؤية نتيجتك المباشرة.",
+    "error": "تعذر تحميل أحدث نتيجة لأيام العمل. حاول مرة أخرى من دون فقدان بقية لوحة المعلومات.",
+    "eyebrow": "افهم",
+    "latestEyebrow": "نتيجة محفوظة من طلبك الأخير",
+    "loading": "جارٍ تحميل أحدث نتيجة لأيام العمل…",
+    "policy": "مصدر السياسة: مجموعة عمل {{group}}",
+    "policyFallback": "مصدر السياسة: مجموعة عملك",
+    "requestContext": "{{type}} · {{dates}}. هذه هي النتيجة المحفوظة لذلك الطلب.",
+    "requestContextWithHint": "{{type}} · {{dates}}. {{hint}}",
+    "title": "وضوح أيام العمل",
+    "workingDays_zero": "لا توجد أيام عمل",
+    "workingDays_one": "يوم عمل واحد",
+    "workingDays_two": "يوما عمل",
+    "workingDays_few": "{{count}} أيام عمل",
+    "workingDays_many": "{{count}} يوم عمل",
+    "workingDays_other": "{{count}} يوم عمل"
   }
 }

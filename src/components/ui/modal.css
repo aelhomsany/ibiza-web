@@ -4,7 +4,7 @@
   /* The global `* { margin: 0 }` reset kills the UA margin:auto that centers
      a native <dialog>; restore it so every modal is viewport-centered. */
   margin: auto;
-  background: var(--color-white);
+  background: var(--color-surface-card);
   border: none;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-modal);
@@ -13,7 +13,7 @@
   max-width: 95vw;
   max-height: 90vh;
   overflow-y: auto;
-  color: var(--color-foreground);
+  color: var(--color-text-primary);
 }
 
 .modal::backdrop {
@@ -32,13 +32,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-block-end: var(--space-xl);
 }
 
 .modal-title {
   font-size: 16px;
   font-weight: 700;
-  color: var(--color-foreground);
+  color: var(--color-text-primary);
 }
 
 .modal-close {
@@ -46,27 +46,37 @@
   border: none;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
-  color: var(--color-muted);
+  color: var(--color-text-secondary);
   line-height: 1;
+  min-width: var(--min-touch-target);
+  min-height: var(--min-touch-target);
   padding: 8px;
 }
 
 .modal-close:hover {
-  color: var(--color-foreground);
+  color: var(--color-text-primary);
 }
 
 .modal-close:focus-visible {
   outline: none;
   border-radius: var(--radius-sm);
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+@media (forced-colors: active) {
+  .modal-close:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
 }
 
 .modal-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--color-border-light);
+  justify-content: end;
+  gap: var(--space-md);
+  margin-block-start: var(--space-2xl);
+  padding-block-start: var(--space-lg);
+  border-block-start: 1px solid var(--color-border-default);
 }

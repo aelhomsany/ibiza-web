@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import type {
@@ -8,9 +9,11 @@ import type {
   LeaveTypeResponse,
   PreviewLeaveRequestResponse,
   RecentRequestResponse,
+  UserRole,
 } from '../../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
 import { ToastProvider } from '../../components/ui/ToastProvider'
+import i18n from '../../i18n/config'
 import { MyLeavesPage } from './MyLeavesPage'
 
 const mockBalances: BalanceCardResponse[] = [
@@ -125,7 +128,10 @@ const mockCreateResponse = {
   createdAt: '2026-06-13T10:00:00Z',
 }
 
-function renderMyLeavesPage() {
+function renderMyLeavesPage(
+  initialPath = '/my-leaves',
+  role: UserRole = 'EMPLOYEE',
+) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -134,13 +140,15 @@ function renderMyLeavesPage() {
   })
 
   return render(
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <AuthTestProvider value={createMockAuthForRole('EMPLOYEE')}>
-          <MyLeavesPage />
-        </AuthTestProvider>
-      </ToastProvider>
-    </QueryClientProvider>,
+    <MemoryRouter initialEntries={[initialPath]}>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <AuthTestProvider value={createMockAuthForRole(role)}>
+            <MyLeavesPage />
+          </AuthTestProvider>
+        </ToastProvider>
+      </QueryClientProvider>
+    </MemoryRouter>,
   )
 }
 
@@ -154,8 +162,11 @@ async function setLeaveDates(from: string, to: string) {
 }
 
 describe('MyLeavesPage', () => {
-  afterEach(() => {
+  afterEach(async () => {
     vi.restoreAllMocks()
+    if (i18n.language !== 'en') {
+      await act(() => i18n.changeLanguage('en'))
+    }
   })
 
   it('[P1] announces balance and history loading via role=status', () => {
@@ -176,6 +187,33 @@ describe('MyLeavesPage', () => {
     ).toHaveAttribute('aria-busy', 'true')
   })
 
+  it('[P1] keeps balance and history errors adjacent and retries each region', async () => {
+    vi.spyOn(apiClient, 'getDashboardBalances')
+      .mockRejectedValueOnce(new Error('balances unavailable'))
+      .mockResolvedValue(mockBalances)
+    vi.spyOn(apiClient, 'getMyLeaveRequests')
+      .mockRejectedValueOnce(new Error('history unavailable'))
+      .mockResolvedValue(mockHistory)
+    const user = userEvent.setup()
+
+    renderMyLeavesPage()
+
+    const balancesError = await screen.findByTestId('my-leaves-balances-error')
+    const historyError = await screen.findByTestId('my-leaves-history-error')
+    expect(within(balancesError).getByRole('alert')).toHaveTextContent(
+      'Unable to load your leave balances',
+    )
+    expect(within(historyError).getByRole('alert')).toHaveTextContent(
+      'Unable to load your leave history',
+    )
+
+    await user.click(within(balancesError).getByRole('button', { name: 'Retry' }))
+    await user.click(within(historyError).getByRole('button', { name: 'Retry' }))
+
+    expect(await screen.findByTestId('my-leaves-balance-grid')).toBeInTheDocument()
+    expect(await screen.findByTestId('my-leaves-request-row-3')).toBeInTheDocument()
+  })
+
   it('renders the page full-bleed (page-wide) like Settings', async () => {
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
     vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
@@ -185,15 +223,19 @@ describe('MyLeavesPage', () => {
     expect(screen.getByTestId('my-leaves-page')).toHaveClass('page', 'page-wide')
   })
 
-  it('[P1] balance grid precedes history table in document order', async () => {
+  it('[P0] renders balances, stored-result explainer, filters, and history in task order', async () => {
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
     vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
 
     renderMyLeavesPage()
 
     const balanceGrid = await screen.findByTestId('my-leaves-balance-grid')
+    const explainer = screen.getByTestId('my-leaves-request-explainer')
+    const filters = screen.getByTestId('my-leaves-status-filter')
     const historyTable = await screen.findByTestId('my-leaves-history-table')
-    expect(balanceGrid.compareDocumentPosition(historyTable) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(balanceGrid.compareDocumentPosition(explainer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(explainer.compareDocumentPosition(filters) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(filters.compareDocumentPosition(historyTable) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   it('[P1] renders mirrored balance grid and full personal history', async () => {
@@ -216,18 +258,88 @@ describe('MyLeavesPage', () => {
     expect(screen.getByTestId('my-leaves-request-row-1')).toHaveTextContent('Pending')
   })
 
+  it('[P1] preserves the HR audit column while personal-history filters are active', async () => {
+    vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
+
+    renderMyLeavesPage('/my-leaves?status=DECLINED', 'HR_ADMIN')
+
+    const historyRegion = await screen.findByTestId('my-leaves-history-table')
+    expect(within(historyRegion).getByRole('columnheader', { name: 'Audit' }))
+      .toBeInTheDocument()
+    expect(screen.getByTestId('audit-history-expander-2')).toBeInTheDocument()
+    expect(screen.queryByTestId('my-leaves-request-row-1')).not.toBeInTheDocument()
+  })
+
   it('[P1] shows status hints and declined reason verbatim', async () => {
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
     vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
 
     renderMyLeavesPage()
 
-    await waitFor(() => {
-      expect(screen.getByText('Waiting for approval')).toBeInTheDocument()
-    })
+    const pendingRow = await screen.findByTestId('my-leaves-request-row-1')
+    expect(within(pendingRow).getByText('Waiting for approval')).toBeInTheDocument()
 
-    expect(screen.getByText('Approved by Alex')).toBeInTheDocument()
-    expect(screen.getByText(/Team needs in-office coverage for sprint review/)).toBeInTheDocument()
+    const approvedRow = screen.getByTestId('my-leaves-request-row-3')
+    expect(within(approvedRow).getByText('Approved by Alex')).toBeInTheDocument()
+
+    const declinedRow = screen.getByTestId('my-leaves-request-row-2')
+    expect(
+      within(declinedRow).getByText(/Team needs in-office coverage for sprint review/),
+    ).toBeInTheDocument()
+  })
+
+  it('[P0] exposes the same primary facts in task-preserving mobile cards', async () => {
+    vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
+
+    renderMyLeavesPage()
+
+    const mobileCard = await screen.findByTestId('my-leaves-request-card-2')
+    expect(mobileCard).toHaveTextContent('Sick Leave')
+    expect(mobileCard).toHaveTextContent('Jun 12, 2026')
+    expect(mobileCard).toHaveTextContent('1 working day')
+    expect(mobileCard).toHaveTextContent('Declined')
+    expect(mobileCard).toHaveTextContent(
+      'Team needs in-office coverage for sprint review',
+    )
+    expect(within(mobileCard).getByRole('button', { name: /Details for Sick Leave/i }))
+      .toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('[P0] expands stored working-day context without inventing per-date evidence', async () => {
+    vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
+    const user = userEvent.setup()
+
+    renderMyLeavesPage()
+
+    const row = await screen.findByTestId('my-leaves-request-row-2')
+    await user.click(within(row).getByRole('button', { name: /Details for Sick Leave/i }))
+
+    const details = await screen.findByTestId('my-leaves-request-details-2')
+    expect(details).toHaveTextContent('1 working day')
+    expect(details).toHaveTextContent('Workforce Group on your profile: US')
+    expect(details).toHaveTextContent(
+      'Individual charged and excluded dates were not returned',
+    )
+    expect(within(details).queryByTestId('working-day-chips')).not.toBeInTheDocument()
+  })
+
+  it('[P0] localizes structured status hints instead of rendering raw server English', async () => {
+    await act(() => i18n.changeLanguage('ar'))
+    vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
+
+    renderMyLeavesPage()
+
+    const pendingRow = await screen.findByTestId('my-leaves-request-row-1')
+    expect(pendingRow).toHaveTextContent('بانتظار الموافقة')
+    expect(pendingRow).not.toHaveTextContent('Waiting for approval')
+
+    const approvedRow = screen.getByTestId('my-leaves-request-row-3')
+    expect(approvedRow).toHaveTextContent('وافق عليه Alex')
+    expect(approvedRow).not.toHaveTextContent('Approved by Alex')
   })
 
   it('[P1] shows empty state while keeping Request Leave CTA available', async () => {

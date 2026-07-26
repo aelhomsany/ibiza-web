@@ -15,6 +15,13 @@
         "[P1] Manager declines a pending row and it disappears from the inbox"
       ]
     },
+    "approval-decision-confidence.spec.ts::Approval decision confidence — Story 11.4": {
+      "tags": ["@regression", "@api", "@story-11-4"],
+      "tests": [
+        "[P1] Given a pending card at 390px, When Approvals renders, Then Approve and Decline are visible without page overflow",
+        "[P0] Given Decline on an Approval card, When the modal opens, Then it names requester and date range and blocks empty reason"
+      ]
+    },
     "approval-decisions-visibility.spec.ts::Approval visibility — Story 3.8": {
       "tags": ["@regression", "@api"],
       "tests": ["[P2] Manager sees Approvals badge and dashboard Review Now link"]
@@ -88,6 +95,14 @@
       "tags": ["@regression", "@api"],
       "tests": ["[P2] Employee sees My Leaves balances, history, and shared request CTA"]
     },
+    "my-leaves-findability.spec.ts::My Leaves findability — Story 11.3": {
+      "tags": ["@regression", "@api", "@story-11-3"],
+      "tests": [
+        "[P1] Given filters with no match, Clear Filters restores the list",
+        "[P0] Given q and status in the URL, When My Leaves loads, Then filters restore and results compose",
+        "[P0] My Leaves preserves cards/table containment across the required viewport matrix"
+      ]
+    },
     "notification-bell.spec.ts::Notification bell — Story 5.1 / 7.11": {
       "tags": ["@regression", "@api"],
       "tests": ["[P1] Org user opens notification panel from bell"]
@@ -118,14 +133,24 @@
         "[P0] Dashboard has no page-level overflow at 390px",
         "[P0] Dashboard has no page-level overflow at 901px",
         "[P0] Settings Workforce Group navigation is fully reachable at 390px",
-        "[P1] Dashboard recent-requests trailing column is keyboard-reachable at 390px"
+        "[P1] Dashboard recent requests preserve primary facts in cards at 390px",
+        "[P1] Dashboard recent requests keep the trailing desktop column keyboard-reachable"
+      ]
+    },
+    "visual-foundation-overflow.spec.ts::Visual foundation overflow — Story 11.1": {
+      "tags": ["@regression", "@api", "@story-11-1"],
+      "tests": [
+        "[P0] Dashboard has no page-level overflow at 768px",
+        "[P0] Dashboard has no page-level overflow at 900px",
+        "[P0] Dashboard has no page-level overflow at 1280px",
+        "[P0] Dashboard has no page-level overflow at 1440px"
       ]
     },
     "responsive-tables.spec.ts::Responsive tables — Story 10.3": {
       "tags": ["@regression", "@api"],
       "tests": [
         "[P0] Dashboard recent requests scroll inside the table wrapper at 375px",
-        "[P0] My Leaves history scrolls inside the table wrapper at 375px",
+        "[P0] My Leaves history uses task cards without page overflow at 375px",
         "[P0] Approvals recent decisions expose the decision date at 375px"
       ]
     },

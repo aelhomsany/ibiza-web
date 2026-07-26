@@ -60,7 +60,7 @@ export function RecentDecisionRow({ decision, showAuditHistory = false }: Recent
       <td>{formatDecisionDate(decision.decidedAt ?? '', i18n.language)}</td>
       {showAuditHistory ? (
         <td>
-          <AuditHistoryExpander requestId={requestId} />
+          <AuditHistoryExpander requestId={requestId} employeeName={employeeName} />
         </td>
       ) : null}
     </tr>

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, test, vi } from 'vitest'
 import type { PendingApprovalResponse } from '../../api/generated/types'
-import { ApprovalRow } from './ApprovalRow'
+import { ApprovalCard } from './ApprovalCard'
 
 const approval: PendingApprovalResponse = {
   requestId: 101,
@@ -19,11 +19,12 @@ const approval: PendingApprovalResponse = {
   note: null,
 }
 
-describe('ApprovalRow query feedback ATDD — Story 10.8', () => {
+describe('ApprovalCard query feedback ATDD — Story 10.8 / 11.4', () => {
   test('[P1] identifies only the pending approval action as busy while disabling both row actions', () => {
     render(
-      <ApprovalRow
+      <ApprovalCard
         approval={approval}
+        coverage={{ isLoading: false, isPartial: false, overlappingStarts: 0 }}
         isApproving
         onApprove={vi.fn()}
         onDecline={vi.fn()}
@@ -38,8 +39,9 @@ describe('ApprovalRow query feedback ATDD — Story 10.8', () => {
 
   test('[P1][Story 10.10] qualifies repeated approval actions with the employee name', () => {
     render(
-      <ApprovalRow
+      <ApprovalCard
         approval={approval}
+        coverage={{ isLoading: false, isPartial: false, overlappingStarts: 0 }}
         onApprove={vi.fn()}
         onDecline={vi.fn()}
       />,

@@ -1,52 +1,56 @@
 .balance-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr));
   gap: var(--space-lg);
-  margin-block-end: var(--space-section-gap);
 }
 
 .balance-card {
+  min-width: 0;
   border-radius: var(--radius-lg);
   padding: var(--space-card-padding);
   border: 1px solid;
   position: relative;
-  overflow: hidden;
-  --balance-accent: var(--color-teal);
-  --balance-tag-fg: var(--color-teal);
+  --balance-accent: var(--color-data-ocean);
+  --balance-tag-fg: var(--color-text-primary);
 }
 
 .balance-icon {
-  font-size: 26px;
-  margin-bottom: 10px;
+  font-size: var(--font-page-title-size-narrow);
+  margin-block-end: var(--space-sm);
 }
 
 .balance-label {
+  max-width: calc(100% - 64px);
+  margin-block-end: var(--space-xs);
+  color: var(--color-text-secondary);
   font-size: var(--font-caption-size);
-  color: var(--color-muted);
-  margin-bottom: 4px;
+  line-height: var(--font-caption-line-height);
 }
 
 .balance-value {
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1;
+  font-size: var(--font-metric-size);
+  font-weight: var(--font-metric-weight);
+  line-height: var(--font-metric-line-height);
+  letter-spacing: var(--font-metric-letter-spacing);
+  font-variant-numeric: tabular-nums;
 }
 
 .balance-total {
   font-size: var(--font-body-size);
   font-weight: 400;
-  color: var(--color-muted-foreground);
+  color: var(--color-text-secondary);
 }
 
 .balance-bar-bg {
-  background: var(--color-mist);
+  height: 6px;
+  margin-block-start: var(--space-md);
+  overflow: hidden;
   border-radius: var(--radius-full);
-  height: 5px;
-  margin-top: 12px;
+  background: var(--color-surface-card);
 }
 
 .balance-bar {
-  height: 5px;
+  height: 100%;
   border-radius: var(--radius-full);
   transition: width 0.4s;
   background-color: var(--balance-accent);
@@ -56,29 +60,46 @@
   background-color: var(--color-danger);
 }
 
+.balance-used,
+.balance-uncapped {
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  line-height: var(--font-caption-line-height);
+}
+
 .balance-used {
-  font-size: 12px;
-  color: var(--color-muted-foreground);
-  margin-top: 4px;
+  margin-block-start: var(--space-xs);
+}
+
+.balance-uncapped {
+  margin-block-start: var(--space-md);
+  color: var(--color-working-policy);
+  font-weight: var(--font-label-weight);
 }
 
 .balance-tag {
   position: absolute;
-  top: 14px;
+  inset-block-start: var(--space-md);
   inset-inline-end: var(--space-lg);
-  font-size: 12px;
+  max-width: calc(100% - 56px);
+  font-size: var(--font-caption-size);
   font-weight: 700;
-  padding: 2px 8px;
+  line-height: var(--font-caption-line-height);
+  padding-block: 2px;
+  padding-inline: var(--space-sm);
   border-radius: var(--radius-full);
 }
 
 .balance-tag--remaining {
-  background-color: var(--color-mist);
-  background-color: color-mix(in srgb, var(--balance-tag-fg) 13%, var(--color-white));
+  background-color: color-mix(
+    in srgb,
+    var(--balance-tag-fg) 13%,
+    var(--color-surface-card)
+  );
   color: var(--balance-tag-fg);
 }
 
 .balance-tag--overdraft {
-  background-color: var(--color-declined-bg);
-  color: var(--color-declined-fg);
+  background-color: var(--color-status-declined-bg);
+  color: var(--color-status-declined-fg);
 }

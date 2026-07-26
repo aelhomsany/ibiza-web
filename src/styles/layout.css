@@ -1,10 +1,17 @@
 .page {
   padding: var(--space-page);
   max-width: var(--layout-content-max-width);
-  margin: 0 auto;
+  margin-block: 0;
+  margin-inline: auto;
 }
 
 /* Full-bleed pages use the entire content area instead of the centered column. */
 .page-wide {
   max-width: none;
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: var(--space-page-mobile);
+  }
 }

@@ -65,6 +65,7 @@
 
 .auth-input {
   width: 100%;
+  min-height: var(--min-touch-target);
   padding: 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -75,16 +76,17 @@
   box-sizing: border-box;
 }
 
-.auth-input:focus {
-  outline: none;
-  border-color: var(--color-teal);
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
-}
-
 .auth-input:focus-visible {
   outline: none;
   border-color: var(--color-teal);
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+@media (forced-colors: active) {
+  .auth-input:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
 }
 
 .btn-block {
@@ -101,16 +103,17 @@
   text-decoration: none;
 }
 
-.auth-link:focus {
+.auth-link:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  box-shadow: var(--shadow-focus-ring);
   border-radius: var(--radius-sm);
 }
 
-.auth-link:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
-  border-radius: var(--radius-sm);
+@media (forced-colors: active) {
+  .auth-link:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
 }
 
 .auth-error {

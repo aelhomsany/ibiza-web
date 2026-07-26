@@ -1316,6 +1316,14 @@ export interface components {
             workingDays?: number;
             note?: string;
             workforceGroupName?: string;
+            weekendDays?: string[];
+            balanceCapped?: boolean;
+            /** Format: int32 */
+            balanceRemaining?: number;
+            /** Format: int32 */
+            balanceAfterApproval?: number;
+            balanceSufficient?: boolean;
+            submittedAt?: string;
             decidedOnBehalf?: boolean;
             nominalManagerFirstName?: string;
         };
@@ -2610,7 +2618,22 @@ export type NotificationResponse = RequiredSchema<"NotificationResponse">;
 export type OrganizationSummaryResponse = RequiredSchema<"OrganizationSummaryResponse">;
 export type OutTodayResponse = RequiredSchema<"OutTodayResponse">;
 export type PendingApprovalCountResponse = RequiredSchema<"PendingApprovalCountResponse">;
-export type PendingApprovalResponse = RequiredSchema<"PendingApprovalResponse">;
+export type PendingApprovalResponse = Omit<
+    RequiredSchema<"PendingApprovalResponse">,
+    | "weekendDays"
+    | "balanceCapped"
+    | "balanceRemaining"
+    | "balanceAfterApproval"
+    | "balanceSufficient"
+    | "submittedAt"
+> & {
+    weekendDays?: string[];
+    balanceCapped?: boolean | null;
+    balanceRemaining?: number | null;
+    balanceAfterApproval?: number | null;
+    balanceSufficient?: boolean | null;
+    submittedAt?: string | null;
+};
 export type PreviewLeaveRequestRequest = components["schemas"]["PreviewLeaveRequestRequest"];
 export type PreviewLeaveRequestResponse = RequiredSchema<"PreviewLeaveRequestResponse">;
 export type ProblemDetail = {

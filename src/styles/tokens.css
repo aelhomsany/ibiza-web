@@ -1,75 +1,179 @@
 :root {
-  /* Palette */
-  --color-mist: #ECF4E8;
-  --color-sage: #CBF3BB;
-  --color-mint: #ABE7B2;
-  --color-teal: #093C5D;
-  --color-primary: #093C5D;
-  --color-primary-hover: #0E4F75;
-  --color-primary-foreground: #ECF4E8;
-  --color-background: #ECF4E8;
-  --color-foreground: #2D4A4F;
+  /* Coastal Clarity — semantic color foundation (DESIGN.md, 2026-07-25). */
+  --color-brand-navy: #0A3C49;
+  --color-brand-ocean: #0C5961;
+  --color-brand-seafoam: #9FE1C8;
+  --color-brand-mist: #F2F7F4;
+  --color-brand-warm-white: #FFFEFB;
+
+  --color-surface-canvas: #F2F7F4;
+  --color-surface-card: #FFFEFB;
+  --color-surface-subtle: #E8F4EF;
+  --color-surface-selected: #DFF3EC;
+  --color-surface-disabled: #EEF2EF;
+
+  --color-text-primary: #133B45;
   /* Muted text shades — both must stay ≥4.5:1 on white, mist, and sage-tint (WCAG AA). */
-  --color-muted: #4F6D75;
-  --color-muted-foreground: #52717A;
-  --color-white: #FFFFFF;
-  --color-border: #B8DCC4;
-  --color-border-light: #D8ECD8;
-  --color-sidebar: #093C5D;
-  --color-sidebar-border: #062A42;
-  --color-sidebar-deep: #062A42;
-  --color-success: #7BC98A;
-  --color-warning: #FEF9C3;
-  --color-danger: #EF4444;
-  --color-approved-bg: #CBF3BB;
-  --color-approved-fg: #2D4A4F;
-  --color-pending-bg: #FEF9C3;
-  --color-pending-fg: #854D0E;
-  --color-declined-bg: #FEE2E2;
-  --color-declined-fg: #991B1B;
-  --color-holiday-bg: #E4F5DC;
+  --color-text-secondary: #526B70;
+  --color-text-inverse: #FFFFFF;
+  --color-text-disabled: #70837F;
+
+  --color-border-default: #D7E5DF;
+  --color-border-strong: #9AB4AA;
+
+  --color-action-primary: #073D48;
+  --color-action-primary-hover: #0C5961;
+  --color-action-primary-foreground: #FFFFFF;
+  --color-action-secondary: #DFF3EC;
+  --color-action-secondary-foreground: #073D48;
+
+  --color-focus-inner: #FFFFFF;
+  --color-focus-outer: #073D48;
+
+  --color-working-charged: #0C5961;
+  --color-working-charged-foreground: #FFFFFF;
+  --color-working-excluded: #EEF2EF;
+  --color-working-excluded-foreground: #526B70;
+  --color-working-policy: #275F55;
+
+  --color-status-approved-bg: #DCEFE1;
+  --color-status-approved-fg: #2F6E50;
+  --color-status-pending-bg: #F8E6BD;
+  --color-status-pending-fg: #83552B;
+  --color-status-declined-bg: #FBE3DF;
+  --color-status-declined-fg: #8B302B;
+  --color-status-risk-bg: #FAE6E0;
+  --color-status-risk-fg: #8B302B;
+
+  --color-error-bg: #FBE3DF;
+  --color-error-fg: #8B302B;
+  --color-error-border: #B9473F;
+
+  --color-holiday-bg: #E1F2EA;
   /* Holiday text sits on holiday-bg — keep ≥4.5:1 against it (WCAG AA). */
-  --color-holiday-fg: #3E6773;
-  --color-admin-accent: #ABE7B2;
-  --color-admin-shell: #062A42;
-  --color-teal-tint: #D6E8ED;
-  --color-mint-tint: #D8F5DC;
-  --color-sage-tint: #E4F5DC;
-  --color-mist-soft: #F2F8EE;
-  --color-mist-deep: #E2F0DF;
+  --color-holiday-fg: #275F55;
+
+  --color-auth-proof-glow: #C8EEE0;
+  --color-auth-proof-start: #F7F8F2;
+  --color-auth-proof-end: #EDF5F1;
+
+  --color-nav-background: #0A3C49;
+  --color-nav-foreground: #D8EEE7;
+  --color-nav-active-background: #DFF3EC;
+  --color-nav-active-foreground: #073D48;
+
+  --color-data-ocean: #3A91AA;
+  --color-data-ocean-tint: #E2F1F4;
+  --color-data-rose: #C75D6F;
+  --color-data-rose-tint: #FAE9EA;
+  --color-data-mint: #4A9674;
+  --color-data-mint-tint: #E4F4E9;
+  --color-data-sun: #B47B34;
+  --color-data-sun-tint: #F7EDD9;
+
+  /* Compatibility aliases keep pre-11.1 feature composition stable while
+     shared foundations and future stories migrate to semantic names. */
+  --color-mist: var(--color-surface-canvas);
+  --color-sage: var(--color-nav-foreground);
+  --color-mint: var(--color-brand-seafoam);
+  --color-teal: var(--color-nav-background);
+  --color-primary: var(--color-action-primary);
+  --color-primary-hover: var(--color-action-primary-hover);
+  --color-primary-foreground: var(--color-action-primary-foreground);
+  --color-background: var(--color-surface-canvas);
+  --color-foreground: var(--color-text-primary);
+  --color-muted: var(--color-text-secondary);
+  --color-muted-foreground: var(--color-text-secondary);
+  --color-white: var(--color-surface-card);
+  --color-border: var(--color-border-strong);
+  --color-border-light: var(--color-border-default);
+  --color-sidebar: var(--color-nav-background);
+  --color-sidebar-border: var(--color-action-primary);
+  --color-sidebar-deep: var(--color-action-primary);
+  --color-success: var(--color-data-mint);
+  --color-warning: var(--color-status-pending-bg);
+  --color-danger: var(--color-error-border);
+  --color-approved-bg: var(--color-status-approved-bg);
+  --color-approved-fg: var(--color-status-approved-fg);
+  --color-pending-bg: var(--color-status-pending-bg);
+  --color-pending-fg: var(--color-status-pending-fg);
+  --color-declined-bg: var(--color-status-declined-bg);
+  --color-declined-fg: var(--color-status-declined-fg);
+  --color-admin-accent: var(--color-brand-seafoam);
+  --color-admin-shell: var(--color-action-primary);
+  --color-teal-tint: var(--color-surface-selected);
+  --color-mint-tint: var(--color-data-mint-tint);
+  --color-sage-tint: var(--color-surface-subtle);
+  --color-mist-soft: var(--color-surface-subtle);
+  --color-mist-deep: var(--color-surface-selected);
   --color-surface-muted: #EEF2F4;
-  --color-sage-strong: #4C8A57;
+  --color-sage-strong: var(--color-data-mint);
   --color-holiday-highlight: #FDE68A;
   --color-holiday-accent: #F59E0B;
   --color-holiday-strong: #B45309;
   --color-holiday-ink: #854D0E;
+
+  /* Specialized calendar transparency remains token-owned until Story 11.6. */
   --color-calendar-glass: rgba(255, 255, 255, 0.55);
   --color-calendar-glass-strong: rgba(255, 255, 255, 0.65);
   --color-calendar-glass-border: rgba(255, 255, 255, 0.9);
   --color-calendar-glass-border-strong: rgba(255, 255, 255, 0.95);
-  --color-mint-alpha-45: rgba(171, 231, 178, 0.45);
+  --color-mint-alpha-45: rgba(159, 225, 200, 0.45);
+  --color-mint-alpha-20: rgba(159, 225, 200, 0.2);
   --color-modal-backdrop: rgba(0, 0, 0, 0.45);
-  --color-modal-backdrop-accent: color-mix(in srgb, var(--color-teal) 45%, transparent);
+  --color-modal-backdrop-accent: color-mix(
+    in srgb,
+    var(--color-action-primary) 45%,
+    transparent
+  );
 
-  /* Typography */
-  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-page-title-size: 22px;
+  /* Coastal typography roles. */
+  --font-family: 'Avenir Next', Avenir, 'Segoe UI Variable', 'Segoe UI', sans-serif;
+  --font-family-arabic: 'Segoe UI', Tahoma, Arial, sans-serif;
+
+  --font-display-lg-size: 40px;
+  --font-display-lg-weight: 700;
+  --font-display-lg-line-height: 1.08;
+  --font-display-lg-letter-spacing: -0.03em;
+
+  --font-page-title-size: 32px;
+  --font-page-title-size-narrow: 26px;
   --font-page-title-weight: 700;
-  --font-page-title-line-height: 1.2;
-  --font-page-sub-size: 14px;
-  --font-page-sub-weight: 400;
-  --font-card-title-size: 15px;
-  --font-card-title-weight: 600;
-  --font-body-size: 14px;
+  --font-page-title-line-height: 1.15;
+  --font-page-title-letter-spacing: -0.025em;
+
+  --font-section-title-size: 22px;
+  --font-section-title-weight: 700;
+  --font-section-title-line-height: 1.25;
+  --font-section-title-letter-spacing: -0.015em;
+
+  --font-card-title-size: 16px;
+  --font-card-title-weight: 700;
+  --font-card-title-line-height: 1.3;
+
+  --font-metric-size: 36px;
+  --font-metric-weight: 700;
+  --font-metric-line-height: 1;
+  --font-metric-letter-spacing: -0.025em;
+
+  --font-body-size: 15px;
   --font-body-weight: 400;
+  --font-body-line-height: 1.5;
+  --font-body-sm-size: 14px;
+  --font-body-sm-weight: 400;
+  --font-body-sm-line-height: 1.45;
+  --font-label-size: 13px;
+  --font-label-weight: 700;
+  --font-label-line-height: 1.3;
   --font-caption-size: 12px;
   --font-caption-weight: 500;
+  --font-caption-line-height: 1.4;
 
-  /* Spacing — 4px grid. Structural spacing (page padding, section gaps, card
-     padding, table cells, grid/flex gaps) uses steps of 4/8/12/16/20/24/32/48;
-     2px and 6px are reserved for micro spacing inside small controls (badges,
-     label-to-input, icon nudges). Do not introduce off-grid values (5/7/9/10/
-     13/14/18/22/28…) in new CSS. */
+  /* Legacy page subtitle aliases. */
+  --font-page-sub-size: var(--font-body-sm-size);
+  --font-page-sub-weight: var(--font-body-sm-weight);
+
+  /* Spacing — fixed 4px structural grid. */
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 12px;
@@ -78,43 +182,48 @@
   --space-2xl: 24px;
   --space-3xl: 32px;
   --space-page: 32px;
+  --space-page-mobile: 16px;
   --space-card-padding: 20px;
   --space-section-gap: 24px;
-  --space-nav-item: 10px;
+  --space-header-height: 64px;
+  --min-touch-target: 44px;
+  --table-row-comfortable: 56px;
+  --table-row-compact: 48px;
 
-  /* Radius */
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  /* Shape. */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
   --radius-xl: 16px;
   --radius-2xl: 20px;
-  --radius-full: 99px;
+  --radius-full: 9999px;
 
-  /* Layout */
+  /* Layout. */
   --layout-sidebar-width: 240px;
   --layout-content-max-width: 1100px;
-  /* Cap for lone dense tables on full-bleed (page-wide) pages so they don't stretch sparse. */
   --layout-table-max-width: 1100px;
 
-  /* Elevation */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+  /* Elevation. */
+  --shadow-card: 0 1px 2px rgba(19, 59, 69, 0.04);
+  --shadow-decision: 0 12px 30px rgba(22, 67, 67, 0.08);
   --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.3);
   --shadow-notification-panel: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --shadow-calendar-card: 0 16px 40px rgba(9, 60, 93, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --shadow-calendar-control: 0 6px 18px rgba(9, 60, 93, 0.08);
-  --shadow-calendar-item: 0 6px 18px rgba(9, 60, 93, 0.06);
-  --shadow-calendar-today: 0 0 0 3px rgba(9, 60, 93, 0.15);
-  --shadow-calendar-selected: 0 0 0 3px rgba(14, 79, 117, 0.3);
+  --shadow-login-card: 0 20px 60px rgba(19, 59, 69, 0.18);
+  --shadow-calendar-card:
+    0 16px 40px rgba(10, 60, 73, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-calendar-control: 0 6px 18px rgba(10, 60, 73, 0.08);
+  --shadow-calendar-item: 0 6px 18px rgba(10, 60, 73, 0.06);
+  --shadow-calendar-today: 0 0 0 3px rgba(10, 60, 73, 0.15);
+  --shadow-calendar-selected: 0 0 0 3px rgba(12, 89, 97, 0.3);
 
-  /* Derived (for nav hover without hex in component CSS) */
-  --color-mint-alpha-20: rgba(171, 231, 178, 0.2);
-  /* Dual focus ring: white remains visible on navy/teal, navy remains visible on light surfaces. */
-  --focus-ring-inner: #FFFFFF;
-  --focus-ring-outer: #093C5D;
+  /* Shared dual focus ring: 2px inner + 4px outer on every surface. */
+  --focus-ring-inner: var(--color-focus-inner);
+  --focus-ring-outer: var(--color-focus-outer);
   --focus-ring-width: 2px;
-  --focus-ring-gap: 2px;
-  --focus-ring-outer-width: 6px;
-  /* Compatibility for older component rules; the global dual-ring rule is authoritative. */
+  --focus-ring-outer-width: 4px;
+  --shadow-focus-ring:
+    0 0 0 var(--focus-ring-width) var(--focus-ring-inner),
+    0 0 0 var(--focus-ring-outer-width) var(--focus-ring-outer);
   --color-focus-ring: var(--focus-ring-outer);
-  --shadow-login-card: 0 20px 60px rgba(45, 74, 79, 0.18);
 }

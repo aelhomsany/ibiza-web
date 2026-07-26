@@ -4,9 +4,68 @@
     "reviewNow": "Review Now"
   },
   "balance": {
-    "daysUsed": "{{count}} working days used",
+    "allocationLabel": "{{remaining}} remaining from {{allocated}} allocated working days",
+    "daysUsed_zero": "0 working days used",
+    "daysUsed_one": "{{count}} working day used",
+    "daysUsed_two": "{{count}} working days used",
+    "daysUsed_few": "{{count}} working days used",
+    "daysUsed_many": "{{count}} working days used",
+    "daysUsed_other": "{{count}} working days used",
     "left": "{{count}} left",
-    "overLimit": "{{count}} over limit"
+    "overLimit": "{{count}} over limit",
+    "uncapped": "Uncapped leave",
+    "usageLabel": "{{used}} of {{allocated}} allocated working days used"
+  },
+  "balances": {
+    "empty": "No leave balances are assigned to you yet.",
+    "eyebrow": "Plan",
+    "loading": "Loading your leave balances…",
+    "summary": "Remaining, used, and allocated working days stay visible together.",
+    "title": "Your leave balances"
+  },
+  "attention": {
+    "approvedTitle": "Your latest request is approved",
+    "declinedTitle": "A request needs your review",
+    "emptyDescription": "Your leave plan is up to date. Start a request whenever you need time away.",
+    "emptyTitle": "Nothing needs your attention",
+    "errorDescription": "Your balances and team coverage are still available below.",
+    "errorTitle": "We couldn't check your next action",
+    "eyebrow": "Your next step",
+    "loadingApprovalsDescription": "Looking for requests that need your decision.",
+    "loadingApprovalsTitle": "Checking pending approvals…",
+    "loadingRequestsDescription": "Looking for the most relevant update from your requests.",
+    "loadingRequestsTitle": "Checking your request status…",
+    "pendingApprovals_one": "{{count}} pending approval",
+    "pendingApprovals_two": "{{count}} pending approvals",
+    "pendingApprovals_few": "{{count}} pending approvals",
+    "pendingApprovals_many": "{{count}} pending approvals",
+    "pendingApprovals_other": "{{count}} pending approvals",
+    "pendingApprovals_zero": "No pending approvals",
+    "pendingApprovalsDescription": "A decision keeps employee balances and team plans current.",
+    "pendingRequestTitle": "Request awaiting approval",
+    "requestDescription": "{{type}} · {{dates}}",
+    "requestDescriptionWithStatus": "{{type}} · {{dates}}. {{status}}",
+    "upcomingDescription": "{{type}} is approved for {{days}}.",
+    "upcomingTitle": "Your leave starts {{date}}",
+    "viewRequests": "View My Leaves"
+  },
+  "coverage": {
+    "eyebrow": "Monitor",
+    "loading": "Updating team coverage…",
+    "loadingToday": "Loading today's team absences…",
+    "loadingUpcoming": "Loading upcoming team absences…",
+    "nextThirtyDays": "Next 30 days",
+    "offState_one": "{{count}} team member is recorded off today.",
+    "offState_two": "{{count}} team members are recorded off today.",
+    "offState_few": "{{count}} team members are recorded off today.",
+    "offState_many": "{{count}} team members are recorded off today.",
+    "offState_other": "{{count}} team members are recorded off today.",
+    "offState_zero": "No one is recorded off today.",
+    "offToday": "Off today",
+    "partial": "Some coverage data is unavailable; the returned facts are shown.",
+    "summaryLabel": "Team coverage summary",
+    "title": "Team coverage",
+    "workingFromHomeToday": "WFH today"
   },
   "errors": {
     "balances": "Unable to load your leave balances.",
@@ -21,9 +80,10 @@
     "morning": "Good morning"
   },
   "nameFallback": "there",
-  "pendingApprovals": "{{count}} Pending Approvals",
   "recent": {
-    "empty": "No leave requests yet",
+    "empty": "Your first request and its working-day result will appear here.",
+    "emptyTitle": "No leave requests yet",
+    "eyebrow": "Act and follow up",
     "loading": "Loading recent requests…",
     "title": "My Recent Requests"
   },
@@ -52,7 +112,8 @@
       "dateRange": "End date must be on or after start date",
       "excluded": "{{count}} weekend/holiday days excluded from balance",
       "selectDates": "Select dates to preview working days",
-      "zero": "No working days in the selected range for your {{name}} Workforce Group"
+      "zero": "No working days in the selected range for your {{name}} Workforce Group",
+      "zeroResult": "No working days"
     },
     "success": "Leave request submitted — waiting for approval",
     "title": "Request Leave"
@@ -65,7 +126,12 @@
     "upcoming": "Upcoming Leaves",
     "workingDays": "{{count}}d working"
   },
-  "subtitle": "Here's your leave overview",
+  "statusHints": {
+    "approved": "Approved",
+    "approvedBy": "Approved by {{name}}",
+    "pending": "Waiting for approval"
+  },
+  "subtitle": "Plan time away, understand what counts, and see what needs action.",
   "title": "Dashboard",
   "table": {
     "dates": "Dates",
@@ -73,5 +139,26 @@
     "status": "Status",
     "type": "Type",
     "working": "working"
+  },
+  "valueProof": {
+    "details": "How this is calculated",
+    "educationEyebrow": "Working-day product guide",
+    "educationResult": "Working days, counted clearly",
+    "educationSummary": "Ibiza excludes weekends and holidays defined by your Workforce Group before charging a balance. Start Request Leave for your live result.",
+    "error": "We couldn't load your latest working-day result. Try again without losing the rest of your Dashboard.",
+    "eyebrow": "Understand",
+    "latestEyebrow": "Stored result from your latest request",
+    "loading": "Loading your latest working-day result…",
+    "policy": "Policy source: {{group}} Workforce Group",
+    "policyFallback": "Policy source: your Workforce Group",
+    "requestContext": "{{type}} · {{dates}}. This is the stored result for that request.",
+    "requestContextWithHint": "{{type}} · {{dates}}. {{hint}}",
+    "title": "Working-day clarity",
+    "workingDays_zero": "No working days",
+    "workingDays_one": "{{count}} working day",
+    "workingDays_two": "{{count}} working days",
+    "workingDays_few": "{{count}} working days",
+    "workingDays_many": "{{count}} working days",
+    "workingDays_other": "{{count}} working days"
   }
 }

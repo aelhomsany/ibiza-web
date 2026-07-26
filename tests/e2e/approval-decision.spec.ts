@@ -22,13 +22,13 @@ test.describe('Approval decision — Story 3.7', { tag: [tags.regression, tags.a
     const firstApprove = page.getByTestId(/approve-btn-/).first()
     await expect(firstApprove).toBeEnabled()
 
-    const rowTestId = await firstApprove.evaluate(
-      (el) => el.getAttribute('data-testid')?.replace('approve-btn-', 'approval-row-') ?? '',
+    const cardTestId = await firstApprove.evaluate(
+      (el) => el.getAttribute('data-testid')?.replace('approve-btn-', 'approval-card-') ?? '',
     )
 
     await firstApprove.click()
-    await expect(page.getByRole('status')).toContainText(/approved/i)
-    await expect(page.getByTestId(rowTestId)).toHaveCount(0)
+    await expect(page.getByTestId('approvals-decision-feedback')).toContainText(/approved/i)
+    await expect(page.getByTestId(cardTestId)).toHaveCount(0)
   })
 
   test('[P1] Decline confirm is blocked until a reason is entered', async ({ page }) => {
@@ -50,14 +50,14 @@ test.describe('Approval decision — Story 3.7', { tag: [tags.regression, tags.a
     const firstDecline = page.getByTestId(/decline-btn-/).first()
     await expect(firstDecline).toBeEnabled()
 
-    const rowTestId = await firstDecline.evaluate(
-      (el) => el.getAttribute('data-testid')?.replace('decline-btn-', 'approval-row-') ?? '',
+    const cardTestId = await firstDecline.evaluate(
+      (el) => el.getAttribute('data-testid')?.replace('decline-btn-', 'approval-card-') ?? '',
     )
 
     await firstDecline.click()
     await page.getByTestId('decline-reason-input').fill('Coverage gap that week')
     await page.getByTestId('decline-confirm-btn').click()
-    await expect(page.getByRole('status')).toContainText(/declined/i)
-    await expect(page.getByTestId(rowTestId)).toHaveCount(0)
+    await expect(page.getByTestId('approvals-decision-feedback')).toContainText(/declined/i)
+    await expect(page.getByTestId(cardTestId)).toHaveCount(0)
   })
 })

@@ -1,12 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAuth } from '../../auth/useAuth'
 import { ApiError } from '../../api/client'
-import { useToast } from '../../components/ui/useToast'
-import { CheckCircleIcon } from '../../components/ui/icons'
-import { LoadingState } from '../../components/ui/LoadingState'
+import { useAuth } from '../../auth/useAuth'
+import { CoverageSummary } from '../../components/ui/CoverageSummary'
 import { HorizontalScrollRegion } from '../../components/ui/HorizontalScrollRegion'
-import { ApprovalRow } from './ApprovalRow'
+import { LoadingState } from '../../components/ui/LoadingState'
+import { CheckCircleIcon } from '../../components/ui/icons'
+import { useDashboardOutToday } from '../dashboard/useDashboardOutToday'
+import { useDashboardUpcoming } from '../dashboard/useDashboardUpcoming'
+import { formatDateRange } from '../dashboard/leaveRequestFormatting'
+import { ApprovalCard } from './ApprovalCard'
 import { DeclineModal } from './DeclineModal'
 import { RecentDecisionRow } from './RecentDecisionRow'
 import { useApproveRequest } from './useApproveRequest'
@@ -19,10 +22,16 @@ type DeclineTarget = {
   requestId: number
   employeeUserId: number
   employeeName: string
+  dateRange: string
+}
+
+type DecisionFeedback = {
+  tone: 'status' | 'alert'
+  message: string
 }
 
 export function ApprovalsPage() {
-  const { t } = useTranslation(['approvals', 'layout', 'common'])
+  const { t, i18n } = useTranslation(['approvals', 'layout', 'common'])
   const { user } = useAuth()
   const { data: pendingApprovals = [], isPending, isError } = usePendingApprovals()
   const {
@@ -32,12 +41,89 @@ export function ApprovalsPage() {
   } = useRecentApprovalDecisions()
   const approveMutation = useApproveRequest()
   const declineMutation = useDeclineRequest()
-  const { showToast } = useToast()
+  const outTodayQuery = useDashboardOutToday()
+  const upcomingQuery = useDashboardUpcoming()
   const [declineTarget, setDeclineTarget] = useState<DeclineTarget | null>(null)
   const [declineReason, setDeclineReason] = useState('')
   const [declineSubmitError, setDeclineSubmitError] = useState<string | null>(null)
+  const [removedRequestIds, setRemovedRequestIds] = useState<Set<number>>(
+    () => new Set(),
+  )
+  const [staleRequestIds, setStaleRequestIds] = useState<Set<number>>(
+    () => new Set(),
+  )
+  const [decisionFeedback, setDecisionFeedback] =
+    useState<DecisionFeedback | null>(null)
+  const [focusTarget, setFocusTarget] = useState<number | 'empty' | null>(null)
+  const headingRefs = useRef(new Map<number, HTMLHeadingElement>())
+  const emptyHeadingRef = useRef<HTMLHeadingElement>(null)
   const isHrAdmin = user?.role === 'HR_ADMIN'
-  const subtitle = isHrAdmin ? t('approvals:subtitle.hr') : t('approvals:subtitle.manager')
+  const subtitle = isHrAdmin
+    ? t('approvals:subtitle.hr')
+    : t('approvals:subtitle.manager')
+
+  const visibleApprovals = useMemo(
+    () =>
+      pendingApprovals.filter(
+        (approval) =>
+          approval.requestId != null && !removedRequestIds.has(approval.requestId),
+      ),
+    [pendingApprovals, removedRequestIds],
+  )
+  const offToday = (outTodayQuery.data ?? []).filter(
+    (row) => row.presence === 'OFF',
+  ).length
+  const workingFromHomeToday = (outTodayQuery.data ?? []).filter(
+    (row) => row.presence === 'WFH',
+  ).length
+  const coverageIsLoading = outTodayQuery.isPending || upcomingQuery.isPending
+  const coverageIsPartial = outTodayQuery.isError || upcomingQuery.isError
+  const outTodayOk = !outTodayQuery.isPending && !outTodayQuery.isError
+  const upcomingOk = !upcomingQuery.isPending && !upcomingQuery.isError
+  const oldestSubmittedAt = visibleApprovals
+    .map((approval) => approval.submittedAt)
+    .filter((value): value is string => Boolean(value))
+    .sort()[0]
+
+  useEffect(() => {
+    if (focusTarget == null) {
+      return
+    }
+    let target: HTMLHeadingElement | null | undefined
+    if (focusTarget === 'empty') {
+      target = emptyHeadingRef.current
+    } else {
+      target = headingRefs.current.get(focusTarget)
+      if (!target) {
+        // The computed next card was removed by a refetch before focus landed;
+        // fall back to the first remaining card heading, then the empty-state
+        // heading, so keyboard/SR focus is never dropped to <body>.
+        const firstRemaining = visibleApprovals[0]?.requestId
+        target =
+          (firstRemaining != null
+            ? headingRefs.current.get(firstRemaining)
+            : null) ?? emptyHeadingRef.current
+      }
+    }
+    target?.focus()
+    setFocusTarget(null)
+  }, [focusTarget, visibleApprovals])
+
+  // Keep the removed/stale id sets bounded: drop ids no longer present in the
+  // refetched pending list so they cannot accumulate across a long session.
+  useEffect(() => {
+    const presentIds = new Set(
+      pendingApprovals
+        .map((approval) => approval.requestId)
+        .filter((id): id is number => id != null),
+    )
+    const prune = (current: Set<number>): Set<number> => {
+      const next = new Set([...current].filter((id) => presentIds.has(id)))
+      return next.size === current.size ? current : next
+    }
+    setRemovedRequestIds((current) => prune(current))
+    setStaleRequestIds((current) => prune(current))
+  }, [pendingApprovals])
 
   const resolveMutationError = (error: unknown, fallback: string): string => {
     if (error instanceof ApiError) {
@@ -46,15 +132,67 @@ export function ApprovalsPage() {
     return fallback
   }
 
-  const handleApprove = (requestId: number, employeeUserId: number, employeeName: string) => {
+  const formatSubmittedDate = (submittedAt: string): string => {
+    const date = new Date(submittedAt)
+    if (Number.isNaN(date.getTime())) {
+      return submittedAt
+    }
+    return date.toLocaleDateString(i18n.language, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  }
+
+  const finishDecision = (requestId: number, message: string) => {
+    const currentIndex = visibleApprovals.findIndex(
+      (approval) => approval.requestId === requestId,
+    )
+    const remaining = visibleApprovals.filter(
+      (approval) => approval.requestId !== requestId,
+    )
+    const nextApproval = remaining[currentIndex] ?? remaining[0]
+
+    setRemovedRequestIds((current) => new Set(current).add(requestId))
+    setDecisionFeedback({ tone: 'status', message })
+    setFocusTarget(nextApproval?.requestId ?? 'empty')
+  }
+
+  const markStale = (requestId: number, employeeName: string) => {
+    setStaleRequestIds((current) => new Set(current).add(requestId))
+    setDecisionFeedback({
+      tone: 'alert',
+      message: t('approvals:stale.announcement', { name: employeeName }),
+    })
+  }
+
+  const handleApprove = (
+    requestId: number,
+    employeeUserId: number,
+    employeeName: string,
+  ) => {
+    setDecisionFeedback(null)
     approveMutation.mutate(
       { requestId, employeeUserId },
       {
         onSuccess: () => {
-          showToast(t('approvals:success.approved', { name: employeeName }))
+          finishDecision(
+            requestId,
+            t('approvals:success.approved', { name: employeeName }),
+          )
         },
         onError: (error) => {
-          showToast(resolveMutationError(error, t('approvals:errors.approve')), 'warning')
+          if (error instanceof ApiError && error.status === 409) {
+            markStale(requestId, employeeName)
+            return
+          }
+          setDecisionFeedback({
+            tone: 'alert',
+            message: resolveMutationError(
+              error,
+              t('approvals:errors.approve'),
+            ),
+          })
         },
       },
     )
@@ -65,6 +203,7 @@ export function ApprovalsPage() {
       return
     }
     setDeclineSubmitError(null)
+    setDecisionFeedback(null)
     declineMutation.mutate(
       {
         requestId: declineTarget.requestId,
@@ -73,13 +212,30 @@ export function ApprovalsPage() {
       },
       {
         onSuccess: () => {
+          const completedTarget = declineTarget
           setDeclineTarget(null)
           setDeclineReason('')
           setDeclineSubmitError(null)
-          showToast(t('approvals:success.declined', { name: declineTarget.employeeName }))
+          finishDecision(
+            completedTarget.requestId,
+            t('approvals:success.declined', {
+              name: completedTarget.employeeName,
+            }),
+          )
         },
         onError: (error) => {
-          setDeclineSubmitError(resolveMutationError(error, t('approvals:errors.decline')))
+          if (error instanceof ApiError && error.status === 409) {
+            markStale(declineTarget.requestId, declineTarget.employeeName)
+            setDeclineSubmitError(
+              t('approvals:stale.modal', {
+                name: declineTarget.employeeName,
+              }),
+            )
+            return
+          }
+          setDeclineSubmitError(
+            resolveMutationError(error, t('approvals:errors.decline')),
+          )
         },
       },
     )
@@ -94,64 +250,224 @@ export function ApprovalsPage() {
         </div>
       </header>
 
-      {isPending ? (
-        <LoadingState
-          label={t('layout:loading.pendingApprovals')}
-          testId="approvals-pending-loading"
-        />
-      ) : isError ? (
-        <div className="approvals-error-state" data-testid="approvals-error-state" role="alert">
-          <p>{t('approvals:errors.pending')}</p>
-        </div>
-      ) : pendingApprovals.length === 0 ? (
-        <div className="approvals-empty-state" data-testid="approvals-empty-state" role="status">
-          <div aria-hidden="true" className="approvals-empty-icon">
-            <CheckCircleIcon size={40} />
+      <section
+        className="approvals-summary"
+        aria-label={t('approvals:summary.label')}
+        data-testid="approvals-summary"
+      >
+        <dl>
+          <div>
+            <dt>{t('approvals:summary.pendingLabel')}</dt>
+            <dd>{visibleApprovals.length}</dd>
           </div>
-          <p>{t('approvals:empty')}</p>
-        </div>
-      ) : (
-        <div className="approvals-card" data-testid="approvals-pending-list">
-          {pendingApprovals.map((approval) => {
-            if (approval.requestId == null) {
-              return null
-            }
-            const requestId = approval.requestId
-            const employeeUserId = approval.employeeUserId ?? 0
-            const employeeName = approval.employeeFullName?.trim() || t('common:unknown')
-            return (
-              <ApprovalRow
-                key={requestId}
-                approval={approval}
-                isApproving={approveMutation.isPending && approveMutation.variables?.requestId === requestId}
-                isDeclining={declineMutation.isPending && declineMutation.variables?.requestId === requestId}
-                onApprove={() => handleApprove(requestId, employeeUserId, employeeName)}
-                onDecline={() => {
-                  setDeclineReason('')
-                  setDeclineSubmitError(null)
-                  setDeclineTarget({ requestId, employeeUserId, employeeName })
-                }}
-              />
-            )
-          })}
-        </div>
-      )}
+          {oldestSubmittedAt ? (
+            <div>
+              <dt>{t('approvals:summary.oldestLabel')}</dt>
+              <dd>
+                <bdi>{formatSubmittedDate(oldestSubmittedAt)}</bdi>
+              </dd>
+            </div>
+          ) : null}
+          {!coverageIsLoading ? (
+            <div>
+              <dt>{t('approvals:summary.coverageLabel')}</dt>
+              <dd>
+                {outTodayOk && upcomingOk
+                  ? t('approvals:summary.coverageFacts', {
+                      off: offToday,
+                      upcoming: upcomingQuery.data?.length ?? 0,
+                    })
+                  : outTodayOk
+                    ? t('approvals:summary.coverageOffOnly', { off: offToday })
+                    : t('approvals:summary.coveragePartial')}
+              </dd>
+            </div>
+          ) : null}
+        </dl>
+      </section>
 
-      <section className="recent-decisions-section" data-testid="recent-decisions-section">
-        <h2 id="recent-decisions-title" className="recent-decisions-title">
-          {t('approvals:recent.title')}
-        </h2>
+      {decisionFeedback ? (
+        <div
+          className={`approvals-feedback approvals-feedback--${decisionFeedback.tone}`}
+          data-testid="approvals-decision-feedback"
+          role={decisionFeedback.tone}
+        >
+          {decisionFeedback.message}
+        </div>
+      ) : null}
+
+      <div className="approvals-workspace">
+        <section className="approvals-queue" aria-labelledby="approvals-queue-title">
+          <div className="approvals-section-heading">
+            <div>
+              <p className="approvals-section-eyebrow">
+                {t('approvals:queue.eyebrow')}
+              </p>
+              <h2 id="approvals-queue-title">{t('approvals:queue.title')}</h2>
+            </div>
+            <p>{t('approvals:queue.description')}</p>
+          </div>
+
+          {isPending ? (
+            <LoadingState
+              label={t('layout:loading.pendingApprovals')}
+              testId="approvals-pending-loading"
+            />
+          ) : isError ? (
+            <div
+              className="approvals-error-state"
+              data-testid="approvals-error-state"
+              role="alert"
+            >
+              <p>{t('approvals:errors.pending')}</p>
+            </div>
+          ) : visibleApprovals.length === 0 ? (
+            <div
+              className="approvals-empty-state"
+              data-testid="approvals-empty-state"
+              role="status"
+            >
+              <div aria-hidden="true" className="approvals-empty-icon">
+                <CheckCircleIcon size={40} />
+              </div>
+              <h3
+                ref={emptyHeadingRef}
+                tabIndex={-1}
+                data-testid="approvals-all-caught-up-heading"
+              >
+                {t('approvals:empty')}
+              </h3>
+              <p>{t('approvals:emptyDescription')}</p>
+            </div>
+          ) : (
+            <div className="approvals-card-list" data-testid="approvals-pending-list">
+              {visibleApprovals.map((approval) => {
+                const requestId = approval.requestId!
+                const employeeUserId = approval.employeeUserId ?? 0
+                const employeeName =
+                  approval.employeeFullName?.trim() || t('common:unknown')
+                const dateRange = formatDateRange(
+                  approval.dateFrom ?? '',
+                  approval.dateTo ?? '',
+                  i18n.language,
+                )
+                const overlappingStarts = (upcomingQuery.data ?? []).filter(
+                  (absence) =>
+                    Boolean(absence.dateFrom) &&
+                    absence.dateFrom! >= (approval.dateFrom ?? '') &&
+                    absence.dateFrom! <= (approval.dateTo ?? ''),
+                ).length
+
+                return (
+                  <ApprovalCard
+                    key={requestId}
+                    approval={approval}
+                    coverage={{
+                      isLoading: coverageIsLoading,
+                      isPartial: coverageIsPartial,
+                      overlappingStarts,
+                    }}
+                    headingRef={(element) => {
+                      if (element) {
+                        headingRefs.current.set(requestId, element)
+                      } else {
+                        headingRefs.current.delete(requestId)
+                      }
+                    }}
+                    isApproving={
+                      approveMutation.isPending &&
+                      approveMutation.variables?.requestId === requestId
+                    }
+                    isDeclining={
+                      declineMutation.isPending &&
+                      declineMutation.variables?.requestId === requestId
+                    }
+                    isStale={staleRequestIds.has(requestId)}
+                    onApprove={() =>
+                      handleApprove(requestId, employeeUserId, employeeName)
+                    }
+                    onDecline={() => {
+                      setDeclineReason('')
+                      setDeclineSubmitError(null)
+                      setDeclineTarget({
+                        requestId,
+                        employeeUserId,
+                        employeeName,
+                        dateRange,
+                      })
+                    }}
+                  />
+                )
+              })}
+            </div>
+          )}
+        </section>
+
+        <aside
+          className="approvals-coverage-rail card"
+          aria-labelledby="approvals-coverage-title"
+        >
+          <p className="approvals-section-eyebrow">
+            {t('approvals:coverage.eyebrow')}
+          </p>
+          <h2 id="approvals-coverage-title">
+            {t('approvals:coverage.teamTitle')}
+          </h2>
+          <p>{t('approvals:coverage.railDescription')}</p>
+          <CoverageSummary
+            label={t('approvals:coverage.summaryLabel')}
+            offToday={offToday}
+            workingFromHomeToday={workingFromHomeToday}
+            upcoming={upcomingQuery.data?.length ?? 0}
+            offLabel={t('approvals:coverage.offToday')}
+            workingFromHomeLabel={t('approvals:coverage.wfhToday')}
+            upcomingLabel={t('approvals:coverage.upcoming')}
+            stateLabel={t('approvals:coverage.state', { count: offToday })}
+            isLoading={coverageIsLoading}
+            loadingLabel={t('approvals:coverage.loading')}
+            isPartial={coverageIsPartial}
+            partialLabel={t('approvals:coverage.partialRail')}
+          />
+          <p className="approval-coverage-advisory">
+            {t('approvals:coverage.advisory')}
+          </p>
+        </aside>
+      </div>
+
+      <section
+        className="recent-decisions-section"
+        data-testid="approvals-recent-decisions"
+      >
+        <div className="approvals-section-heading approvals-section-heading--recent">
+          <div>
+            <p className="approvals-section-eyebrow">
+              {t('approvals:recent.eyebrow')}
+            </p>
+            <h2 id="recent-decisions-title" className="recent-decisions-title">
+              {t('approvals:recent.title')}
+            </h2>
+          </div>
+          <p>{t('approvals:recent.description')}</p>
+        </div>
         {isRecentPending ? (
           <LoadingState
             label={t('layout:loading.recentDecisions')}
             testId="approvals-recent-loading"
           />
         ) : isRecentError ? (
-          <div className="approvals-error-state" data-testid="recent-decisions-error" role="alert">
+          <div
+            className="approvals-error-state"
+            data-testid="recent-decisions-error"
+            role="alert"
+          >
             <p>{t('approvals:errors.recent')}</p>
           </div>
         ) : recentDecisions.length === 0 ? (
-          <div className="recent-decisions-empty" data-testid="recent-decisions-empty" role="status">
+          <div
+            className="recent-decisions-empty"
+            data-testid="recent-decisions-empty"
+            role="status"
+          >
             <p>{t('approvals:recent.empty')}</p>
           </div>
         ) : (
@@ -162,6 +478,9 @@ export function ApprovalsPage() {
             describedById="recent-decisions-scroll-hint"
           >
             <table className="recent-decisions-table">
+              <caption className="sr-only">
+                {t('approvals:recent.caption')}
+              </caption>
               <thead>
                 <tr>
                   <th scope="col">{t('approvals:table.employee')}</th>
@@ -171,7 +490,9 @@ export function ApprovalsPage() {
                   <th scope="col">{t('approvals:table.status')}</th>
                   <th scope="col">{t('approvals:table.decidedBy')}</th>
                   <th scope="col">{t('approvals:table.decisionDate')}</th>
-                  {isHrAdmin ? <th scope="col">{t('approvals:table.audit')}</th> : null}
+                  {isHrAdmin ? (
+                    <th scope="col">{t('approvals:table.audit')}</th>
+                  ) : null}
                 </tr>
               </thead>
               <tbody>
@@ -197,6 +518,7 @@ export function ApprovalsPage() {
         <DeclineModal
           requestId={declineTarget.requestId}
           employeeName={declineTarget.employeeName}
+          dateRange={declineTarget.dateRange}
           reason={declineReason}
           onReasonChange={setDeclineReason}
           onConfirm={handleDeclineConfirm}
@@ -207,6 +529,7 @@ export function ApprovalsPage() {
           }}
           isSubmitting={declineMutation.isPending}
           submitError={declineSubmitError}
+          isStale={staleRequestIds.has(declineTarget.requestId)}
         />
       ) : null}
     </div>

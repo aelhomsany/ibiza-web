@@ -48,14 +48,15 @@ describe('BalanceCard', () => {
     expect(screen.getByText('5 working days used')).toBeInTheDocument()
   })
 
-  it('hides cap UI for uncapped card with zero used days', () => {
+  it('labels uncapped state and keeps zero usage explicit', () => {
     render(<BalanceCard balance={uncappedBalance} />)
 
     expect(screen.getByTestId('balance-card-unpaid-leave')).toBeInTheDocument()
     expect(screen.queryByText(/left/)).not.toBeInTheDocument()
     expect(screen.queryByText(/\//)).not.toBeInTheDocument()
     expect(screen.queryByTestId('balance-bar-unpaid-leave')).not.toBeInTheDocument()
-    expect(screen.queryByText(/working days used/)).not.toBeInTheDocument()
+    expect(screen.getByText('Uncapped leave')).toBeInTheDocument()
+    expect(screen.getByText('0 working days used')).toBeInTheDocument()
   })
 
   it('shows informational used footer for uncapped card when usedDays > 0', () => {
@@ -63,5 +64,36 @@ describe('BalanceCard', () => {
 
     expect(screen.getByText('3 working days used')).toBeInTheDocument()
     expect(screen.queryByText(/left/)).not.toBeInTheDocument()
+  })
+
+  it('uses singular working-day copy for exactly one used day', () => {
+    render(
+      <BalanceCard
+        balance={{
+          ...cappedBalance,
+          usedDays: 1,
+          remainingDays: 19,
+        }}
+      />,
+    )
+
+    expect(screen.getByText('1 working day used')).toBeInTheDocument()
+    expect(screen.queryByText('1 working days used')).not.toBeInTheDocument()
+  })
+
+  it('omits the progressbar when allocation has no valid range', () => {
+    render(
+      <BalanceCard
+        balance={{
+          ...cappedBalance,
+          allocatedDays: 0,
+          usedDays: 0,
+          remainingDays: 0,
+        }}
+      />,
+    )
+
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
+    expect(screen.getByText('/0')).toBeInTheDocument()
   })
 })

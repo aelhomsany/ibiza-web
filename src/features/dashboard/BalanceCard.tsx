@@ -28,9 +28,10 @@ export function BalanceCard({ balance }: BalanceCardProps) {
       >
         <div className="balance-icon">{balance.icon}</div>
         <div className="balance-label">{balance.name}</div>
-        {balance.usedDays > 0 && (
-          <div className="balance-used">{t('balance.daysUsed', { count: balance.usedDays })}</div>
-        )}
+        <div className="balance-uncapped">{t('balance.uncapped')}</div>
+        <div className="balance-used">
+          {t('balance.daysUsed', { count: balance.usedDays })}
+        </div>
       </div>
     )
   }
@@ -39,7 +40,12 @@ export function BalanceCard({ balance }: BalanceCardProps) {
   const remaining = balance.remainingDays ?? 0
   const used = balance.usedDays
   const isOverdraft = remaining < 0
-  const pct = isOverdraft ? 100 : allocated > 0 ? Math.min(100, Math.round((used / allocated) * 100)) : 0
+  const hasProgressRange = allocated > 0
+  const pct = isOverdraft
+    ? 100
+    : hasProgressRange
+      ? Math.min(100, Math.round((used / allocated) * 100))
+      : 0
 
   return (
     <div
@@ -59,16 +65,33 @@ export function BalanceCard({ balance }: BalanceCardProps) {
       <div className="balance-icon">{balance.icon}</div>
       <div className="balance-label">{balance.name}</div>
       <div className="balance-value">
-        {isOverdraft ? used : remaining}
-        <span className="balance-total">/{allocated}</span>
+        <span className="sr-only">
+          {t('balance.allocationLabel', {
+            remaining,
+            allocated,
+          })}
+        </span>
+        <span className="balance-value-copy" aria-hidden="true">
+          {isOverdraft ? used : remaining}
+          <span className="balance-total">/{allocated}</span>
+        </span>
       </div>
-      <div className="balance-bar-bg">
+      {hasProgressRange ? (
         <div
-          className={`balance-bar${isOverdraft ? ' balance-bar--overdraft' : ''}`}
-          style={{ width: `${pct}%` }}
-          data-testid={`balance-bar-${slug}`}
-        />
-      </div>
+          className="balance-bar-bg"
+          role="progressbar"
+          aria-label={t('balance.usageLabel', { used, allocated })}
+          aria-valuemin={0}
+          aria-valuemax={allocated}
+          aria-valuenow={Math.max(0, Math.min(used, allocated))}
+        >
+          <div
+            className={`balance-bar${isOverdraft ? ' balance-bar--overdraft' : ''}`}
+            style={{ width: `${pct}%` }}
+            data-testid={`balance-bar-${slug}`}
+          />
+        </div>
+      ) : null}
       <div className="balance-used">{t('balance.daysUsed', { count: used })}</div>
     </div>
   )

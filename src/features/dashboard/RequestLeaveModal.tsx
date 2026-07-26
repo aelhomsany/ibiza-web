@@ -6,6 +6,10 @@ import { fieldErrorsFromApiError, LEAVE_REQUEST_FIELD_IDS } from '../../api/fiel
 import { DateField } from '../../components/DateField'
 import { FieldErrorMessage } from '../../components/form/FieldErrorMessage'
 import { Modal } from '../../components/ui/Modal'
+import {
+  WorkingDayExplainer,
+  type WorkingDayExplainerState,
+} from '../../components/ui/WorkingDayExplainer'
 import { CloseIcon } from '../../components/ui/icons'
 import { useAuth } from '../../auth/useAuth'
 import { useCreateLeaveRequest } from './useCreateLeaveRequest'
@@ -36,6 +40,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
   const { user } = useAuth()
   const orgId = user?.organizationId
   const createMutation = useCreateLeaveRequest()
+  const resetCreateMutation = createMutation.reset
 
   const [leaveTypeId, setLeaveTypeId] = useState<number | ''>('')
   const [dateFrom, setDateFrom] = useState('')
@@ -58,7 +63,10 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
   const clientDateInvalid =
     dateFrom !== '' && dateTo !== '' && dateTo < dateFrom
   const previewEnabled =
-    debouncedFrom !== '' && debouncedTo !== '' && debouncedTo >= debouncedFrom
+    user?.id != null &&
+    debouncedFrom !== '' &&
+    debouncedTo !== '' &&
+    debouncedTo >= debouncedFrom
 
   const preview = previewQuery.data
   const excludedTotal =
@@ -71,6 +79,35 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
         ? t('dashboard:request.errors.preview')
         : null
 
+  const previewState: WorkingDayExplainerState = clientDateInvalid
+    ? 'error'
+    : !previewEnabled
+      ? 'before-dates'
+      : previewQuery.isPending
+        ? 'loading'
+        : previewErrorMessage
+          ? 'error'
+          : preview
+            ? preview.workingDays == null
+              ? 'error'
+              : preview.workingDays === 0
+                ? 'zero'
+                : 'valid'
+            : 'loading'
+
+  const previewStateMessage =
+    previewState === 'error'
+      ? clientDateInvalid
+        ? t('dashboard:request.preview.dateRange')
+        : previewErrorMessage ?? t('dashboard:request.errors.preview')
+      : previewState === 'before-dates'
+        ? t('dashboard:request.preview.selectDates')
+        : previewState === 'loading'
+          ? t('dashboard:request.preview.calculating')
+          : previewState === 'zero' && preview
+            ? t('dashboard:request.preview.zero', { name: preview.workforceGroupName ?? '' })
+            : ''
+
   const submitDisabled =
     leaveTypeId === '' ||
     !previewEnabled ||
@@ -79,6 +116,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
     previewQuery.isFetching ||
     previewQuery.isError ||
     preview == null ||
+    preview.workingDays == null ||
     preview.workingDays === 0 ||
     createMutation.isPending
 
@@ -90,9 +128,9 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
       setNote('')
       setSubmitErrorMessage(null)
       setFieldErrors({})
-      createMutation.reset()
+      resetCreateMutation()
     }
-  }, [open])
+  }, [open, resetCreateMutation])
 
   if (!open) {
     return null
@@ -256,51 +294,41 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
             </div>
           </div>
 
-          <div className="days-indicator" data-testid="working-day-preview">
-            {clientDateInvalid && (
-              <p className="preview-error" role="alert">
-                {t('dashboard:request.preview.dateRange')}
-              </p>
-            )}
-
-            {!clientDateInvalid && !previewEnabled && (
-              <p className="preview-loading">{t('dashboard:request.preview.selectDates')}</p>
-            )}
-
-            {!clientDateInvalid && previewEnabled && previewQuery.isPending && (
-              <p className="preview-loading">{t('dashboard:request.preview.calculating')}</p>
-            )}
-
-            {!clientDateInvalid && previewEnabled && previewErrorMessage && (
-              <p className="preview-error" role="alert">
-                {previewErrorMessage}
-              </p>
-            )}
-
-            {!clientDateInvalid && previewEnabled && preview && !previewQuery.isPending && !previewQuery.isError && (
-              <>
-                {preview.workingDays > 0 && (
-                  <p className="preview-primary">
-                    {t('dashboard:request.preview.charged', { count: preview.workingDays })}
-                  </p>
-                )}
-                <p className="group-context">
-                  {t('dashboard:request.preview.context', { name: preview.workforceGroupName })}
-                </p>
-                {excludedTotal > 0 && (
-                  <p className="preview-excluded">
-                    {t('dashboard:request.preview.excluded', { count: excludedTotal })}
-                  </p>
-                )}
-              </>
-            )}
+          <div className="working-day-preview" data-testid="working-day-preview">
+            <WorkingDayExplainer
+              state={previewState}
+              stateMessage={previewStateMessage}
+              resultLabel={
+                preview
+                  ? preview.workingDays > 0
+                    ? t('dashboard:request.preview.charged', { count: preview.workingDays })
+                    : t('dashboard:request.preview.zeroResult')
+                  : undefined
+              }
+              policyLabel={
+                preview
+                  ? t('dashboard:request.preview.context', {
+                      name: preview.workforceGroupName ?? '',
+                    })
+                  : undefined
+              }
+              excludedSummary={
+                excludedTotal > 0
+                  ? t('dashboard:request.preview.excluded', { count: excludedTotal })
+                  : undefined
+              }
+              retryLabel={
+                previewState === 'error' && !clientDateInvalid
+                  ? t('common:actions.retry')
+                  : undefined
+              }
+              onRetry={
+                previewState === 'error' && !clientDateInvalid
+                  ? () => void previewQuery.refetch()
+                  : undefined
+              }
+            />
           </div>
-
-          {previewEnabled && preview && preview.workingDays === 0 && !previewQuery.isPending && (
-            <p className="zero-day-alert" role="alert">
-              {t('dashboard:request.preview.zero', { name: preview.workforceGroupName })}
-            </p>
-          )}
 
           {submitErrorMessage && (
             <p className="preview-error" role="alert">

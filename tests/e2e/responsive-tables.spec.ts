@@ -40,7 +40,9 @@ async function expectTrailingColumnReachable({
   expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth)
 
   await wrapper.evaluate((element) => {
-    element.scrollLeft = element.scrollWidth
+    const direction = window.getComputedStyle(element).direction
+    const scrollEnd = element.scrollWidth - element.clientWidth
+    element.scrollLeft = direction === 'rtl' ? -scrollEnd : scrollEnd
   })
 
   await expect(trailingCell).toBeVisible()
@@ -87,19 +89,21 @@ test.describe('Responsive tables — Story 10.3', { tag: [tags.regression, tags.
     await expectPageDoesNotOverflow(page)
   })
 
-  test('[P0] My Leaves history scrolls inside the table wrapper at 375px', async ({
+  test('[P0] My Leaves history uses task cards without page overflow at 375px', async ({
     page,
   }) => {
     await loginViaUi(page, { email: 'sarah@company.com', password })
     await viewPageAtMobileWidth(page, '/my-leaves')
 
-    const wrapper = page.getByTestId('my-leaves-history-table')
-    await expect(wrapper).toBeVisible()
-
-    await expectTrailingColumnReachable({
-      wrapper,
-      trailingCell: wrapper.locator('tbody tr').first().locator('td').last(),
-    })
+    const desktopHistory = page.getByTestId('my-leaves-desktop-history')
+    const mobileHistory = page.getByTestId('my-leaves-mobile-history')
+    await expect(desktopHistory).toBeHidden()
+    await expect(mobileHistory).toBeVisible()
+    const firstCard = mobileHistory.locator('[data-testid^="my-leaves-request-card-"]').first()
+    await expect(firstCard).toBeVisible()
+    await expect(firstCard).toContainText(/working day/i)
+    await expect(firstCard.locator('.badge')).toBeVisible()
+    await expect(firstCard.getByRole('button', { name: /details/i })).toBeVisible()
     await expectPageDoesNotOverflow(page)
   })
 

@@ -13,13 +13,15 @@ async function expectPageDoesNotOverflow(page: Page): Promise<void> {
     .toBe(true)
 }
 
-async function expectTrailingColumnReachable(wrapper: Locator, trailingCell: Locator): Promise<void> {
+async function expectTrailingColumnKeyboardReachable(
+  wrapper: Locator,
+  trailingCell: Locator,
+): Promise<void> {
   await expect(wrapper).toBeVisible()
   await expect(wrapper.locator('table')).toBeVisible()
 
   const metrics = await wrapper.evaluate((element) => {
     const style = window.getComputedStyle(element)
-
     return {
       clientWidth: element.clientWidth,
       overflowX: style.overflowX,
@@ -30,18 +32,22 @@ async function expectTrailingColumnReachable(wrapper: Locator, trailingCell: Loc
   expect(metrics.overflowX).toBe('auto')
   expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth)
 
+  await wrapper.focus()
+  await expect(wrapper).toBeFocused()
+  await wrapper.press('ArrowRight')
+  await expect
+    .poll(() => wrapper.evaluate((element) => element.scrollLeft))
+    .toBeGreaterThan(0)
+
   await wrapper.evaluate((element) => {
     element.scrollLeft = element.scrollWidth
   })
-
   await expect(trailingCell).toBeVisible()
 
   const wrapperBox = await wrapper.boundingBox()
   const cellBox = await trailingCell.boundingBox()
-
   expect(wrapperBox, 'table wrapper must have a rendered box').not.toBeNull()
   expect(cellBox, 'trailing column cell must have a rendered box').not.toBeNull()
-
   expect(cellBox!.x).toBeGreaterThanOrEqual(wrapperBox!.x - 1)
   expect(cellBox!.x + cellBox!.width).toBeLessThanOrEqual(
     wrapperBox!.x + wrapperBox!.width + 1,
@@ -116,7 +122,7 @@ test.describe(
     )
 
     test(
-      '[P1] Dashboard recent-requests trailing column is keyboard-reachable at 390px',
+      '[P1] Dashboard recent requests preserve primary facts in cards at 390px',
       async ({ page }) => {
         await loginViaUi(page, { email: 'sarah@company.com', password })
         await page.setViewportSize({ width: 390, height: 844 })
@@ -125,11 +131,34 @@ test.describe(
         const card = page.getByTestId('recent-requests-card')
         await expect(card).toBeVisible()
 
-        const region = card.getByRole('region', { name: /recent requests/i })
-        await region.focus()
-        await expect(region).toBeFocused()
+        const tableView = card.getByTestId('recent-requests-table-view')
+        await expect(tableView).toBeAttached()
+        await expect(tableView).toBeHidden()
 
-        await expectTrailingColumnReachable(
+        const mobileCards = card.getByTestId('recent-request-card-list')
+        const firstMobileCard = mobileCards.getByTestId(
+          /recent-request-card-\d+/,
+        ).first()
+        await expect(mobileCards).toBeVisible()
+        await expect(firstMobileCard).toBeVisible()
+        await expect(firstMobileCard).toContainText(/working day/i)
+        await expect(firstMobileCard.locator('.badge')).toBeVisible()
+        await expectPageDoesNotOverflow(page)
+      },
+    )
+
+    test(
+      '[P1] Dashboard recent requests keep the trailing desktop column keyboard-reachable',
+      async ({ page }) => {
+        await loginViaUi(page, { email: 'sarah@company.com', password })
+        await page.setViewportSize({ width: 1280, height: 900 })
+        await navigateInApp(page, '/')
+
+        const card = page.getByTestId('recent-requests-card')
+        const tableView = card.getByTestId('recent-requests-table-view')
+        const region = card.getByTestId('recent-requests-scroll-region')
+        await expect(tableView).toBeVisible()
+        await expectTrailingColumnKeyboardReachable(
           region,
           region.locator('tbody tr').first().locator('td').last(),
         )

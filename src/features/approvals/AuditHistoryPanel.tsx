@@ -6,6 +6,7 @@ import './approvals.css'
 
 type AuditHistoryPanelProps = {
   requestId: number
+  panelId?: string
 }
 
 function actionKey(action: AuditEventResponse['action']): string | null {
@@ -35,7 +36,7 @@ function formatTimestamp(isoTimestamp: string, locale: string): string {
   })
 }
 
-export function AuditHistoryPanel({ requestId }: AuditHistoryPanelProps) {
+export function AuditHistoryPanel({ requestId, panelId }: AuditHistoryPanelProps) {
   const { t, i18n } = useTranslation(['approvals', 'common'])
   const { data: events = [], isPending, isError } = useQuery({
     queryKey: ['leave-requests', requestId, 'audit-events'],
@@ -44,7 +45,7 @@ export function AuditHistoryPanel({ requestId }: AuditHistoryPanelProps) {
 
   if (isPending) {
     return (
-      <div className="audit-history-panel" data-testid="audit-history-panel">
+      <div id={panelId} className="audit-history-panel" data-testid="audit-history-panel">
         <p className="body-text">{t('approvals:audit.loading')}</p>
       </div>
     )
@@ -52,7 +53,12 @@ export function AuditHistoryPanel({ requestId }: AuditHistoryPanelProps) {
 
   if (isError) {
     return (
-      <div className="audit-history-panel" data-testid="audit-history-panel" role="alert">
+      <div
+        id={panelId}
+        className="audit-history-panel"
+        data-testid="audit-history-panel"
+        role="alert"
+      >
         <p className="body-text">{t('approvals:audit.loadError')}</p>
       </div>
     )
@@ -60,14 +66,14 @@ export function AuditHistoryPanel({ requestId }: AuditHistoryPanelProps) {
 
   if (events.length === 0) {
     return (
-      <div className="audit-history-panel" data-testid="audit-history-panel">
+      <div id={panelId} className="audit-history-panel" data-testid="audit-history-panel">
         <p className="body-text">{t('approvals:audit.empty')}</p>
       </div>
     )
   }
 
   return (
-    <div className="audit-history-panel" data-testid="audit-history-panel">
+    <div id={panelId} className="audit-history-panel" data-testid="audit-history-panel">
       <h3 className="audit-history-title">{t('approvals:audit.title')}</h3>
       <ol className="audit-history-timeline">
         {events.map((event) => {
@@ -82,9 +88,12 @@ export function AuditHistoryPanel({ requestId }: AuditHistoryPanelProps) {
                 <span className="audit-history-action">
                   {actionKey(event.action) ? t(`approvals:${actionKey(event.action)}`) : event.action ?? t('common:unknown')}
                 </span>
-                <span className="audit-history-timestamp">
+                <time
+                  className="audit-history-timestamp"
+                  dateTime={event.occurredAt ?? undefined}
+                >
                   {formatTimestamp(event.occurredAt ?? '', i18n.language)}
-                </span>
+                </time>
               </div>
               <div className="audit-history-actor">
                 <span>{event.actorFirstName ?? t('common:unknown')}</span>

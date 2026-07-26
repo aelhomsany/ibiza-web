@@ -3,8 +3,9 @@
 .card,
 .settings-card {
   min-width: 0;
-  background: var(--color-white);
-  border: 1px solid var(--color-border-light);
+  background: var(--color-surface-card);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-lg);
 }
 
@@ -26,15 +27,16 @@
   justify-content: space-between;
   padding-block: var(--space-lg);
   padding-inline: var(--space-card-padding);
-  border-block-end: 1px solid var(--color-border-light);
+  border-block-end: 1px solid var(--color-border-default);
 }
 
 .card-title,
 .card-section-title {
   margin: 0;
-  color: var(--color-foreground);
+  color: var(--color-text-primary);
   font-size: var(--font-card-title-size);
   font-weight: var(--font-card-title-weight);
+  line-height: var(--font-card-title-line-height);
 }
 
 .card-section-header {
@@ -54,6 +56,6 @@
 .dashboard-section-loading {
   padding-block: var(--space-lg);
   padding-inline: var(--space-card-padding);
-  color: var(--color-muted);
+  color: var(--color-text-secondary);
   font-size: var(--font-body-size);
 }

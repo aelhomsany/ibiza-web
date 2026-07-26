@@ -16,11 +16,53 @@
     },
     "empty": "No audit events recorded yet.",
     "hide": "Hide audit history",
+    "hideFor": "Hide audit history for {{name}}",
     "loading": "Loading audit history…",
     "loadError": "Unable to load audit history.",
     "onBehalf": "On behalf of {{name}}",
     "show": "Audit history",
+    "showFor": "Show audit history for {{name}}",
     "title": "Audit History"
+  },
+  "balance": {
+    "consequence": "{{before}} days available → {{after}} after approval",
+    "insufficient": "{{remaining}} days available; this request needs {{requested}}. Approval is unavailable.",
+    "uncapped": "Uncapped — approval does not deduct a balance",
+    "unavailable": "Balance consequence unavailable"
+  },
+  "context": {
+    "balanceAfter": "Balance consequence",
+    "dates": "Requested dates",
+    "employeeNote": "Employee note",
+    "groupUnavailable": "Workforce Group unavailable",
+    "weekendRule": "{{days}} weekend",
+    "weekendUnavailable": "Weekend rule unavailable"
+  },
+  "coverage": {
+    "advisory": "Coverage watch is advisory; confirm actual availability before deciding.",
+    "eyebrow": "Coverage watch",
+    "loading": "Checking returned team coverage facts…",
+    "noOverlap": "No returned upcoming absence starts in this range. Available {{group}} capacity is not supplied by this feed.",
+    "offToday": "Off today",
+    "overlap_one": "{{count}} returned organization absence starts in this range. Confirm available {{group}} coverage.",
+    "overlap_two": "{{count}} returned organization absences start in this range. Confirm available {{group}} coverage.",
+    "overlap_few": "{{count}} returned organization absences start in this range. Confirm available {{group}} coverage.",
+    "overlap_many": "{{count}} returned organization absences start in this range. Confirm available {{group}} coverage.",
+    "overlap_other": "{{count}} returned organization absences start in this range. Confirm available {{group}} coverage.",
+    "partial": "Some coverage facts are unavailable. Confirm available {{group}} coverage.",
+    "partialRail": "Some coverage data is unavailable; the returned facts are shown.",
+    "railDescription": "Organization-level facts from the existing team coverage feeds.",
+    "state_one": "{{count}} team member is recorded off today.",
+    "state_two": "{{count}} team members are recorded off today.",
+    "state_few": "{{count}} team members are recorded off today.",
+    "state_many": "{{count}} team members are recorded off today.",
+    "state_other": "{{count}} team members are recorded off today.",
+    "state_zero": "No one is recorded off today.",
+    "summaryLabel": "Team coverage summary",
+    "teamTitle": "Team context",
+    "title": "Available coverage",
+    "upcoming": "Upcoming",
+    "wfhToday": "WFH today"
   },
   "declineModal": {
     "label": "Decline reason",
@@ -28,6 +70,7 @@
     "title": "Decline request for {{name}}"
   },
   "empty": "All caught up!",
+  "emptyDescription": "There are no pending requests. Recent decisions remain available below.",
   "errors": {
     "approve": "Unable to approve request",
     "decline": "Unable to decline request",
@@ -35,12 +78,27 @@
     "recent": "We couldn't load recent decisions. Please try again."
   },
   "manager": {
+    "actingOnBehalf": "You are deciding on behalf of {{name}}.",
     "onBehalf": "On behalf of {{name}}",
     "reportsTo": "Reports to {{name}}"
   },
+  "queue": {
+    "description": "Oldest requests appear first. Each card keeps policy, balance, calculation, coverage, and actions together.",
+    "eyebrow": "Decision queue",
+    "requestEyebrow": "Pending request",
+    "title": "Pending Requests"
+  },
   "recent": {
+    "caption": "Recent approval decisions with actor and on-behalf audit context",
+    "description": "A durable record of the latest scoped decisions and who made them.",
     "empty": "No recent decisions yet.",
+    "eyebrow": "Decision record",
     "title": "Recent Decisions"
+  },
+  "stale": {
+    "announcement": "{{name}}'s request changed before your decision. Its context remains here and actions are disabled.",
+    "card": "This request is no longer actionable. Refresh the queue for the latest decision record for {{name}}.",
+    "modal": "{{name}}'s request was decided elsewhere. Your reason is preserved; close this dialog to review the retained context."
   },
   "subtitle": {
     "hr": "Review all requests — you can approve on behalf of any manager",
@@ -49,6 +107,15 @@
   "success": {
     "approved": "{{name}}'s request approved",
     "declined": "{{name}}'s request declined"
+  },
+  "summary": {
+    "coverageFacts": "{{off}} off today · {{upcoming}} upcoming",
+    "coverageLabel": "Coverage signals",
+    "coverageOffOnly": "{{off}} off today · upcoming coverage unavailable",
+    "coveragePartial": "Partial coverage facts",
+    "label": "Approval queue summary",
+    "oldestLabel": "Oldest waiting since",
+    "pendingLabel": "Pending requests"
   },
   "table": {
     "audit": "Audit",
@@ -65,6 +132,21 @@
     "workingDays_few": "{{count}} working days",
     "workingDays_many": "{{count}} working days",
     "workingDays_other": "{{count}} working days"
+  },
+  "weekdays": {
+    "FRIDAY": "Friday",
+    "MONDAY": "Monday",
+    "SATURDAY": "Saturday",
+    "SUNDAY": "Sunday",
+    "THURSDAY": "Thursday",
+    "TUESDAY": "Tuesday",
+    "WEDNESDAY": "Wednesday"
+  },
+  "workingDays": {
+    "authoritative": "Stored working days from the request",
+    "details": "Calculation policy",
+    "policy": "{{group}} · {{weekend}}",
+    "zero": "This request has no chargeable working days, so it cannot be approved."
   },
   "title": "Approvals"
 }

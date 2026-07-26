@@ -1,26 +1,393 @@
 .my-leaves-balances {
-  margin-bottom: var(--space-section-gap);
+  min-width: 0;
 }
 
 .my-leaves-section-title {
   color: var(--color-foreground);
   font-size: var(--font-card-title-size);
   font-weight: var(--font-card-title-weight);
-  margin: 0 0 12px;
+  margin: 0;
+  margin-block-end: var(--space-md);
+}
+
+.my-leaves-summary {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-section-gap);
+  margin-block-end: var(--space-section-gap);
+}
+
+.my-leaves-request-explainer {
+  min-width: 0;
+}
+
+.my-leaves-eyebrow,
+.my-leaves-explainer-title,
+.my-leaves-explainer-context,
+.my-leaves-result-count {
+  margin: 0;
+}
+
+.my-leaves-eyebrow {
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-caption-line-height);
+}
+
+.my-leaves-explainer-title,
+.my-leaves-filter-title {
+  margin-block-start: var(--space-xs);
+  color: var(--color-text-primary);
+  font-size: var(--font-section-title-size);
+  font-weight: var(--font-section-title-weight);
+  line-height: var(--font-section-title-line-height);
+  letter-spacing: var(--font-section-title-letter-spacing);
+}
+
+.my-leaves-explainer-context {
+  margin-block-start: var(--space-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+}
+
+.my-leaves-request-explainer .working-day-explainer {
+  margin-block-start: var(--space-md);
+}
+
+.my-leaves-explainer-status {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+}
+
+.my-leaves-filters {
+  min-width: 0;
+  padding: var(--space-card-padding);
+  margin-block-end: var(--space-section-gap);
+}
+
+.my-leaves-filter-heading {
+  min-width: 0;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-block-end: var(--space-lg);
+}
+
+.my-leaves-filter-title {
+  margin-block-end: 0;
+}
+
+.my-leaves-result-count {
+  color: var(--color-text-secondary);
+  font-size: var(--font-label-size);
+  line-height: var(--font-label-line-height);
+}
+
+.my-leaves-filter-controls {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+  align-items: end;
+  gap: var(--space-xl);
+}
+
+.my-leaves-status-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.my-leaves-status-fieldset legend,
+.my-leaves-search-field label {
+  margin-block-end: 6px;
+  color: var(--color-text-primary);
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-label-line-height);
+}
+
+.my-leaves-status-segments {
+  min-width: 0;
+  max-width: 100%;
+  display: flex;
+  gap: var(--space-xs);
+  overflow-x: auto;
+  padding: var(--space-xs);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle);
+  scrollbar-gutter: stable;
+}
+
+.my-leaves-status-segment {
+  min-width: var(--min-touch-target);
+  min-height: var(--min-touch-target);
+  flex: 1 0 auto;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-lg);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+  white-space: nowrap;
+}
+
+.my-leaves-status-segment:hover {
+  background: var(--color-surface-card);
+  color: var(--color-text-primary);
+}
+
+.my-leaves-status-segment[aria-pressed='true'] {
+  border-color: var(--color-action-primary);
+  background: var(--color-action-primary);
+  color: var(--color-action-primary-foreground);
+  box-shadow: var(--shadow-card);
+}
+
+.my-leaves-status-segment:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.my-leaves-search-field {
+  min-width: 0;
+  margin-block-end: 0;
+}
+
+.my-leaves-search-field input {
+  min-width: 0;
+}
+
+.my-leaves-deep-link-not-found,
+.my-leaves-region-error {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  padding: var(--space-card-padding);
+  border-radius: var(--radius-lg);
+}
+
+.my-leaves-deep-link-not-found {
+  margin-block-end: var(--space-section-gap);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-card);
+  color: var(--color-text-secondary);
+}
+
+.my-leaves-deep-link-not-found p,
+.my-leaves-region-error p {
+  margin: 0;
+}
+
+.my-leaves-region-error {
+  margin: var(--space-card-padding);
+  border: 1px solid var(--color-error-border);
+  background: var(--color-error-bg);
+  color: var(--color-error-fg);
 }
 
 .my-leaves-history {
   /* Fills the full-bleed page like Dashboard/Approvals — the old
      --layout-table-max-width cap left a dead right gutter on wide screens
      while the balance grid above it filled the row (removed 2026-07-05). */
-  margin-top: 0;
+  margin-block-start: 0;
+  overflow: hidden;
+}
+
+.my-leaves-history .dashboard-table {
+  /* Inherit the shared 760px table floor rather than adding +200px; the extra
+     width pushed Status/Details behind horizontal scroll from 901px up to
+     ~1265px (AC4 desktop — primary facts must not need horizontal discovery).
+     Let cells flex/wrap within the sanctioned scroll region instead. */
+  min-width: auto;
 }
 
 .my-leaves-history .dashboard-table td {
   vertical-align: top;
 }
 
+.my-leaves-details-row td {
+  background: var(--color-surface-subtle);
+}
+
+.my-leaves-request-details {
+  min-width: 0;
+}
+
+.my-leaves-request-card .my-leaves-request-details {
+  margin-block-start: var(--space-sm);
+}
+
+.my-leaves-empty-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
 .my-leaves-history .status-hint,
 .my-leaves-history .decline-reason {
-  margin-top: 4px;
+  margin-block-start: var(--space-xs);
+}
+
+.my-leaves-request-hint,
+.my-leaves-request-dates,
+.my-leaves-request-working-days {
+  margin: 0;
+}
+
+.my-leaves-details-button {
+  color: var(--color-action-primary);
+}
+
+.my-leaves-mobile-history {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.my-leaves-request-card {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-card-padding);
+  background: var(--color-surface-card);
+  scroll-margin-block: var(--space-3xl);
+}
+
+.my-leaves-request-card + .my-leaves-request-card {
+  border-block-start: 1px solid var(--color-border-default);
+}
+
+.my-leaves-request-card-heading {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.my-leaves-request-dates {
+  color: var(--color-text-primary);
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+}
+
+.my-leaves-request-working-days {
+  color: var(--color-working-policy);
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-label-line-height);
+}
+
+.my-leaves-request-card .my-leaves-details-button {
+  justify-self: start;
+  margin-block-start: var(--space-xs);
+}
+
+.my-leaves-request-card[data-focused='true'] {
+  outline: 2px solid var(--color-focus-inner);
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 4px var(--color-focus-outer);
+}
+
+.my-leaves-history tr[data-focused='true'] td {
+  background: var(--color-surface-selected);
+}
+
+.my-leaves-empty-icon {
+  display: block;
+  margin-block-end: var(--space-sm);
+  color: var(--color-text-secondary);
+}
+
+.my-leaves-empty-title {
+  margin-block-end: var(--space-xs);
+  color: var(--color-text-primary);
+  font-size: var(--font-card-title-size);
+  font-weight: var(--font-card-title-weight);
+  line-height: var(--font-card-title-line-height);
+}
+
+.my-leaves-empty-action {
+  margin-block-start: var(--space-lg);
+}
+
+@media (forced-colors: active) {
+  .my-leaves-status-segment:focus-visible,
+  .my-leaves-request-card[data-focused='true'] {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+
+  /* The pressed segment is background/border-only in normal mode, which forced
+     colors flatten away; give it a system-color fill so the active filter is
+     not distinguished by color alone (WCAG 1.4.1). */
+  .my-leaves-status-segment[aria-pressed='true'] {
+    background: Highlight;
+    color: HighlightText;
+    border-color: Highlight;
+  }
+}
+
+@media (max-width: 900px) {
+  .my-leaves-page .page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .my-leaves-page .page-header .btn-primary {
+    width: 100%;
+  }
+
+  .my-leaves-balances .balance-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+  }
+
+  .my-leaves-filter-controls {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-lg);
+  }
+
+  .my-leaves-status-segment {
+    flex-grow: 0;
+  }
+
+  .my-leaves-desktop-history {
+    display: none;
+  }
+
+  .my-leaves-mobile-history {
+    display: grid;
+  }
+
+  .my-leaves-filter-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .my-leaves-result-count {
+    text-align: start;
+  }
 }

@@ -73,6 +73,8 @@ function renderApprovalsPage(role: 'MANAGER' | 'HR_ADMIN' = 'MANAGER') {
 describe('ApprovalsPage', () => {
   beforeEach(() => {
     vi.spyOn(apiClient, 'getRecentApprovalDecisions').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([])
   })
 
   afterEach(() => {
@@ -114,7 +116,7 @@ describe('ApprovalsPage', () => {
       expect(screen.getByTestId('approvals-pending-list')).toBeInTheDocument()
     })
 
-    const row = screen.getByTestId('approval-row-101')
+    const row = screen.getByTestId('approval-card-101')
     expect(row).toBeInTheDocument()
     expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
     expect(row).toHaveTextContent('Annual Leave')
@@ -134,7 +136,7 @@ describe('ApprovalsPage', () => {
     })
 
     expect(screen.getByText('All caught up!')).toBeInTheDocument()
-    expect(screen.queryByTestId('approval-row-101')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('approval-card-101')).not.toBeInTheDocument()
   })
 
   it('[P1] shows HR Admin backstop subtitle copy', async () => {
@@ -151,7 +153,7 @@ describe('ApprovalsPage', () => {
     ).toBeInTheDocument()
   })
 
-  it('[P1] approve fires mutation, shows success toast, and invalidates related queries', async () => {
+  it('[P1] approve fires mutation, shows durable success feedback, and invalidates related queries', async () => {
     vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue(mockPendingApprovals)
     const approveSpy = vi.spyOn(apiClient, 'approveLeaveRequest').mockResolvedValue({
       id: 101,
@@ -171,7 +173,7 @@ describe('ApprovalsPage', () => {
 
     expect(approveSpy).toHaveBeenCalledWith(101)
     await waitFor(() =>
-      expect(screen.getByTestId('app-toast')).toHaveTextContent(/approved/i),
+      expect(screen.getByTestId('approvals-decision-feedback')).toHaveTextContent(/approved/i),
     )
 
     const invalidatedKeys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]))
@@ -203,12 +205,39 @@ describe('ApprovalsPage', () => {
 
     renderApprovalsPage('HR_ADMIN')
 
-    await waitFor(() => expect(screen.getByTestId('approval-row-101')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByTestId('approval-card-101')).toBeInTheDocument())
     expect(screen.getByTestId('reports-to-pill-101')).toHaveTextContent(/Reports to Morgan/i)
+    expect(screen.getByTestId('on-behalf-notice-101')).toHaveTextContent(
+      /deciding on behalf of Morgan/i,
+    )
     expect(screen.queryByTestId('on-behalf-pill-101')).not.toBeInTheDocument()
   })
 
-  it('[P1] decline fires mutation, shows success toast, and invalidates related queries', async () => {
+  it('[P1] retains stale request context and disables its actions after a 409 conflict', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue(mockPendingApprovals)
+    vi.spyOn(apiClient, 'approveLeaveRequest').mockRejectedValue(
+      new apiClient.ApiError(409, {
+        status: 409,
+        detail: 'Leave request was already decided',
+      }),
+    )
+    const user = userEvent.setup()
+
+    renderApprovalsPage('MANAGER')
+    await user.click(await screen.findByTestId('approve-btn-101'))
+
+    expect(await screen.findByTestId('approval-card-101')).toHaveTextContent(
+      /no longer actionable/i,
+    )
+    expect(screen.getByTestId('approve-btn-101')).toBeDisabled()
+    expect(screen.getByTestId('decline-btn-101')).toBeDisabled()
+    expect(screen.getByTestId('approvals-decision-feedback')).toHaveAttribute(
+      'role',
+      'alert',
+    )
+  })
+
+  it('[P1] decline fires mutation, shows durable success feedback, and invalidates related queries', async () => {
     vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue(mockPendingApprovals)
     const declineSpy = vi.spyOn(apiClient, 'declineLeaveRequest').mockResolvedValue({
       id: 101,
@@ -231,7 +260,7 @@ describe('ApprovalsPage', () => {
 
     expect(declineSpy).toHaveBeenCalledWith(101, 'Coverage gap that week')
     await waitFor(() =>
-      expect(screen.getByTestId('app-toast')).toHaveTextContent(/declined/i),
+      expect(screen.getByTestId('approvals-decision-feedback')).toHaveTextContent(/declined/i),
     )
 
     const invalidatedKeys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]))
@@ -309,7 +338,7 @@ describe('ApprovalsPage', () => {
     await user.click(screen.getByTestId('approve-btn-101'))
 
     await waitFor(() =>
-      expect(screen.getByTestId('app-toast')).toHaveTextContent(/approved/i),
+      expect(screen.getByTestId('approvals-decision-feedback')).toHaveTextContent(/approved/i),
     )
 
     const invalidatedKeys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]))
@@ -355,14 +384,14 @@ describe('ApprovalsPage', () => {
     const user = userEvent.setup()
     renderApprovalsPage('MANAGER')
 
-    await waitFor(() => expect(screen.getByTestId('approval-row-101')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByTestId('approval-card-101')).toBeInTheDocument())
     await user.click(screen.getByTestId('approve-btn-101'))
 
     await waitFor(() =>
-      expect(screen.getByTestId('app-toast')).toHaveTextContent(/approved/i),
+      expect(screen.getByTestId('approvals-decision-feedback')).toHaveTextContent(/approved/i),
     )
     await waitFor(() => {
-      expect(screen.queryByTestId('approval-row-101')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('approval-card-101')).not.toBeInTheDocument()
       expect(screen.getByTestId('recent-decision-row-101')).toBeInTheDocument()
     })
     expect(screen.getByText('Approved')).toBeInTheDocument()
@@ -390,7 +419,7 @@ describe('ApprovalsPage', () => {
     await user.click(screen.getByTestId('decline-confirm-btn'))
 
     await waitFor(() =>
-      expect(screen.getByTestId('app-toast')).toHaveTextContent(/declined/i),
+      expect(screen.getByTestId('approvals-decision-feedback')).toHaveTextContent(/declined/i),
     )
 
     const invalidatedKeys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]))

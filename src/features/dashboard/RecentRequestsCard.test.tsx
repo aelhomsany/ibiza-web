@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
+import i18n from '../../i18n/config'
 import type { RecentRequestResponse } from '../../api/generated/types'
 import { RecentRequestsCard } from './RecentRequestsCard'
 
@@ -70,26 +71,62 @@ function renderCard(requests = mockRecentRequests) {
 }
 
 describe('RecentRequestsCard — Story 3.2', () => {
+  afterEach(async () => {
+    cleanup()
+    if (i18n.language !== 'en') {
+      await i18n.changeLanguage('en')
+    }
+  })
+
   it('[P1] renders pending row with Waiting for approval hint', () => {
     renderCard()
-    expect(screen.getByText('Waiting for approval')).toBeInTheDocument()
-    expect(screen.getByText('Pending')).toBeInTheDocument()
+    const row = screen.getByTestId('recent-request-row-1')
+    expect(within(row).getByText('Waiting for approval')).toBeInTheDocument()
+    expect(within(row).getByText('Pending')).toBeInTheDocument()
   })
 
   it('[P1] renders declined row with decline reason verbatim', () => {
     renderCard()
+    const row = screen.getByTestId('recent-request-row-2')
     expect(
-      screen.getByText('"Team needs in-office coverage for sprint review"'),
+      within(row).getByText(
+        '"Team needs in-office coverage for sprint review"',
+      ),
     ).toBeInTheDocument()
   })
 
   it('[P1] renders approved row with approver first name hint', () => {
     renderCard()
-    expect(screen.getByText('Approved by Alex')).toBeInTheDocument()
+    const row = screen.getByTestId('recent-request-row-3')
+    expect(within(row).getByText('Approved by Alex')).toBeInTheDocument()
   })
 
   it('[P1] shows empty state when no requests', () => {
     renderCard([])
     expect(screen.getByText(/No leave requests yet/i)).toBeInTheDocument()
+  })
+
+  it('[P0] renders task-preserving mobile request cards with primary facts', () => {
+    renderCard()
+
+    const mobileCard = screen.getByTestId('recent-request-card-1')
+    expect(mobileCard).toHaveTextContent('Annual Leave')
+    expect(mobileCard).toHaveTextContent('Jun 10, 2026 – Jun 14, 2026')
+    expect(mobileCard).toHaveTextContent('3 working days')
+    expect(mobileCard).toHaveTextContent('Pending')
+    expect(mobileCard).toHaveTextContent('Waiting for approval')
+  })
+
+  it('[P0] localizes structured hints instead of rendering server English in Arabic', async () => {
+    await i18n.changeLanguage('ar')
+    renderCard()
+
+    const pendingRow = screen.getByTestId('recent-request-row-1')
+    expect(pendingRow).toHaveTextContent('بانتظار الموافقة')
+    expect(pendingRow).not.toHaveTextContent('Waiting for approval')
+
+    const approvedRow = screen.getByTestId('recent-request-row-3')
+    expect(approvedRow).toHaveTextContent('وافق عليه Alex')
+    expect(approvedRow).not.toHaveTextContent('Approved by Alex')
   })
 })

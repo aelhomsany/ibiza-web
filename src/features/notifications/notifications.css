@@ -4,8 +4,8 @@
 
 .notification-bell {
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: var(--min-touch-target);
+  height: var(--min-touch-target);
   border: none;
   border-radius: var(--radius-md);
   background: transparent;
@@ -29,43 +29,45 @@
 }
 
 .notification-bell:focus-visible {
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  box-shadow: var(--shadow-focus-ring);
 }
 
 .notification-badge {
   position: absolute;
-  top: 4px;
+  inset-block-start: var(--space-xs);
   inset-inline-end: var(--space-xs);
   min-width: 18px;
   height: 18px;
-  padding: 0 6px;
-  border-radius: 99px;
+  padding-block: 0;
+  padding-inline: 6px;
+  border-radius: var(--radius-full);
   background: var(--color-danger);
   color: var(--color-white);
-  font-size: 11px;
+  font-size: var(--font-caption-size);
   font-weight: 700;
   line-height: 18px;
 }
 
 .notification-panel {
   position: absolute;
-  top: 46px;
+  inset-block-start: calc(100% + var(--space-xs));
   inset-inline-start: 0;
   z-index: 30;
   width: 360px;
   max-height: 420px;
   overflow-y: auto;
-  border: 1px solid var(--color-border-light);
-  border-radius: 12px;
-  background: var(--color-white);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-card);
   box-shadow: var(--shadow-notification-panel);
-  color: var(--color-foreground);
+  color: var(--color-text-primary);
 }
 
 .notification-panel-header {
   min-height: 48px;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--color-border-light);
+  padding-block: 0;
+  padding-inline: var(--space-lg);
+  border-block-end: 1px solid var(--color-border-default);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -96,9 +98,10 @@
 .notification-item {
   width: 100%;
   min-height: 64px;
-  padding: 12px 16px;
+  padding-block: var(--space-md);
+  padding-inline: var(--space-lg);
   border: none;
-  border-bottom: 1px solid var(--color-border-light);
+  border-block-end: 1px solid var(--color-border-default);
   background: transparent;
   display: flex;
   align-items: flex-start;
@@ -109,7 +112,7 @@
 }
 
 .notification-item:last-child {
-  border-bottom: none;
+  border-block-end: none;
 }
 
 .notification-item--unread {
@@ -119,7 +122,7 @@
 .notification-unread-dot {
   width: 8px;
   height: 8px;
-  margin-top: 4px;
+  margin-block-start: var(--space-xs);
   border-radius: 50%;
   background: var(--color-teal);
   flex: 0 0 auto;
@@ -145,7 +148,8 @@
 
 .notification-empty {
   margin: 0;
-  padding: 32px 16px;
+  padding-block: var(--space-3xl);
+  padding-inline: var(--space-lg);
   color: var(--color-muted);
   font-size: 13px;
   text-align: center;

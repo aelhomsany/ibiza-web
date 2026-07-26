@@ -21,7 +21,10 @@ test.describe('Dashboard balances — Story 3.1', { tag: [tags.regression, tags.
 
     const annualCard = page.getByTestId('balance-card-annual-leave')
     await expect(annualCard).toBeVisible()
-    await expect(annualCard.getByText('20 left')).toBeVisible()
-    await expect(annualCard.getByText('/20')).toBeVisible()
+    await expect(annualCard.getByText('17 left')).toBeVisible()
+    await expect(annualCard.locator('.balance-total')).toHaveText('/20')
+    await expect(annualCard.locator('.balance-used')).toHaveText(
+      '3 working days used',
+    )
   })
 })

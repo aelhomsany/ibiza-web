@@ -5,13 +5,57 @@
     "requestLeave": "طلب إجازة"
   },
   "balances": "الأرصدة",
+  "deepLink": {
+    "notFound": "هذا الطلب غير متاح. لا يزال سجل طلباتك الشخصي الكامل ظاهرًا أدناه.",
+    "notFoundTitle": "الطلب غير موجود",
+    "viewHistory": "عرض سجل الإجازات"
+  },
   "errors": {
     "balances": "تعذر تحميل أرصدة إجازاتك.",
     "history": "تعذر تحميل سجل إجازاتك."
   },
+  "explainer": {
+    "aggregateOnly": "يتضمن هذا الطلب المحفوظ الإجمالي المعتمد. لم تُرجع الخدمة تواريخ الأيام المحتسبة والمستبعدة منفردة.",
+    "details": "سياق الحساب",
+    "empty": "سيظهر هنا إجمالي أيام العمل المحفوظ لأول طلب تقدمه.",
+    "eyebrow": "نتيجة الطلب المحفوظة",
+    "loading": "جارٍ تحميل أحدث نتيجة محفوظة لأيام العمل…",
+    "policy": "مجموعة العمل في ملفك الشخصي: {{group}}",
+    "policyFallback": "مصدر السياسة: مجموعة العمل في ملفك الشخصي",
+    "requestContext": "{{type}} · {{dates}}. هذه هي النتيجة المحفوظة لهذا الطلب.",
+    "requestContextWithHint": "{{type}} · {{dates}}. {{hint}}",
+    "title": "وضوح أيام العمل"
+  },
+  "filters": {
+    "all": "الكل",
+    "clear": "مسح عوامل التصفية",
+    "eyebrow": "سهولة العثور",
+    "noMatch": "لا توجد طلبات تطابق عوامل التصفية هذه.",
+    "noMatchHint": "جرّب بحثًا أو حالة أخرى، أو امسح عوامل التصفية النشطة.",
+    "results_few": "{{count}} طلبات ظاهرة",
+    "results_many": "{{count}} طلبًا ظاهرًا",
+    "results_one": "طلب واحد ظاهر",
+    "results_other": "{{count}} طلب ظاهر",
+    "results_two": "طلبان ظاهران",
+    "results_zero": "لا توجد طلبات ظاهرة",
+    "searchLabel": "البحث في سجل الطلبات",
+    "searchPlaceholder": "ابحث بالنوع أو التاريخ أو الحالة أو الموافق أو السبب",
+    "statusLegend": "التصفية حسب الحالة",
+    "title": "العثور على طلب"
+  },
   "history": {
+    "details": "التفاصيل",
+    "detailsFor": "تفاصيل {{type}}، {{dates}}",
     "empty": "لا توجد طلبات إجازة بعد. ابدأ طلبًا عندما تحتاج إلى إجازة.",
-    "title": "سجل الإجازات"
+    "emptyTitle": "سيبدأ سجل طلباتك من هنا",
+    "hideDetails": "إخفاء التفاصيل",
+    "title": "سجل الإجازات",
+    "workingDays_few": "{{count}} أيام عمل",
+    "workingDays_many": "{{count}} يوم عمل",
+    "workingDays_one": "يوم عمل واحد",
+    "workingDays_other": "{{count}} يوم عمل",
+    "workingDays_two": "يوما عمل",
+    "workingDays_zero": "لا توجد أيام عمل"
   },
   "requestContext": {
     "audit": "سجل التدقيق",
@@ -32,10 +76,10 @@
   "table": {
     "audit": "التدقيق",
     "dates": "التواريخ",
-    "days": "الأيام",
+    "days": "أيام العمل",
+    "details": "التفاصيل",
     "status": "الحالة",
-    "type": "النوع",
-    "working": "عمل"
+    "type": "النوع"
   },
   "title": "إجازاتي"
 }

@@ -72,4 +72,17 @@ describe('OutTodaySidebar — Story 3.2', () => {
     renderSidebar()
     expect(screen.getByText(/2d working/i)).toBeInTheDocument()
   })
+
+  it('[P1] summarizes returned coverage facts without a risk threshold', () => {
+    renderSidebar()
+
+    const summary = screen.getByTestId('coverage-summary')
+    expect(summary).toHaveTextContent('Off today')
+    expect(summary).toHaveTextContent('WFH today')
+    expect(summary).toHaveTextContent('Next 30 days')
+    expect(summary).toHaveTextContent(
+      '1 team member is recorded off today.',
+    )
+    expect(summary).not.toHaveTextContent(/risk|capacity|percent/i)
+  })
 })

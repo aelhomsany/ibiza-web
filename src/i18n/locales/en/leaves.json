@@ -5,13 +5,57 @@
     "requestLeave": "Request Leave"
   },
   "balances": "Balances",
+  "deepLink": {
+    "notFound": "This request is not available. Your full personal history is still shown below.",
+    "notFoundTitle": "Request not found",
+    "viewHistory": "View Leave History"
+  },
   "errors": {
     "balances": "Unable to load your leave balances.",
     "history": "Unable to load your leave history."
   },
+  "explainer": {
+    "aggregateOnly": "This saved request includes the authoritative total. Individual charged and excluded dates were not returned.",
+    "details": "Calculation context",
+    "empty": "Your first request will keep its stored working-day total here.",
+    "eyebrow": "Stored request result",
+    "loading": "Loading your latest stored working-day result…",
+    "policy": "Workforce Group on your profile: {{group}}",
+    "policyFallback": "Policy source: the Workforce Group on your profile",
+    "requestContext": "{{type}} · {{dates}}. This is the stored result for that request.",
+    "requestContextWithHint": "{{type}} · {{dates}}. {{hint}}",
+    "title": "Working-day clarity"
+  },
+  "filters": {
+    "all": "All",
+    "clear": "Clear Filters",
+    "eyebrow": "Findability",
+    "noMatch": "No requests match these filters.",
+    "noMatchHint": "Try another search or status, or clear the active filters.",
+    "results_few": "{{count}} requests shown",
+    "results_many": "{{count}} requests shown",
+    "results_one": "{{count}} request shown",
+    "results_other": "{{count}} requests shown",
+    "results_two": "{{count}} requests shown",
+    "results_zero": "No requests shown",
+    "searchLabel": "Search request history",
+    "searchPlaceholder": "Search type, date, status, approver, or reason",
+    "statusLegend": "Filter by status",
+    "title": "Find a request"
+  },
   "history": {
+    "details": "Details",
+    "detailsFor": "Details for {{type}}, {{dates}}",
     "empty": "No leave requests yet. Start a request when you need time away.",
-    "title": "Leave History"
+    "emptyTitle": "Your request history starts here",
+    "hideDetails": "Hide Details",
+    "title": "Leave History",
+    "workingDays_few": "{{count}} working days",
+    "workingDays_many": "{{count}} working days",
+    "workingDays_one": "{{count}} working day",
+    "workingDays_other": "{{count}} working days",
+    "workingDays_two": "{{count}} working days",
+    "workingDays_zero": "No working days"
   },
   "requestContext": {
     "audit": "Audit",
@@ -32,10 +76,10 @@
   "table": {
     "audit": "Audit",
     "dates": "Dates",
-    "days": "Days",
+    "days": "Working days",
+    "details": "Details",
     "status": "Status",
-    "type": "Type",
-    "working": "working"
+    "type": "Type"
   },
   "title": "My Leaves"
 }

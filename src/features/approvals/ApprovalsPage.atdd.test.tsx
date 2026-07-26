@@ -81,7 +81,7 @@ describe('ApprovalsPage ATDD - Story 3.6', () => {
       expect(screen.getByTestId('approvals-pending-list')).toBeInTheDocument()
     })
 
-    expect(screen.getByTestId('approval-row-101')).toBeInTheDocument()
+    expect(screen.getByTestId('approval-card-101')).toBeInTheDocument()
     expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
     expect(screen.getByText('Annual Leave')).toBeInTheDocument()
     expect(screen.getByText(/2 working day/)).toBeInTheDocument()
@@ -100,7 +100,7 @@ describe('ApprovalsPage ATDD - Story 3.6', () => {
     })
 
     expect(screen.getByText('All caught up!')).toBeInTheDocument()
-    expect(screen.queryByTestId('approval-row-101')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('approval-card-101')).not.toBeInTheDocument()
   })
 
   it.skip('[P1] shows HR Admin backstop subtitle copy', async () => {

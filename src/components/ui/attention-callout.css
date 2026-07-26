@@ -1,0 +1,110 @@
+.attention-callout {
+  container: attention-callout / inline-size;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-lg);
+  padding: var(--space-card-padding);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-card);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-card);
+}
+
+.attention-callout--priority {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-decision);
+}
+
+.attention-callout--error {
+  border-color: var(--color-error-border);
+  background: var(--color-error-bg);
+  color: var(--color-error-fg);
+}
+
+.attention-callout-marker {
+  width: var(--min-touch-target);
+  height: var(--min-touch-target);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-selected);
+  color: var(--color-action-primary);
+}
+
+.attention-callout--priority .attention-callout-marker {
+  background: var(--color-status-pending-bg);
+  color: var(--color-status-pending-fg);
+}
+
+.attention-callout--error .attention-callout-marker {
+  background: var(--color-surface-card);
+  color: var(--color-error-fg);
+}
+
+.attention-callout-count {
+  font-size: var(--font-section-title-size);
+  font-weight: var(--font-section-title-weight);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.attention-callout-copy {
+  min-width: 0;
+}
+
+.attention-callout-eyebrow,
+.attention-callout-title,
+.attention-callout-description {
+  margin: 0;
+}
+
+.attention-callout-eyebrow {
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-caption-line-height);
+}
+
+.attention-callout-title {
+  margin-block-start: var(--space-xs);
+  font-size: var(--font-card-title-size);
+  font-weight: var(--font-card-title-weight);
+  line-height: var(--font-card-title-line-height);
+}
+
+.attention-callout-description {
+  margin-block-start: var(--space-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+}
+
+.attention-callout--error .attention-callout-eyebrow,
+.attention-callout--error .attention-callout-description {
+  color: inherit;
+}
+
+.attention-callout-action {
+  grid-column: 2;
+  justify-self: start;
+  align-self: end;
+  text-decoration: none;
+}
+
+@container attention-callout (max-width: 520px) {
+  .attention-callout-action {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .attention-callout-action {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}

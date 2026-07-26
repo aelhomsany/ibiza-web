@@ -13,6 +13,7 @@ function ControlledDeclineModal(props: {
     <DeclineModal
       requestId={101}
       employeeName="Sarah Chen"
+      dateRange="Jun 15–17, 2026"
       reason={reason}
       onReasonChange={setReason}
       onConfirm={props.onConfirm}

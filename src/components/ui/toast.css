@@ -1,14 +1,14 @@
 /* Shared toast — used via the Toast component only; do not restyle per page. */
 
 .app-toast {
-  background: var(--color-foreground);
-  border-radius: 10px;
-  bottom: var(--space-2xl);
-  color: var(--color-mist);
+  background: var(--color-text-primary);
+  border-radius: var(--radius-md);
+  inset-block-end: var(--space-2xl);
+  color: var(--color-text-inverse);
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 14px;
+  gap: var(--space-sm);
+  font-size: var(--font-body-sm-size);
   padding-block: var(--space-md);
   padding-inline: var(--space-xl) var(--space-lg);
   position: fixed;
@@ -17,8 +17,8 @@
 }
 
 .app-toast-warning {
-  background: var(--color-pending-bg);
-  color: var(--color-pending-fg);
+  background: var(--color-status-pending-bg);
+  color: var(--color-status-pending-fg);
 }
 
 .app-toast-dismiss {
@@ -28,12 +28,22 @@
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   line-height: 1;
-  padding: 2px 4px;
+  min-width: var(--min-touch-target);
+  min-height: var(--min-touch-target);
+  padding: var(--space-xs);
 }
 
 .app-toast-dismiss:focus-visible {
   outline: none;
   border-radius: var(--radius-sm);
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+@media (forced-colors: active) {
+  .app-toast-dismiss:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
 }
