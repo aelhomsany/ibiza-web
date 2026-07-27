@@ -1,4 +1,41 @@
 {
+  "categories": {
+    "ariaLabel": "Settings categories",
+    "items": {
+      "integrations": {
+        "label": "Integrations",
+        "subtitle": "Connect Ibiza to the tools your organization already uses.",
+        "title": "Integrations"
+      },
+      "leave-policies": {
+        "label": "Leave policies",
+        "subtitle": "Review configured leave types and their default annual entitlements.",
+        "title": "Leave policies"
+      },
+      "notifications": {
+        "label": "Notifications",
+        "subtitle": "Choose how leave workflow updates reach your organization.",
+        "title": "Notifications"
+      },
+      "organization": {
+        "label": "Organization",
+        "subtitle": "Review the organization identity and policy timezone used across Ibiza.",
+        "title": "Organization"
+      },
+      "people": {
+        "label": "People",
+        "subtitle": "Find members and manage roles, reporting lines, groups, and entitlements.",
+        "title": "People"
+      },
+      "working-calendars": {
+        "label": "Working calendars",
+        "subtitle": "Set each Workforce Group's weekends and public holidays, with impact visible before save.",
+        "title": "Working calendars"
+      }
+    },
+    "scrollCue": "Scroll to see more categories",
+    "sectionLabel": "Settings section"
+  },
   "calendarSync": {
     "actions": {
       "confirmDisconnect": "Confirm Disconnect",
@@ -42,7 +79,10 @@
   "groups": {
     "actions": {
       "add": "Add Group",
-      "create": "Create Group"
+      "create": "Create Group",
+      "manage": "Manage Groups",
+      "save": "Save Weekend Pattern",
+      "saving": "Saving…"
     },
     "aria": {
       "list": "Workforce groups",
@@ -51,6 +91,25 @@
     },
     "created": "Workforce Group \"{{name}}\" created",
     "createdPartial": "Group created — open the new tab to update weekend days",
+    "count": {
+      "loading": "Counting affected people…",
+      "people_few": "{{count}} people",
+      "people_many": "{{count}} people",
+      "people_one": "{{count}} person",
+      "people_other": "{{count}} people",
+      "people_two": "{{count}} people",
+      "people_zero": "No people",
+      "short_few": "{{count}} people",
+      "short_many": "{{count}} people",
+      "short_one": "{{count}} person",
+      "short_other": "{{count}} people",
+      "short_two": "{{count}} people",
+      "short_zero": "No people",
+      "shortLoading": "Counting…",
+      "shortUnavailable": "Count unavailable",
+      "unavailable": "Affected count unavailable",
+      "unknownValue": "the people assigned"
+    },
     "defaultWeekend": "Default weekend days",
     "errors": {
       "create": "Failed to create workforce group",
@@ -60,12 +119,26 @@
     },
     "groupName": "Group name",
     "helper": "Each group has its own weekends and holidays. Users are assigned to exactly one group.",
+    "impact": {
+      "affected": "Affected people",
+      "history": "Only future working-day calculations change. Past stored request days stay unchanged.",
+      "needsWeekend": "Weekend pattern needs attention",
+      "noWeekend": "Choose at least one weekend day for the {{name}} group before saving.",
+      "ready": "Policy ready for future calculations",
+      "step": "Workforce Group → policy → people → calculations",
+      "summary": "{{days}} are excluded for {{count}} in the {{name}} group.",
+      "title": "What this changes"
+    },
     "loading": "Loading workforce groups…",
     "modalTitle": "Add Workforce Group",
     "namePlaceholder": "e.g. UK",
     "none": "No workforce groups configured yet.",
+    "saved": "Weekend pattern matches the saved policy.",
+    "savedStatus": "{{name}} weekend pattern saved. Future calculations now use this policy.",
+    "selectedLabel": "Selected",
     "selectWeekend": "Select at least one weekend day",
     "title": "Workforce Groups",
+    "unsaved": "Weekend pattern has unsaved changes.",
     "updated": "{{name}} weekend days updated",
     "weekendLabel": "Weekend days —"
   },
@@ -114,6 +187,12 @@
     },
     "loading": "Loading leave types…",
     "none": "No leave types configured yet.",
+    "summary_few": "{{count}} configured leave types",
+    "summary_many": "{{count}} configured leave types",
+    "summary_one": "{{count}} configured leave type",
+    "summary_other": "{{count}} configured leave types",
+    "summary_two": "{{count}} configured leave types",
+    "summary_zero": "No configured leave types",
     "title": "Leave Types",
     "unlimited": "Unlimited / custom"
   },
@@ -133,12 +212,19 @@
     "deactivateCopy": "{{name}} will lose access and stop counting toward the active seat limit. Historical records stay visible.",
     "deactivateTitle": "Deactivate Team Member",
     "errors": {
+      "load": "Unable to load team members.",
       "status": "Unable to update team member status"
     },
     "none": "No team members yet.",
     "reactivateCopy": "{{name}} will regain access if the active seat limit allows it.",
     "reactivateTitle": "Reactivate Team Member",
     "reportsTo": "Reports to {{name}}",
+    "search": {
+      "label": "Search team members",
+      "none": "No team members match this search.",
+      "placeholder": "Search name, email, role, or group",
+      "results": "Showing {{shown}} of {{total}} people"
+    },
     "success": {
       "deactivated": "{{name}} deactivated",
       "reactivated": "{{name}} reactivated"
@@ -226,6 +312,22 @@
     },
     "title": "Notification Preferences"
   },
+  "organization": {
+    "fields": {
+      "name": "Organization name",
+      "timezone": "Policy timezone"
+    },
+    "helper": "Identity and shared context available to organization members.",
+    "notAvailable": "Not available",
+    "planNote": "Seat-limit and upgrade guidance appears when you add people, where it is relevant to the task.",
+    "unknown": "Organization"
+  },
   "subtitle": "Company policy, team, and leave entitlements",
-  "title": "Settings"
+  "title": "Settings",
+  "unsaved": {
+    "continue": "Continue Editing",
+    "copy": "You have changes that have not been saved. Discard them before moving to another Settings section.",
+    "discard": "Discard Changes",
+    "title": "Discard unsaved changes?"
+  }
 }

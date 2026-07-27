@@ -9,6 +9,7 @@ export const mockCalendarMonth: CalendarMonthResponse = {
   viewerWorkforceGroupId: 1,
   viewerWorkforceGroupName: 'US',
   viewerWeekendDays: ['SATURDAY', 'SUNDAY'],
+  audienceMemberCount: 8,
   absences: [
     {
       requestId: 10,
@@ -16,6 +17,8 @@ export const mockCalendarMonth: CalendarMonthResponse = {
       userFullName: 'Sarah Chen',
       userInitials: 'SC',
       userColorKey: 'user-0',
+      userWorkforceGroupId: 1,
+      userWorkforceGroupName: 'US',
       leaveTypeId: 1,
       leaveTypeName: 'Annual Leave',
       leaveTypeIcon: 'leave',
@@ -23,6 +26,7 @@ export const mockCalendarMonth: CalendarMonthResponse = {
       dateFrom: '2026-06-10',
       dateTo: '2026-06-12',
       workingDays: 3,
+      workingDates: ['2026-06-10', '2026-06-11', '2026-06-12'],
       canViewRequestContext: true,
     },
     {
@@ -31,6 +35,8 @@ export const mockCalendarMonth: CalendarMonthResponse = {
       userFullName: 'Omar Hassan',
       userInitials: 'OH',
       userColorKey: 'user-1',
+      userWorkforceGroupId: 2,
+      userWorkforceGroupName: 'Egypt',
       leaveTypeId: 4,
       leaveTypeName: 'Work From Home',
       leaveTypeIcon: 'home',
@@ -38,6 +44,7 @@ export const mockCalendarMonth: CalendarMonthResponse = {
       dateFrom: '2026-06-15',
       dateTo: '2026-06-15',
       workingDays: 1,
+      workingDates: ['2026-06-15'],
       canViewRequestContext: false,
     },
   ],

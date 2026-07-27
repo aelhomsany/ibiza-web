@@ -82,7 +82,7 @@ test.describe('Team member plan limit', { tag: [tags.regression, tags.api] }, ()
       })
     })
 
-    await page.goto('/settings')
+    await page.goto('/settings?category=people')
     await page.getByTestId('add-member-btn').click()
     await expect(page.getByText('Add Team Member')).toBeVisible()
 

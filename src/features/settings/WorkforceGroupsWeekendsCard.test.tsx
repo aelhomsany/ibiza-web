@@ -25,6 +25,10 @@ function renderCard(options?: { onSuccess?: (message: string) => void; onWarning
 }
 
 describe('WorkforceGroupsWeekendsCard', () => {
+  beforeEach(() => {
+    vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue([])
+  })
+
   afterEach(() => {
     vi.restoreAllMocks()
   })
@@ -78,15 +82,14 @@ describe('WorkforceGroupsWeekendsCard', () => {
     })
   })
 
-  it('calls onWarning when the last weekend day would be deselected', async () => {
+  it('keeps the impact visible and disables Save for a zero-day draft', async () => {
     const user = userEvent.setup()
-    const onWarning = vi.fn()
     vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue([
       { id: 1, name: 'US', weekendDays: ['SATURDAY'] },
     ])
     vi.spyOn(apiClient, 'getPublicHolidays').mockResolvedValue([])
 
-    renderCard({ onWarning })
+    renderCard()
 
     await waitFor(() => {
       expect(screen.getByRole('checkbox', { name: /Sat weekend day for US/i })).toBeInTheDocument()
@@ -94,6 +97,8 @@ describe('WorkforceGroupsWeekendsCard', () => {
 
     await user.click(screen.getByRole('checkbox', { name: /Sat weekend day for US/i }))
 
-    expect(onWarning).toHaveBeenCalledWith('Select at least one weekend day')
+    expect(screen.getByTestId('working-calendars-impact')).toBeInTheDocument()
+    expect(screen.getByText('Select at least one weekend day')).toBeInTheDocument()
+    expect(screen.getByTestId('working-calendars-save-btn')).toBeDisabled()
   })
 })

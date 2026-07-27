@@ -5,29 +5,26 @@ import type { DayOfWeek } from '../../api/generated/types'
 import { WeekendDayChips } from './WeekendDayChips'
 
 describe('WeekendDayChips', () => {
-  it('does not call onChange when deselecting the last weekend day', async () => {
+  it('allows a zero-day draft so the parent can explain why Save is blocked', async () => {
     const user = userEvent.setup()
-    const onChange = vi.fn().mockResolvedValue(undefined)
-    const onBlockedDeselect = vi.fn()
+    const onChange = vi.fn()
 
     render(
       <WeekendDayChips
         groupName="US"
         weekendDays={['SUNDAY']}
         onChange={onChange}
-        onBlockedDeselect={onBlockedDeselect}
       />,
     )
 
     await user.click(screen.getByRole('checkbox', { name: /Sun weekend day for US/i }))
 
-    expect(onChange).not.toHaveBeenCalled()
-    expect(onBlockedDeselect).toHaveBeenCalled()
+    expect(onChange).toHaveBeenCalledWith([])
   })
 
   it('calls onChange with updated weekend days when toggling a chip', async () => {
     const user = userEvent.setup()
-    const onChange = vi.fn().mockResolvedValue(undefined)
+    const onChange = vi.fn()
 
     render(
       <WeekendDayChips

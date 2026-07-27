@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { startOfWeek } from './calendarMonthUtils'
+import { formatWeekStripWeekday, startOfWeek } from './calendarMonthUtils'
 
 describe('startOfWeek', () => {
   it('[P1] defaults to a Sunday-start week when no weekend is configured', () => {
@@ -28,5 +28,11 @@ describe('startOfWeek', () => {
     const starts = new Set(days.map((day) => startOfWeek(day, [...weekendDays])))
     expect(starts.size).toBe(1)
     expect([...starts][0]).toBe('2026-06-07')
+  })
+})
+
+describe('formatWeekStripWeekday', () => {
+  it('[P1] uses a compact Arabic weekday label that fits the seven-day strip', () => {
+    expect(formatWeekStripWeekday('2026-07-27', 'ar')).toBe('ن')
   })
 })

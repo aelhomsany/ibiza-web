@@ -15,6 +15,8 @@
   "navigation": {
     "week": "التنقل بين أسابيع التقويم",
     "month": "التنقل بين أشهر التقويم",
+    "previous": "السابق",
+    "next": "التالي",
     "previousWeek": "الأسبوع السابق",
     "nextWeek": "الأسبوع التالي",
     "previousMonth": "الشهر السابق",
@@ -55,7 +57,10 @@
   },
   "agenda": {
     "label": "جدول أعمال تقويم الفريق",
+    "weekStripLabel": "اختر تاريخًا من الأسبوع",
+    "weekDayLabel": "{{date}}، {{absenceCount}} خارج العمل، {{holidayCount}} عطلات",
     "thisMonth": "هذا الشهر",
+    "selectedDay": "اليوم المحدد",
     "showAll": "عرض الكل",
     "workingDays_zero": "لا توجد أيام عمل",
     "workingDays_one": "يوم عمل واحد",
@@ -69,6 +74,13 @@
     "holidayTitle": "{{name}} — {{type}}",
     "absenceSummary": "{{range}} · {{days}}",
     "holidaySummary": "{{range}} · {{group}}",
+    "holidayAccessibleName": "{{name}}، عطلة رسمية، مجموعة {{group}}، {{range}}",
+    "holidayContinues": "العطلة مستمرة",
+    "stillAway": "لا يزال خارج العمل: {{names}}",
+    "dayProgress": "اليوم {{position}} من {{total}}",
+    "availability": "{{available}} من {{total}} متاحون",
+    "availabilityUnavailable": "عدد المتاحين غير متوفر",
+    "coverageWatch": "مراقبة التغطية — {{count}} خارج العمل في {{date}}",
     "emptyMonth": "لا توجد غيابات أو عطلات هذا الشهر — التغطية كاملة.",
     "emptyDay": "لا يوجد شيء في هذا اليوم — التغطية كاملة.",
     "dayLabel_zero": "{{date}}، لا توجد غيابات",
@@ -83,6 +95,22 @@
     "holidayCount_few": "{{count}} عطلات",
     "holidayCount_many": "{{count}} عطلة",
     "holidayCount_other": "{{count}} عطلة"
+  },
+  "policy": {
+    "summary": "لماذا تختلف الأيام؟",
+    "weekend": "عطلة نهاية الأسبوع لمجموعة {{group}}: {{days}}. قد تغيّر أنماط نهاية الأسبوع التواريخ المحتسبة.",
+    "holidays": "سياق عطلات {{group}}: {{count}} عطلات في هذه الفترة. قد تغيّر العطلات أيضًا الأيام المحتسبة.",
+    "displayOnly": "هذا سياق للسياسة فقط؛ لا تُعاد حسابات عناصر التقويم هنا. يُحسب اليوم وفق {{timezone}}.",
+    "noWeekend": "لا توجد أيام عطلة أسبوعية مضبوطة",
+    "days": {
+      "MONDAY": "الاثنين",
+      "TUESDAY": "الثلاثاء",
+      "WEDNESDAY": "الأربعاء",
+      "THURSDAY": "الخميس",
+      "FRIDAY": "الجمعة",
+      "SATURDAY": "السبت",
+      "SUNDAY": "الأحد"
+    }
   },
   "request": {
     "open": "فتح تفاصيل طلب {{name}}، {{type}}، {{presence}}، {{range}}",

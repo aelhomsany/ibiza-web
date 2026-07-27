@@ -24,6 +24,14 @@ import { useCalendarMonths } from './useCalendarMonth'
 import './calendar.css'
 
 type CalendarView = 'timeline' | 'agenda'
+const NARROW_CALENDAR_QUERY = '(max-width: 900px)'
+
+function initialCalendarView(): CalendarView {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return 'timeline'
+  }
+  return window.matchMedia(NARROW_CALENDAR_QUERY).matches ? 'agenda' : 'timeline'
+}
 
 function errorMessage(error: unknown, fallback: string): string {
   if (error instanceof ApiError) {
@@ -68,10 +76,15 @@ export function TeamCalendarPage() {
   const { t, i18n } = useTranslation('calendar')
   const { user } = useAuth()
   const [initialDate] = useState(currentLocalDate)
-  const [view, setView] = useState<CalendarView>('timeline')
+  const [view, setView] = useState<CalendarView>(initialCalendarView)
   const [anchorDate, setAnchorDate] = useState(initialDate)
   const [workforceGroupId, setWorkforceGroupId] = useState<number | undefined>(undefined)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  // Roving-tabindex focus for the Timeline date header. Kept separate from
+  // `selectedDate` so that merely Tab-ing/arrow-navigating the Timeline does
+  // not silently set the Agenda's single-day filter (only an explicit Agenda
+  // selection writes `selectedDate`).
+  const [timelineFocusDate, setTimelineFocusDate] = useState<string | null>(null)
   const initializedFromServerToday = useRef(false)
   const lastServerToday = useRef<string | null>(null)
   const month = yearMonthFromDate(anchorDate)
@@ -144,7 +157,7 @@ export function TeamCalendarPage() {
       return
     }
 
-    if (nextView === 'agenda') {
+    if (nextView === 'agenda' && selectedDate == null) {
       // Use the middle of the visible week so a cross-month week opens the
       // month containing most of its days instead of whichever weekday was
       // retained in the Timeline anchor.
@@ -153,7 +166,6 @@ export function TeamCalendarPage() {
       setAnchorDate(selectedDate)
     }
     setView(nextView)
-    setSelectedDate(null)
   }
 
   const goToToday = () => {
@@ -161,6 +173,29 @@ export function TeamCalendarPage() {
     setAnchorDate(authoritativeToday)
     setSelectedDate(null)
   }
+
+  const changeWeek = (delta: number) => {
+    setAnchorDate((currentDate) => addDays(currentDate, delta))
+    setSelectedDate((currentDate) => (
+      currentDate == null ? null : addDays(currentDate, delta)
+    ))
+  }
+
+  const changeAgendaDate = (date: string | null) => {
+    if (date != null && yearMonthFromDate(date) !== month) {
+      setAnchorDate(date)
+    }
+    setSelectedDate(date)
+  }
+
+  const policyGroupName = selectedGroup?.name
+    ?? calendar?.viewerWorkforceGroupName
+    ?? t('filter.all')
+  const weekendLabels = weekendDays.map((day) => t(`policy.days.${day}`))
+  const weekendLabel = new Intl.ListFormat(locale, {
+    style: 'long',
+    type: 'conjunction',
+  }).format(weekendLabels)
 
   return (
     <div className="page page-wide team-calendar-page" data-testid="team-calendar-page">
@@ -223,12 +258,12 @@ export function TeamCalendarPage() {
             label={periodLabel}
             onPrevious={() => (
               view === 'timeline'
-                ? setAnchorDate((currentDate) => addDays(currentDate, -7))
+                ? changeWeek(-7)
                 : changeMonth(-1)
             )}
             onNext={() => (
               view === 'timeline'
-                ? setAnchorDate((currentDate) => addDays(currentDate, 7))
+                ? changeWeek(7)
                 : changeMonth(1)
             )}
           />
@@ -269,6 +304,30 @@ export function TeamCalendarPage() {
 
       {calendarQuery.isSuccess && calendar ? (
         <div className="calendar-section">
+          <details className="calendar-policy-disclosure calendar-glass-card">
+            <summary data-testid="calendar-why-days-differ">
+              {t('policy.summary')}
+            </summary>
+            <div
+              className="calendar-policy-panel"
+              data-testid="calendar-why-days-differ-panel"
+            >
+              <p>
+                {t('policy.weekend', {
+                  group: policyGroupName,
+                  days: weekendLabel || t('policy.noWeekend'),
+                })}
+              </p>
+              <p>
+                {t('policy.holidays', {
+                  count: calendar.holidays.length,
+                  group: workforceGroupId == null ? t('filter.all') : policyGroupName,
+                })}
+              </p>
+              <p>{t('policy.displayOnly', { timezone: calendar.viewerTimezone })}</p>
+            </div>
+          </details>
+
           {view === 'agenda' && calendar.absences.length === 0 ? (
             <div className="calendar-empty-month">
               {t('emptyMonth')}
@@ -281,14 +340,17 @@ export function TeamCalendarPage() {
               weekStart={weekStart}
               weekendDays={weekendDays}
               locale={locale}
+              focusedDate={timelineFocusDate}
+              onFocusedDateChange={setTimelineFocusDate}
             />
           ) : (
             <CalendarAgenda
               calendar={calendar}
               month={month}
+              anchorDate={anchorDate}
               weekendDays={weekendDays}
               selectedDate={selectedDate}
-              onSelectedDateChange={setSelectedDate}
+              onSelectedDateChange={changeAgendaDate}
               locale={locale}
             />
           )}

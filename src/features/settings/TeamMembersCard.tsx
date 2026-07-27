@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ApiError,
@@ -17,6 +17,8 @@ import { TeamMemberModal } from './TeamMemberModal'
 import './team-members.css'
 
 type Props = {
+  discardSignal?: number
+  onDirtyChange?: (dirty: boolean) => void
   onSuccess?: (message: string) => void
   onWarning?: (message: string) => void
 }
@@ -34,7 +36,12 @@ function roleBadgeClass(role: string): string {
   return `role-badge role-badge-${role}`
 }
 
-export function TeamMembersCard({ onSuccess, onWarning }: Props) {
+export function TeamMembersCard({
+  discardSignal = 0,
+  onDirtyChange,
+  onSuccess,
+  onWarning,
+}: Props) {
   const { t, i18n } = useTranslation(['settings', 'layout', 'common'])
   const { user } = useAuth()
   const orgId = user?.organizationId
@@ -49,10 +56,63 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
   })
 
   const [modalOpen, setModalOpen] = useState(false)
+  const [formDirty, setFormDirty] = useState(false)
   const [editMemberId, setEditMemberId] = useState<number | null>(null)
   const [lifecycleTarget, setLifecycleTarget] = useState<TeamMemberSummaryResponse | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const lastDiscardSignal = useRef(discardSignal)
 
-  const members = membersQuery.data ?? []
+  // Guard the add/edit member form (the "consequential form" AC10 calls out) —
+  // but only once the user has actually edited a field, not merely opened the
+  // dialog. This avoids a spurious discard prompt for an empty draft and the
+  // route-blocker modal stacking on top of an untouched member dialog.
+  useEffect(() => {
+    onDirtyChange?.(modalOpen && formDirty)
+  }, [modalOpen, formDirty, onDirtyChange])
+
+  useEffect(
+    () => () => {
+      onDirtyChange?.(false)
+    },
+    [onDirtyChange],
+  )
+
+  useEffect(() => {
+    if (lastDiscardSignal.current === discardSignal) {
+      return
+    }
+    lastDiscardSignal.current = discardSignal
+    setModalOpen(false)
+    setFormDirty(false)
+    setEditMemberId(null)
+  }, [discardSignal])
+
+  const members = useMemo(() => membersQuery.data ?? [], [membersQuery.data])
+  const normalizedSearch = searchQuery.trim().toLocaleLowerCase(i18n.language)
+  const filteredMembers = useMemo(() => {
+    if (!normalizedSearch) {
+      return members
+    }
+    return members.filter((member) =>
+      [
+        member.fullName,
+        member.email,
+        member.department,
+        member.role,
+        // Search the same humanized label the row displays (e.g. "HR Admin"),
+        // not just the raw enum, alongside the raw value for exact-enum typers.
+        member.role && i18n.exists(`common:roles.${roleKey(member.role)}`)
+          ? t(`common:roles.${roleKey(member.role)}`)
+          : null,
+        member.workforceGroupName,
+        member.managerName,
+      ]
+        .filter(Boolean)
+        .some((value) =>
+          String(value).toLocaleLowerCase(i18n.language).includes(normalizedSearch),
+        ),
+    )
+  }, [i18n, members, normalizedSearch, t])
   const isLifecycleDeactivation = lifecycleTarget?.status !== 'DEACTIVATED'
   const lifecycleTitle = isLifecycleDeactivation
     ? t('settings:members.deactivateTitle')
@@ -62,17 +122,20 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
     : t('settings:members.actions.confirmReactivate')
 
   function openAdd() {
+    setFormDirty(false)
     setEditMemberId(null)
     setModalOpen(true)
   }
 
   function openEdit(id: number) {
+    setFormDirty(false)
     setEditMemberId(id)
     setModalOpen(true)
   }
 
   function handleClose() {
     setModalOpen(false)
+    setFormDirty(false)
     setEditMemberId(null)
   }
 
@@ -130,6 +193,28 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
         </button>
       </div>
 
+      <div className="team-members-list-controls">
+        <label htmlFor="team-members-search" className="sr-only">
+          {t('settings:members.search.label')}
+        </label>
+        <input
+          id="team-members-search"
+          type="search"
+          value={searchQuery}
+          placeholder={t('settings:members.search.placeholder')}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          data-testid="team-members-search"
+        />
+        {!membersQuery.isPending && !membersQuery.isError && members.length > 0 && (
+          <p role="status">
+            {t('settings:members.search.results', {
+              shown: filteredMembers.length,
+              total: members.length,
+            })}
+          </p>
+        )}
+      </div>
+
       {membersQuery.isPending && (
         <LoadingState
           label={t('layout:loading.teamMembers')}
@@ -138,12 +223,31 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
         />
       )}
 
-      {!membersQuery.isPending && members.length === 0 && (
+      {membersQuery.isError && (
+        <div className="settings-list-error" role="alert">
+          <span>{t('settings:members.errors.load')}</span>
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => void membersQuery.refetch()}
+          >
+            {t('common:actions.retry')}
+          </button>
+        </div>
+      )}
+
+      {!membersQuery.isPending && !membersQuery.isError && members.length === 0 && (
         <p className="settings-list-hint">{t('settings:members.none')}</p>
       )}
 
       <div className="settings-list-body" data-testid="team-members-list">
-        {members.map((member) => {
+        {!membersQuery.isPending &&
+          !membersQuery.isError &&
+          members.length > 0 &&
+          filteredMembers.length === 0 && (
+            <p className="settings-list-hint">{t('settings:members.search.none')}</p>
+          )}
+        {filteredMembers.map((member) => {
           const isDeactivated = member.status === 'DEACTIVATED'
           return (
           <div
@@ -265,9 +369,13 @@ export function TeamMembersCard({ onSuccess, onWarning }: Props) {
       {modalOpen && (
         <TeamMemberModal
           editMemberId={editMemberId}
+          onDirtyChange={setFormDirty}
           onClose={handleClose}
           onSuccess={(msg) => {
             handleClose()
+            // A newly added/edited member can otherwise stay hidden behind a
+            // stale search term right after the success toast fires.
+            setSearchQuery('')
             onSuccess?.(msg)
           }}
           onWarning={onWarning}

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   createPublicHoliday,
@@ -15,6 +15,8 @@ import './public-holidays.css'
 type PublicHolidaysSectionProps = {
   activeGroupId: number
   activeGroupName: string
+  discardSignal?: number
+  onDirtyChange?: (dirty: boolean) => void
   onSuccess?: (message: string) => void
   onWarning?: (message: string) => void
 }
@@ -38,6 +40,8 @@ function formatHolidayRange(dateFrom: string, dateTo: string, locale: string): s
 export function PublicHolidaysSection({
   activeGroupId,
   activeGroupName,
+  discardSignal = 0,
+  onDirtyChange,
   onSuccess,
   onWarning,
 }: PublicHolidaysSectionProps) {
@@ -67,6 +71,41 @@ export function PublicHolidaysSection({
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey })
   }
+
+  const holidays = holidaysQuery.data ?? []
+  const editingHoliday =
+    editingId != null ? holidays.find((holiday) => holiday.id === editingId) ?? null : null
+  // Opening Edit alone isn't a change — only count it dirty once a field
+  // actually differs from the holiday's saved values (mirrors
+  // WorkforceGroupsWeekendsCard's sameWeekendDays before/after comparison).
+  const isEditDirty =
+    editingId != null &&
+    (editingHoliday != null
+      ? editDateFrom !== editingHoliday.dateFrom ||
+        editDateTo !== (editingHoliday.dateTo || editingHoliday.dateFrom) ||
+        editName.trim() !== editingHoliday.name
+      : // The edited row vanished (e.g. a background refetch dropped it) while an
+        // edit was open — keep the guard armed if the user had typed anything,
+        // so their unsaved text isn't silently lost.
+        Boolean(editDateFrom || editDateTo || editName.trim()))
+  const isDirty = Boolean(newDateFrom || newDateTo || newName.trim()) || isEditDirty
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty)
+  }, [isDirty, onDirtyChange])
+
+  // Clear any in-progress add/edit on an explicit discard AND whenever the
+  // active Workforce Group changes, so a stale edit row / typed new-holiday
+  // text from the previous group doesn't carry over to the next group.
+  useEffect(() => {
+    setNewDateFrom('')
+    setNewDateTo('')
+    setNewName('')
+    setEditingId(null)
+    setEditDateFrom('')
+    setEditDateTo('')
+    setEditName('')
+  }, [discardSignal, activeGroupId])
 
   const createMutation = useMutation({
     mutationFn: createPublicHoliday,
@@ -109,7 +148,6 @@ export function PublicHolidaysSection({
     onError: () => onWarning?.(t('settings:holidays.errors.remove')),
   })
 
-  const holidays = holidaysQuery.data ?? []
   const isSaving =
     createMutation.isPending ||
     updateMutation.isPending ||

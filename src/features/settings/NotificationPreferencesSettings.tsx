@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ApiError,
@@ -14,6 +14,8 @@ import { BellIcon } from '../../components/ui/icons'
 import './notification-preferences.css'
 
 type NotificationPreferencesProps = {
+  discardSignal?: number
+  onDirtyChange?: (dirty: boolean) => void
   onSuccess?: (message: string) => void
   onWarning?: (message: string) => void
 }
@@ -56,6 +58,8 @@ function emailStatusKey(enabled: boolean, mutedUntil: string | null): string {
 }
 
 export function NotificationPreferencesSettings({
+  discardSignal = 0,
+  onDirtyChange,
   onSuccess,
   onWarning,
 }: NotificationPreferencesProps) {
@@ -73,6 +77,7 @@ export function NotificationPreferencesSettings({
   const [emailMutedUntil, setEmailMutedUntil] = useState<string | null>(null)
   const [emailDirty, setEmailDirty] = useState(false)
   const [mutePreset, setMutePreset] = useState<MutePreset>('1_DAY')
+  const lastDiscardSignal = useRef(discardSignal)
 
   function syncFromServer(pref: NotificationPreferenceResponse) {
     setEmailEnabled(pref.enabled)
@@ -88,6 +93,35 @@ export function NotificationPreferencesSettings({
       setEmailMutedUntil(emailPref.mutedUntil ?? null)
     }
   }, [emailPref, emailDirty])
+
+  useEffect(() => {
+    onDirtyChange?.(emailDirty)
+  }, [emailDirty, onDirtyChange])
+
+  // Unmounting (e.g. a category switch right after Discard) must not leave the
+  // parent's dirty flag stuck true — nothing else will ever clear it once this
+  // component is gone.
+  useEffect(
+    () => () => {
+      onDirtyChange?.(false)
+    },
+    [onDirtyChange],
+  )
+
+  useEffect(() => {
+    if (lastDiscardSignal.current === discardSignal) {
+      return
+    }
+    lastDiscardSignal.current = discardSignal
+    // Reset unconditionally: if emailPref hasn't loaded yet, the ref is still
+    // marked "handled" for this signal, so gating the reset behind `emailPref`
+    // here would skip it forever. The sync-from-server effect above will pick
+    // up the fields once emailPref arrives, now that emailDirty is false.
+    setEmailDirty(false)
+    if (emailPref) {
+      syncFromServer(emailPref)
+    }
+  }, [discardSignal, emailPref])
 
   const updateMutation = useMutation({
     mutationFn: (variables: {
@@ -270,7 +304,7 @@ export function NotificationPreferencesSettings({
             type="button"
             className="btn btn-primary btn-sm"
             onClick={saveEmailPreference}
-            disabled={saving}
+            disabled={saving || !emailDirty}
             data-busy={saving ? 'true' : undefined}
           >
             {t('notifications.actions.save')}

@@ -34,6 +34,9 @@ type Props = {
   onClose: () => void
   onSuccess: (message: string) => void
   onWarning?: (message: string) => void
+  // Reports whether the user has actually edited a field (vs. merely opening
+  // the dialog), so the unsaved-changes guard only engages on real changes.
+  onDirtyChange?: (dirty: boolean) => void
 }
 
 type UserRole = 'EMPLOYEE' | 'MANAGER' | 'HR_ADMIN'
@@ -45,12 +48,26 @@ type LeaveTypeOption = {
   defaultBalanceDays: number
 }
 
-export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }: Props) {
+export function TeamMemberModal({
+  editMemberId,
+  onClose,
+  onSuccess,
+  onWarning,
+  onDirtyChange,
+}: Props) {
   const { t } = useTranslation(['settings', 'common'])
   const { user } = useAuth()
   const orgId = user?.organizationId
   const queryClient = useQueryClient()
   const isEdit = editMemberId != null
+  // Set by the form-level onChange below on any real field edit. Programmatic
+  // state updates (initial load, entitlement defaults, role→manager reset) do
+  // not dispatch DOM change events, so they never flip this.
+  const [dirty, setDirty] = useState(false)
+
+  useEffect(() => {
+    onDirtyChange?.(dirty)
+  }, [dirty, onDirtyChange])
 
   const groupsQuery = useQuery({
     queryKey: ['workforce-groups', orgId],
@@ -335,7 +352,7 @@ export function TeamMemberModal({ editMemberId, onClose, onSuccess, onWarning }:
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={handleSubmit} onChange={() => setDirty(true)} noValidate>
           <div className="form-group">
             <label htmlFor="tm-fullname">{t('settings:memberModal.fields.fullName')}</label>
             <input

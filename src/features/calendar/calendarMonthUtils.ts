@@ -61,6 +61,31 @@ export function addDays(date: string, delta: number): string {
   return toIsoDate(nextDate)
 }
 
+export function daysBetweenInclusive(dateFrom: string, dateTo: string): number {
+  const millisecondsPerDay = 24 * 60 * 60 * 1000
+  return Math.floor(
+    (parseIsoDate(dateTo).getTime() - parseIsoDate(dateFrom).getTime())
+      / millisecondsPerDay,
+  ) + 1
+}
+
+/**
+ * Server-authoritative working-day progress for an absence on a given day.
+ * `workingDates` is the ordered list of charged working days supplied by the API
+ * (FR-11 single source of truth); the position is how many of them fall on or
+ * before `date`. Returns 0 when the list is missing/empty so callers can hide the
+ * label rather than recompute working-day math on the client.
+ */
+export function workingDayPosition(
+  workingDates: string[] | undefined,
+  date: string,
+): number {
+  if (workingDates == null || workingDates.length === 0) {
+    return 0
+  }
+  return workingDates.filter((workingDate) => workingDate <= date).length
+}
+
 const dayIndexByDayOfWeek: Record<DayOfWeek, number> = {
   SUNDAY: 0,
   MONDAY: 1,
@@ -126,6 +151,16 @@ export function formatTimelineDay(date: string, locale = 'en-US'): string {
   const weekday = formatIsoDate(date, locale, { weekday: 'short' })
   const day = formatIsoDate(date, locale, { day: 'numeric' })
   return `${weekday} ${day}`
+}
+
+export function formatWeekStripWeekday(date: string, locale = 'en-US'): string {
+  return formatIsoDate(date, locale, {
+    weekday: locale.toLowerCase().startsWith('ar') ? 'narrow' : 'short',
+  })
+}
+
+export function formatDayNumber(date: string, locale = 'en-US'): string {
+  return formatIsoDate(date, locale, { day: 'numeric' })
 }
 
 export function formatWeekdayLetters(locale = 'en-US'): string[] {

@@ -24,26 +24,24 @@ test.describe('Settings unified UI — Story 2.7', { tag: [tags.regression, tags
     ).toBeVisible()
 
     const workforce = page.getByTestId('workforce-groups-weekends-card')
-    const leaveTypes = page.getByTestId('leave-types-card')
-    const teamMembers = page.getByTestId('team-members-card')
-
     await expect(workforce).toBeVisible()
-    await expect(leaveTypes).toBeVisible()
-    await expect(teamMembers).toBeVisible()
+    await expect(page.getByTestId('leave-types-card')).toHaveCount(0)
+    await expect(page.getByTestId('team-members-card')).toHaveCount(0)
 
-    const workforceBox = await workforce.boundingBox()
-    const leaveTypesBox = await leaveTypes.boundingBox()
-    const teamMembersBox = await teamMembers.boundingBox()
+    await page.getByTestId('settings-category-leave-policies').click()
+    await expect(page.getByTestId('leave-types-card')).toBeVisible()
+    await expect(workforce).toHaveCount(0)
 
-    expect(workforceBox!.y).toBeLessThan(leaveTypesBox!.y)
-    expect(leaveTypesBox!.y).toBeLessThan(teamMembersBox!.y)
+    await page.getByTestId('settings-category-people').click()
+    await expect(page.getByTestId('team-members-card')).toBeVisible()
+    await expect(page.getByTestId('leave-types-card')).toHaveCount(0)
   })
 
   test('[P1] Leave Types card shows five seeded types with uncapped Unpaid copy', async ({
     page,
   }) => {
     await loginViaUi(page, { email: 'jordan@company.com', password })
-    await navigateInApp(page, '/settings')
+    await navigateInApp(page, '/settings?category=leave-policies')
 
     await expect(page.getByTestId('leave-types-card')).toBeVisible()
     await expect(page.getByTestId('leave-types-list')).toBeVisible()
@@ -57,6 +55,7 @@ test.describe('Settings unified UI — Story 2.7', { tag: [tags.regression, tags
     await loginViaUi(page, { email: 'jordan@company.com', password })
     await navigateInApp(page, '/settings')
 
+    await page.getByText('Manage Groups', { exact: true }).click()
     await page.getByTestId('add-group-btn').click()
     await expect(page.getByTestId('workforce-group-modal')).toBeVisible()
 

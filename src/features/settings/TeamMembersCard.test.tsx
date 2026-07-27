@@ -1,10 +1,14 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
 import { TeamMembersCard } from './TeamMembersCard'
-import type { TeamMemberSummaryResponse } from '../../api/generated/types'
+import type {
+  TeamMemberSummaryResponse,
+  WorkforceGroupResponse,
+} from '../../api/generated/types'
 
 function renderCard(
   onSuccess = vi.fn(),
@@ -89,6 +93,80 @@ describe('TeamMembersCard', () => {
     )
     // Manager meta shown for Sarah
     expect(screen.getByText(/Reports to Alex/)).toBeInTheDocument()
+  })
+
+  it('[P1] filters the scalable people list by name, email, role, or group', async () => {
+    renderCard()
+
+    const search = await screen.findByTestId('team-members-search')
+    fireEvent.change(search, { target: { value: 'Egypt' } })
+
+    expect(screen.queryByText('Jordan Lee')).not.toBeInTheDocument()
+    expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Showing 1 of 2 people')
+
+    fireEvent.change(search, { target: { value: 'no match' } })
+    expect(screen.getByText('No team members match this search.')).toBeInTheDocument()
+  })
+
+  it('[P1] matches the humanized role label, not just the raw enum value', async () => {
+    renderCard()
+
+    const search = await screen.findByTestId('team-members-search')
+    // Jordan Lee's role is the raw enum HR_ADMIN, displayed as "HR Admin" —
+    // search must match what's shown, not just the underscored enum.
+    fireEvent.change(search, { target: { value: 'HR Admin' } })
+
+    expect(screen.getByText('Jordan Lee')).toBeInTheDocument()
+    expect(screen.queryByText('Sarah Chen')).not.toBeInTheDocument()
+  })
+
+  it('[P1] matches by email address', async () => {
+    renderCard()
+
+    const search = await screen.findByTestId('team-members-search')
+    fireEvent.change(search, { target: { value: 'sarah@company.com' } })
+
+    expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
+    expect(screen.queryByText('Jordan Lee')).not.toBeInTheDocument()
+  })
+
+  it('[P1] clears a stale search filter after successfully adding a member', async () => {
+    const mockGroups: WorkforceGroupResponse[] = [
+      { id: 1, name: 'US', weekendDays: ['SATURDAY', 'SUNDAY'] },
+    ]
+    vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue(mockGroups)
+    vi.spyOn(apiClient, 'getLeaveTypes').mockResolvedValue([])
+    vi.spyOn(apiClient, 'createTeamMember').mockResolvedValue({
+      id: 9,
+      fullName: 'New Hire',
+      email: 'new.hire@company.com',
+      department: 'Ops',
+      role: 'EMPLOYEE',
+      workforceGroupId: 1,
+      workforceGroupName: 'US',
+      managerId: undefined,
+      managerName: undefined,
+      entitlements: [],
+    })
+    const user = userEvent.setup()
+    renderCard()
+
+    const search = await screen.findByTestId('team-members-search')
+    fireEvent.change(search, { target: { value: 'no match' } })
+    expect(screen.getByText('No team members match this search.')).toBeInTheDocument()
+
+    await user.click(screen.getByTestId('add-member-btn'))
+    await user.type(screen.getByLabelText(/Full name/i), 'New Hire')
+    await user.type(screen.getByLabelText(/Email/i), 'new.hire@company.com')
+    await user.type(screen.getByLabelText(/Department/i), 'Ops')
+    await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
+    await user.click(screen.getByRole('button', { name: /Save/i }))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('team-members-search')).toHaveValue('')
+    })
+    expect(screen.queryByText('No team members match this search.')).not.toBeInTheDocument()
   })
 
   it('renders Add Member CTA button', async () => {

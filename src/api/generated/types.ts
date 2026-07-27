@@ -1228,6 +1228,9 @@ export interface components {
             userInitials?: string;
             userColorKey?: string;
             /** Format: int64 */
+            userWorkforceGroupId?: number;
+            userWorkforceGroupName?: string;
+            /** Format: int64 */
             leaveTypeId?: number;
             leaveTypeName?: string;
             leaveTypeIcon?: string;
@@ -1237,6 +1240,7 @@ export interface components {
             dateTo?: string;
             /** Format: int32 */
             workingDays?: number;
+            workingDates?: string[];
             canViewRequestContext?: boolean;
         };
         CalendarHolidayResponse: {
@@ -1259,6 +1263,8 @@ export interface components {
             viewerWorkforceGroupId?: number;
             viewerWorkforceGroupName?: string;
             viewerWeekendDays?: string[];
+            /** Format: int64 */
+            audienceMemberCount?: number;
             absences?: components["schemas"]["CalendarAbsenceResponse"][];
             holidays?: components["schemas"]["CalendarHolidayResponse"][];
         };

@@ -33,7 +33,7 @@ test.describe('HR Settings page', { tag: [tags.smoke, tags.regression, tags.api]
 
   test('[P2] Leave Types card shows Annual Leave row', async ({ page }) => {
     await loginViaUi(page, { email: 'jordan@company.com', password })
-    await navigateInApp(page, '/settings')
+    await navigateInApp(page, '/settings?category=leave-policies')
 
     await expect(page.getByTestId('leave-types-card')).toBeVisible()
     await expect(page.getByText('Annual Leave')).toBeVisible()

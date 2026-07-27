@@ -60,7 +60,12 @@ export function LeaveTypesCard({ onWarning }: LeaveTypesCardProps) {
   return (
     <section className="settings-card settings-card-spaced" data-testid="leave-types-card">
       <div className="card-section-header">
-        <span className="card-section-title">{t('leaveTypes.title')}</span>
+        <div>
+          <span className="card-section-title">{t('leaveTypes.title')}</span>
+          <p className="settings-card-helper settings-card-helper-inline">
+            {t('leaveTypes.summary', { count: leaveTypes.length })}
+          </p>
+        </div>
       </div>
 
       {leaveTypes.length === 0 ? (

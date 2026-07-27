@@ -1,10 +1,23 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
+import { SettingsCategoryNav } from './SettingsCategoryNav'
 import { WorkforceGroupsWeekendsCard } from './WorkforceGroupsWeekendsCard'
+
+function mockNarrowViewport() {
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn().mockImplementation((query: string) => ({
+      matches: query === '(max-width: 900px)',
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })),
+  )
+}
 
 function renderCard() {
   const queryClient = new QueryClient({
@@ -25,8 +38,13 @@ function renderCard() {
  * active state. Pixel clip at 390px is covered by Playwright.
  */
 describe('WorkforceGroupsWeekendsCard containment ATDD — Story 10.9', () => {
+  beforeEach(() => {
+    vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue([])
+  })
+
   afterEach(() => {
     vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
 
   test(
@@ -120,4 +138,43 @@ describe('WorkforceGroupsWeekendsCard containment ATDD — Story 10.9', () => {
     expect(firstTab).toHaveFocus()
     expect(firstTab).toHaveAttribute('aria-selected', 'true')
   })
+})
+
+/**
+ * Story 11.5 — settings category rail/tablist containment at 390px. Same
+ * structure-only floor as the Story 10.9 suite above: nothing is dropped and
+ * the horizontal-scroll containment + narrow-mode keyboard mapping are wired
+ * correctly. Actual pixel clip at 390px is covered by Playwright.
+ */
+describe('SettingsCategoryNav containment ATDD — Story 11.5', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  test(
+    '[P0] all six categories stay reachable via scroll containment at the 390px-class breakpoint',
+    async () => {
+      mockNarrowViewport()
+      const user = userEvent.setup()
+      const onSelect = vi.fn().mockReturnValue(true)
+
+      render(<SettingsCategoryNav activeCategory="working-calendars" onSelect={onSelect} />)
+
+      const nav = screen.getByTestId('settings-category-nav')
+      expect(nav).toHaveAttribute('role', 'region')
+      // No categories dropped/truncated to fit the narrow strip.
+      expect(within(nav).getAllByRole('tab')).toHaveLength(6)
+
+      const working = screen.getByTestId('settings-category-working-calendars')
+      working.focus()
+      expect(working).toHaveFocus()
+
+      // Narrow mode maps forward/backward to Left/Right (RTL-aware), not Up/Down.
+      await user.keyboard('{ArrowRight}')
+      await waitFor(() => {
+        expect(screen.getByTestId('settings-category-leave-policies')).toHaveFocus()
+      })
+      expect(onSelect).toHaveBeenLastCalledWith('leave-policies')
+    },
+  )
 })

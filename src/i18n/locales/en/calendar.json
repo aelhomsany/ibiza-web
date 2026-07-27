@@ -15,6 +15,8 @@
   "navigation": {
     "week": "Calendar week navigation",
     "month": "Calendar month navigation",
+    "previous": "Previous",
+    "next": "Next",
     "previousWeek": "Previous week",
     "nextWeek": "Next week",
     "previousMonth": "Previous month",
@@ -55,7 +57,10 @@
   },
   "agenda": {
     "label": "Team calendar agenda",
+    "weekStripLabel": "Choose a date in the week",
+    "weekDayLabel": "{{date}}, {{absenceCount}} away, {{holidayCount}} holidays",
     "thisMonth": "This month",
+    "selectedDay": "Selected day",
     "showAll": "Show all",
     "workingDays_zero": "No working days",
     "workingDays_one": "{{count}} working day",
@@ -69,6 +74,13 @@
     "holidayTitle": "{{name}} — {{type}}",
     "absenceSummary": "{{range}} · {{days}}",
     "holidaySummary": "{{range}} · {{group}}",
+    "holidayAccessibleName": "{{name}}, Public Holiday, {{group}} group, {{range}}",
+    "holidayContinues": "Holiday continues",
+    "stillAway": "Still away: {{names}}",
+    "dayProgress": "Day {{position}} of {{total}}",
+    "availability": "{{available}} of {{total}} available",
+    "availabilityUnavailable": "Availability count unavailable",
+    "coverageWatch": "Coverage watch — {{count}} people are off on {{date}}",
     "emptyMonth": "No absences or holidays this month — full coverage.",
     "emptyDay": "Nothing on this day — full coverage.",
     "dayLabel_zero": "{{date}}, no absences",
@@ -83,6 +95,22 @@
     "holidayCount_few": "{{count}} holidays",
     "holidayCount_many": "{{count}} holidays",
     "holidayCount_other": "{{count}} holidays"
+  },
+  "policy": {
+    "summary": "Why days differ",
+    "weekend": "{{group}} weekend: {{days}}. Weekend patterns can change which dates are charged.",
+    "holidays": "{{group}} holiday context: {{count}} holidays in this period. Holidays can also change charged days.",
+    "displayOnly": "This is policy context only; calendar entries are not recalculated here. Today uses {{timezone}}.",
+    "noWeekend": "No weekend days configured",
+    "days": {
+      "MONDAY": "Monday",
+      "TUESDAY": "Tuesday",
+      "WEDNESDAY": "Wednesday",
+      "THURSDAY": "Thursday",
+      "FRIDAY": "Friday",
+      "SATURDAY": "Saturday",
+      "SUNDAY": "Sunday"
+    }
   },
   "request": {
     "open": "Open request context for {{name}}, {{type}}, {{presence}}, {{range}}",

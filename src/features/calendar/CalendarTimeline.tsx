@@ -1,5 +1,5 @@
-import type { CSSProperties } from 'react'
-import { useMemo } from 'react'
+import type { CSSProperties, KeyboardEvent } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type {
   CalendarAbsenceResponse,
@@ -14,6 +14,7 @@ import {
   buildWeekDates,
   dayOfWeekForDate,
   formatDateRange,
+  formatFullDate,
   formatTimelineDay,
   holidaysForDate,
   rangesOverlap,
@@ -25,6 +26,8 @@ type CalendarTimelineProps = {
   weekStart: string
   weekendDays: DayOfWeek[]
   locale: string
+  focusedDate?: string | null
+  onFocusedDateChange?: (date: string) => void
 }
 
 type PositionedAbsence = {
@@ -70,8 +73,11 @@ export function CalendarTimeline({
   weekStart,
   weekendDays,
   locale,
+  focusedDate = null,
+  onFocusedDateChange,
 }: CalendarTimelineProps) {
-  const { t } = useTranslation('calendar')
+  const { t, i18n } = useTranslation('calendar')
+  const [announcedDate, setAnnouncedDate] = useState('')
   const weekDates = useMemo(() => buildWeekDates(weekStart), [weekStart])
   const listFormatter = useMemo(
     () => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }),
@@ -100,9 +106,46 @@ export function CalendarTimeline({
   const coverageLabels = listFormatter.format(
     coverageDays.map((date) => formatTimelineDay(date, locale)),
   )
+  const rovingDate = focusedDate != null && weekDates.includes(focusedDate)
+    ? focusedDate
+    : weekDates[0]
+
+  const focusDate = (date: string) => {
+    document.getElementById(`calendar-timeline-date-${date}`)?.focus()
+    onFocusedDateChange?.(date)
+    setAnnouncedDate(formatFullDate(date, locale))
+  }
+
+  const handleDateKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) => {
+    let nextIndex: number | null = null
+    const isRtl = i18n.dir() === 'rtl'
+
+    if (event.key === 'Home') {
+      nextIndex = 0
+    } else if (event.key === 'End') {
+      nextIndex = weekDates.length - 1
+    } else if (event.key === 'ArrowRight') {
+      nextIndex = index + (isRtl ? -1 : 1)
+    } else if (event.key === 'ArrowLeft') {
+      nextIndex = index + (isRtl ? 1 : -1)
+    }
+
+    if (nextIndex == null || nextIndex < 0 || nextIndex >= weekDates.length) {
+      return
+    }
+
+    event.preventDefault()
+    focusDate(weekDates[nextIndex])
+  }
 
   return (
     <section aria-label={t('timeline.label')} data-testid="calendar-timeline">
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {announcedDate}
+      </p>
       <div className="cal-scroll" data-testid="calendar-scroll-wrap">
         <div className="calendar-timeline-card calendar-glass-card">
           <div className="calendar-timeline-grid calendar-timeline-header">
@@ -130,15 +173,21 @@ export function CalendarTimeline({
               const holidayNames = listFormatter.format(holidays.map((holiday) => holiday.name))
 
               return (
-                <span
+                <button
                   key={date}
+                  id={`calendar-timeline-date-${date}`}
+                  type="button"
                   className={className}
                   style={{ gridColumn: index + 2 }}
+                  data-testid={`calendar-timeline-date-${date}`}
                   aria-label={holidayNames ? `${dayLabel}, ${holidayNames}` : dayLabel}
                   aria-current={isToday ? 'date' : undefined}
+                  tabIndex={date === rovingDate ? 0 : -1}
+                  onFocus={() => onFocusedDateChange?.(date)}
+                  onKeyDown={(event) => handleDateKeyDown(event, index)}
                 >
                   <span>{dayLabel}</span>
-                </span>
+                </button>
               )
             })}
           </div>
@@ -180,7 +229,12 @@ export function CalendarTimeline({
                       <span className="calendar-person-avatar" style={colorStyle}>
                         {person.userInitials}
                       </span>
-                      <span className="calendar-person-name">{person.userFullName}</span>
+                      <span className="calendar-person-copy">
+                        <span className="calendar-person-name">{person.userFullName}</span>
+                        <span className="calendar-person-group">
+                          {person.userWorkforceGroupName}
+                        </span>
+                      </span>
                     </span>
 
                     {positionedAbsences.map(({ absence, startIndex, endIndex, lane }) => {

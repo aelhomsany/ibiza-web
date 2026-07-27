@@ -18,6 +18,9 @@
 }
 
 .group-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
   flex: 0 0 auto;
   background: none;
   border: none;
@@ -28,6 +31,22 @@
   font-size: 13px;
   font-weight: 600;
   padding: 8px 12px;
+}
+
+.group-tab-count {
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+}
+
+/* AC8: selection must read as text, not color/flag-only. */
+.group-tab-selected-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-teal);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
 }
 
 .group-tab.active {
@@ -80,6 +99,11 @@
   padding: 16px 20px 0;
 }
 
+.settings-card-helper-inline {
+  margin: var(--space-xs) 0 0;
+  padding: 0;
+}
+
 .settings-card-label {
   font-size: 13px;
   font-weight: 600;
@@ -101,8 +125,200 @@
   grid-template-columns: 1fr;
 }
 
+.working-calendars-card-header {
+  gap: var(--space-lg);
+  align-items: flex-start;
+  padding-block-end: var(--space-lg);
+}
+
+.working-calendars-card-header > div {
+  min-width: 0;
+}
+
+.working-calendars-card-header .settings-card-helper {
+  max-width: 70ch;
+  margin: var(--space-xs) 0 0;
+  padding: 0;
+}
+
+.settings-disclosure {
+  flex: 0 0 auto;
+}
+
+.settings-disclosure summary {
+  min-height: var(--min-touch-target);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-action-primary);
+  cursor: pointer;
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+  list-style: none;
+}
+
+/* Hide the native disclosure triangle — a chevron from the shared icon set
+   replaces it below so this control matches the rest of the icon system. */
+.settings-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings-disclosure-chevron {
+  transition: transform 150ms ease;
+}
+
+.settings-disclosure[open] .settings-disclosure-chevron {
+  transform: rotate(90deg);
+}
+
+.settings-disclosure summary:focus-visible {
+  outline: none;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.settings-disclosure[open] {
+  display: grid;
+  justify-items: end;
+  gap: var(--space-sm);
+}
+
+.settings-disclosure .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.working-calendars-impact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
+  gap: var(--space-xl);
+  padding: var(--space-xl);
+  border-block: 1px solid var(--color-border-default);
+  background: var(--color-surface-subtle);
+}
+
+.working-calendars-impact h3,
+.working-calendars-impact p:not(.working-calendars-step):not(.working-calendars-history-note) {
+  margin: 0;
+}
+
+.working-calendars-impact h3 {
+  color: var(--color-text-primary);
+  font-size: var(--font-card-title-size);
+  font-weight: var(--font-card-title-weight);
+  line-height: var(--font-card-title-line-height);
+}
+
+.working-calendars-impact h3 + p {
+  margin-block-start: var(--space-sm);
+  color: var(--color-text-primary);
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+}
+
+.working-calendars-step {
+  margin-block-end: var(--space-xs);
+  color: var(--color-working-policy);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-label-weight);
+}
+
+.working-calendars-history-note {
+  margin-block-start: var(--space-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  line-height: var(--font-caption-line-height);
+}
+
+.working-calendars-impact-meta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-card);
+}
+
+.working-calendars-impact-meta > span:first-child {
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+}
+
+.working-calendars-impact-meta strong {
+  color: var(--color-action-primary);
+  font-size: var(--font-section-title-size);
+  line-height: var(--font-section-title-line-height);
+}
+
+.working-calendars-policy-health {
+  color: var(--color-working-policy);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-label-weight);
+}
+
+.working-calendars-save-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-block-end: var(--space-xl);
+  padding-inline: var(--space-card-padding);
+}
+
+.working-calendars-validation,
+.working-calendars-draft-state {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  line-height: var(--font-caption-line-height);
+}
+
+.working-calendars-validation {
+  color: var(--color-error-fg);
+  font-weight: var(--font-label-weight);
+}
+
+.working-calendars-saved-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: 0;
+  padding-block: var(--space-md);
+  padding-inline: var(--space-card-padding);
+  border-block-start: 1px solid var(--color-border-default);
+  background: var(--color-status-approved-bg);
+  color: var(--color-status-approved-fg);
+  font-size: var(--font-body-sm-size);
+  font-weight: var(--font-label-weight);
+}
+
 .settings-col-weekends {
   padding-bottom: 8px;
+}
+
+@media (max-width: 900px) {
+  .working-calendars-card-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .settings-disclosure[open] {
+    justify-items: start;
+  }
+
+  .working-calendars-impact {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+  }
+
+  .working-calendars-impact-meta strong {
+    font-size: var(--font-card-title-size);
+  }
 }
 
 @media (min-width: 901px) {

@@ -26,8 +26,14 @@ export function CalendarNav({ period, label, onPrevious, onNext }: CalendarNavPr
         onClick={onPrevious}
       >
         <ChevronLeftIcon size={18} />
+        <span className="cal-nav-action-label">{t('navigation.previous')}</span>
       </button>
-      <div className="cal-period" data-testid="calendar-month-label">
+      <div
+        className="cal-period"
+        data-testid="calendar-month-label"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         <span data-testid="calendar-period-label">{label}</span>
       </div>
       <button
@@ -37,6 +43,7 @@ export function CalendarNav({ period, label, onPrevious, onNext }: CalendarNavPr
         aria-label={t(isWeek ? 'navigation.nextWeek' : 'navigation.nextMonth')}
         onClick={onNext}
       >
+        <span className="cal-nav-action-label">{t('navigation.next')}</span>
         <ChevronRightIcon size={18} />
       </button>
     </div>

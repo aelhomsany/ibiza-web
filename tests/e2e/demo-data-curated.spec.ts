@@ -49,6 +49,7 @@ test.describe(
       await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible()
       await expect(page.getByRole('tab', { name: 'US', exact: true })).toBeVisible()
       await expect(page.getByRole('tab', { name: 'Egypt', exact: true })).toBeVisible()
+      await page.getByTestId('settings-category-people').click()
       await expect(page.getByTestId('team-members-list').getByText('Jordan Lee')).toBeVisible()
       await expect(page.getByTestId('team-members-list').getByText('Alex Johnson')).toBeVisible()
       await expect(page.getByText(/pilot-demo:/i)).toHaveCount(0)

@@ -171,6 +171,14 @@
         "[P1-005] US group lists seeded public holidays"
       ]
     },
+    "settings-information-architecture.spec.ts::Settings information architecture — Story 11.5": {
+      "tags": ["@regression", "@api", "@story-11-5"],
+      "tests": [
+        "[P1] Given category=people in URL, When Settings loads, Then People panel is shown",
+        "[P0] Given Settings at 390px, When the category strip renders, Then categories are reachable without page overflow",
+        "[P1] Given a dirty Working calendars draft, When navigating away from Settings, Then unsaved discard Modal blocks leave"
+      ]
+    },
     "settings-hr.spec.ts::HR Settings page": {
       "tags": ["@smoke", "@regression", "@api"],
       "tests": [
@@ -185,6 +193,14 @@
         "[P1] HR Admin sees subtitle and three policy cards in mockup order",
         "[P1] Leave Types card shows five seeded types with uncapped Unpaid copy",
         "[P1] + Add Group creates a new workforce group tab"
+      ]
+    },
+    "calendar-mobile-agenda.spec.ts::Calendar and mobile agenda — Story 11.6": {
+      "tags": ["@regression", "@api", "@story-11-6"],
+      "tests": [
+        "[P1] Given viewport 390px, When /calendar loads, Then Agenda is default without page overflow",
+        "[P0] Given Workforce Group filter selected, When switching Timeline and Agenda, Then filter selection persists",
+        "[P1] Given a permitted absence chip, When activated, Then request context navigation succeeds"
       ]
     },
     "team-calendar.spec.ts::Team Calendar — Story 4.2 / 7.11": {

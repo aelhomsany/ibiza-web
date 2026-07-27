@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import type { LeaveTypeResponse, TeamMemberSummaryResponse } from '../../api/generated/types'
@@ -18,16 +19,6 @@ const mockLeaveTypes: LeaveTypeResponse[] = [
     borderColor: '#0E4F75',
     defaultBalanceDays: 20,
     displayOrder: 1,
-  },
-  {
-    id: 2,
-    name: 'Sick Leave',
-    icon: '🤒',
-    color: '#EF4444',
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FECACA',
-    defaultBalanceDays: 10,
-    displayOrder: 2,
   },
   {
     id: 5,
@@ -55,19 +46,21 @@ const mockTeamMembers: TeamMemberSummaryResponse[] = [
   },
 ]
 
-function renderSettingsPage() {
+function renderSettingsPage(initialPath = '/settings') {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   })
 
   return render(
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
-          <SettingsPage />
-        </AuthTestProvider>
-      </ToastProvider>
-    </QueryClientProvider>,
+    <MemoryRouter initialEntries={[initialPath]}>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+            <SettingsPage />
+          </AuthTestProvider>
+        </ToastProvider>
+      </QueryClientProvider>
+    </MemoryRouter>,
   )
 }
 
@@ -135,35 +128,39 @@ describe('SettingsPage', () => {
     vi.restoreAllMocks()
   })
 
-  it('renders workforce group tabs and weekend chips', async () => {
+  it('[P0] renders six categories with Working calendars as the focused default', async () => {
     renderSettingsPage()
 
     expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument()
+    const nav = screen.getByTestId('settings-category-nav')
+    expect(within(nav).getAllByRole('tab')).toHaveLength(6)
 
     await waitFor(() => {
       expect(screen.getByRole('tab', { name: 'US' })).toBeInTheDocument()
-      expect(screen.getByRole('tab', { name: 'Egypt' })).toBeInTheDocument()
+      expect(screen.getByTestId('working-calendars-impact')).toBeInTheDocument()
     })
 
-    expect(screen.getByTestId('weekend-chips')).toBeInTheDocument()
-    expect(screen.getByText('Weekend days —')).toBeInTheDocument()
-    expect(screen.getByText('US', { selector: '.settings-card-label span' })).toBeInTheDocument()
-
-    await waitFor(() => {
-      expect(screen.getByTestId('public-holidays-section')).toBeInTheDocument()
-      expect(screen.getByText(/Juneteenth/)).toBeInTheDocument()
-    })
+    expect(screen.getByTestId('settings-category-working-calendars')).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+    expect(screen.getByTestId('settings-panel-working-calendars')).toBeInTheDocument()
+    expect(screen.queryByTestId('leave-types-card')).not.toBeInTheDocument()
   })
 
-  it('calls PUT with updated weekend days when toggling a chip', async () => {
+  it('[P0] keeps weekend changes as a draft until explicit Save', async () => {
     const user = userEvent.setup()
     renderSettingsPage()
 
-    await waitFor(() => {
-      expect(screen.getByRole('checkbox', { name: /Fri weekend day for US/i })).toBeInTheDocument()
+    const friday = await screen.findByRole('checkbox', {
+      name: /Fri weekend day for US/i,
     })
+    await user.click(friday)
 
-    await user.click(screen.getByRole('checkbox', { name: /Fri weekend day for US/i }))
+    expect(apiClient.putWorkforceGroupWeekendDays).not.toHaveBeenCalled()
+    expect(screen.getByText('Weekend pattern has unsaved changes.')).toBeInTheDocument()
+
+    await user.click(screen.getByTestId('working-calendars-save-btn'))
 
     await waitFor(() => {
       expect(apiClient.putWorkforceGroupWeekendDays).toHaveBeenCalledWith(1, [
@@ -172,89 +169,66 @@ describe('SettingsPage', () => {
         'FRIDAY',
       ])
     })
+    expect(
+      await screen.findByText(/US weekend pattern saved/i),
+    ).toHaveAttribute('role', 'status')
   })
 
-  it('[P1] shows mockup subtitle and three policy cards in order', async () => {
+  it('[P0] mounts only the selected category panel', async () => {
+    const user = userEvent.setup()
     renderSettingsPage()
 
+    await screen.findByTestId('settings-panel-working-calendars')
+    await user.click(screen.getByTestId('settings-category-people'))
+
+    expect(await screen.findByTestId('settings-panel-people')).toBeInTheDocument()
+    expect(screen.getByTestId('team-members-card')).toBeInTheDocument()
+    expect(screen.queryByTestId('settings-panel-working-calendars')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('leave-types-card')).not.toBeInTheDocument()
+  })
+
+  it('[P1] maps Notifications to the existing preference card', async () => {
+    const user = userEvent.setup()
+    renderSettingsPage('/settings?category=working-calendars')
+
+    await screen.findByTestId('workforce-groups-weekends-card')
+    await user.click(screen.getByTestId('settings-category-notifications'))
+
     expect(
-      screen.getByText('Company policy, team, and leave entitlements'),
+      await screen.findByTestId('notification-preferences-settings'),
     ).toBeInTheDocument()
-
-    await waitFor(() => {
-      expect(screen.getByTestId('workforce-groups-weekends-card')).toBeInTheDocument()
-      expect(screen.getByTestId('leave-types-card')).toBeInTheDocument()
-      expect(screen.getByTestId('calendar-sync-settings')).toBeInTheDocument()
-      expect(screen.getByTestId('team-members-card')).toBeInTheDocument()
-    })
-
-    const workforce = screen.getByTestId('workforce-groups-weekends-card')
-    const leaveTypes = screen.getByTestId('leave-types-card')
-    const calendarSync = screen.getByTestId('calendar-sync-settings')
-    const teamMembers = screen.getByTestId('team-members-card')
-
-    expect(
-      workforce.compareDocumentPosition(leaveTypes) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy()
-    expect(
-      leaveTypes.compareDocumentPosition(calendarSync) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy()
-    expect(
-      calendarSync.compareDocumentPosition(teamMembers) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy()
+    expect(screen.queryByTestId('calendar-sync-settings')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('team-members-card')).not.toBeInTheDocument()
   })
 
-  it('[P1] includes the notification preferences card after calendar sync, before team members', async () => {
-    renderSettingsPage()
+  it('[P1] maps Leave policies to the read-first leave type list', async () => {
+    const user = userEvent.setup()
+    renderSettingsPage('/settings?category=leave-policies')
 
-    await waitFor(() => {
-      expect(screen.getByTestId('notification-preferences-settings')).toBeInTheDocument()
-    })
-
-    const calendarSync = screen.getByTestId('calendar-sync-settings')
-    const notificationPrefs = screen.getByTestId('notification-preferences-settings')
-    const teamMembers = screen.getByTestId('team-members-card')
-
-    expect(
-      calendarSync.compareDocumentPosition(notificationPrefs) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy()
-    expect(
-      notificationPrefs.compareDocumentPosition(teamMembers) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy()
-  })
-
-  it('[P2] Leave Types card lists capped and uncapped default copy', async () => {
-    renderSettingsPage()
-
-    await waitFor(() => {
-      expect(screen.getByTestId('leave-types-list')).toBeInTheDocument()
-    })
-
-    const list = screen.getByTestId('leave-types-list')
+    const list = await screen.findByTestId('leave-types-list')
     expect(within(list).getByText('Annual Leave')).toBeInTheDocument()
     expect(within(list).getByText('20 days default')).toBeInTheDocument()
     expect(within(list).getByText('Unpaid Leave')).toBeInTheDocument()
     expect(within(list).getByText('Unlimited / custom')).toBeInTheDocument()
+
+    await user.click(screen.getByTestId('settings-category-integrations'))
+    expect(await screen.findByTestId('calendar-sync-settings')).toBeInTheDocument()
   })
 
-  it('[P2] + Add Group opens modal and submits createWorkforceGroup', async () => {
+  it('[P2] progressively discloses infrequent group creation', async () => {
     const user = userEvent.setup()
     const putSpy = vi.spyOn(apiClient, 'putWorkforceGroupWeekendDays').mockResolvedValue({
       id: 3,
       name: 'UK',
       weekendDays: ['SATURDAY', 'SUNDAY'],
     })
-
     renderSettingsPage()
 
-    await waitFor(() => {
-      expect(screen.getByTestId('add-group-btn')).toBeInTheDocument()
-    })
-
+    await screen.findByTestId('workforce-groups-weekends-card')
+    await user.click(screen.getByText('Manage Groups'))
     await user.click(screen.getByTestId('add-group-btn'))
-    const modal = screen.getByTestId('workforce-group-modal')
-    expect(modal).toBeInTheDocument()
 
+    const modal = screen.getByTestId('workforce-group-modal')
     await user.type(within(modal).getByLabelText(/group name/i), 'UK')
     await user.click(within(modal).getByRole('checkbox', { name: 'Sun weekend day' }))
     await user.click(within(modal).getByTestId('create-group-submit'))

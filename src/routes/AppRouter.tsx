@@ -1,6 +1,12 @@
-import { Suspense, lazy, type ReactElement } from 'react'
+import { Suspense, lazy, type ReactElement, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import {
+  Navigate,
+  Route,
+  RouterProvider,
+  Routes,
+  createBrowserRouter,
+} from 'react-router-dom'
 import { AuthProvider } from '../auth/AuthProvider'
 import { AdminShell } from '../components/layout/AdminShell'
 import { OrgShell } from '../components/layout/OrgShell'
@@ -146,11 +152,20 @@ export function AppRoutes() {
 }
 
 export function AppRouter() {
-  return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </BrowserRouter>
+  const router = useMemo(
+    () =>
+      createBrowserRouter([
+        {
+          path: '*',
+          element: (
+            <AuthProvider>
+              <AppRoutes />
+            </AuthProvider>
+          ),
+        },
+      ]),
+    [],
   )
+
+  return <RouterProvider router={router} />
 }
