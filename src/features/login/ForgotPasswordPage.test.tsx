@@ -49,6 +49,7 @@ describe('ForgotPasswordPage', () => {
         screen.getByText(/If an account exists for that email, you will receive reset instructions/i),
       ).toBeInTheDocument()
     })
+    expect(screen.getByRole('heading', { name: 'Check your email' })).toHaveFocus()
     expect(postForgotPassword).toHaveBeenCalledWith({ email: 'alex@company.com' })
   })
 })

@@ -33,5 +33,8 @@ test.describe('Platform Admin authentication', { tag: [tags.smoke, tags.regressi
     await expect(page.getByTestId('nav-approvals')).toHaveCount(0)
     await expect(page.getByTestId('nav-settings')).toHaveCount(0)
     await expect(page.getByTestId('notification-bell')).toHaveCount(0)
+
+    // Story 11.7 AC6: the HR-only first-use cue must never reach Platform Admin.
+    await expect(page.getByTestId('first-use-cue')).toHaveCount(0)
   })
 })

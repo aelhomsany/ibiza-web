@@ -8,9 +8,11 @@ vi.mock('../../api/client', () => ({
   postResetPassword: vi.fn(),
   ApiError: class ApiError extends Error {
     status: number
-    constructor(status: number, message: string) {
+    problem?: { type?: string }
+    constructor(status: number, message: string, problem?: { type?: string }) {
       super(message)
       this.status = status
+      this.problem = problem
     }
   },
 }))
@@ -97,5 +99,38 @@ describe('ResetPasswordPage', () => {
       'Password reset link is invalid or has expired.',
     )
     expect(screen.getByTestId('reset-password-submit')).toBeDisabled()
+    expect(
+      screen.getByRole('link', { name: 'Request a new reset link' }),
+    ).toHaveAttribute('href', '/forgot-password')
+  })
+
+  it('Given a token the server rejects as expired, When submitting, Then offers a new-reset action and blocks retry', async () => {
+    const user = userEvent.setup()
+    const { postResetPassword, ApiError } = await import('../../api/client')
+    vi.mocked(postResetPassword).mockRejectedValueOnce(
+      new ApiError(400, 'invalid', {
+        type: 'https://ibiza.app/errors/reset-token-invalid',
+      }),
+    )
+    renderResetPage('expired-token')
+
+    // The link is present in the URL, so the missing-token branch does not apply.
+    expect(
+      screen.queryByRole('link', { name: 'Request a new reset link' }),
+    ).not.toBeInTheDocument()
+
+    await user.type(screen.getByTestId('reset-password'), 'NewPassword1!')
+    await user.type(screen.getByTestId('reset-password-confirm'), 'NewPassword1!')
+    await user.click(screen.getByTestId('reset-password-submit'))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Password reset link is invalid or has expired.',
+    )
+    // AC4: explain the link is unusable *and* provide a new-reset action.
+    expect(
+      screen.getByRole('link', { name: 'Request a new reset link' }),
+    ).toHaveAttribute('href', '/forgot-password')
+    expect(screen.getByTestId('reset-password-submit')).toBeDisabled()
+    expect(screen.getByTestId('reset-password')).toHaveValue('')
   })
 })

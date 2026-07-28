@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { ApiError, postForgotPassword } from '../../api/client'
@@ -11,6 +11,13 @@ export function ForgotPasswordPage() {
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const confirmationHeadingRef = useRef<HTMLHeadingElement>(null)
+
+  useEffect(() => {
+    if (submitted) {
+      confirmationHeadingRef.current?.focus()
+    }
+  }, [submitted])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -42,11 +49,18 @@ export function ForgotPasswordPage() {
           <div className="auth-logo-sub">{t('common:brand.tagline')}</div>
         </div>
 
-        <div className="auth-form-title">{t('auth:forgot.title')}</div>
+        <h1 className="auth-form-title">{t('auth:forgot.title')}</h1>
 
         {submitted ? (
-          <div className="auth-success" role="status">
-            {t('auth:forgot.success')}
+          <div className="auth-success">
+            <h2
+              ref={confirmationHeadingRef}
+              className="auth-success-heading"
+              tabIndex={-1}
+            >
+              {t('auth:forgot.confirmationTitle')}
+            </h2>
+            <p className="auth-success-copy">{t('auth:forgot.success')}</p>
           </div>
         ) : (
           <>
@@ -81,6 +95,10 @@ export function ForgotPasswordPage() {
         <Link className="auth-link" to="/login">
           {t('auth:actions.backToSignIn')}
         </Link>
+
+        <p className="auth-tenant-reassurance">
+          {t('auth:forgot.privacyReassurance')}
+        </p>
       </div>
     </div>
   )

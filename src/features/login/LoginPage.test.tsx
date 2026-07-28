@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '../../api/client'
+import i18n from '../../i18n/config'
 import { AuthTestProvider, createMockAuthValue } from '../../test/authTestUtils'
 import { LoginPage } from './LoginPage'
 
@@ -19,6 +20,14 @@ describe('LoginPage', () => {
       organizationId: 1,
       timezone: 'America/New_York',
     })
+  })
+
+  afterEach(async () => {
+    if (i18n.language !== 'en') {
+      await act(async () => {
+        await i18n.changeLanguage('en')
+      })
+    }
   })
 
   it('renders sign-in form test ids', () => {
@@ -97,6 +106,59 @@ describe('LoginPage', () => {
     expect(screen.getByTestId('admin-home')).toBeInTheDocument()
   })
 
+  it.each([
+    ['EMPLOYEE', '/', 'dashboard'],
+    ['PLATFORM_ADMIN', '/platform/organizations', 'admin-home'],
+  ] as const)(
+    'routes a successful %s sign-in to the authorized home',
+    async (role, destination, testId) => {
+      const user = userEvent.setup()
+      login.mockResolvedValue({
+        id: role === 'PLATFORM_ADMIN' ? 2 : 1,
+        email:
+          role === 'PLATFORM_ADMIN'
+            ? 'riley@ibiza.app'
+            : 'alex@company.com',
+        fullName: role === 'PLATFORM_ADMIN' ? 'Riley Morgan' : 'Alex Pilot',
+        role,
+        ...(role === 'PLATFORM_ADMIN'
+          ? {}
+          : {
+              organizationId: 1,
+              organizationName: 'Nile Harbor',
+              timezone: 'America/New_York',
+            }),
+      })
+
+      render(
+        <MemoryRouter initialEntries={['/login']}>
+          <AuthTestProvider
+            value={createMockAuthValue({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+              login,
+            })}
+          >
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path={destination}
+                element={<div data-testid={testId}>Authorized home</div>}
+              />
+            </Routes>
+          </AuthTestProvider>
+        </MemoryRouter>,
+      )
+
+      await user.type(screen.getByTestId('sign-in-email'), 'person@example.com')
+      await user.type(screen.getByTestId('sign-in-password'), 'Secret1!')
+      await user.click(screen.getByTestId('sign-in-submit'))
+
+      expect(await screen.findByTestId(testId)).toBeInTheDocument()
+    },
+  )
+
   it('submits credentials via login and shows API error message', async () => {
     const user = userEvent.setup()
     login.mockRejectedValue(
@@ -130,5 +192,33 @@ describe('LoginPage', () => {
     })
 
     expect(screen.getByRole('alert')).toHaveTextContent('Invalid email or password')
+  })
+
+  it('renders authored Arabic proof and preserves chronological proof direction', async () => {
+    await act(async () => {
+      await i18n.changeLanguage('ar')
+    })
+
+    render(
+      <MemoryRouter>
+        <AuthTestProvider
+          value={createMockAuthValue({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            login,
+          })}
+        >
+          <LoginPage />
+        </AuthTestProvider>
+      </MemoryRouter>,
+    )
+
+    const proof = screen.getByTestId('auth-proof-panel')
+    expect(proof).toHaveTextContent('اعرف بدقة تكلفة كل يوم')
+    expect(
+      screen.getByLabelText('التواريخ بترتيبها الزمني'),
+    ).toHaveClass('auth-proof-days')
+    expect(proof.querySelectorAll('bdi[dir="ltr"]').length).toBeGreaterThan(0)
   })
 })

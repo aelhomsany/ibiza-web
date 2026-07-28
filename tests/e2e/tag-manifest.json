@@ -203,6 +203,18 @@
         "[P1] Given a permitted absence chip, When activated, Then request context navigation succeeds"
       ]
     },
+    "auth-first-use.spec.ts::Auth and first-use — Story 11.7": {
+      "tags": ["@regression", "@api", "@story-11-7"],
+      "tests": [
+        "[P1] Given HR Admin with incomplete first-use, When Dashboard loads, Then cue CTA opens Working calendars"
+      ]
+    },
+    "auth-first-use.spec.ts::Auth responsive and locale proof — Story 11.7": {
+      "tags": ["@regression", "@ui-only", "@story-11-7"],
+      "tests": [
+        "[P0] Given English or Arabic across the viewport matrix, When Login renders, Then form-first order and containment hold"
+      ]
+    },
     "team-calendar.spec.ts::Team Calendar — Story 4.2 / 7.11": {
       "tags": ["@regression", "@api"],
       "tests": ["[P1] Employee sees calendar week nav and timeline at /calendar"]

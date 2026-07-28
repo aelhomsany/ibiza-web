@@ -79,6 +79,36 @@
     "evening": "Good evening",
     "morning": "Good morning"
   },
+  "firstUse": {
+    "dismiss": "Not Now",
+    "eyebrow": "First useful setup",
+    "nonBlocking": "You can keep using the Dashboard and resume this setup later.",
+    "progress": "{{current}} of {{total}}",
+    "status": {
+      "complete": "Complete",
+      "current": "Current step",
+      "upcoming": "Up next"
+    },
+    "steps": {
+      "calendars": {
+        "action": "Start With Working Calendars",
+        "description": "Confirm groups, weekend patterns, and public holidays.",
+        "title": "Working calendars"
+      },
+      "people": {
+        "action": "Continue To People",
+        "description": "Confirm people and their Workforce Group assignments.",
+        "title": "People and groups"
+      },
+      "preview": {
+        "action": "Preview Your First Request",
+        "description": "See the first policy-aware working-day calculation.",
+        "title": "Preview a calculation"
+      }
+    },
+    "summary": "Three short checks make the team's first leave calculation trustworthy.",
+    "title": "Set up reliable working-day calculations"
+  },
   "nameFallback": "there",
   "recent": {
     "empty": "Your first request and its working-day result will appear here.",

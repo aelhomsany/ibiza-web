@@ -17,7 +17,9 @@ export function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [tokenRejected, setTokenRejected] = useState(false)
 
+  const tokenUnusable = !token || tokenRejected
   const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword
   const requirementsId = 'reset-password-requirements'
   const mismatchId = 'reset-password-confirm-mismatch'
@@ -25,7 +27,7 @@ export function ResetPasswordPage() {
     [requirementsId, passwordsMismatch ? mismatchId : null].filter(Boolean).join(' ') || undefined
 
   const canSubmit =
-    Boolean(token) &&
+    !tokenUnusable &&
     isPasswordStrong(password) &&
     password === confirmPassword &&
     confirmPassword.length > 0 &&
@@ -50,7 +52,17 @@ export function ResetPasswordPage() {
       navigate('/login', { replace: true, state: { passwordReset: true } })
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(err.message)
+        const problemType = err.problem?.type ?? ''
+        if (problemType.endsWith('reset-token-invalid')) {
+          setPassword('')
+          setConfirmPassword('')
+          setError(t('auth:errors.invalidReset'))
+          setTokenRejected(true)
+        } else if (problemType.endsWith('password-too-weak')) {
+          setError(t('auth:errors.passwordRequirements'))
+        } else {
+          setError(t('auth:errors.reset'))
+        }
       } else {
         setError(t('auth:errors.reset'))
       }
@@ -70,7 +82,7 @@ export function ResetPasswordPage() {
           <div className="auth-logo-sub">{t('common:brand.tagline')}</div>
         </div>
 
-        <div className="auth-form-title">{t('auth:reset.title')}</div>
+        <h1 className="auth-form-title">{t('auth:reset.title')}</h1>
 
         {!token && (
           <div className="auth-error" role="alert">
@@ -94,7 +106,7 @@ export function ResetPasswordPage() {
             minLength={8}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            disabled={!token}
+            disabled={tokenUnusable}
           />
 
           <PasswordRequirements id={requirementsId} password={password} />
@@ -108,7 +120,7 @@ export function ResetPasswordPage() {
             minLength={8}
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
-            disabled={!token}
+            disabled={tokenUnusable}
             aria-invalid={passwordsMismatch}
             aria-describedby={passwordsMismatch ? mismatchId : undefined}
           />
@@ -132,6 +144,12 @@ export function ResetPasswordPage() {
         <Link className="auth-link" to="/login">
           {t('auth:actions.backToSignIn')}
         </Link>
+
+        {tokenUnusable && (
+          <Link className="auth-link auth-link-secondary" to="/forgot-password">
+            {t('auth:actions.requestNewReset')}
+          </Link>
+        )}
       </div>
     </div>
   )

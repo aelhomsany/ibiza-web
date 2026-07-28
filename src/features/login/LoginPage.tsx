@@ -4,7 +4,8 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { ApiError } from '../../api/client'
 import { getHomePath, getSafeRedirectPath } from '../../auth/authUtils'
 import { useAuth } from '../../auth/useAuth'
-import { UmbrellaIcon } from '../../components/ui/icons'
+import { BuildingIcon, UmbrellaIcon } from '../../components/ui/icons'
+import { AuthProofPanel } from './AuthProofPanel'
 import './auth-form.css'
 
 export function LoginPage() {
@@ -40,8 +41,10 @@ export function LoginPage() {
       if (err instanceof ApiError) {
         if (err.status === 429) {
           setError(t('auth:errors.tooMany'))
+        } else if (err.status === 401) {
+          setError(t('auth:errors.invalidCredentials'))
         } else {
-          setError(err.message)
+          setError(t('auth:errors.signIn'))
         }
       } else {
         setError(t('auth:errors.signIn'))
@@ -57,74 +60,89 @@ export function LoginPage() {
 
   return (
     <div className="auth-page" data-testid="login-page">
-      <div className="auth-card">
-        <div className="auth-logo">
-          <div className="auth-logo-icon" aria-hidden="true">
-            <UmbrellaIcon size={34} />
+      <main className="auth-layout">
+        <section className="auth-card" aria-labelledby="sign-in-title">
+          <div className="auth-logo">
+            <div className="auth-logo-icon" aria-hidden="true">
+              <UmbrellaIcon size={34} />
+            </div>
+            <div className="auth-logo-title">{t('common:brand.name')}</div>
+            <div className="auth-logo-sub">{t('common:brand.tagline')}</div>
           </div>
-          <div className="auth-logo-title">{t('common:brand.name')}</div>
-          <div className="auth-logo-sub">{t('common:brand.tagline')}</div>
-        </div>
 
-        <div className="auth-form-title">{t('auth:login.title')}</div>
+          <h1 id="sign-in-title" className="auth-form-title">
+            {t('auth:login.title')}
+          </h1>
+          <p className="auth-form-intro">{t('auth:login.intro')}</p>
 
-        {location.state &&
-          typeof location.state === 'object' &&
-          'passwordReset' in location.state && (
-            <div className="auth-success" role="status">
-              {t('auth:login.resetSuccess')}
+          {location.state &&
+            typeof location.state === 'object' &&
+            'passwordReset' in location.state && (
+              <div className="auth-success" role="status">
+                {t('auth:login.resetSuccess')}
+              </div>
+            )}
+
+          {error && (
+            <div className="auth-error" role="alert">
+              {error}
             </div>
           )}
 
-        {error && (
-          <div className="auth-error" role="alert">
-            {error}
-          </div>
-        )}
+          <form onSubmit={handleSubmit}>
+            <div className="auth-form-group">
+              <label htmlFor="sign-in-email">{t('auth:fields.email')}</label>
+              <input
+                id="sign-in-email"
+                data-testid="sign-in-email"
+                className="auth-input"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="auth-form-group">
-            <label htmlFor="sign-in-email">{t('auth:fields.email')}</label>
-            <input
-              id="sign-in-email"
-              data-testid="sign-in-email"
-              className="auth-input"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-            />
-          </div>
+            <div className="auth-form-group">
+              <label htmlFor="sign-in-password">{t('auth:fields.password')}</label>
+              <input
+                id="sign-in-password"
+                data-testid="sign-in-password"
+                className="auth-input"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+            </div>
 
-          <div className="auth-form-group">
-            <label htmlFor="sign-in-password">{t('auth:fields.password')}</label>
-            <input
-              id="sign-in-password"
-              data-testid="sign-in-password"
-              className="auth-input"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
-          </div>
+            <button
+              type="submit"
+              className="btn btn-primary btn-block"
+              data-testid="sign-in-submit"
+              disabled={submitting}
+            >
+              {submitting ? t('auth:actions.signingIn') : t('auth:actions.signIn')}
+            </button>
+          </form>
 
-          <button
-            type="submit"
-            className="btn btn-primary btn-block"
-            data-testid="sign-in-submit"
-            disabled={submitting}
+          <Link className="auth-link" to="/forgot-password">
+            {t('auth:actions.forgotPassword')}
+          </Link>
+
+          <p
+            className="auth-tenant-reassurance"
+            data-testid="auth-tenant-reassurance"
           >
-            {submitting ? t('auth:actions.signingIn') : t('auth:actions.signIn')}
-          </button>
-        </form>
+            <BuildingIcon size={16} aria-hidden="true" />
+            <span>{t('auth:login.tenantReassurance')}</span>
+          </p>
+        </section>
 
-        <Link className="auth-link" to="/forgot-password">
-          {t('auth:actions.forgotPassword')}
-        </Link>
-      </div>
+        <AuthProofPanel />
+      </main>
     </div>
   )
 }

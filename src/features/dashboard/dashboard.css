@@ -3,6 +3,152 @@
   container-type: inline-size;
 }
 
+.first-use-cue {
+  min-width: 0;
+  margin-block-end: var(--space-section-gap);
+  padding: var(--space-card-padding);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(
+      135deg,
+      var(--color-auth-proof-start),
+      var(--color-auth-proof-end)
+    );
+}
+
+.first-use-cue-header {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-xl);
+}
+
+.first-use-eyebrow,
+.first-use-title,
+.first-use-summary,
+.first-use-progress,
+.first-use-step-copy strong,
+.first-use-step-copy span {
+  margin: 0;
+}
+
+.first-use-eyebrow {
+  color: var(--color-working-policy);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-caption-line-height);
+}
+
+.first-use-title {
+  margin-block-start: var(--space-xs);
+  color: var(--color-text-primary);
+  font-size: var(--font-section-title-size);
+  font-weight: var(--font-section-title-weight);
+  line-height: var(--font-section-title-line-height);
+}
+
+.first-use-summary {
+  max-width: 70ch;
+  margin-block-start: var(--space-xs);
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+}
+
+.first-use-dismiss {
+  flex: 0 0 auto;
+}
+
+.first-use-progress {
+  margin-block-start: var(--space-lg);
+  color: var(--color-working-policy);
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+}
+
+.first-use-steps {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-md);
+  margin-block-start: var(--space-md);
+  padding: 0;
+  list-style: none;
+}
+
+.first-use-step {
+  min-width: 0;
+  min-height: 112px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-card);
+}
+
+.first-use-step-current {
+  border-color: var(--color-action-primary);
+  background: var(--color-surface-selected);
+}
+
+.first-use-step-marker {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+  color: var(--color-action-primary);
+}
+
+.first-use-step-current .first-use-step-marker,
+.first-use-step-complete .first-use-step-marker {
+  background: var(--color-action-primary);
+  color: var(--color-action-primary-foreground);
+}
+
+.first-use-step-copy {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.first-use-step-copy strong {
+  color: var(--color-text-primary);
+  font-size: var(--font-label-size);
+  line-height: var(--font-label-line-height);
+}
+
+.first-use-step-copy > span:not(.first-use-step-status) {
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  line-height: var(--font-caption-line-height);
+}
+
+.first-use-step-status {
+  color: var(--color-working-policy);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-label-weight);
+}
+
+.first-use-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-block-start: var(--space-lg);
+}
+
+.first-use-nonblocking {
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+}
+
 .dashboard-value-row {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.85fr);
@@ -341,6 +487,28 @@
 }
 
 @media (max-width: 900px) {
+  .first-use-cue-header,
+  .first-use-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .first-use-dismiss {
+    align-self: flex-start;
+  }
+
+  .first-use-steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .first-use-step {
+    min-height: 0;
+  }
+
+  .first-use-actions .btn-primary {
+    width: 100%;
+  }
+
   .dashboard-layout .page-header,
   .dashboard-section-heading {
     align-items: stretch;

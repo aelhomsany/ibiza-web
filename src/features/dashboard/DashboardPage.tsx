@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type {
   RecentRequestResponse,
@@ -13,6 +13,7 @@ import { useToast } from '../../components/ui/useToast'
 import { usePendingApprovalCount } from '../approvals/usePendingApprovalCount'
 import { BalanceCard } from './BalanceCard'
 import { DashboardValueProof } from './DashboardValueProof'
+import { FirstUseCue } from './FirstUseCue'
 import { OutTodaySidebar } from './OutTodaySidebar'
 import { RecentRequestsCard } from './RecentRequestsCard'
 import { RequestLeaveModal } from './RequestLeaveModal'
@@ -230,6 +231,7 @@ export function DashboardPage() {
   const { t, i18n } = useTranslation(['dashboard', 'common'])
   const { user } = useAuth()
   const [modalOpen, setModalOpen] = useState(false)
+  const greetingRef = useRef<HTMLHeadingElement>(null)
   const { showToast } = useToast()
   const balancesQuery = useDashboardBalances()
   const recentQuery = useDashboardRecentRequests()
@@ -246,7 +248,7 @@ export function DashboardPage() {
     <div className="page page-wide dashboard-layout" data-testid="dashboard-page">
       <header className="page-header">
         <div>
-          <h1 className="page-title">
+          <h1 className="page-title" ref={greetingRef} tabIndex={-1}>
             {t('greeting', {
               time: t(`dashboard:${timeGreetingKey()}`),
               name: user ? firstName(user.fullName) : t('dashboard:nameFallback'),
@@ -263,6 +265,14 @@ export function DashboardPage() {
           <PlusIcon size={16} /> {t('dashboard:actions.requestLeave')}
         </button>
       </header>
+
+      {user?.role === 'HR_ADMIN' && (
+        <FirstUseCue
+          user={user}
+          onStartRequest={() => setModalOpen(true)}
+          onDismiss={() => greetingRef.current?.focus()}
+        />
+      )}
 
       <div className="dashboard-value-row" data-testid="dashboard-value-row">
         <div className="dashboard-attention-slot">
