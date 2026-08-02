@@ -14,7 +14,7 @@ export const mockAcmeForEditSubscription: OrganizationSummaryResponse = {
 
 export const validUpdateSubscriptionRequest: UpdateSubscriptionRequest = {
   plan: 'STARTER',
-  billingStatus: 'ACTIVE',
+  billingStatus: 'MANUAL_ACTIVE',
   effectiveDate: '2026-06-27',
 }
 
