@@ -508,7 +508,7 @@ export function TeamMemberModal({
           )}
 
           {upgradePrompt && (
-            <div className="upgrade-prompt" role="alert" tabIndex={-1} ref={upgradePromptRef}>
+            <div className="upgrade-prompt" role="alert" tabIndex={-1} ref={upgradePromptRef} data-testid="plan-limit-banner">
               <div>
                 <strong>{t('settings:memberModal.upgrade.title')}</strong>
                 <p>{upgradePrompt.detail}</p>
@@ -533,6 +533,7 @@ export function TeamMemberModal({
                   onClick={handleUpgrade}
                   disabled={checkoutMutation.isPending}
                   data-busy={checkoutMutation.isPending ? 'true' : undefined}
+                  data-testid="cta-upgrade-path"
                 >
                   {checkoutMutation.isPending
                     ? t('settings:memberModal.actions.opening')

@@ -6,7 +6,10 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 dotenv.config({ path: path.resolve(__dirname, '.env') })
 
-const baseURL = process.env.BASE_URL ?? 'http://localhost:5173'
+const isPublicArtifact = process.env.E2E_PUBLIC_ARTIFACT === 'true'
+const baseURL = isPublicArtifact
+  ? process.env.PUBLIC_BASE_URL ?? 'http://127.0.0.1:4174'
+  : process.env.BASE_URL ?? 'http://localhost:5173'
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -30,9 +33,18 @@ export default defineConfig({
   },
   timeout: 60_000,
   expect: { timeout: 10_000 },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: isPublicArtifact
+    ? [
+        { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+        { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+      ]
+    : [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: process.env.CI ? 'npm run preview' : 'npm run dev',
+    command: isPublicArtifact
+      ? 'npm run preview:public'
+      : process.env.CI
+        ? 'npm run preview'
+        : 'npm run dev',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

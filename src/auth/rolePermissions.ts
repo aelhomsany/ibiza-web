@@ -57,7 +57,11 @@ const ORG_BASE: NavCatalogItem[] = [
 export const ORG_NAV_ITEMS: NavCatalogItem[] = ORG_BASE
 
 export function getHomePath(role: UserRole): string {
-  return role === 'PLATFORM_ADMIN' ? '/platform/organizations' : '/'
+  // Customer artifact only. A Platform Admin has no destination here — operators
+  // sign in at /app-admin/login in the separate Admin artifact, and the API no longer
+  // issues a customer token for one. Pointing this at /platform/organizations would
+  // send them to a route the customer router no longer serves.
+  return role === 'PLATFORM_ADMIN' ? '/login' : '/'
 }
 
 export function getForbiddenRedirect(role: UserRole): string {
@@ -75,10 +79,6 @@ export function getOrgNavItems(role: UserRole): NavItem[] {
     icon: item.icon,
     testId: item.testId,
   }))
-}
-
-export function canAccessAdminRoute(role: UserRole): boolean {
-  return role === 'PLATFORM_ADMIN'
 }
 
 export function canAccessOrgRoute(role: UserRole, pathname: string): boolean {

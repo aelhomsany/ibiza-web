@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { updatePlatformOrganizationSubscription } from '../../api/client'
+import { updatePlatformOrganizationSubscription } from '../platform-auth/platformApiClient'
 import type { UpdateSubscriptionRequest } from '../../api/generated/types'
 import { platformOrganizationsQueryKey } from './usePlatformOrganizations'
 

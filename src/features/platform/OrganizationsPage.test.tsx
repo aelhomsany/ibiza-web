@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import * as apiClient from '../../api/client'
+import * as apiClient from '../platform-auth/platformApiClient'
 import { OrganizationsPage } from './OrganizationsPage'
 import { ToastProvider } from '../../components/ui/ToastProvider'
 import { mockAcmeForEditSubscription } from './platformSubscriptionTestFixtures'
@@ -222,7 +222,7 @@ describe('OrganizationsPage', () => {
       screen.getByRole('heading', { name: 'Edit Subscription — Nile Harbor' }),
     ).toBeInTheDocument()
     expect(screen.getByTestId('edit-subscription-plan')).toHaveValue('INTERNAL')
-    expect(screen.getByTestId('edit-subscription-billing-status')).toHaveValue('ACTIVE')
+    expect(screen.getByTestId('edit-subscription-billing-status')).toHaveValue('MANUAL_ACTIVE')
     expect(screen.getByTestId('edit-subscription-effective-date')).toHaveValue('2026-06-05')
   })
 })

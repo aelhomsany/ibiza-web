@@ -27,6 +27,7 @@ import type {
   AuditEventResponse,
   ResetPasswordRequest,
   TeamMemberDetailResponse,
+  TeamMemberInvitationResponse,
   TeamMemberSummaryResponse,
   TokenResponse,
   UpdatePublicHolidayRequest,
@@ -567,10 +568,19 @@ export async function getTeamMember(id: number): Promise<TeamMemberDetailRespons
   })
 }
 
+/**
+ * The Settings "Add Team Member" action sends an invitation rather than activating a billable
+ * user directly. No seat is taken until the invitee accepts — the plan limit counts active users
+ * only, and is re-checked under lock at acceptance.
+ *
+ * Returns `TeamMemberInvitationResponse`, not `TeamMemberDetailResponse`: the invited person has
+ * no user record, id, or entitlements yet, so declaring the detail shape here would hand callers
+ * fields that are always undefined.
+ */
 export async function createTeamMember(
   payload: CreateTeamMemberRequest,
-): Promise<TeamMemberDetailResponse> {
-  return request<TeamMemberDetailResponse>('/api/v1/team-members', {
+): Promise<TeamMemberInvitationResponse> {
+  return request<TeamMemberInvitationResponse>('/api/v1/team-members/invitations', {
     method: 'POST',
     body: payload,
   })
@@ -582,6 +592,37 @@ export async function createCheckoutSession(
   return request<CheckoutSessionResponse>('/api/v1/billing/checkout-session', {
     method: 'POST',
     body: payload,
+  })
+}
+
+export type BillingSubscription = {
+  plan: 'FREE' | 'STARTER' | 'GROWTH' | 'INTERNAL'
+  billingStatus: 'PENDING_PAYMENT' | 'ACTIVE' | 'PAST_DUE_GRACE' | 'RESTRICTED'
+    | 'CANCEL_AT_PERIOD_END' | 'CANCELED' | 'MANUAL_ACTIVE' | 'MANUAL_SUSPENDED'
+  activeSeats: number
+  pendingInvitations: number
+  billableQuantity: number
+  seatLimit: number
+  pendingPlan: 'FREE' | 'STARTER' | 'GROWTH' | null
+  graceEndsAt: string | null
+  currentPeriodEnd: string | null
+  cancelAtPeriodEnd: boolean
+}
+
+export function getBillingSubscription(): Promise<BillingSubscription> {
+  return request<BillingSubscription>('/api/v1/billing/subscription', { method: 'GET' })
+}
+
+export function createBillingPortalSession(): Promise<{ portalUrl: string }> {
+  return request<{ portalUrl: string }>('/api/v1/billing/portal-session', { method: 'POST' })
+}
+
+export function scheduleBillingDowngrade(
+  targetPlan: 'FREE' | 'STARTER',
+): Promise<BillingSubscription> {
+  return request<BillingSubscription>('/api/v1/billing/schedule-downgrade', {
+    method: 'POST',
+    body: { targetPlan },
   })
 }
 
@@ -658,6 +699,9 @@ export const apiClient = {
   getTeamMember,
   createTeamMember,
   createCheckoutSession,
+  getBillingSubscription,
+  createBillingPortalSession,
+  scheduleBillingDowngrade,
   updateTeamMember,
   updateTeamMemberStatus,
   deactivateTeamMember,

@@ -2,13 +2,20 @@
   "version": 1,
   "suites": {
     "arabic-rtl-release-gate.spec.ts::Arabic RTL release gate — Story 9.5": {
-      "tags": ["@regression", "@ui-only", "@story-9-5"],
+      "tags": [
+        "@regression",
+        "@ui-only",
+        "@story-9-5"
+      ],
       "tests": [
         "[P0] Given Arabic preferred, When Employee opens Dashboard, Then Request Leave is Arabic and html dir=rtl (no raw keys)"
       ]
     },
     "approval-decision.spec.ts::Approval decision — Story 3.7": {
-      "tags": ["@regression", "@api"],
+      "tags": [
+        "@regression",
+        "@api"
+      ],
       "tests": [
         "[P1] Manager approves a pending row and it disappears from the inbox",
         "[P1] Decline confirm is blocked until a reason is entered",
@@ -16,37 +23,70 @@
       ]
     },
     "approval-decision-confidence.spec.ts::Approval decision confidence — Story 11.4": {
-      "tags": ["@regression", "@api", "@story-11-4"],
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-11-4"
+      ],
       "tests": [
         "[P1] Given a pending card at 390px, When Approvals renders, Then Approve and Decline are visible without page overflow",
         "[P0] Given Decline on an Approval card, When the modal opens, Then it names requester and date range and blocks empty reason"
       ]
     },
     "approval-decisions-visibility.spec.ts::Approval visibility — Story 3.8": {
-      "tags": ["@regression", "@api"],
-      "tests": ["[P2] Manager sees Approvals badge and dashboard Review Now link"]
+      "tags": [
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "[P2] Manager sees Approvals badge and dashboard Review Now link"
+      ]
     },
     "approval-inbox.spec.ts::Approval inbox — Story 3.6": {
-      "tags": ["@smoke", "@regression", "@api"],
-      "tests": ["[P2] Manager sees direct-report pending row on Approvals page"]
+      "tags": [
+        "@smoke",
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "[P2] Manager sees direct-report pending row on Approvals page"
+      ]
     },
     "auth-api-guards.spec.ts::Authentication API guards": {
-      "tags": ["@regression", "@api"],
+      "tags": [
+        "@regression",
+        "@api"
+      ],
       "tests": [
         "[P0-001] Given no token, When calling /auth/me, Then 401 is returned",
         "[P0-002] Given valid login, When calling /auth/me, Then org-scoped user is returned"
       ]
     },
     "auth-login.spec.ts::Authentication API": {
-      "tags": ["@smoke", "@regression", "@api"],
-      "tests": ["Given pilot credentials, When logging in via API, Then an access token is returned"]
+      "tags": [
+        "@smoke",
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "Given pilot credentials, When logging in via API, Then an access token is returned"
+      ]
     },
     "auth-login.spec.ts::Authentication UI": {
-      "tags": ["@smoke", "@regression", "@api"],
-      "tests": ["Given the login page, When signing in with valid credentials, Then dashboard loads"]
+      "tags": [
+        "@smoke",
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "Given the login page, When signing in with valid credentials, Then dashboard loads"
+      ]
     },
     "auth-session.spec.ts::Auth session security": {
-      "tags": ["@regression", "@api"],
+      "tags": [
+        "@regression",
+        "@api"
+      ],
       "tests": [
         "[P0-012] Given a signed-in user, When signing out, Then login page is shown",
         "[P0-012] Given a signed-out user, When visiting a protected route, Then login page is shown",
@@ -55,18 +95,29 @@
       ]
     },
     "auth-validation.spec.ts::Auth validation — critical UX blocks": {
-      "tags": ["@regression", "@ui-only"],
+      "tags": [
+        "@regression",
+        "@ui-only"
+      ],
       "tests": [
         "[P2] Given no reset token, When visiting reset-password, Then submit is disabled and error is shown",
         "[P2] Given mismatched passwords, When submitting reset form, Then submit stays disabled"
       ]
     },
     "dashboard-balances.spec.ts::Dashboard balances — Story 3.1": {
-      "tags": ["@regression", "@api"],
-      "tests": ["[P1] Employee sees annual leave balance card with numbers after login"]
+      "tags": [
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "[P1] Employee sees annual leave balance card with numbers after login"
+      ]
     },
     "dashboard-recent-and-sidebar.spec.ts::Dashboard recent requests and sidebar — Story 3.2": {
-      "tags": ["@regression", "@api"],
+      "tags": [
+        "@regression",
+        "@api"
+      ],
       "tests": [
         "[P1] Employee sees recent requests table and out-today sidebar after login",
         "[P1] Pending row shows Waiting for approval hint",
@@ -74,29 +125,50 @@
       ]
     },
     "demo-data-curated.spec.ts::Demo data curated — Story 10.12": {
-      "tags": ["@regression", "@api", "@story-10-12"],
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-10-12"
+      ],
       "tests": [
         "[P1] Employee sees curated leave history after reset",
         "[P1] HR Settings and Platform Organizations show curated data after reset"
       ]
     },
     "example.spec.ts::Application shell": {
-      "tags": ["@regression", "@ui-only"],
+      "tags": [
+        "@regression",
+        "@ui-only"
+      ],
       "tests": [
         "Given an unauthenticated visitor, When visiting the home page, Then the login page is shown",
         "Given the user factory, When building a user, Then faker data is applied"
       ]
     },
     "leave-request-validation.spec.ts::Leave request validation — FR-6 zero working days (Story 3.3)": {
-      "tags": ["@regression", "@api"],
-      "tests": ["[P0] Given a weekend-only date range, When preview renders, Then submit is blocked with group message"]
+      "tags": [
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "[P0] Given a weekend-only date range, When preview renders, Then submit is blocked with group message"
+      ]
     },
     "my-leaves-history.spec.ts::My Leaves history — Story 3.5": {
-      "tags": ["@regression", "@api"],
-      "tests": ["[P2] Employee sees My Leaves balances, history, and shared request CTA"]
+      "tags": [
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "[P2] Employee sees My Leaves balances, history, and shared request CTA"
+      ]
     },
     "my-leaves-findability.spec.ts::My Leaves findability — Story 11.3": {
-      "tags": ["@regression", "@api", "@story-11-3"],
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-11-3"
+      ],
       "tests": [
         "[P1] Given filters with no match, Clear Filters restores the list",
         "[P0] Given q and status in the URL, When My Leaves loads, Then filters restore and results compose",
@@ -104,31 +176,56 @@
       ]
     },
     "notification-bell.spec.ts::Notification bell — Story 5.1 / 7.11": {
-      "tags": ["@regression", "@api"],
-      "tests": ["[P1] Org user opens notification panel from bell"]
+      "tags": [
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "[P1] Org user opens notification panel from bell"
+      ]
     },
     "password-reset.spec.ts::Password reset form": {
-      "tags": ["@regression", "@ui-only"],
-      "tests": ["Given the forgot-password page, When visiting, Then the form is visible"]
+      "tags": [
+        "@regression",
+        "@ui-only"
+      ],
+      "tests": [
+        "Given the forgot-password page, When visiting, Then the form is visible"
+      ]
     },
     "password-reset.spec.ts::Password reset submit": {
-      "tags": ["@regression", "@api"],
-      "tests": ["Given a known email, When submitting forgot-password, Then confirmation is shown"]
-    },
-    "platform-admin-auth.spec.ts::Platform Admin authentication": {
-      "tags": ["@smoke", "@regression", "@api"],
-      "tests": ["[P0] real Platform Admin login lands in admin shell without org navigation"]
+      "tags": [
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "Given a known email, When submitting forgot-password, Then confirmation is shown"
+      ]
     },
     "platform-create-organization.spec.ts::Platform create organization": {
-      "tags": ["@regression", "@api"],
-      "tests": ["[P0] Platform Admin creates organization and sees it in list"]
+      "tags": [
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "[P0] Platform Admin creates organization and sees it in list"
+      ]
     },
     "platform-edit-subscription.spec.ts::Platform edit subscription": {
-      "tags": ["@regression", "@api"],
-      "tests": ["[P0] Platform Admin edits Nile Harbor subscription and row plan badge updates"]
+      "tags": [
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "[P0] Platform Admin edits Nile Harbor subscription and row plan badge updates"
+      ]
     },
     "responsive-containment.spec.ts::Responsive containment — Story 10.9": {
-      "tags": ["@regression", "@api", "@story-10-9"],
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-10-9"
+      ],
       "tests": [
         "[P0] Dashboard has no page-level overflow at 390px",
         "[P0] Dashboard has no page-level overflow at 901px",
@@ -138,7 +235,11 @@
       ]
     },
     "visual-foundation-overflow.spec.ts::Visual foundation overflow — Story 11.1": {
-      "tags": ["@regression", "@api", "@story-11-1"],
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-11-1"
+      ],
       "tests": [
         "[P0] Dashboard has no page-level overflow at 768px",
         "[P0] Dashboard has no page-level overflow at 900px",
@@ -147,7 +248,10 @@
       ]
     },
     "responsive-tables.spec.ts::Responsive tables — Story 10.3": {
-      "tags": ["@regression", "@api"],
+      "tags": [
+        "@regression",
+        "@api"
+      ],
       "tests": [
         "[P0] Dashboard recent requests scroll inside the table wrapper at 375px",
         "[P0] My Leaves history uses task cards without page overflow at 375px",
@@ -155,7 +259,10 @@
       ]
     },
     "role-navigation.spec.ts::Role-based navigation": {
-      "tags": ["@regression", "@api"],
+      "tags": [
+        "@regression",
+        "@api"
+      ],
       "tests": [
         "Employee sees base nav only",
         "Manager sees Approvals without Settings",
@@ -165,14 +272,21 @@
       ]
     },
     "settings-api.spec.ts::Settings API — workforce groups and holidays": {
-      "tags": ["@regression", "@api"],
+      "tags": [
+        "@regression",
+        "@api"
+      ],
       "tests": [
         "[P1-004] US and Egypt groups expose different weekend day configurations",
         "[P1-005] US group lists seeded public holidays"
       ]
     },
     "settings-information-architecture.spec.ts::Settings information architecture — Story 11.5": {
-      "tags": ["@regression", "@api", "@story-11-5"],
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-11-5"
+      ],
       "tests": [
         "[P1] Given category=people in URL, When Settings loads, Then People panel is shown",
         "[P0] Given Settings at 390px, When the category strip renders, Then categories are reachable without page overflow",
@@ -180,7 +294,11 @@
       ]
     },
     "settings-hr.spec.ts::HR Settings page": {
-      "tags": ["@smoke", "@regression", "@api"],
+      "tags": [
+        "@smoke",
+        "@regression",
+        "@api"
+      ],
       "tests": [
         "[P1] HR Admin sees workforce group tabs and holidays on Settings",
         "[P1] Switching workforce group tab updates the active weekend label",
@@ -188,7 +306,10 @@
       ]
     },
     "settings-unified-ui.spec.ts::Settings unified UI — Story 2.7": {
-      "tags": ["@regression", "@api"],
+      "tags": [
+        "@regression",
+        "@api"
+      ],
       "tests": [
         "[P1] HR Admin sees subtitle and three policy cards in mockup order",
         "[P1] Leave Types card shows five seeded types with uncapped Unpaid copy",
@@ -196,7 +317,11 @@
       ]
     },
     "calendar-mobile-agenda.spec.ts::Calendar and mobile agenda — Story 11.6": {
-      "tags": ["@regression", "@api", "@story-11-6"],
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-11-6"
+      ],
       "tests": [
         "[P1] Given viewport 390px, When /calendar loads, Then Agenda is default without page overflow",
         "[P0] Given Workforce Group filter selected, When switching Timeline and Agenda, Then filter selection persists",
@@ -204,31 +329,151 @@
       ]
     },
     "auth-first-use.spec.ts::Auth and first-use — Story 11.7": {
-      "tags": ["@regression", "@api", "@story-11-7"],
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-11-7"
+      ],
       "tests": [
         "[P1] Given HR Admin with incomplete first-use, When Dashboard loads, Then cue CTA opens Working calendars"
       ]
     },
     "auth-first-use.spec.ts::Auth responsive and locale proof — Story 11.7": {
-      "tags": ["@regression", "@ui-only", "@story-11-7"],
+      "tags": [
+        "@regression",
+        "@ui-only",
+        "@story-11-7"
+      ],
       "tests": [
         "[P0] Given English or Arabic across the viewport matrix, When Login renders, Then form-first order and containment hold"
       ]
     },
     "team-calendar.spec.ts::Team Calendar — Story 4.2 / 7.11": {
-      "tags": ["@regression", "@api"],
-      "tests": ["[P1] Employee sees calendar week nav and timeline at /calendar"]
+      "tags": [
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "[P1] Employee sees calendar week nav and timeline at /calendar"
+      ]
     },
     "team-member-plan-limit.spec.ts::Team member plan limit": {
-      "tags": ["@regression", "@api"],
-      "tests": ["[P0] HR blocked adding over-limit Free user sees warning toast and modal stays open"]
+      "tags": [
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "[P0] HR blocked adding over-limit Free user sees warning toast and modal stays open"
+      ]
     },
     "accessibility-completion.spec.ts::Accessibility completion — Story 10.10": {
-      "tags": ["@regression", "@ui-only", "@story-10-10"],
+      "tags": [
+        "@regression",
+        "@ui-only",
+        "@story-10-10"
+      ],
       "tests": [
         "[P1] Skip link moves focus to main content",
         "[P0] Mobile drawer constrains focus away from header actions"
       ]
+    },
+    "public-entry-boundaries.spec.ts::Public acquisition — Story 12.1": {
+      "tags": [
+        "@regression",
+        "@ui-only",
+        "@story-12-1"
+      ],
+      "tests": [
+        "[P0] Given an indexable public route, When JavaScript is unavailable, Then product evidence, metadata, and navigation remain",
+        "[P0] Given mobile, desktop, keyboard, reduced-motion, and Arabic visitors, Then the public proof remains usable and contained"
+      ]
+    },
+    "public-entry-boundaries.spec.ts::Platform Admin boundary — Story 12.1": {
+      "tags": [
+        "@smoke",
+        "@regression",
+        "@api",
+        "@story-12-1"
+      ],
+      "tests": [
+        "[P0] Given customer and Platform Admin credentials, When each is used in both realms, Then only its own realm accepts it"
+      ]
+    },
+    "pricing-routing.spec.ts::Pricing plan routing — Story 12.2": {
+      "tags": [
+        "@regression",
+        "@ui-only",
+        "@story-12-2"
+      ],
+      "tests": [
+        "[P0] Given intended-user counts at band boundaries, When Pricing renders recommendations, Then Free/Starter/Growth/Contact Sales routes are exact"
+      ]
+    },
+    "contact-sales.spec.ts::Contact Sales handoff — Story 12.2": {
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-12-2"
+      ],
+      "tests": [
+        "[P0] Given a >200 or complex prospect, When Contact Sales is submitted, Then the lead is recorded with no workspace and an explicit success state"
+      ]
+    },
+    "free-registration.spec.ts::Verified Free provisioning — Story 12.3": {
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-12-3"
+      ],
+      "tests": [
+        "[P0] Given a Free 1–5 registration, When email is verified and provisioning succeeds, Then one workspace exists, handoff lands first-use, and retries do not duplicate",
+        "[P0] Given an expired verification link, When the administrator opens it, Then a non-enumerating recovery state is the only next action",
+        "[P0] Given a Free org at five active Users, When HR adds User #6, Then the exact limit and upgrade path are visible and no member is created"
+      ]
+    },
+    "free-registration.spec.ts::Verified Free registration layout — Story 12.3": {
+      "tags": [
+        "@regression",
+        "@ui-only",
+        "@story-12-3"
+      ],
+      "tests": [
+        "[P0] Given /register at EN and AR viewports, When the page renders, Then there is no horizontal overflow and Free stays card-free"
+      ]
+    },
+    "paid-registration.spec.ts::Paid checkout return layout — Story 12.4": {
+      "tags": [
+        "@regression",
+        "@ui-only",
+        "@story-12-4"
+      ],
+      "tests": [
+        "[P1] Given authoritative payment is still pending, When EN and AR return pages reflow, Then they show Confirming Payment without false success or overflow"
+      ]
+    },
+    "paid-registration.spec.ts::Paid registration — Story 12.4": {
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-12-4"
+      ],
+      "tests": [
+        "[P0] Given a verified Starter registration, When Checkout and webhook succeed, Then one paid workspace is provisioned and handoff lands first-use without duplicate charge",
+        "[P0] Given payment confirmed but provisioning failed, When recovery runs, Then no second Checkout is started and Creation Source stays SELF_SERVICE"
+      ]
+    },
+    "billing-recovery.spec.ts::Billing remediation — Story 12.4": {
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-12-4"
+      ],
+      "tests": [
+        "[P0] Given PAST_DUE_GRACE then RESTRICTED, When workforce mutation is attempted, Then the user cannot proceed without visible remediation path"
+      ]
     }
-  }
+  },
+  "permanentlySkippedTests": [
+    "arabic-rtl-release-gate.spec.ts::Arabic RTL release gate — Story 9.5::[P0] Given Arabic preferred, When Employee opens Dashboard, Then Request Leave is Arabic and html dir=rtl (no raw keys)"
+  ]
 }

@@ -1,0 +1,38 @@
+.platform-admin-actions,
+.platform-admin-language {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.platform-admin-language {
+  min-block-size: var(--min-touch-target);
+  color: var(--color-text-secondary);
+}
+
+.platform-admin-language button {
+  min-inline-size: var(--min-touch-target);
+  min-block-size: var(--min-touch-target);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--font-caption-size);
+  font-weight: 700;
+}
+
+.platform-admin-language button:hover {
+  background: var(--color-surface-subtle);
+}
+
+@media (max-width: 900px) {
+  .platform-admin-language {
+    display: none;
+  }
+
+  .platform-admin-signout {
+    padding-inline: var(--space-md);
+  }
+}

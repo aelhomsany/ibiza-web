@@ -19,7 +19,13 @@ cleanup() {
 }
 trap cleanup EXIT
 
-export JWT_SECRET="${JWT_SECRET:-dev-only-jwt-secret-change-before-pilot-min-32-chars}"
+# JWT_SECRET / PLATFORM_JWT_SECRET are intentionally not exported here: the API is
+# launched with the dev profile below, and application-dev.yml supplies the local
+# defaults. Hardcoding them here previously let this script drift out of sync with
+# the values the boot-time guard checks against.
+export CORS_ALLOWED_ORIGINS="${CORS_ALLOWED_ORIGINS:-http://localhost:${WEB_PORT}}"
+export PUBLIC_CORS_ALLOWED_ORIGINS="${PUBLIC_CORS_ALLOWED_ORIGINS:-http://localhost:${WEB_PORT}}"
+export PLATFORM_CORS_ALLOWED_ORIGINS="${PLATFORM_CORS_ALLOWED_ORIGINS:-http://localhost:${WEB_PORT}}"
 export DB_HOST="${DB_HOST:-localhost}"
 export DB_PORT="${DB_PORT:-3306}"
 export DB_NAME="${DB_NAME:-ibiza}"

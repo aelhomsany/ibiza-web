@@ -80,7 +80,10 @@ describe('LoginPage', () => {
     expect(screen.queryByTestId('login-page')).not.toBeInTheDocument()
   })
 
-  it('redirects PLATFORM_ADMIN to /platform/organizations', () => {
+  // Story 12.1: operators sign in at /app-admin/login in the Admin artifact. The
+  // customer app serves no operator route, so it must show the sign-in form rather
+  // than redirect — bouncing to an org route would loop against RoleGuard.
+  it('keeps a PLATFORM_ADMIN on the customer sign-in form instead of redirecting', () => {
     render(
       <MemoryRouter initialEntries={['/login']}>
         <AuthTestProvider
@@ -103,12 +106,12 @@ describe('LoginPage', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByTestId('admin-home')).toBeInTheDocument()
+    expect(screen.getByTestId('login-page')).toBeInTheDocument()
+    expect(screen.queryByTestId('admin-home')).not.toBeInTheDocument()
   })
 
   it.each([
     ['EMPLOYEE', '/', 'dashboard'],
-    ['PLATFORM_ADMIN', '/platform/organizations', 'admin-home'],
   ] as const)(
     'routes a successful %s sign-in to the authorized home',
     async (role, destination, testId) => {

@@ -61,7 +61,7 @@ The executable smoke set is exactly seven tests from these describes:
 - `auth-login.spec.ts` — `Authentication API` and `Authentication UI` (2)
 - `settings-hr.spec.ts` — `HR Settings page` (3)
 - `approval-inbox.spec.ts` — `Approval inbox — Story 3.6` (1)
-- `platform-admin-auth.spec.ts` — `Platform Admin authentication` (1)
+- `public-entry-boundaries.spec.ts` — `Platform Admin boundary — Story 12.1` (1)
 
 `tests/e2e/tag-manifest.json` is the reviewable exact-membership source and
 `tests/support/tag-integrity-reporter.ts` validates Playwright-discovered effective tags. Tags

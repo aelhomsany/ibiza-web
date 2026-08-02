@@ -42,8 +42,16 @@
     "manager": "Manager",
     "platformAdmin": "Platform Admin"
   },
+  "handoff": {
+    "title": "Signing you in",
+    "body": "Your workspace is ready. Completing the secure one-time handoff…",
+    "failedTitle": "This sign-in link cannot be used",
+    "failedBody": "The one-time handoff expired or was already used. Recover your registration for a safe new link.",
+    "recover": "Recover Registration"
+  },
   "routes": {
     "approvals": "Approvals",
+    "billing": "Plan & Billing",
     "calendar": "Team Calendar",
     "dashboard": "Dashboard",
     "forgotPassword": "Forgot password",

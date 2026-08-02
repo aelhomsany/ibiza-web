@@ -12,6 +12,9 @@ import enSettings from './locales/en/settings.json'
 import enProfile from './locales/en/profile.json'
 import enAuth from './locales/en/auth.json'
 import enPlatform from './locales/en/platform.json'
+import enPlatformAuth from './locales/en/platformAuth.json'
+import enPublic from './locales/en/public.json'
+import enBilling from './locales/en/billing.json'
 import arCommon from './locales/ar/common.json'
 import arErrors from './locales/ar/errors.json'
 import arLayout from './locales/ar/layout.json'
@@ -23,6 +26,9 @@ import arSettings from './locales/ar/settings.json'
 import arProfile from './locales/ar/profile.json'
 import arAuth from './locales/ar/auth.json'
 import arPlatform from './locales/ar/platform.json'
+import arPlatformAuth from './locales/ar/platformAuth.json'
+import arPublic from './locales/ar/public.json'
+import arBilling from './locales/ar/billing.json'
 
 const initialLocale = getStoredPreferredLanguage()
 applyDocumentLanguage(initialLocale)
@@ -31,6 +37,7 @@ void i18n.use(initReactI18next).init({
   resources: {
     en: {
       approvals: enApprovals,
+      billing: enBilling,
       auth: enAuth,
       calendar: enCalendar,
       common: enCommon,
@@ -39,11 +46,14 @@ void i18n.use(initReactI18next).init({
       layout: enLayout,
       leaves: enLeaves,
       platform: enPlatform,
+      platformAuth: enPlatformAuth,
       profile: enProfile,
+      public: enPublic,
       settings: enSettings,
     },
     ar: {
       approvals: arApprovals,
+      billing: arBilling,
       auth: arAuth,
       calendar: arCalendar,
       common: arCommon,
@@ -52,7 +62,9 @@ void i18n.use(initReactI18next).init({
       layout: arLayout,
       leaves: arLeaves,
       platform: arPlatform,
+      platformAuth: arPlatformAuth,
       profile: arProfile,
+      public: arPublic,
       settings: arSettings,
     },
   },

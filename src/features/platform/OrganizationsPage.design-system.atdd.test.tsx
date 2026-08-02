@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import * as apiClient from '../../api/client'
+import * as apiClient from '../platform-auth/platformApiClient'
 import { OrganizationsPage } from './OrganizationsPage'
 import { ToastProvider } from '../../components/ui/ToastProvider'
 

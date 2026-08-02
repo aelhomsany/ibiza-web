@@ -1,6 +1,13 @@
 name: CI
 on: [push, pull_request]
 
+env:
+  # Cloudflare's documented always-passes test site key. The public build refuses to
+  # produce dist/public without a site key, because a missing one silently disables the
+  # Turnstile widget and makes every Contact Sales submission fail validation. Real
+  # deployments must supply their own key; CI only needs the gate to be satisfiable.
+  VITE_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -42,6 +49,17 @@ jobs:
           BASE_URL: http://localhost:5173
           API_URL: http://localhost:8080
           E2E_API_AVAILABLE: 'false'
+
+      # The public-artifact suite is gated on E2E_PUBLIC_ARTIFACT and runs against the
+      # static host on :4174, so it is invisible to the two greps above. Without this
+      # step PUBLIC-VAL-003's real-HTTP-404 assertion and PUBLIC-VAL-011's
+      # keyboard/reflow/reduced-motion/RTL checkpoints have no gate anywhere in CI.
+      - name: Run public artifact E2E tests
+        run: npm run test:e2e:public
+        env:
+          CI: true
+          TEST_ENV: ci
+
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4

@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import * as apiClient from '../../api/client'
+import * as apiClient from '../platform-auth/platformApiClient'
 import { CreateOrganizationModal } from './CreateOrganizationModal'
 
 function renderModal(onClose = vi.fn()) {

@@ -1,31 +1,125 @@
 /// <reference types="vitest/config" />
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin, type UserConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { resolve } from 'node:path'
 
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    port: 5173,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
+type Artifact = 'customer' | 'public' | 'public-render' | 'admin'
+
+function entryBoundaryRouter(artifact: Artifact): Plugin {
+  return {
+    name: 'ibiza-entry-boundary-router',
+    apply: 'serve',
+    transformIndexHtml(html) {
+      return html.replace("style-src 'self'", "style-src 'self' 'unsafe-inline'")
+    },
+    configureServer(server) {
+      if (artifact !== 'customer') {
+        return
+      }
+
+      server.middlewares.use((request, _response, next) => {
+        const pathname = new URL(request.url ?? '/', 'http://localhost').pathname
+        const acceptsHtml = request.headers.accept?.includes('text/html') ?? false
+        const isAssetOrApi =
+          pathname.startsWith('/api/') ||
+          pathname.startsWith('/@') ||
+          pathname.startsWith('/src/') ||
+          pathname.startsWith('/node_modules/') ||
+          /\.[a-z0-9]+$/i.test(pathname)
+
+        if (acceptsHtml && !isAssetOrApi) {
+          const publicPath = pathname.startsWith('/ar/') ? pathname.slice(3) : pathname
+          const isPublicRoute = [
+            '/',
+            '/product',
+            '/distributed-teams',
+            '/working-day-transparency',
+            '/security',
+            '/pricing',
+            '/contact-sales',
+            '/privacy',
+            '/terms',
+            '/register',
+            '/register/verify',
+            '/register/recovery',
+          ].includes(publicPath) || publicPath.startsWith('/register/')
+          request.url = pathname.startsWith('/app-admin')
+            ? '/admin.html'
+            : isPublicRoute
+              ? '/public.html'
+              : '/app.html'
+        }
+        next()
+      })
+    },
+  }
+}
+
+export default defineConfig(() => {
+  const artifact = (process.env.IBIZA_ARTIFACT ?? 'customer') as Artifact
+  const projectRoot = process.cwd()
+  const apiProxyTarget = process.env.API_URL ?? 'http://localhost:8080'
+  const webPort = Number(process.env.WEB_PORT ?? 5173)
+  const input: Record<string, string> =
+    artifact === 'public'
+      ? { public: resolve(projectRoot, 'public.html') }
+      : artifact === 'admin'
+        ? { index: resolve(projectRoot, 'admin.html') }
+        : { index: resolve(projectRoot, 'app.html') }
+  const build: UserConfig['build'] =
+    artifact === 'public-render'
+      ? {
+          outDir: '.public-ssr',
+          emptyOutDir: true,
+          ssr: resolve(projectRoot, 'src/entries/public-render.tsx'),
+        }
+      : {
+          outDir:
+            artifact === 'public'
+              ? 'dist/public'
+              : artifact === 'admin'
+                ? 'dist/admin'
+                : 'dist/app',
+          emptyOutDir: true,
+          rolldownOptions: {
+            input,
+          },
+        }
+
+  const envPrefix =
+    artifact === 'public' || artifact === 'public-render'
+      ? ['VITE_API_URL', 'VITE_PUBLIC_']
+      : artifact === 'admin'
+        ? ['VITE_API_URL', 'VITE_ADMIN_']
+        : ['VITE_API_URL', 'VITE_APP_']
+
+  return {
+    plugins: [react(), entryBoundaryRouter(artifact)],
+    envPrefix,
+    build,
+    server: {
+      port: webPort,
+      proxy: {
+        '/api': {
+          target: apiProxyTarget,
+          changeOrigin: true,
+        },
       },
     },
-  },
-  preview: {
-    port: 5173,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
+    preview: {
+      port: webPort,
+      proxy: {
+        '/api': {
+          target: apiProxyTarget,
+          changeOrigin: true,
+        },
       },
     },
-  },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.ts',
-    exclude: ['**/node_modules/**', '**/dist/**', 'tests/e2e/**'],
-  },
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: './src/test/setup.ts',
+      exclude: ['**/node_modules/**', '**/dist/**', 'tests/e2e/**'],
+    },
+  }
 })

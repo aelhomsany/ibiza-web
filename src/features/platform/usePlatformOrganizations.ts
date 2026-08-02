@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getPlatformOrganizations } from '../../api/client'
+import { getPlatformOrganizations } from '../platform-auth/platformApiClient'
 
 export const platformOrganizationsQueryKey = ['platform', 'organizations'] as const
 

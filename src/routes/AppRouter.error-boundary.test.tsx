@@ -70,13 +70,4 @@ describe('AppRouter route-level error boundary', () => {
     expect(screen.getByRole('navigation')).toBeInTheDocument()
   })
 
-  it('catches lazy route render errors inside the admin shell and keeps chrome interactive', async () => {
-    renderAppRoutes(['/platform/organizations'], createMockAuthForRole('PLATFORM_ADMIN'))
-
-    expect(await screen.findByTestId('route-error-fallback')).toBeInTheDocument()
-    expect(screen.getByTestId('admin-shell')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Reload' })).toBeInTheDocument()
-    expect(screen.getByTestId('nav-organizations')).toBeInTheDocument()
-  })
 })

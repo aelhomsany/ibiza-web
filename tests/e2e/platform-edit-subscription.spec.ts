@@ -13,12 +13,12 @@ test.describe('Platform edit subscription', { tag: [tags.regression, tags.api] }
   )
 
   test('[P0] Platform Admin edits Nile Harbor subscription and row plan badge updates', async ({ page }) => {
-    await page.goto('/login')
-    await page.getByTestId('sign-in-email').fill(platformAdminCredentials.email)
-    await page.getByTestId('sign-in-password').fill(platformAdminCredentials.password)
-    await page.getByTestId('sign-in-submit').click()
+    await page.goto('/app-admin/login')
+    await page.getByTestId('platform-sign-in-email').fill(platformAdminCredentials.email)
+    await page.getByTestId('platform-sign-in-password').fill(platformAdminCredentials.password)
+    await page.getByTestId('platform-sign-in-submit').click()
 
-    await expect(page).toHaveURL(/\/platform\/organizations/)
+    await expect(page).toHaveURL(/\/app-admin\/organizations/)
     await expect(page.getByText('Nile Harbor')).toBeVisible()
 
     await page.getByRole('button', { name: 'Edit Subscription' }).first().click()

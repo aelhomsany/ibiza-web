@@ -55,11 +55,12 @@ test.describe(
       await expect(page.getByText(/pilot-demo:/i)).toHaveCount(0)
 
       await logoutViaUi(page)
-      await page.getByTestId('sign-in-email').fill(platformAdmin.email)
-      await page.getByTestId('sign-in-password').fill(platformAdmin.password)
-      await page.getByTestId('sign-in-submit').click()
+      await page.goto('/app-admin/login')
+      await page.getByTestId('platform-sign-in-email').fill(platformAdmin.email)
+      await page.getByTestId('platform-sign-in-password').fill(platformAdmin.password)
+      await page.getByTestId('platform-sign-in-submit').click()
 
-      await expect(page).toHaveURL(/\/platform\/organizations$/)
+      await expect(page).toHaveURL(/\/app-admin\/organizations$/)
       await expect(page.getByRole('heading', { name: 'Organizations', exact: true })).toBeVisible()
       await expect(page.getByText(CURATED_PRIMARY_ORG, { exact: true })).toBeVisible()
       const freeLimitRow = page.getByRole('row').filter({ hasText: FREE_LIMIT_ORG })

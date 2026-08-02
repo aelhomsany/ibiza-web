@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  canAccessAdminRoute,
   canAccessOrgRoute,
   getForbiddenRedirect,
   getHomePath,
@@ -75,15 +74,6 @@ describe('rolePermissions', () => {
     })
   })
 
-  describe('canAccessAdminRoute', () => {
-    it('allows only PLATFORM_ADMIN', () => {
-      expect(canAccessAdminRoute('PLATFORM_ADMIN')).toBe(true)
-      expect(canAccessAdminRoute('HR_ADMIN')).toBe(false)
-      expect(canAccessAdminRoute('MANAGER')).toBe(false)
-      expect(canAccessAdminRoute('EMPLOYEE')).toBe(false)
-    })
-  })
-
   describe('home redirects', () => {
     it('returns org dashboard for org roles', () => {
       expect(getHomePath('EMPLOYEE')).toBe('/')
@@ -91,9 +81,12 @@ describe('rolePermissions', () => {
       expect(getHomePath('HR_ADMIN')).toBe('/')
     })
 
-    it('returns platform organizations for platform admin', () => {
-      expect(getHomePath('PLATFORM_ADMIN')).toBe('/platform/organizations')
-      expect(getForbiddenRedirect('PLATFORM_ADMIN')).toBe('/platform/organizations')
+    it('sends a platform admin to customer sign-in, not a platform route', () => {
+      // Story 12.1 moved the operator console into its own artifact at
+      // /app-admin/*. The customer graph no longer serves /platform/organizations,
+      // so pointing here would strand the user on a route that does not exist.
+      expect(getHomePath('PLATFORM_ADMIN')).toBe('/login')
+      expect(getForbiddenRedirect('PLATFORM_ADMIN')).toBe('/login')
     })
   })
 })

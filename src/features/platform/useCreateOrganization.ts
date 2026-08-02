@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createPlatformOrganization } from '../../api/client'
+import { createPlatformOrganization } from '../platform-auth/platformApiClient'
 import type { CreateOrganizationRequest } from '../../api/generated/types'
 import { platformOrganizationsQueryKey } from './usePlatformOrganizations'
 

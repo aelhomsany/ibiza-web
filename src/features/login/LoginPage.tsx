@@ -18,7 +18,12 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  if (!isLoading && isAuthenticated && user) {
+  // A Platform Admin has no destination in the customer artifact — every org route is
+  // closed to the role, so redirecting one would bounce between here and RoleGuard
+  // forever. The API can no longer issue a customer token for an operator at all, so
+  // this is a defensive terminal state: show the customer sign-in form rather than
+  // loop. Operators sign in at /app-admin/login in the Admin artifact.
+  if (!isLoading && isAuthenticated && user && user.role !== 'PLATFORM_ADMIN') {
     const fromPath = getSafeRedirectPath(
       (location.state as { from?: { pathname?: string } } | null)?.from?.pathname,
     )

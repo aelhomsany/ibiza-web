@@ -82,31 +82,25 @@ describe('AppRoutes', () => {
     expect(screen.getByTestId('nav-dashboard')).toBeInTheDocument()
   })
 
-  it('renders admin shell at platform route when authenticated as platform admin', async () => {
-    renderAppRoutes(['/platform/organizations'], createMockAuthForRole('PLATFORM_ADMIN'))
-
-    expect(await screen.findByRole('heading', { name: 'Organizations' })).toBeInTheDocument()
-    expect(screen.getByTestId('admin-shell')).toBeInTheDocument()
-  })
-
-  it('redirects org user away from platform routes', async () => {
+  // Story 12.1 moved the Platform Admin console out of the customer artifact. The
+  // customer router must not serve /platform/* at all, and must never mount the
+  // admin shell — that is the boundary the split exists to create.
+  it('serves no platform route and never mounts the admin shell', async () => {
     renderAppRoutes(['/platform/organizations'], createMockAuthForRole('MANAGER'))
 
     await waitFor(() => {
-      expect(screen.getByTestId('org-shell')).toBeInTheDocument()
-      expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
+      expect(screen.queryByTestId('admin-shell')).not.toBeInTheDocument()
     })
-    expect(screen.queryByTestId('admin-shell')).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Organizations' })).not.toBeInTheDocument()
   })
 
-  it('redirects platform admin away from org routes', async () => {
+  it('keeps a platform admin out of the org shell', async () => {
     renderAppRoutes(['/'], createMockAuthForRole('PLATFORM_ADMIN'))
 
     await waitFor(() => {
-      expect(screen.getByTestId('admin-shell')).toBeInTheDocument()
-      expect(screen.getByRole('heading', { name: 'Organizations' })).toBeInTheDocument()
+      expect(screen.queryByTestId('dashboard-page')).not.toBeInTheDocument()
     })
-    expect(screen.queryByTestId('org-shell')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('admin-shell')).not.toBeInTheDocument()
   })
 
   it('redirects employee from settings route', async () => {
@@ -164,13 +158,6 @@ describe('AppRoutes', () => {
     expect(screen.getByRole('heading', { name: 'Page Not Found' })).toBeInTheDocument()
   })
 
-  it('renders admin shell Page Not Found for unknown platform routes when authenticated', () => {
-    renderAppRoutes(['/platform/unknown'], createMockAuthForRole('PLATFORM_ADMIN'))
-
-    expect(screen.getByTestId('admin-shell')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Page Not Found' })).toBeInTheDocument()
-  })
-
   it('sets the dashboard page title', async () => {
     renderAppRoutes(['/'], createMockAuthForRole('EMPLOYEE'))
 
@@ -199,13 +186,6 @@ describe('AppRoutes', () => {
     expect(document.title).toBe('Sign in — Ibiza')
   })
 
-  it('sets the platform organizations page title', async () => {
-    renderAppRoutes(['/platform/organizations'], createMockAuthForRole('PLATFORM_ADMIN'))
-
-    await screen.findByRole('heading', { name: 'Organizations' })
-    expect(document.title).toBe('Organizations — Ibiza')
-  })
-
   it('uses the static product title before React boots', () => {
     const html = readFileSync(indexHtmlPath, 'utf-8')
     expect(html).toContain('<title>Ibiza — Team Leave Management</title>')
@@ -218,10 +198,4 @@ describe('AppRoutes', () => {
     expect(screen.getByTestId('org-shell')).toBeInTheDocument()
   })
 
-  it('[P0] renders the real profile page in the admin shell for platform admin', async () => {
-    renderAppRoutes(['/profile'], createMockAuthForRole('PLATFORM_ADMIN'))
-
-    expect(await screen.findByTestId('profile-page')).toBeInTheDocument()
-    expect(screen.getByTestId('admin-shell')).toBeInTheDocument()
-  })
 })

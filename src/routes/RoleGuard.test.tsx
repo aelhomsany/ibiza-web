@@ -15,10 +15,7 @@ function renderGuard(
       <AuthTestProvider value={createMockAuthForRole(role)}>
         <Routes>
           <Route path="/" element={<div data-testid="home-page">Home</div>} />
-          <Route
-            path="/platform/organizations"
-            element={<div data-testid="platform-home">Platform</div>}
-          />
+          <Route path="/login" element={<div data-testid="login-page">Sign in</div>} />
           <Route element={<RoleGuard {...guardProps} />}>
             <Route path="/protected" element={<div data-testid="protected-page">Protected</div>} />
             <Route
@@ -39,35 +36,12 @@ describe('RoleGuard', () => {
     expect(screen.getByTestId('protected-page')).toBeInTheDocument()
   })
 
-  it('redirects PLATFORM_ADMIN away from org shell', () => {
+  it('redirects PLATFORM_ADMIN out of the org shell to customer sign-in', () => {
+    // The customer artifact serves no operator route since Story 12.1; the only
+    // terminal destination left for this role is the customer sign-in form.
     renderGuard('/protected', 'PLATFORM_ADMIN', { shell: 'org' })
-    expect(screen.getByTestId('platform-home')).toBeInTheDocument()
+    expect(screen.getByTestId('login-page')).toBeInTheDocument()
     expect(screen.queryByTestId('protected-page')).not.toBeInTheDocument()
-  })
-
-  it('redirects org roles away from admin shell', () => {
-    renderGuard('/protected', 'MANAGER', { shell: 'admin' })
-    expect(screen.getByTestId('home-page')).toBeInTheDocument()
-    expect(screen.queryByTestId('protected-page')).not.toBeInTheDocument()
-  })
-
-  it('allows PLATFORM_ADMIN in admin shell', () => {
-    render(
-      <MemoryRouter initialEntries={['/platform/organizations']}>
-        <AuthTestProvider value={createMockAuthForRole('PLATFORM_ADMIN')}>
-          <Routes>
-            <Route element={<RoleGuard shell="admin" />}>
-              <Route
-                path="/platform/organizations"
-                element={<div data-testid="platform-home">Platform</div>}
-              />
-            </Route>
-          </Routes>
-        </AuthTestProvider>
-      </MemoryRouter>,
-    )
-
-    expect(screen.getByTestId('platform-home')).toBeInTheDocument()
   })
 
   it('redirects EMPLOYEE from approvals route', () => {

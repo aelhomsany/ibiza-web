@@ -146,7 +146,7 @@ describe('TeamMemberModal — add mode', () => {
     const user = userEvent.setup()
     const onSuccess = vi.fn()
     const onWarning = vi.fn()
-    const detail = 'Nile Harbor is at the 3-user Free limit'
+    const detail = 'Nile Harbor is at the 5-user Free limit'
     vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
       new ApiError(409, {
         type: 'https://ibiza.app/errors/conflict',
@@ -160,8 +160,8 @@ describe('TeamMemberModal — add mode', () => {
 
     renderModal(null, vi.fn(), onSuccess, onWarning)
 
-    await user.type(screen.getByLabelText(/Full name/i), 'Fourth User')
-    await user.type(screen.getByLabelText(/Email/i), 'fourth@company.com')
+    await user.type(screen.getByLabelText(/Full name/i), 'Sixth User')
+    await user.type(screen.getByLabelText(/Email/i), 'sixth@company.com')
     await user.type(screen.getByLabelText(/Department/i), 'Ops')
     await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
     await user.click(screen.getByRole('button', { name: /Save/i }))
@@ -204,7 +204,7 @@ describe('TeamMemberModal — add mode', () => {
 
   it('calls checkout and redirects when upgrade CTA succeeds', async () => {
     const user = userEvent.setup()
-    const detail = 'Nile Harbor is at the 3-user Free limit'
+    const detail = 'Nile Harbor is at the 5-user Free limit'
     vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
       new ApiError(409, {
         type: 'https://ibiza.app/errors/conflict',
@@ -221,8 +221,8 @@ describe('TeamMemberModal — add mode', () => {
 
     renderModal()
 
-    await user.type(screen.getByLabelText(/Full name/i), 'Fourth User')
-    await user.type(screen.getByLabelText(/Email/i), 'fourth@company.com')
+    await user.type(screen.getByLabelText(/Full name/i), 'Sixth User')
+    await user.type(screen.getByLabelText(/Email/i), 'sixth@company.com')
     await user.type(screen.getByLabelText(/Department/i), 'Ops')
     await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
     await user.click(screen.getByRole('button', { name: /Save/i }))
@@ -236,7 +236,7 @@ describe('TeamMemberModal — add mode', () => {
 
   it('shows manual fallback when checkout is rejected', async () => {
     const user = userEvent.setup()
-    const detail = 'Nile Harbor is at the 3-user Free limit'
+    const detail = 'Nile Harbor is at the 5-user Free limit'
     vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
       new ApiError(409, {
         type: 'https://ibiza.app/errors/conflict',
@@ -259,8 +259,8 @@ describe('TeamMemberModal — add mode', () => {
 
     renderModal()
 
-    await user.type(screen.getByLabelText(/Full name/i), 'Fourth User')
-    await user.type(screen.getByLabelText(/Email/i), 'fourth@company.com')
+    await user.type(screen.getByLabelText(/Full name/i), 'Sixth User')
+    await user.type(screen.getByLabelText(/Email/i), 'sixth@company.com')
     await user.type(screen.getByLabelText(/Department/i), 'Ops')
     await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
     await user.click(screen.getByRole('button', { name: /Save/i }))
@@ -282,7 +282,7 @@ describe('TeamMemberModal — add mode', () => {
         type: 'https://ibiza.app/errors/conflict',
         title: 'Conflict',
         status: 409,
-        detail: 'Nile Harbor is at the 3-user Free limit',
+        detail: 'Nile Harbor is at the 5-user Free limit',
         instance: '/api/v1/team-members',
         code: 'plan-limit-reached',
       }),
@@ -290,8 +290,8 @@ describe('TeamMemberModal — add mode', () => {
 
     renderModal(null, onClose)
 
-    await user.type(screen.getByLabelText(/Full name/i), 'Fourth User')
-    await user.type(screen.getByLabelText(/Email/i), 'fourth@company.com')
+    await user.type(screen.getByLabelText(/Full name/i), 'Sixth User')
+    await user.type(screen.getByLabelText(/Email/i), 'sixth@company.com')
     await user.type(screen.getByLabelText(/Department/i), 'Ops')
     await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
     await user.click(screen.getByRole('button', { name: /Save/i }))

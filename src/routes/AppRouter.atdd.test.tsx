@@ -91,15 +91,6 @@ describe('AppRouter page identity ATDD — Story 10.1', () => {
     },
   )
 
-  it(
-    '[P0] sets document.title to "{Page title} — Ibiza" on platform organizations',
-    async () => {
-      renderAppRoutes(['/platform/organizations'], createMockAuthForRole('PLATFORM_ADMIN'))
-
-      await screen.findByRole('heading', { name: 'Organizations' })
-      expect(document.title).toBe('Organizations — Ibiza')
-    },
-  )
 
   it(
     '[P0] index.html exposes the static product title before React boots',
@@ -136,11 +127,4 @@ describe('AppRouter profile route ATDD — Story 9.3', () => {
     expect(screen.queryByText(/placeholder/i)).not.toBeInTheDocument()
   })
 
-  it('[P0] renders the real profile page in the admin shell for platform admins', async () => {
-    renderAppRoutes(['/profile'], createMockAuthForRole('PLATFORM_ADMIN'))
-
-    expect(await screen.findByTestId('profile-page')).toBeInTheDocument()
-    expect(screen.getByTestId('admin-shell')).toBeInTheDocument()
-    expect(screen.queryByText(/placeholder/i)).not.toBeInTheDocument()
-  })
 })

@@ -1,0 +1,35 @@
+{
+  "documentTitle": "Platform Admin — Operator Access",
+  "brand": "Ibiza Platform",
+  "realm": "Platform Admin",
+  "operatorOnly": "Operator access only",
+  "formTitle": "Operator Sign In",
+  "intro": "Use your dedicated Ibiza operator credentials. Customer organization accounts cannot sign in here.",
+  "boundary": "This session can manage platform organizations and subscriptions. It cannot enter an organization's workforce application.",
+  "fields": {
+    "email": "Operator email",
+    "password": "Password"
+  },
+  "actions": {
+    "signIn": "Sign In as Platform Admin",
+    "signingIn": "Signing In…",
+    "signOut": "Sign Out",
+    "english": "English",
+    "arabic": "العربية"
+  },
+  "errors": {
+    "invalid": "Invalid email or password.",
+    "tooMany": "Too many attempts. Try again shortly.",
+    "general": "Unable to sign in to Platform Admin. Try again."
+  },
+  "loading": "Checking operator session…",
+  "navigation": {
+    "organizations": "Organizations",
+    "registrationRecovery": "Paid Recovery"
+  },
+  "notFound": {
+    "title": "Operator Page Not Found",
+    "body": "This route is not available in the Platform Admin application.",
+    "action": "Back to Organizations"
+  }
+}

@@ -24,15 +24,15 @@ const storyTagPattern = /^@story-\d+-\d+$/
 const reservedTagTokenPattern = /@(smoke|regression|api|ui-only|a11y|keyboard|story-[^\s:]*)/
 const expectedTagCounts = new Map([
   ['@smoke', 7],
-  ['@regression', 74],
-  ['@api', 65],
-  ['@ui-only', 9],
+  ['@regression', 86],
+  ['@api', 72],
+  ['@ui-only', 14],
 ])
 const approvedSmokeIdentities = new Set([
   'approval-inbox.spec.ts::Approval inbox — Story 3.6::[P2] Manager sees direct-report pending row on Approvals page',
   'auth-login.spec.ts::Authentication API::Given pilot credentials, When logging in via API, Then an access token is returned',
   'auth-login.spec.ts::Authentication UI::Given the login page, When signing in with valid credentials, Then dashboard loads',
-  'platform-admin-auth.spec.ts::Platform Admin authentication::[P0] real Platform Admin login lands in admin shell without org navigation',
+  'public-entry-boundaries.spec.ts::Platform Admin boundary — Story 12.1::[P0] Given customer and Platform Admin credentials, When each is used in both realms, Then only its own realm accepts it',
   'settings-hr.spec.ts::HR Settings page::[P1] HR Admin sees workforce group tabs and holidays on Settings',
   'settings-hr.spec.ts::HR Settings page::[P1] Switching workforce group tab updates the active weekend label',
   'settings-hr.spec.ts::HR Settings page::[P2] Leave Types card shows Annual Leave row',
@@ -75,6 +75,30 @@ function projectName(test: TestCase): string {
   return test.parent.project()?.name ?? '<unknown-project>'
 }
 
+const sourceCache = new Map<string, string[]>()
+
+/**
+ * Reads the `test.skip(...)` / `test.fixme(...)` call at `location` and decides whether it can
+ * ever run. Unconditional forms are `test.skip('title', fn)` and `test.skip(true, ...)`; anything
+ * else is treated as a runtime condition and left alone.
+ */
+function isUnconditionalSkipCall(location: { file: string; line: number; column: number }): boolean {
+  let lines = sourceCache.get(location.file)
+  if (!lines) {
+    try {
+      lines = fs.readFileSync(location.file, 'utf8').split('\n')
+    } catch {
+      return false
+    }
+    sourceCache.set(location.file, lines)
+  }
+  // The call may wrap, so look at a small window starting at the reported line.
+  const window = lines.slice(location.line - 1, location.line + 2).join(' ')
+  const call = window.slice(window.search(/test\.(skip|fixme)\s*\(/))
+  const firstArgument = call.replace(/^test\.(skip|fixme)\s*\(\s*/, '')
+  return /^(true\b|['"`])/.test(firstArgument)
+}
+
 class TagIntegrityReporter implements Reporter {
   private diagnostics: string[] = []
 
@@ -82,6 +106,7 @@ class TagIntegrityReporter implements Reporter {
     const discovered = new Map<string, Set<string>>()
     const discoveredProjects = new Map<string, Set<string>>()
     const logicalTags = new Map<string, string[]>()
+    const skippedIdentities = new Set<string>()
 
     for (const test of suite.allTests()) {
       const file = relativeFile(test)
@@ -92,6 +117,23 @@ class TagIntegrityReporter implements Reporter {
       const uniqueTags = [...new Set(rawTags)]
       const expectedSuite = manifest.suites[suiteKey]
       const project = projectName(test)
+
+      // An unconditionally skipped test is declared coverage that can never execute. Counting it
+      // toward the tag totals let a P0 journey sit permanently at `test.skip(title, fn)` while
+      // `verify:e2e-tags` still reported a full complement of @regression tests.
+      //
+      // Environment-gated suites — `test.skip(process.env.X !== 'true', 'reason')` — are the
+      // established convention here and are NOT flagged: they run whenever the dependency is up.
+      //
+      // The two cannot be told apart from the annotation object: `test.skip(true, 'reason')` and
+      // `test.skip(cond, 'reason')` produce byte-identical annotations, and `expectedStatus` is
+      // meaningless under `playwright test --list`. So the call site itself is inspected.
+      for (const annotation of test.annotations) {
+        if ((annotation.type !== 'skip' && annotation.type !== 'fixme') || !annotation.location) continue
+        if (isUnconditionalSkipCall(annotation.location)) {
+          skippedIdentities.add(identity)
+        }
+      }
 
       if (reservedTagTokenPattern.test(`${file} ${describe} ${test.title}`)) {
         this.diagnostics.push(`${identity}: a title or path contains a reserved tag token that can affect --grep selection`)
@@ -173,6 +215,30 @@ class TagIntegrityReporter implements Reporter {
       if (actualCount !== expectedCount) {
         this.diagnostics.push(`${tag}: expected ${expectedCount} logical tests, found ${actualCount}`)
       }
+    }
+
+    // Permanent skips must be declared, not discovered. Declaring one does not make it coverage —
+    // it makes the exclusion reviewable, and the count is printed so nobody reads the tag totals
+    // as "tests that run".
+    const declaredPermanentSkips = new Set<string>(manifest.permanentlySkippedTests ?? [])
+    for (const identity of skippedIdentities) {
+      if (!declaredPermanentSkips.has(identity)) {
+        this.diagnostics.push(
+          `${identity}: unconditionally skipped, so it is counted as coverage but can never run — gate it on an environment condition with a reason, delete it, or declare it in manifest.permanentlySkippedTests`,
+        )
+      }
+    }
+    for (const identity of declaredPermanentSkips) {
+      if (!skippedIdentities.has(identity)) {
+        this.diagnostics.push(
+          `${identity}: declared in manifest.permanentlySkippedTests but is no longer unconditionally skipped — remove the declaration`,
+        )
+      }
+    }
+    if (skippedIdentities.size > 0) {
+      process.stdout.write(
+        `E2E coverage note: ${skippedIdentities.size} declared test(s) never execute and are excluded from real coverage.\n`,
+      )
     }
 
     const discoveredSmokeIdentities = [...logicalTags.entries()]

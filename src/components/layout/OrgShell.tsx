@@ -12,6 +12,7 @@ import { LanguageSwitcher } from './LanguageSwitcher'
 import { SkipToMainLink } from './SkipToMainLink'
 import { useMobileNavDrawer } from './useMobileNavDrawer'
 import './org-shell.css'
+import { BillingNotice } from '../../features/billing/BillingNotice'
 
 export function OrgShell() {
   const { t, i18n } = useTranslation(['layout', 'common'])
@@ -76,6 +77,7 @@ export function OrgShell() {
             onToggleNav={toggleNav}
             actionsInert={navOpen}
           />
+          <BillingNotice />
           <main
             id="main-content"
             className="org-shell__main"

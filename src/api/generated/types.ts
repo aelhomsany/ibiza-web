@@ -75,6 +75,119 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/team-members/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a pending team-member invitation that reserves plan capacity */
+        post: operations["invite"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/registrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/registrations/{registrationId}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["verify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/registrations/{registrationId}/resend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["resend"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/registrations/{registrationId}/provision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["provision"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/registrations/{registrationId}/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["checkout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/registrations/recovery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["recover"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public-holidays": {
         parameters: {
             query?: never;
@@ -93,6 +206,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/platform/registrations/{registrationId}/recover-provisioning": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["recover_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/organizations": {
         parameters: {
             query?: never;
@@ -105,6 +234,54 @@ export interface paths {
         put?: never;
         /** Create an organization with an initial HR Admin */
         post: operations["createOrganization"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform-auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["refresh"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform-auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform-auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["login"];
         delete?: never;
         options?: never;
         head?: never;
@@ -197,6 +374,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/contact-sales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["create_4"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/consent-receipts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["create_5"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/calendar-sync/{provider}/retry": {
         parameters: {
             query?: never;
@@ -248,6 +457,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/billing/schedule-downgrade": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["scheduleDowngrade"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/portal-session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["portal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/billing/checkout-session": {
         parameters: {
             query?: never;
@@ -282,6 +523,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/registration-handoff": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Exchange a one-time registration handoff for a customer session */
+        post: operations["registrationHandoff"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/refresh": {
         parameters: {
             query?: never;
@@ -292,7 +550,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Refresh access token */
-        post: operations["refresh"];
+        post: operations["refresh_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -309,7 +567,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Sign out and invalidate refresh token */
-        post: operations["logout"];
+        post: operations["logout_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -326,7 +584,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Sign in with email and password */
-        post: operations["login"];
+        post: operations["login_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -344,6 +602,39 @@ export interface paths {
         put?: never;
         /** Request a password reset email */
         post: operations["forgotPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/accept-invitation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Activate a pending team-member invitation and take a plan seat */
+        post: operations["accept"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["create_6"];
         delete?: never;
         options?: never;
         head?: never;
@@ -499,6 +790,70 @@ export interface paths {
         };
         /** Stream the caller's profile image */
         get: operations["getProfileImageContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/registrations/{registrationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["current"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["catalog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/registrations/recoverable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["recoverable"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform-auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["me"];
         put?: never;
         post?: never;
         delete?: never;
@@ -711,6 +1066,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/billing/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["subscription"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/capabilities/{capability}/access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["capability"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -719,7 +1106,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get current authenticated user */
-        get: operations["me"];
+        get: operations["me_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -871,6 +1258,88 @@ export interface components {
             deactivatedAt?: string;
             entitlements?: components["schemas"]["EntitlementResponse"][];
         };
+        TeamMemberInvitationResponse: {
+            id?: string;
+            email?: string;
+            fullName?: string;
+            role?: string;
+            status?: string;
+            activeSeat?: boolean;
+        };
+        StartRegistrationRequest: {
+            selectedPlan?: string;
+            /** Format: int32 */
+            intendedCount: number;
+            administratorEmail?: string;
+            organizationName?: string;
+            locale?: string;
+            country?: string;
+            timezone?: string;
+            safeReturnPath?: string;
+            termsVersion?: string;
+            privacyVersion?: string;
+            turnstileToken?: string;
+        };
+        RegistrationStateResponse: {
+            registrationId?: string;
+            status?: string;
+            selectedPlan?: string;
+            /** Format: int32 */
+            intendedCount?: number;
+            maskedEmail?: string;
+            organizationName?: string;
+            locale?: string;
+            country?: string;
+            timezone?: string;
+            safeReturnPath?: string;
+            /** Format: int64 */
+            resendAvailableInSeconds?: number;
+            workspaceCreated?: boolean;
+            recoveryAction?: string;
+            checkoutSessionId?: string;
+        };
+        VerifyRegistrationRequest: {
+            token?: string;
+        };
+        ResendVerificationRequest: {
+            turnstileToken?: string;
+        };
+        ProvisionRegistrationRequest: {
+            organizationDisplayName?: string;
+            country?: string;
+            timezone?: string;
+            administratorFullName?: string;
+            administratorPassword?: string;
+            turnstileToken?: string;
+        };
+        ProvisionRegistrationResponse: {
+            /** Format: int64 */
+            organizationId?: number;
+            creationSource?: string;
+            plan?: string;
+            handoffCode?: string;
+            handoffPath?: string;
+            recovered?: boolean;
+        };
+        RegistrationCheckoutRequest: {
+            /** @enum {string} */
+            selectedPlan: "FREE" | "STARTER" | "GROWTH" | "INTERNAL";
+            /** Format: int32 */
+            declaredQuantity: number;
+            turnstileToken?: string;
+        };
+        RegistrationCheckoutResponse: {
+            checkoutUrl?: string;
+            checkoutSessionId?: string;
+            status?: string;
+        };
+        RegistrationRecoveryRequest: {
+            administratorEmail?: string;
+        };
+        RegistrationRecoveryResponse: {
+            status?: string;
+            nextAction?: string;
+        };
         CreatePublicHolidayRequest: {
             /** Format: int64 */
             workforceGroupId: number;
@@ -890,6 +1359,13 @@ export interface components {
             /** Format: date */
             dateTo?: string;
             name?: string;
+        };
+        PlatformRecovery: {
+            /** Format: int64 */
+            organizationId?: number;
+            plan?: string;
+            creationSource?: string;
+            recovered?: boolean;
         };
         CreateOrganizationRequest: {
             name?: string;
@@ -916,6 +1392,20 @@ export interface components {
             status?: "ACTIVE" | "SUSPENDED";
             /** Format: date */
             effectiveDate?: string;
+        };
+        RefreshRequest: {
+            refreshToken?: string;
+        };
+        TokenResponse: {
+            accessToken?: string;
+            refreshToken?: string;
+            tokenType?: string;
+            /** Format: int64 */
+            expiresIn?: number;
+        };
+        PlatformLoginRequest: {
+            email?: string;
+            password?: string;
         };
         MarkAllReadResponse: {
             /** Format: int32 */
@@ -975,9 +1465,62 @@ export interface components {
             workforceGroupId?: number;
             workforceGroupName?: string;
         };
+        ContactSalesRequest: {
+            companyName?: string;
+            contactName?: string;
+            contactEmail?: string;
+            /** Format: int32 */
+            intendedCount: number;
+            country?: string;
+            implementationContext?: string;
+            followUpConsent?: boolean;
+            turnstileToken?: string;
+        };
+        ContactSalesResponse: {
+            leadId?: string;
+            workspaceCreated?: boolean;
+            status?: string;
+        };
+        ConsentReceiptRequest: {
+            policyVersion?: string;
+            analytics?: string;
+            locale?: string;
+        };
+        ConsentReceiptResponse: {
+            id?: string;
+            policyVersion?: string;
+            analytics?: string;
+            locale?: string;
+            subject?: string;
+        };
         CalendarSyncConnectResponse: {
             provider?: string;
             authorizationUrl?: string;
+        };
+        ScheduleDowngradeRequest: {
+            /** @enum {string} */
+            targetPlan: "FREE" | "STARTER" | "GROWTH" | "INTERNAL";
+        };
+        BillingSubscriptionResponse: {
+            plan?: string;
+            billingStatus?: string;
+            /** Format: int32 */
+            activeSeats?: number;
+            /** Format: int32 */
+            pendingInvitations?: number;
+            /** Format: int32 */
+            billableQuantity?: number;
+            /** Format: int32 */
+            seatLimit?: number;
+            pendingPlan?: string;
+            /** Format: date-time */
+            graceEndsAt?: string;
+            /** Format: date-time */
+            currentPeriodEnd?: string;
+            cancelAtPeriodEnd?: boolean;
+        };
+        PortalSessionResponse: {
+            portalUrl?: string;
         };
         CreateCheckoutSessionRequest: {
             /** @enum {string} */
@@ -990,15 +1533,12 @@ export interface components {
             token?: string;
             password?: string;
         };
-        RefreshRequest: {
-            refreshToken?: string;
+        RegistrationHandoffRequest: {
+            code?: string;
         };
-        TokenResponse: {
+        RegistrationHandoffResponse: {
             accessToken?: string;
-            refreshToken?: string;
-            tokenType?: string;
-            /** Format: int64 */
-            expiresIn?: number;
+            safeReturnPath?: string;
         };
         LoginRequest: {
             email?: string;
@@ -1007,6 +1547,40 @@ export interface components {
         };
         ForgotPasswordRequest: {
             email?: string;
+        };
+        AcceptInvitationRequest: {
+            token?: string;
+            password?: string;
+        };
+        AnalyticsEventRequest: {
+            eventName?: string;
+            eventId?: string;
+            schemaVersion?: string;
+            /** Format: date-time */
+            sourceTimestamp: string;
+            deduplicationKey?: string;
+            correlationId?: string;
+            consentClass?: string;
+            pseudonymousSubject?: string;
+            dimensions: {
+                [key: string]: string;
+            };
+            webVitals?: components["schemas"]["WebVitalsPayload"];
+        };
+        WebVitalsPayload: {
+            /** Format: int32 */
+            lcpMs?: number;
+            /** Format: int32 */
+            inpMs?: number;
+            /** Format: int32 */
+            clsMilli?: number;
+            deviceClass?: string;
+        };
+        AnalyticsEventResponse: {
+            eventId?: string;
+            eventName?: string;
+            deduplicationKey?: string;
+            status?: string;
         };
         UpdateWorkforceGroupRequest: {
             name?: string;
@@ -1057,7 +1631,7 @@ export interface components {
             /** @enum {string} */
             plan: "FREE" | "STARTER" | "GROWTH" | "INTERNAL";
             /** @enum {string} */
-            billingStatus: "ACTIVE" | "SUSPENDED";
+            billingStatus: "MANUAL_ACTIVE" | "MANUAL_SUSPENDED";
             /** Format: date */
             effectiveDate: string;
         };
@@ -1093,6 +1667,56 @@ export interface components {
             /** Format: date-time */
             mutedUntil?: string;
             effectiveEnabledNow?: boolean;
+        };
+        PublicCapabilityResponse: {
+            code?: string;
+            label?: string;
+            availability?: string;
+            presentation?: string;
+            checkoutEligible?: boolean;
+        };
+        PublicPlanCatalogResponse: {
+            /** Format: int32 */
+            intendedCount?: number;
+            locale?: string;
+            recommendedPlan?: string;
+            registrationEnabled?: boolean;
+            plans?: components["schemas"]["PublicPlanResponse"][];
+        };
+        PublicPlanResponse: {
+            code?: string;
+            name?: string;
+            /** Format: int32 */
+            minimumActiveUsers?: number;
+            /** Format: int32 */
+            maximumActiveUsers?: number;
+            userBand?: string;
+            /** Format: int32 */
+            monthlyPricePerActiveUserCents?: number;
+            currency?: string;
+            priceBasis?: string;
+            cardRequired?: boolean;
+            availability?: string;
+            ctaLabel?: string;
+            materialTerms?: string[];
+            capabilities?: components["schemas"]["PublicCapabilityResponse"][];
+        };
+        PlatformRegistration: {
+            registrationId?: string;
+            status?: string;
+            plan?: string;
+            organizationName?: string;
+            maskedAdministratorEmail?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        PlatformAdminSummaryResponse: {
+            /** Format: int64 */
+            id?: number;
+            email?: string;
+            fullName?: string;
+            role?: string;
+            preferredLanguage?: string;
         };
         UnreadCountResponse: {
             /** Format: int64 */
@@ -1278,6 +1902,11 @@ export interface components {
             lastSyncedAt?: string;
             /** Format: date-time */
             nextRetryAt?: string;
+        };
+        Access: {
+            capability?: string;
+            availability?: string;
+            allowed?: boolean;
         };
         RecentApprovalDecisionResponse: {
             /** Format: int64 */
@@ -1505,6 +2134,200 @@ export interface operations {
             };
         };
     };
+    invite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTeamMemberRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TeamMemberInvitationResponse"];
+                };
+            };
+        };
+    };
+    start: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string;
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartRegistrationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegistrationStateResponse"];
+                };
+            };
+        };
+    };
+    verify: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string;
+                Authorization?: string;
+            };
+            path: {
+                registrationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyRegistrationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegistrationStateResponse"];
+                };
+            };
+        };
+    };
+    resend: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string;
+                Authorization?: string;
+            };
+            path: {
+                registrationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResendVerificationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegistrationStateResponse"];
+                };
+            };
+        };
+    };
+    provision: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string;
+                Authorization?: string;
+            };
+            path: {
+                registrationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProvisionRegistrationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ProvisionRegistrationResponse"];
+                };
+            };
+        };
+    };
+    checkout: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string;
+                Authorization?: string;
+            };
+            path: {
+                registrationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegistrationCheckoutRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegistrationCheckoutResponse"];
+                };
+            };
+        };
+    };
+    recover: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string;
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegistrationRecoveryRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegistrationRecoveryResponse"];
+                };
+            };
+        };
+    };
     list_2: {
         parameters: {
             query: {
@@ -1551,6 +2374,28 @@ export interface operations {
             };
         };
     };
+    recover_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                registrationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PlatformRecovery"];
+                };
+            };
+        };
+    };
     listOrganizations: {
         parameters: {
             query?: never;
@@ -1591,6 +2436,76 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["OrganizationSummaryResponse"];
+                };
+            };
+        };
+    };
+    refresh: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RefreshRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TokenResponse"];
+                };
+            };
+        };
+    };
+    logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["RefreshRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    login: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlatformLoginRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TokenResponse"];
                 };
             };
         };
@@ -1731,6 +2646,56 @@ export interface operations {
             };
         };
     };
+    create_4: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactSalesRequest"];
+            };
+        };
+        responses: {
+            /** @description Assisted handoff recorded; no workspace created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ContactSalesResponse"];
+                };
+            };
+        };
+    };
+    create_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsentReceiptRequest"];
+            };
+        };
+        responses: {
+            /** @description Consent receipt appended */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConsentReceiptResponse"];
+                };
+            };
+        };
+    };
     retry: {
         parameters: {
             query?: never;
@@ -1797,6 +2762,50 @@ export interface operations {
             };
         };
     };
+    scheduleDowngrade: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScheduleDowngradeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BillingSubscriptionResponse"];
+                };
+            };
+        };
+    };
+    portal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PortalSessionResponse"];
+                };
+            };
+        };
+    };
     createCheckoutSession: {
         parameters: {
             query?: never;
@@ -1843,7 +2852,33 @@ export interface operations {
             };
         };
     };
-    refresh: {
+    registrationHandoff: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegistrationHandoffRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegistrationHandoffResponse"];
+                };
+            };
+        };
+    };
+    refresh_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -1867,7 +2902,7 @@ export interface operations {
             };
         };
     };
-    logout: {
+    logout_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -1889,7 +2924,7 @@ export interface operations {
             };
         };
     };
-    login: {
+    login_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -1932,6 +2967,56 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    accept: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AcceptInvitationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TeamMemberDetailResponse"];
+                };
+            };
+        };
+    };
+    create_6: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Consent-Receipt-Id"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalyticsEventRequest"];
+            };
+        };
+        responses: {
+            /** @description Analytics event accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AnalyticsEventResponse"];
+                };
             };
         };
     };
@@ -2237,6 +3322,94 @@ export interface operations {
             };
         };
     };
+    current: {
+        parameters: {
+            query?: never;
+            header?: {
+                Authorization?: string;
+            };
+            path: {
+                registrationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegistrationStateResponse"];
+                };
+            };
+        };
+    };
+    catalog: {
+        parameters: {
+            query?: {
+                intendedCount?: number;
+                complexNeeds?: boolean;
+                locale?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PublicPlanCatalogResponse"];
+                };
+            };
+        };
+    };
+    recoverable: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PlatformRegistration"][];
+                };
+            };
+        };
+    };
+    me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PlatformAdminSummaryResponse"];
+                };
+            };
+        };
+    };
     list_3: {
         parameters: {
             query?: never;
@@ -2487,7 +3660,49 @@ export interface operations {
             };
         };
     };
-    me: {
+    subscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BillingSubscriptionResponse"];
+                };
+            };
+        };
+    };
+    capability: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                capability: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Access"];
+                };
+            };
+        };
+    };
+    me_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -2658,6 +3873,7 @@ export type ResetPasswordRequest = RequiredSchema<"ResetPasswordRequest">;
 export type TeamMemberDetailResponse = Omit<RequiredSchema<"TeamMemberDetailResponse">, "entitlements"> & {
     entitlements: EntitlementResponse[];
 };
+export type TeamMemberInvitationResponse = RequiredSchema<"TeamMemberInvitationResponse">;
 export type TeamMemberSummaryResponse = RequiredSchema<"TeamMemberSummaryResponse">;
 export type TokenResponse = RequiredSchema<"TokenResponse">;
 export type UnreadCountResponse = RequiredSchema<"UnreadCountResponse">;

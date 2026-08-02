@@ -50,9 +50,21 @@
     "starter": "Starter",
     "starterWithLimit": "Starter (50 users)"
   },
+  "recovery": {
+    "action": "Recover Provisioning",
+    "empty": "No paid registrations need provisioning recovery",
+    "errors": { "load": "Unable to load paid recovery records.", "submit": "Provisioning recovery did not complete." },
+    "loading": "Loading recoverable paid registrations…",
+    "subtitle": "Metadata-only recovery. Customer access is emailed; operators never receive a tenant handoff.",
+    "success": "Provisioning recovered and a new single-use customer handoff was emailed.",
+    "table": { "action": "Action", "organization": "Organization", "plan": "Plan", "reference": "Registration reference", "status": "State" },
+    "title": "Paid Registration Recovery"
+  },
   "statuses": {
     "active": "Active",
-    "suspended": "Suspended"
+    "suspended": "Suspended",
+    "manual_active": "Platform managed — active",
+    "manual_suspended": "Platform managed — suspended"
   },
   "subtitle": "Provision orgs and manage subscriptions — no workforce leave data",
   "success": {

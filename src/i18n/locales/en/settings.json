@@ -263,7 +263,7 @@
       "manager": "Manager"
     },
     "success": {
-      "added": "{{name}} added to Ibiza!",
+      "added": "Invitation sent to {{name}}.",
       "updated": "Team member updated."
     },
     "titleAdd": "Add Team Member",

@@ -17,12 +17,12 @@ test.describe('Platform create organization', { tag: [tags.regression, tags.api]
     const orgName = `E2E Nile ${suffix}`
     const hrEmail = `hr-${suffix}@e2e.example`
 
-    await page.goto('/login')
-    await page.getByTestId('sign-in-email').fill(platformAdminCredentials.email)
-    await page.getByTestId('sign-in-password').fill(platformAdminCredentials.password)
-    await page.getByTestId('sign-in-submit').click()
+    await page.goto('/app-admin/login')
+    await page.getByTestId('platform-sign-in-email').fill(platformAdminCredentials.email)
+    await page.getByTestId('platform-sign-in-password').fill(platformAdminCredentials.password)
+    await page.getByTestId('platform-sign-in-submit').click()
 
-    await expect(page).toHaveURL(/\/platform\/organizations$/)
+    await expect(page).toHaveURL(/\/app-admin\/organizations$/)
     await page.getByRole('button', { name: /^Create Organization$/ }).first().click()
 
     await page.getByLabel('Organization name').fill(orgName)

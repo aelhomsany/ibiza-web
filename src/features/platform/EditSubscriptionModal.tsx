@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ApiError } from '../../api/client'
 import type { OrganizationSummaryResponse, UpdateSubscriptionRequest } from '../../api/generated/types'
 import { DateField } from '../../components/DateField'
 import { Modal } from '../../components/ui/Modal'
 import { CloseIcon } from '../../components/ui/icons'
+import { PlatformApiError } from '../platform-auth/platformApiClient'
 import { useUpdateSubscription } from './useUpdateSubscription'
 
 type Props = {
@@ -18,14 +18,14 @@ type BillingStatus = UpdateSubscriptionRequest['billingStatus']
 
 const plans: Plan[] = ['FREE', 'STARTER', 'GROWTH', 'INTERNAL']
 
-const billingStatuses: BillingStatus[] = ['ACTIVE', 'SUSPENDED']
+const billingStatuses: BillingStatus[] = ['MANUAL_ACTIVE', 'MANUAL_SUSPENDED']
 
 export function EditSubscriptionModal({ organization, onClose, onSuccess }: Props) {
   const { t } = useTranslation(['platform', 'common'])
   const updateMutation = useUpdateSubscription()
   const [plan, setPlan] = useState<Plan>(organization.plan ?? 'FREE')
   const [billingStatus, setBillingStatus] = useState<BillingStatus>(
-    organization.status === 'SUSPENDED' ? 'SUSPENDED' : 'ACTIVE',
+    organization.status === 'SUSPENDED' ? 'MANUAL_SUSPENDED' : 'MANUAL_ACTIVE',
   )
   const [effectiveDate, setEffectiveDate] = useState(organization.effectiveDate ?? '')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -54,7 +54,7 @@ export function EditSubscriptionModal({ organization, onClose, onSuccess }: Prop
           onClose()
         },
         onError: (error) => {
-          if (error instanceof ApiError) {
+          if (error instanceof PlatformApiError) {
             setErrorMessage(error.problem.detail ?? t('platform:edit.errors.submit'))
             return
           }

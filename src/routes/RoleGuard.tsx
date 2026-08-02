@@ -4,9 +4,12 @@ import { canAccessOrgRoute, getHomePath } from '../auth/rolePermissions'
 import { useAuth } from '../auth/useAuth'
 import { useTranslation } from 'react-i18next'
 
+// Customer artifact only. The Platform Admin shell moved to its own artifact in
+// Story 12.1 and is guarded there by PlatformProtectedRoute against
+// PlatformAuthProvider, so there is no 'admin' shell for this guard to serve.
 type RoleGuardProps = {
   allowedRoles?: UserRole[]
-  shell?: 'org' | 'admin'
+  shell?: 'org'
 }
 
 export function RoleGuard({ allowedRoles, shell }: RoleGuardProps) {
@@ -33,10 +36,6 @@ export function RoleGuard({ allowedRoles, shell }: RoleGuardProps) {
   // (/approvals, /settings and sub-paths) so inner allowedRoles wrappers are not needed.
   if (shell === 'org' && !canAccessOrgRoute(role, location.pathname)) {
     return <Navigate to={getHomePath(role)} replace state={{ from: location }} />
-  }
-
-  if (shell === 'admin' && role !== 'PLATFORM_ADMIN') {
-    return <Navigate to="/" replace state={{ from: location }} />
   }
 
   // Fallback for non-shell role restrictions (available for future use).

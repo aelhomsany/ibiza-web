@@ -17,9 +17,11 @@ const enabledNamespaces = [
   'profile',
   'auth',
   'platform',
+  'platformAuth',
+  'public',
 ]
 const visibleStringAttributes = new Set(['alt', 'aria-label', 'placeholder', 'title'])
-const scanRoots = ['src/auth', 'src/components', 'src/features', 'src/routes']
+const scanRoots = ['src/apps', 'src/auth', 'src/components', 'src/entries', 'src/features', 'src/routes']
 const failures = []
 // namespace -> Set of flattened keys (from en, the canonical resource) —
 // populated by verifyLocaleParity and reused by the t()-key-existence pass.

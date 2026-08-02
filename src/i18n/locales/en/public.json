@@ -1,0 +1,353 @@
+{
+  "brand": {
+    "name": "Ibiza",
+    "homeLabel": "Home — Ibiza",
+    "tagline": "Working-day clarity for distributed teams"
+  },
+  "navigation": {
+    "label": "Public navigation",
+    "skip": "Skip to main content",
+    "home": "Home",
+    "product": "Product",
+    "pricing": "Pricing",
+    "distributedTeams": "Distributed Teams",
+    "workingDays": "Working-Day Transparency",
+    "security": "Security",
+    "login": "Customer Log In",
+    "startFree": "Start Free",
+    "language": "العربية",
+    "languageLabel": "Read this page in Arabic"
+  },
+  "actions": {
+    "exploreProduct": "Explore the Product",
+    "seeCalculation": "See the Calculation",
+    "customerLogin": "Customer Log In",
+    "viewPricing": "View Pricing",
+    "contactSales": "Contact Sales",
+    "backHome": "Back to Home",
+    "privacyChoices": "Privacy Choices"
+  },
+  "availability": {
+    "eyebrow": "Current availability",
+    "title": "Find the right plan without creating a workspace by accident.",
+    "body": "Pricing is live from Ibiza's authoritative catalog. Self-service registration is not enabled yet, so you can preserve your plan intent or use the assisted Contact Sales path.",
+    "note": "Viewing Pricing or contacting Sales does not create a workspace.",
+    "pricingHref": "/pricing",
+    "contactHref": "/contact-sales"
+  },
+  "pricing": {
+    "title": "Permanent, card-free Free—and clear paths as your team grows.",
+    "description": "Compare Ibiza Free, Starter, Growth, and Contact Sales from the authoritative public plan catalog.",
+    "eyebrow": "Pricing",
+    "intro": "Enter your intended active-user count. Ibiza recommends the exact catalog band and keeps price, availability, terms, and next action together.",
+    "countLabel": "Intended active Users",
+    "countHelp": "Use the number of people who will be active in the workspace.",
+    "complexNeeds": "We need migration or complex implementation help",
+    "loading": "Checking the authoritative plan catalog…",
+    "loadingFallback": "Contact Sales remains available while live catalog pricing loads.",
+    "recommendedLabel": "Recommended plan:",
+    "recommended": "Recommended",
+    "comparisonLabel": "Ibiza plan comparison",
+    "availableTitle": "Available now",
+    "termsTitle": "Terms and plan changes",
+    "planned": "Planned —",
+    "assisted": "Assisted —",
+    "cardRequired": "Card required when self-service paid registration is enabled.",
+    "noCardRequired": "No card required.",
+    "catalogUnavailableTitle": "Live pricing is temporarily unavailable.",
+    "catalogUnavailableBody": "We will not show cached prices. Contact Sales remains available while the catalog recovers.",
+    "registrationUnavailableTitle": "Your plan intent is saved for the next step.",
+    "registrationUnavailableBody": "Self-service registration is not enabled yet. This step does not create a workspace. You can contact Sales now or return when registration opens.",
+    "contactSales": "Contact Sales",
+    "countInvalid": "Enter a whole number of 1 or more to see a recommendation.",
+    "availableNow": "Available now — self-service sign-up is open.",
+    "availabilityNotYetEnabled": "Self-service sign-up is not enabled yet.",
+    "availabilityAssisted": "Assisted only — our team sets this up with you."
+  },
+  "contactSales": {
+    "title": "Plan an assisted Ibiza rollout.",
+    "description": "Send a minimized, consented Contact Sales request for more than 200 active Users or complex migration and implementation needs.",
+    "eyebrow": "Contact Sales",
+    "intro": "Tell us only what our Platform Admin team needs to review your rollout. Submitting this form does not create a workspace or customer session.",
+    "contextTitle": "What happens next",
+    "contextBody": "This is an assisted handoff, not registration.",
+    "contextPoints": [
+      "Our team reviews your intended active-user count and implementation context.",
+      "We follow up only with the consent you provide below.",
+      "A workspace can be provisioned later only through an explicit assisted process."
+    ],
+    "companyLabel": "Company name",
+    "contactNameLabel": "Administrator contact name",
+    "emailLabel": "Administrator contact email",
+    "intendedCountLabel": "Intended active Users",
+    "countryLabel": "Country code",
+    "countryHelp": "Use the two-letter country code, such as US or EG.",
+    "contextLabel": "Implementation context",
+    "assuranceTitle": "No workspace is created by this request",
+    "assuranceBody": "The request records a sales lead and follow-up consent only. It does not create an Organization, User, subscription, or company-domain claim.",
+    "consentTitle": "I consent to Ibiza following up about this request.",
+    "consentBody": "This is separate from optional analytics consent. You can use the form whether analytics is accepted or declined.",
+    "submit": "Send Request",
+    "submitting": "Sending Request…",
+    "submitNote": "Submitting records an assisted request only; it does not create a workspace.",
+    "errorTitle": "Your request was not sent",
+    "validationError": "Review the highlighted form details and verification, then try again.",
+    "recoveryError": "The service is temporarily unavailable or busy. Your details remain in the form; wait a moment and retry.",
+    "conflictError": "This retry no longer matches the original request. Review the form and start a new submission.",
+    "networkError": "We could not reach Contact Sales. Your details remain in the form; check your connection and retry.",
+    "successEyebrow": "Request recorded",
+    "successTitle": "Thanks — your request was sent to our team.",
+    "noWorkspace": "No workspace was created.",
+    "referenceLabel": "Request reference",
+    "nextStep": "A Platform Admin team member will review the request and follow up using the consent you provided."
+  },
+  "home": {
+    "title": "Leave that adds up across every working week.",
+    "description": "Ibiza makes working-day charging visible for distributed teams, from the dates counted to the Workforce Group policy behind the result.",
+    "eyebrow": "Transparent leave management",
+    "intro": "See the result, every charged or excluded date, and the group policy that produced it—before a leave balance changes.",
+    "distributedTitle": "One team can work across different weekends without hidden arithmetic.",
+    "distributedBody": "Each person belongs to a Workforce Group with its own weekend pattern and public holidays. Ibiza applies the requester's policy and keeps the consequence readable for employees, managers, and HR.",
+    "fitTitle": "Built for teams that need policy clarity, not another opaque total.",
+    "fitItems": [
+      "Employees can see why a balance is charged.",
+      "Managers review the same date and policy evidence.",
+      "HR keeps weekend and holiday rules attached to the right group."
+    ]
+  },
+  "product": {
+    "title": "A leave workflow with the calculation in view.",
+    "description": "Explore Ibiza's evidence-led leave workflow for requests, approvals, balances, and distributed-team calendars.",
+    "eyebrow": "Product",
+    "intro": "Ibiza carries the same working-day evidence from preview through approval and history, so the result is never separated from its reasons.",
+    "stepsTitle": "The evidence stays with the decision",
+    "steps": [
+      {
+        "title": "Preview",
+        "body": "The requester sees the charged result before submitting."
+      },
+      {
+        "title": "Review",
+        "body": "The manager sees the dates, Workforce Group, and policy source."
+      },
+      {
+        "title": "Record",
+        "body": "The stored request keeps the working-day result and decision history."
+      }
+    ],
+    "fitTitle": "What this changes for a distributed team",
+    "fitBody": "A manager reviewing teammates in different locations does not need to guess which weekend applies. The requester's Workforce Group remains the policy source."
+  },
+  "distributedTeams": {
+    "title": "Different weekends. One explainable leave record.",
+    "description": "See how Ibiza keeps weekend, public-holiday, and Workforce Group policies clear for distributed teams.",
+    "eyebrow": "Distributed teams",
+    "intro": "A shared calendar does not mean every teammate follows the same working week. Ibiza keeps location-aware policy with each calculation.",
+    "comparisonTitle": "Curated policy examples",
+    "egyptTitle": "Egypt Workforce Group",
+    "egyptBody": "Friday–Saturday weekend. A Friday request date is excluded and named as that group's weekend.",
+    "usTitle": "US Workforce Group",
+    "usBody": "Saturday–Sunday weekend. The same Friday can be charged when no group holiday applies.",
+    "consequenceTitle": "The operational consequence",
+    "consequenceBody": "Managers compare coverage using the requester's actual charged dates. HR can change future group policy without rewriting historical requests."
+  },
+  "workingDays": {
+    "title": "Every charged day has a visible reason.",
+    "description": "A readable Ibiza working-day example showing the result, charged and excluded dates, Workforce Group policy, and team consequence.",
+    "eyebrow": "Working-day transparency",
+    "intro": "The total is only the beginning. Ibiza keeps the date sequence and the policy source beside it."
+  },
+  "security": {
+    "title": "Clear boundaries around customer and operator access.",
+    "description": "Ibiza security separates Organization User sessions, Platform Admin access, tenant data, and optional public analytics.",
+    "eyebrow": "Security",
+    "intro": "The public site, customer application, and Platform Admin application are separate entry and session boundaries.",
+    "principlesTitle": "Security posture",
+    "principles": [
+      {
+        "title": "Tenant isolation",
+        "body": "Organization APIs are authorized in the customer realm and scoped to the authenticated organization."
+      },
+      {
+        "title": "Dedicated operator access",
+        "body": "Platform Admin uses a separate login, token audience, refresh cookie, and operator-only application."
+      },
+      {
+        "title": "Private-by-default measurement",
+        "body": "Optional public analytics stay off until the current analytics preference is accepted."
+      }
+    ],
+    "operatorNote": "Platform Admin access is intentionally not linked from public acquisition navigation."
+  },
+  "privacy": {
+    "title": "Privacy choices without a product penalty.",
+    "description": "Learn how Ibiza handles necessary services, optional public analytics, consent receipts, and minimized event data.",
+    "eyebrow": "Privacy",
+    "intro": "Public content and both login experiences work with Necessary Only. Optional analytics is a separate, versioned choice.",
+    "versionLabel": "Effective policy version",
+    "version": "31 July 2026",
+    "necessaryTitle": "Necessary services",
+    "necessaryBody": "Ibiza may store a minimized consent receipt so your choice can be honored. Declining analytics does not create a behavioral visitor profile.",
+    "analyticsTitle": "Optional analytics",
+    "analyticsBody": "After acceptance, Ibiza permits only public page and product-proof events with route, locale, source or campaign, and proof type. Events reject names, email, raw IP, organization details, leave content, medical data, notes, and balances.",
+    "changeTitle": "Change your choice",
+    "changeBody": "Use Privacy Choices below at any time. A change appends a new receipt and applies to future optional collection."
+  },
+  "terms": {
+    "title": "Terms for the public Ibiza experience.",
+    "description": "Read the current terms for Ibiza's public product information and existing-customer login entry.",
+    "eyebrow": "Terms",
+    "intro": "These terms cover the public information released with Story 12.1. Public registration, pricing commitments, Contact Sales, and workspace creation are not offered here yet.",
+    "versionLabel": "Effective",
+    "version": "31 July 2026",
+    "sections": [
+      {
+        "title": "Product information",
+        "body": "The public examples explain currently curated Ibiza workflows. They are not customer records, testimonials, or a promise that an unavailable acquisition route has opened."
+      },
+      {
+        "title": "Existing customer access",
+        "body": "Customer Log In is for Organization Users who were invited through an existing workspace. Opening the login page does not create a workspace."
+      },
+      {
+        "title": "Acceptable use",
+        "body": "Do not attempt to bypass customer, tenant, or Platform Admin access boundaries or interfere with the service."
+      }
+    ]
+  },
+  "notFound": {
+    "title": "This public page does not exist.",
+    "description": "The requested Ibiza public page could not be found.",
+    "body": "Use a verified public route to continue. No customer or operator application content was exposed."
+  },
+  "proof": {
+    "label": "Illustrative working-day calculation",
+    "eyebrow": "Curated product evidence",
+    "result": "3 working days will be charged.",
+    "range": "Monday 14 September to Friday 18 September 2026",
+    "datesLabel": "Dates in chronological order",
+    "charged": "Charged",
+    "excluded": "Excluded",
+    "days": [
+      {
+        "weekday": "Mon",
+        "date": "14 Sep",
+        "status": "charged",
+        "reason": "Working day"
+      },
+      {
+        "weekday": "Tue",
+        "date": "15 Sep",
+        "status": "charged",
+        "reason": "Working day"
+      },
+      {
+        "weekday": "Wed",
+        "date": "16 Sep",
+        "status": "excluded",
+        "reason": "Group holiday"
+      },
+      {
+        "weekday": "Thu",
+        "date": "17 Sep",
+        "status": "charged",
+        "reason": "Working day"
+      },
+      {
+        "weekday": "Fri",
+        "date": "18 Sep",
+        "status": "excluded",
+        "reason": "Weekend"
+      }
+    ],
+    "policyTitle": "Policy source",
+    "policy": "Egypt Workforce Group · Friday–Saturday weekend · Group holiday on 16 September",
+    "consequenceTitle": "Distributed-team consequence",
+    "consequence": "The balance is charged for three dates. Managers review coverage for those same three dates, while the excluded holiday and weekend remain visible.",
+    "curationNote": "This is a policy example, not customer or employee data."
+  },
+  "consent": {
+    "title": "Your privacy choices",
+    "body": "Analytics are optional. Necessary services still work if you decline.",
+    "detail": "No analytics provider is loaded and no optional event is sent until you accept the current policy version. You can decline and continue without losing any content.",
+    "accept": "Accept Analytics",
+    "necessary": "Use Necessary Only",
+    "manage": "Manage Choices",
+    "savedAccepted": "Analytics accepted. You can change this choice at any time.",
+    "savedDeclined": "Necessary Only is active. Optional analytics remains off.",
+    "failure": "Necessary Only is active because the preference service is unavailable.",
+    "close": "Close Privacy Choices"
+  },
+  "registration": {
+    "checkEmail": "Check your email",
+    "checkEmailBody": "We sent a single-use verification link to {{email}}. It expires in 30 minutes.",
+    "count": "Intended active users",
+    "countSummary": "for {{count}} active users",
+    "country": "Country code",
+    "checkoutReturn": {
+      "actionRequired": "Checkout did not produce an authoritative payment confirmation. Your verified registration is preserved.",
+      "completeWorkspace": "Complete Workspace Setup",
+      "confirmed": "Payment is confirmed by the billing provider. Complete workspace setup to continue.",
+      "exit": "Return to Ibiza",
+      "eyebrow": "Secure billing",
+      "provisioningFailed": "Payment is confirmed, but workspace setup needs recovery. You will not be charged again.",
+      "recover": "Recover Registration",
+      "resume": "Resume Safely",
+      "title": "Confirming Payment",
+      "unavailable": "We cannot read the authoritative registration state yet. Use recovery; do not start a second payment.",
+      "waiting": "We are waiting for the signed billing confirmation. Keep this page open or return later."
+    },
+    "description": "Verify your email and create an Ibiza Free workspace for 1–5 active users with no card required.",
+    "disabled": "New Free registration is temporarily unavailable. Existing registrations can still be recovered.",
+    "email": "Administrator email",
+    "error": "We could not complete that step. Review the information or try again shortly.",
+    "expired": "This verification link cannot be used. Request a safe recovery email to continue.",
+    "eyebrow": "Free workspace",
+    "fullName": "Your full name",
+    "intro": "Start with 1–5 active users. No card is required and no paid subscription is created.",
+    "organization": "Organization name",
+    "password": "Create a password",
+    "paid": {
+      "availability": "Only capabilities marked Available in the current catalog are included.",
+      "billingTiming": "Your declared quantity is charged when Checkout completes; recurring billing follows accepted active users.",
+      "cancellation": "You can cancel in the Billing Portal and keep access through the paid period.",
+      "checkout": "Continue to Secure Checkout",
+      "checkoutUnavailable": "Secure Checkout is temporarily unavailable. Retry this same commitment; do not pay again.",
+      "commitmentTitle": "Review your paid commitment",
+      "downgrade": "Eligible downgrades take effect at renewal after destination seat limits are met.",
+      "intro": "Verify the administrator email before reviewing the complete paid commitment and leaving for hosted Checkout.",
+      "planSummary": "{{plan}} · ${{price}} per active user monthly",
+      "priceBasis": "The monthly price is per accepted active user. Pending invitations reserve capacity but are not billed.",
+      "provision": "Create Paid Workspace",
+      "ready": "Your paid workspace is ready. Signing you in securely…",
+      "renewal": "The subscription renews monthly until it is cancelled.",
+      "title": "Create your paid workspace"
+    },
+    "planSummary": "Free · up to 5 active users · no card",
+    "provision": "Create Free Workspace",
+    "provisionTitle": "Finish creating your workspace",
+    "ready": "Your Free workspace is ready. Signing you in securely…",
+    "recover": "Send Recovery Email",
+    "recoveryAccepted": "If a registration can continue, we sent the next safe step. Check your email.",
+    "recoveryBody": "Enter your administrator email. If a registration can continue, we will email the next safe step.",
+    "recoveryTitle": "Recover registration",
+    "resend": "Resend Verification Email",
+    "resendWait": "Resend available in {{seconds}} seconds",
+    "retry": "That took longer than expected. Please submit again to continue safely.",
+    "start": "Email Me a Verification Link",
+    "terms": "By continuing, you accept the current Terms and Privacy Notice.",
+    "title": "Create your Free workspace",
+    "verifyTitle": "Verify your email",
+    "verifying": "Verifying your single-use link…",
+    "working": "Please wait…"
+  },
+  "footer": {
+    "label": "Public footer",
+    "summary": "Working-day transparency for distributed teams.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "security": "Security",
+    "operator": "Platform Admin",
+    "copyright": "© 2026 Ibiza"
+  }
+}

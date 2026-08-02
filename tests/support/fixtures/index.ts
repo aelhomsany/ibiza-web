@@ -7,9 +7,11 @@ type TestFixtures = {
 }
 
 const factoryTest = base.extend<TestFixtures>({
-  userFactory: async ({}, use) => {
+  // Playwright requires an object destructuring pattern for fixture dependencies.
+  // eslint-disable-next-line no-empty-pattern
+  userFactory: async ({}, provide) => {
     const factory = new UserFactory()
-    await use(factory)
+    await provide(factory)
     factory.cleanup()
   },
 })

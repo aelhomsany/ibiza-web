@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ApiError } from '../../api/client'
 import type { CreateOrganizationRequest } from '../../api/generated/types'
 import { Modal } from '../../components/ui/Modal'
 import { CloseIcon } from '../../components/ui/icons'
+import { PlatformApiError } from '../platform-auth/platformApiClient'
 import { useCreateOrganization } from './useCreateOrganization'
 
 type Props = {
@@ -39,7 +39,7 @@ export function CreateOrganizationModal({ onClose }: Props) {
           onClose()
         },
         onError: (error) => {
-          if (error instanceof ApiError) {
+          if (error instanceof PlatformApiError) {
             setErrorMessage(error.problem.detail ?? t('platform:create.errors.submit'))
             return
           }
