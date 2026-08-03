@@ -56,6 +56,48 @@ const configuredBaseUrl = import.meta.env.VITE_API_URL ?? ''
 export const baseUrl =
   configuredBaseUrl === 'http://localhost:8080' ? '' : configuredBaseUrl
 
+export type OnboardingStageId =
+  | 'ORGANIZATION'
+  | 'WORKING_CALENDARS'
+  | 'PEOPLE_AND_INVITATIONS'
+  | 'ENTITLEMENTS_AND_READINESS'
+  | 'FIRST_LEAVE_CYCLE'
+
+// Optionality mirrors `components["schemas"]["OnboardingResponse"]` in api/generated/types.ts.
+// Declaring these as required here while the generated contract marks them optional meant
+// TypeScript could not catch a partial response, and `state.nextSafeAction.href` threw at runtime.
+export type OnboardingState = {
+  workflowVersion?: string
+  stages?: Array<{ id: OnboardingStageId; label: string }>
+  evidence?: Partial<Record<OnboardingStageId, {
+    complete: boolean
+    summary?: string
+    facts?: Record<string, unknown>
+  }>>
+  currentPresentationStep?: OnboardingStageId
+  nextSafeAction?: { stage: OnboardingStageId; action?: string; href: string }
+  version?: number
+  activationStatus: 'NOT_ACTIVATED' | 'COMMERCIALLY_ACTIVATED'
+  milestones?: {
+    invitationAccepted: boolean
+    firstRequestSubmitted: boolean
+    firstRequestApproved: boolean
+    reconciled: boolean
+  }
+  workspaceCreated: boolean
+  onboardingComplete?: boolean
+  billingInOnboarding?: boolean
+  plan?: string
+  creationSource?: 'SELF_SERVICE' | 'PLATFORM_ADMIN'
+  presentationEnabled?: boolean
+  fallbackRoute?: string
+  analyticsConsent?: 'NECESSARY_ONLY' | 'OPTIONAL_ANALYTICS'
+  conflict?: {
+    message: string
+    recoverableInput?: Record<string, string>
+  }
+}
+
 let authFailureHandler: (() => void) | null = null
 let refreshPromise: Promise<TokenResponse> | null = null
 
@@ -224,6 +266,20 @@ export async function postLogout(): Promise<void> {
 export async function getMe(): Promise<UserSummaryResponse> {
   return request<UserSummaryResponse>('/api/v1/auth/me', {
     method: 'GET',
+  })
+}
+
+export async function getOnboarding(): Promise<OnboardingState> {
+  return request<OnboardingState>('/api/v1/onboarding', { method: 'GET' })
+}
+
+export async function updateOnboardingPresentation(
+  version: number,
+  presentationStep: OnboardingStageId,
+): Promise<OnboardingState> {
+  return request<OnboardingState>('/api/v1/onboarding/presentation', {
+    method: 'PATCH',
+    body: { version, presentationStep },
   })
 }
 

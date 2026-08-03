@@ -11,7 +11,7 @@ type HandoffResponse = { accessToken: string; safeReturnPath?: string }
  */
 function safeDestination(path: string | undefined): string {
   if (!path || !path.startsWith('/') || path.startsWith('//')) return '/'
-  return path === '/' || path === '/settings' || path.startsWith('/settings?') || path.startsWith('/settings#')
+  return path === '/' || path === '/onboarding' || path === '/settings' || path.startsWith('/settings?') || path.startsWith('/settings#')
     ? path
     : '/'
 }

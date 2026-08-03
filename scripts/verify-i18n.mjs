@@ -16,6 +16,8 @@ const enabledNamespaces = [
   'settings',
   'profile',
   'auth',
+  'billing',
+  'onboarding',
   'platform',
   'platformAuth',
   'public',

@@ -746,6 +746,23 @@ export interface paths {
         patch: operations["updateSubscription"];
         trace?: never;
     };
+    "/api/v1/onboarding/presentation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update non-authoritative onboarding presentation position */
+        patch: operations["updatePresentation"];
+        trace?: never;
+    };
     "/api/v1/notifications/{id}/read": {
         parameters: {
             query?: never;
@@ -846,6 +863,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/platform/funnel-metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read consent-aware aggregate funnel measures */
+        get: operations["report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform-auth/me": {
         parameters: {
             query?: never;
@@ -854,6 +888,23 @@ export interface paths {
             cookie?: never;
         };
         get: operations["me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/onboarding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get authoritative onboarding and Commercial Activation progress */
+        get: operations["get_2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1375,6 +1426,7 @@ export interface components {
             plan: "FREE" | "STARTER" | "GROWTH" | "INTERNAL";
             /** @enum {string} */
             status?: "ACTIVE" | "SUSPENDED";
+            assistedHandoffId?: string;
         };
         OrganizationSummaryResponse: {
             /** Format: int64 */
@@ -1634,6 +1686,53 @@ export interface components {
             billingStatus: "MANUAL_ACTIVE" | "MANUAL_SUSPENDED";
             /** Format: date */
             effectiveDate: string;
+        };
+        UpdateOnboardingPresentationRequest: {
+            /** Format: int64 */
+            version?: number;
+            presentationStep?: string;
+        };
+        EvidenceResponse: {
+            complete?: boolean;
+            summary?: string;
+            facts?: {
+                [key: string]: Record<string, never>;
+            };
+        };
+        MilestoneResponse: {
+            invitationAccepted?: boolean;
+            firstRequestSubmitted?: boolean;
+            firstRequestApproved?: boolean;
+            reconciled?: boolean;
+        };
+        NextSafeActionResponse: {
+            stage?: string;
+            action?: string;
+            href?: string;
+        };
+        OnboardingResponse: {
+            workflowVersion?: string;
+            stages?: components["schemas"]["StageResponse"][];
+            evidence?: {
+                [key: string]: components["schemas"]["EvidenceResponse"];
+            };
+            currentPresentationStep?: string;
+            nextSafeAction?: components["schemas"]["NextSafeActionResponse"];
+            /** Format: int64 */
+            version?: number;
+            activationStatus?: string;
+            milestones?: components["schemas"]["MilestoneResponse"];
+            workspaceCreated?: boolean;
+            onboardingComplete?: boolean;
+            billingInOnboarding?: boolean;
+            plan?: string;
+            creationSource?: string;
+            presentationEnabled?: boolean;
+            fallbackRoute?: string;
+        };
+        StageResponse: {
+            id?: string;
+            label?: string;
         };
         NotificationResponse: {
             /** Format: int64 */
@@ -3236,6 +3335,30 @@ export interface operations {
             };
         };
     };
+    updatePresentation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateOnboardingPresentationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["OnboardingResponse"];
+                };
+            };
+        };
+    };
     markRead: {
         parameters: {
             query?: never;
@@ -3390,6 +3513,28 @@ export interface operations {
             };
         };
     };
+    report: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: Record<string, never>;
+                    };
+                };
+            };
+        };
+    };
     me: {
         parameters: {
             query?: never;
@@ -3406,6 +3551,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PlatformAdminSummaryResponse"];
+                };
+            };
+        };
+    };
+    get_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["OnboardingResponse"];
                 };
             };
         };
@@ -3836,6 +4001,7 @@ export type LeaveTypeResponse = RequiredSchema<"LeaveTypeResponse">;
 export type LoginRequest = components["schemas"]["LoginRequest"];
 export type MarkAllReadResponse = RequiredSchema<"MarkAllReadResponse">;
 export type NotificationResponse = RequiredSchema<"NotificationResponse">;
+export type OnboardingResponse = RequiredSchema<"OnboardingResponse">;
 export type OrganizationSummaryResponse = RequiredSchema<"OrganizationSummaryResponse">;
 export type OutTodayResponse = RequiredSchema<"OutTodayResponse">;
 export type PendingApprovalCountResponse = RequiredSchema<"PendingApprovalCountResponse">;
@@ -3929,3 +4095,4 @@ export type UpdateNotificationPreferenceRequest = {
     enabled: boolean;
     mutedUntil?: string | null;
 };
+export type UpdateOnboardingPresentationRequest = components["schemas"]["UpdateOnboardingPresentationRequest"];

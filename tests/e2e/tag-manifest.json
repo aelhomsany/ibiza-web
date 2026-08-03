@@ -471,6 +471,27 @@
       "tests": [
         "[P0] Given PAST_DUE_GRACE then RESTRICTED, When workforce mutation is attempted, Then the user cannot proceed without visible remediation path"
       ]
+    },
+    "guided-onboarding.spec.ts::Guided onboarding resume — Story 12.5": {
+      "tags": [
+        "@regression",
+        "@ui-only",
+        "@story-12-5"
+      ],
+      "tests": [
+        "[P0] Given an HR Admin exits mid-setup, When they return on another session, Then onboarding opens the next evidence-based safe action"
+      ]
+    },
+    "guided-onboarding.spec.ts::Commercial Activation — Story 12.5": {
+      "tags": [
+        "@regression",
+        "@ui-only",
+        "@story-12-5"
+      ],
+      "tests": [
+        "[P0] Given the real domain flow reconciles server-side, When onboarding refreshes, Then UI distinguishes unique Commercial Activation from workspace creation",
+        "[P0] Given Necessary Only analytics preference, When onboarding continues by keyboard, Then zero task failures occur"
+      ]
     }
   },
   "permanentlySkippedTests": [

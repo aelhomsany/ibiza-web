@@ -1,12 +1,24 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { ApiError } from '../../api/client'
+import { ApiError, getOnboarding } from '../../api/client'
 import { getHomePath, getSafeRedirectPath } from '../../auth/authUtils'
 import { useAuth } from '../../auth/useAuth'
 import { BuildingIcon, UmbrellaIcon } from '../../components/ui/icons'
 import { AuthProofPanel } from './AuthProofPanel'
 import './auth-form.css'
+
+/** Sign-in must not block on the onboarding lookup; the dashboard is always a safe landing. */
+const ONBOARDING_LOOKUP_TIMEOUT_MS = 3000
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_resolve, reject) =>
+      setTimeout(() => reject(new Error('onboarding lookup timed out')), ms),
+    ),
+  ])
+}
 
 export function LoginPage() {
   const { t } = useTranslation(['auth', 'common'])
@@ -41,7 +53,30 @@ export function LoginPage() {
       const fromPath = getSafeRedirectPath(
         (location.state as { from?: { pathname?: string } } | null)?.from?.pathname,
       )
-      navigate(fromPath ?? getHomePath(signedInUser.role), { replace: true })
+      let destination = fromPath ?? getHomePath(signedInUser.role)
+
+      // Resuming is server-owned: an HR admin who signs back in (including through
+      // the assisted password-invitation path) returns to the workflow only while
+      // the feature is enabled and required setup is still outstanding.
+      // Any unavailable/disabled response preserves the established dashboard cue.
+      //
+      // The exit condition is onboardingComplete, not Commercial Activation. Activation additionally
+      // requires another user to accept an invitation and a full reconciled leave cycle, so gating
+      // on it redirected single-admin Organizations to /onboarding on every sign-in forever.
+      if (!fromPath && signedInUser.role === 'HR_ADMIN') {
+        try {
+          const onboarding = await withTimeout(getOnboarding(), ONBOARDING_LOOKUP_TIMEOUT_MS)
+          if (onboarding.presentationEnabled !== false && onboarding.onboardingComplete !== true) {
+            destination = '/onboarding'
+          }
+        } catch {
+          // Existing destination is the intentional safe fallback — including when the lookup
+          // times out, so a hung API cannot strand the user on the login form after a
+          // successful authentication.
+        }
+      }
+
+      navigate(destination, { replace: true })
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 429) {

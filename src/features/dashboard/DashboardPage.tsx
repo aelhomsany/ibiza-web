@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import type {
   RecentRequestResponse,
   UpcomingAbsenceResponse,
@@ -25,6 +26,7 @@ import { useDashboardBalances } from './useDashboardBalances'
 import { useDashboardOutToday } from './useDashboardOutToday'
 import { useDashboardRecentRequests } from './useDashboardRecentRequests'
 import { useDashboardUpcoming } from './useDashboardUpcoming'
+import { useOnboarding } from '../onboarding/useOnboarding'
 import './dashboard.css'
 
 function firstName(fullName: string): string {
@@ -228,7 +230,7 @@ function DashboardAttention({
 }
 
 export function DashboardPage() {
-  const { t, i18n } = useTranslation(['dashboard', 'common'])
+  const { t, i18n } = useTranslation(['dashboard', 'common', 'onboarding'])
   const { user } = useAuth()
   const [modalOpen, setModalOpen] = useState(false)
   const greetingRef = useRef<HTMLHeadingElement>(null)
@@ -238,7 +240,10 @@ export function DashboardPage() {
   const outTodayQuery = useDashboardOutToday()
   const upcomingQuery = useDashboardUpcoming()
   const pendingCountQuery = usePendingApprovalCount()
+  const onboardingQuery = useOnboarding(user?.role === 'HR_ADMIN')
   const pendingCount = pendingCountQuery.data?.count ?? 0
+  const guidedOnboarding = onboardingQuery.isSuccess
+    && onboardingQuery.data.presentationEnabled !== false
 
   const showSubmitSuccessToast = useCallback(() => {
     showToast(t('dashboard:request.success'))
@@ -266,7 +271,27 @@ export function DashboardPage() {
         </button>
       </header>
 
-      {user?.role === 'HR_ADMIN' && (
+      {user?.role === 'HR_ADMIN' && guidedOnboarding
+        && onboardingQuery.data.activationStatus !== 'COMMERCIALLY_ACTIVATED' && (
+        <aside className="first-use-cue" data-testid="guided-onboarding-cue">
+          <div className="first-use-cue-header">
+            <div>
+              <p className="first-use-eyebrow">{t('onboarding:dashboardCue.eyebrow')}</p>
+              <h2 className="first-use-title">{t('onboarding:dashboardCue.title')}</h2>
+              <p className="first-use-summary">{t('onboarding:dashboardCue.body')}</p>
+            </div>
+          </div>
+          <div className="first-use-actions">
+            <Link className="btn btn-primary" to="/onboarding">
+              {t('onboarding:dashboardCue.action')}
+            </Link>
+          </div>
+        </aside>
+      )}
+
+      {user?.role === 'HR_ADMIN'
+        && (onboardingQuery.isError
+          || (onboardingQuery.isSuccess && onboardingQuery.data.presentationEnabled === false)) && (
         <FirstUseCue
           user={user}
           onStartRequest={() => setModalOpen(true)}

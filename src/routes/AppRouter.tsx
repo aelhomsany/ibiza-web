@@ -59,6 +59,9 @@ const ApprovalsPage = lazy(() =>
 const PlanAndBillingPage = lazy(() =>
   import('../features/billing/PlanAndBillingPage').then((module) => ({ default: module.PlanAndBillingPage })),
 )
+const OnboardingPage = lazy(() =>
+  import('../features/onboarding/OnboardingPage').then((module) => ({ default: module.OnboardingPage })),
+)
 
 function RouteFallback() {
   const { t } = useTranslation('common')
@@ -110,6 +113,7 @@ export function AppRoutes() {
               <Route path="/calendar" element={withPageTitle('routes.calendar', <TeamCalendarPage />)} />
               <Route path="/approvals" element={withPageTitle('routes.approvals', <ApprovalsPage />)} />
               <Route path="/settings" element={withPageTitle('routes.settings', <SettingsPage />)} />
+              <Route path="/onboarding" element={withPageTitle('routes.onboarding', <OnboardingPage />)} />
               <Route path="/settings/billing" element={withPageTitle('routes.billing', <PlanAndBillingPage />)} />
               <Route
                 path="*"

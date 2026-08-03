@@ -23,6 +23,7 @@ describe('LoginPage', () => {
   })
 
   afterEach(async () => {
+    vi.unstubAllGlobals()
     if (i18n.language !== 'en') {
       await act(async () => {
         await i18n.changeLanguage('en')
@@ -161,6 +162,97 @@ describe('LoginPage', () => {
       expect(await screen.findByTestId(testId)).toBeInTheDocument()
     },
   )
+
+  it('resumes an enabled server onboarding workflow after HR admin sign-in', async () => {
+    const user = userEvent.setup()
+    login.mockResolvedValue({
+      id: 7,
+      email: 'hr@company.com',
+      fullName: 'Harper Admin',
+      role: 'HR_ADMIN',
+      organizationId: 1,
+      organizationName: 'Nile Harbor',
+      timezone: 'America/New_York',
+    })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            presentationEnabled: true,
+            activationStatus: 'NOT_ACTIVATED',
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        ),
+      ),
+    )
+
+    render(
+      <MemoryRouter initialEntries={['/login']}>
+        <AuthTestProvider
+          value={createMockAuthValue({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            login,
+          })}
+        >
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/onboarding" element={<div data-testid="guided-onboarding">Guided onboarding</div>} />
+          </Routes>
+        </AuthTestProvider>
+      </MemoryRouter>,
+    )
+
+    await user.type(screen.getByTestId('sign-in-email'), 'hr@company.com')
+    await user.type(screen.getByTestId('sign-in-password'), 'Secret1!')
+    await user.click(screen.getByTestId('sign-in-submit'))
+
+    expect(await screen.findByTestId('guided-onboarding')).toBeInTheDocument()
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/v1/onboarding',
+      expect.objectContaining({ method: 'GET' }),
+    )
+  })
+
+  it('preserves the existing HR home when onboarding is unavailable', async () => {
+    const user = userEvent.setup()
+    login.mockResolvedValue({
+      id: 7,
+      email: 'hr@company.com',
+      fullName: 'Harper Admin',
+      role: 'HR_ADMIN',
+      organizationId: 1,
+      organizationName: 'Nile Harbor',
+      timezone: 'America/New_York',
+    })
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('offline')))
+
+    render(
+      <MemoryRouter initialEntries={['/login']}>
+        <AuthTestProvider
+          value={createMockAuthValue({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            login,
+          })}
+        >
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<div data-testid="dashboard-fallback">Dashboard</div>} />
+          </Routes>
+        </AuthTestProvider>
+      </MemoryRouter>,
+    )
+
+    await user.type(screen.getByTestId('sign-in-email'), 'hr@company.com')
+    await user.type(screen.getByTestId('sign-in-password'), 'Secret1!')
+    await user.click(screen.getByTestId('sign-in-submit'))
+
+    expect(await screen.findByTestId('dashboard-fallback')).toBeInTheDocument()
+  })
 
   it('submits credentials via login and shows API error message', async () => {
     const user = userEvent.setup()

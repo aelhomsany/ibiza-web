@@ -94,5 +94,9 @@ export function canAccessOrgRoute(role: UserRole, pathname: string): boolean {
     return role === 'HR_ADMIN'
   }
 
+  if (pathname === '/onboarding' || pathname.startsWith('/onboarding/')) {
+    return role === 'HR_ADMIN'
+  }
+
   return true
 }

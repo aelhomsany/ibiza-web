@@ -1,0 +1,236 @@
+import { useTranslation } from 'react-i18next'
+import { Link, Navigate } from 'react-router-dom'
+import { ApiError, type OnboardingState } from '../../api/client'
+import { LoadingState } from '../../components/ui/LoadingState'
+import { CheckIcon, RefreshCwIcon } from '../../components/ui/icons'
+import { useOnboarding, useOnboardingPresentation } from './useOnboarding'
+import { OnboardingProgress } from './OnboardingProgress'
+import './onboarding.css'
+
+type OnboardingPageProps = {
+  state?: OnboardingState
+  onRetryConflict?: () => void
+  onAdvancePresentation?: () => void
+}
+
+function safeHref(href: string | undefined): string {
+  if (!href || !href.startsWith('/') || href.startsWith('//')) return '/settings'
+  return href
+}
+
+/**
+ * The provisioning-to-activation states AC3 requires the UI to keep distinct. Each is derived from
+ * a separate server fact, so "workspace created" can never read as "commercially activated".
+ */
+function activationStages(state: OnboardingState) {
+  const activated = state.activationStatus === 'COMMERCIALLY_ACTIVATED'
+  const paid = state.plan === 'STARTER' || state.plan === 'GROWTH'
+  return [
+    { key: 'registrationAccepted', reached: true },
+    { key: 'emailVerified', reached: true },
+    ...(paid ? [{ key: 'paymentConfirmed', reached: true }] : []),
+    { key: 'workspaceCreated', reached: state.workspaceCreated !== false },
+    { key: 'onboardingComplete', reached: state.onboardingComplete === true },
+    { key: 'commercialActivation', reached: activated },
+  ]
+}
+
+function remainingMilestoneKey(state: OnboardingState): string {
+  if (!state.milestones?.invitationAccepted) return 'activation.remaining.invitation'
+  if (!state.milestones.firstRequestSubmitted) return 'activation.remaining.request'
+  if (!state.milestones.firstRequestApproved) return 'activation.remaining.approval'
+  if (!state.milestones.reconciled) return 'activation.remaining.reconciliation'
+  return 'activation.remaining.finalizing'
+}
+
+function OnboardingView({
+  state,
+  onRetryConflict,
+  onAdvancePresentation,
+}: Required<Pick<OnboardingPageProps, 'state'>> &
+  Pick<OnboardingPageProps, 'onRetryConflict' | 'onAdvancePresentation'>) {
+  const { t } = useTranslation(['onboarding', 'common'])
+  const activated = state.activationStatus === 'COMMERCIALLY_ACTIVATED'
+  const nextHref = state.presentationEnabled === false
+    ? safeHref(state.fallbackRoute)
+    : safeHref(state.nextSafeAction?.href)
+
+  return (
+    <main className="page page-wide onboarding-page" data-testid="onboarding-page">
+      <header className="page-header onboarding-header">
+        <div>
+          <p className="onboarding-eyebrow">{t('onboarding:eyebrow')}</p>
+          <h1 className="page-title">{t('onboarding:title')}</h1>
+          <p className="page-sub">{t('onboarding:subtitle')}</p>
+        </div>
+        <p className="onboarding-resume-status" data-testid="onboarding-resume-status" role="status">
+          {t('onboarding:resumeStatus')}
+        </p>
+      </header>
+
+      {state.conflict ? (
+        <section
+          className="onboarding-conflict"
+          data-testid="onboarding-stale-conflict"
+          aria-labelledby="onboarding-conflict-title"
+        >
+          <div>
+            <h2 id="onboarding-conflict-title">{t('onboarding:conflict.title')}</h2>
+            <p>{state.conflict.message || t('onboarding:conflict.body')}</p>
+          </div>
+          {Object.entries(state.conflict.recoverableInput ?? {}).map(([key, value]) => (
+            <label key={key} className="onboarding-recoverable-input">
+              <span>{t('onboarding:conflict.preservedInput')}</span>
+              <input value={value} readOnly dir="auto" />
+            </label>
+          ))}
+          <button type="button" className="btn btn-outline" onClick={onRetryConflict}>
+            <RefreshCwIcon size={16} aria-hidden="true" />
+            {t('common:actions.retry')}
+          </button>
+        </section>
+      ) : null}
+
+      <div className="onboarding-grid">
+        <OnboardingProgress state={state} />
+
+        <div className="onboarding-main-column">
+          <section className="onboarding-action-card" aria-labelledby="onboarding-next-title">
+            <p className="onboarding-card-eyebrow">{t('onboarding:next.eyebrow')}</p>
+            <h2 id="onboarding-next-title">{t(`onboarding:next.actions.${state.nextSafeAction?.action ?? 'CONTINUE'}`)}</h2>
+            <p>{t('onboarding:next.body')}</p>
+            <Link
+              className="btn btn-primary onboarding-next-action"
+              data-testid="onboarding-next-action"
+              to={nextHref}
+              onClick={onAdvancePresentation}
+            >
+              {state.presentationEnabled === false
+                ? t('onboarding:next.openSettings')
+                : t('onboarding:next.continue')}
+            </Link>
+            {state.analyticsConsent === 'NECESSARY_ONLY' ? (
+              <p className="onboarding-consent-note">{t('onboarding:analyticsOptional')}</p>
+            ) : null}
+          </section>
+
+          <section className="activation-card" aria-labelledby="activation-title">
+            <p className="onboarding-card-eyebrow">{t('onboarding:activation.eyebrow')}</p>
+            <h2 id="activation-title">{t('onboarding:activation.title')}</h2>
+            <div className="activation-status" data-testid="activation-status" role="status">
+              <strong>
+                {activated
+                  ? t('onboarding:activation.activated')
+                  : t('onboarding:activation.notActivated')}
+              </strong>
+            </div>
+            <ol className="activation-states" data-testid="activation-states">
+              {activationStages(state).map((stage) => (
+                <li
+                  key={stage.key}
+                  className={stage.reached ? 'activation-state is-reached' : 'activation-state'}
+                  data-testid={`activation-state-${stage.key}`}
+                >
+                  {stage.reached ? <CheckIcon size={16} aria-hidden="true" /> : null}
+                  <span>{t(`onboarding:activation.states.${stage.key}`)}</span>
+                  <span className="activation-state-label">
+                    {t(stage.reached ? 'onboarding:activation.reachedLabel' : 'onboarding:activation.pendingLabel')}
+                  </span>
+                </li>
+              ))}
+            </ol>
+            {activated ? (
+              <p className="activation-reached" data-testid="commercial-activation-reached">
+                <CheckIcon size={18} aria-hidden="true" />
+                {t('onboarding:activation.reached')}
+              </p>
+            ) : null}
+            {/*
+              The four reconciled facts stay on screen after activation too. Hiding them on success
+              removed exactly the evidence that makes the milestone legible.
+            */}
+            <p className="activation-remaining" data-testid="activation-remaining-milestone">
+              {activated
+                ? t('onboarding:activation.evidenceSummary')
+                : t(remainingMilestoneKey(state))}
+            </p>
+            <p className="activation-honesty">{t('onboarding:activation.honesty')}</p>
+          </section>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+function ServerOnboardingPage() {
+  const { t } = useTranslation(['onboarding', 'common'])
+  const query = useOnboarding()
+  const presentation = useOnboardingPresentation()
+
+  if (query.isPending) {
+    return (
+      <main className="page page-wide onboarding-page">
+        <LoadingState label={t('onboarding:loading')} variant="skeleton" />
+      </main>
+    )
+  }
+  if (query.isError) {
+    const status = query.error instanceof ApiError ? query.error.status : undefined
+    // 404 means this Organization predates guided onboarding: it keeps the Settings flow rather
+    // than being shown an error it can never clear.
+    if (status === 404) {
+      return <Navigate to="/" replace />
+    }
+    // A 403 is permanent for this session. Offering Retry on it hands the user a button that can
+    // only ever fail again.
+    const permanent = status === 403
+    return (
+      <main className="page page-wide onboarding-page">
+        <section className="onboarding-error" role="alert">
+          <h1 className="page-title">
+            {t(permanent ? 'onboarding:error.forbiddenTitle' : 'onboarding:error.title')}
+          </h1>
+          <p>{t(permanent ? 'onboarding:error.forbiddenBody' : 'onboarding:error.body')}</p>
+          {permanent ? null : (
+            <button type="button" className="btn btn-outline" onClick={() => void query.refetch()}>
+              {t('common:actions.retry')}
+            </button>
+          )}
+          <Link className="btn btn-primary" to="/settings">
+            {t('onboarding:next.openSettings')}
+          </Link>
+        </section>
+      </main>
+    )
+  }
+  // The kill switch must actually withdraw the guided surface, not merely retarget one button.
+  if (query.data.presentationEnabled === false) {
+    return <Navigate to={safeHref(query.data.fallbackRoute)} replace />
+  }
+  const state = query.data
+  return (
+    <OnboardingView
+      state={state}
+      onRetryConflict={() => void query.refetch()}
+      // Persisting the position is what makes the optimistic-lock version meaningful: without a
+      // caller the 409 contract and its recovery UI were unreachable in the running app.
+      onAdvancePresentation={() => {
+        if (state.version === undefined || !state.nextSafeAction) return
+        presentation.mutate({ version: state.version, presentationStep: state.nextSafeAction.stage })
+      }}
+    />
+  )
+}
+
+export function OnboardingPage({ state, onRetryConflict, onAdvancePresentation }: OnboardingPageProps = {}) {
+  if (state) {
+    return (
+      <OnboardingView
+        state={state}
+        onRetryConflict={onRetryConflict}
+        onAdvancePresentation={onAdvancePresentation}
+      />
+    )
+  }
+  return <ServerOnboardingPage />
+}

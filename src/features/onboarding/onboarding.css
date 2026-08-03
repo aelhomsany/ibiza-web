@@ -1,0 +1,212 @@
+.onboarding-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-section-gap);
+}
+
+.onboarding-header {
+  margin-block-end: 0;
+}
+
+.onboarding-eyebrow,
+.onboarding-card-eyebrow {
+  color: var(--color-working-policy);
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+html[lang='ar'] .onboarding-eyebrow,
+html[lang='ar'] .onboarding-card-eyebrow {
+  letter-spacing: normal;
+}
+
+.onboarding-resume-status {
+  align-self: center;
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-sm-size);
+}
+
+.onboarding-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  gap: var(--space-2xl);
+  align-items: start;
+}
+
+.onboarding-progress-card,
+.onboarding-action-card,
+.activation-card,
+.onboarding-conflict,
+.onboarding-error {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-card-padding);
+}
+
+.onboarding-progress {
+  display: grid;
+  gap: var(--space-md);
+  list-style: none;
+}
+
+.onboarding-stage {
+  display: grid;
+  grid-template-columns: var(--min-touch-target) minmax(0, 1fr);
+  gap: var(--space-md);
+  min-block-size: var(--min-touch-target);
+  padding: var(--space-md);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+}
+
+.onboarding-stage-current {
+  background: var(--color-surface-selected);
+  border-color: var(--color-border-strong);
+}
+
+.onboarding-stage-marker {
+  inline-size: var(--space-3xl);
+  block-size: var(--space-3xl);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+  color: var(--color-action-primary);
+  font-weight: var(--font-label-weight);
+}
+
+.onboarding-stage-complete .onboarding-stage-marker {
+  background: var(--color-status-approved-bg);
+  color: var(--color-status-approved-fg);
+}
+
+.onboarding-stage-copy {
+  display: grid;
+  gap: var(--space-xs);
+  min-inline-size: 0;
+}
+
+.onboarding-stage-copy span,
+.onboarding-stage-copy small {
+  color: var(--color-text-secondary);
+}
+
+.onboarding-main-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2xl);
+}
+
+.onboarding-action-card,
+.activation-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-inline-size: 0;
+}
+
+.onboarding-action-card h2,
+.activation-card h2,
+.onboarding-conflict h2 {
+  font-size: var(--font-section-title-size);
+}
+
+.onboarding-next-action {
+  align-self: flex-start;
+  margin-block-start: auto;
+  text-decoration: none;
+}
+
+.onboarding-consent-note,
+.activation-honesty {
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+}
+
+.activation-status {
+  display: grid;
+  gap: var(--space-xs);
+  padding: var(--space-lg);
+  background: var(--color-surface-subtle);
+  border-radius: var(--radius-md);
+}
+
+.activation-status span {
+  color: var(--color-text-secondary);
+}
+
+.activation-reached,
+.activation-remaining {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  padding: var(--space-md);
+  border-radius: var(--radius-sm);
+}
+
+.activation-reached {
+  background: var(--color-status-approved-bg);
+  color: var(--color-status-approved-fg);
+}
+
+.activation-remaining {
+  background: var(--color-status-pending-bg);
+  color: var(--color-status-pending-fg);
+}
+
+.onboarding-conflict {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 360px) auto;
+  gap: var(--space-lg);
+  align-items: end;
+  border-color: var(--color-error-border);
+}
+
+.onboarding-recoverable-input {
+  display: grid;
+  gap: var(--space-sm);
+  font-weight: var(--font-label-weight);
+}
+
+.onboarding-recoverable-input input {
+  min-block-size: var(--min-touch-target);
+  min-inline-size: 0;
+}
+
+.onboarding-error {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  align-items: center;
+}
+
+.onboarding-error p {
+  flex-basis: 100%;
+}
+
+@media (max-width: 900px) {
+  .onboarding-header,
+  .onboarding-grid,
+  .onboarding-main-column,
+  .onboarding-conflict {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .onboarding-header {
+    display: grid;
+  }
+
+  .onboarding-resume-status {
+    align-self: start;
+  }
+
+  .onboarding-next-action,
+  .onboarding-conflict .btn {
+    inline-size: 100%;
+  }
+}

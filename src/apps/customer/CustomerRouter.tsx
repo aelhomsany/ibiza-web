@@ -65,6 +65,11 @@ const PlanAndBillingPage = lazy(() =>
     default: module.PlanAndBillingPage,
   })),
 )
+const OnboardingPage = lazy(() =>
+  import('../../features/onboarding/OnboardingPage').then((module) => ({
+    default: module.OnboardingPage,
+  })),
+)
 
 function RouteFallback() {
   const { t } = useTranslation('common')
@@ -123,6 +128,10 @@ export function CustomerRoutes() {
               <Route
                 path="/settings"
                 element={titled('routes.settings', <SettingsPage />)}
+              />
+              <Route
+                path="/onboarding"
+                element={titled('routes.onboarding', <OnboardingPage />)}
               />
               <Route
                 path="/settings/billing"

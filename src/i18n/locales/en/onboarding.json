@@ -1,0 +1,98 @@
+{
+  "eyebrow": "Guided setup",
+  "title": "Set up your workspace",
+  "subtitle": "Continue from the next step supported by your saved workspace evidence.",
+  "resumeStatus": "Progress is saved securely and resumes on any device.",
+  "progressLabel": "Onboarding progress",
+  "loading": "Loading onboarding progress",
+  "status": {
+    "complete": "Complete",
+    "next": "Next safe action",
+    "upcoming": "Upcoming"
+  },
+  "stages": {
+    "ORGANIZATION": {
+      "title": "Organization",
+      "description": "Confirm your organization name, country, and timezone."
+    },
+    "WORKING_CALENDARS": {
+      "title": "Working calendars",
+      "description": "Review Workforce Groups, weekends, and public holidays."
+    },
+    "PEOPLE_AND_INVITATIONS": {
+      "title": "People and invitations",
+      "description": "Invite teammates and confirm roles, groups, and managers."
+    },
+    "ENTITLEMENTS_AND_READINESS": {
+      "title": "Entitlements and readiness",
+      "description": "Review leave policies and first-request readiness."
+    },
+    "FIRST_LEAVE_CYCLE": {
+      "title": "First leave cycle",
+      "description": "Use the real request, approval, balance, and calendar flow."
+    }
+  },
+  "next": {
+    "eyebrow": "Next safe action",
+    "body": "This opens the existing workspace surface that owns the change. Return here afterward to refresh progress.",
+    "continue": "Continue Setup",
+    "openSettings": "Open Settings",
+    "actions": {
+      "OPEN_ORGANIZATION_SETTINGS": "Review Organization Settings",
+      "OPEN_WORKING_CALENDARS": "Review Working Calendars",
+      "INVITE_PEOPLE": "Invite Your Team",
+      "REVIEW_ENTITLEMENTS": "Review Leave Policies",
+      "WAIT_FOR_INVITATION_ACCEPTANCE": "Wait for a Teammate to Join",
+      "SUBMIT_FIRST_REQUEST": "Submit the First Leave Request",
+      "APPROVE_FIRST_REQUEST": "Approve the First Leave Request",
+      "REVIEW_RECONCILIATION": "Review Calendar Reconciliation",
+      "VIEW_WORKSPACE": "Your Workspace Is Ready",
+      "CONTINUE": "Continue Setup"
+    }
+  },
+  "activation": {
+    "eyebrow": "Activation",
+    "title": "Commercial Activation",
+    "notActivated": "Not commercially activated",
+    "activated": "Commercially activated",
+    "workspaceCreated": "Your workspace was created earlier. Activation requires a completed real leave cycle.",
+    "reached": "Commercial Activation reached once with reconciled evidence.",
+    "honesty": "Workspace creation, onboarding completion, and Commercial Activation are separate milestones.",
+    "remaining": {
+      "invitation": "Remaining milestone: one additional invited teammate must accept.",
+      "request": "Remaining milestone: submit a real leave request.",
+      "approval": "Remaining milestone: approve the first real leave request.",
+      "reconciliation": "Remaining milestone: reconcile the request, balance, and Team Calendar.",
+      "finalizing": "Activation evidence is reconciled and is being finalized."
+    },
+    "reachedLabel": "Reached",
+    "pendingLabel": "Pending",
+    "evidenceSummary": "Reconciled evidence: an additional teammate accepted their invitation, a real leave request was submitted and approved, and the request, balance, and Team Calendar agree.",
+    "states": {
+      "registrationAccepted": "Registration accepted",
+      "emailVerified": "Email verified",
+      "paymentConfirmed": "Payment confirmed",
+      "workspaceCreated": "Workspace created",
+      "onboardingComplete": "Onboarding complete",
+      "commercialActivation": "Commercial Activation"
+    }
+  },
+  "conflict": {
+    "title": "Progress changed in another session",
+    "body": "Reload authoritative progress, then retry your preserved input.",
+    "preservedInput": "Preserved input"
+  },
+  "analyticsOptional": "Optional analytics are off. This does not block any setup task.",
+  "error": {
+    "title": "Onboarding progress is temporarily unavailable",
+    "body": "You can retry or continue through the existing Settings path. Your server evidence is preserved.",
+    "forbiddenTitle": "Guided onboarding is available to HR Admins",
+    "forbiddenBody": "Your role does not have access to this page. Continue in Settings or ask an HR Admin for help."
+  },
+  "dashboardCue": {
+    "eyebrow": "Guided onboarding",
+    "title": "Continue workspace setup",
+    "body": "Resume at the next evidence-based action. Progress is saved on the server.",
+    "action": "Continue Onboarding"
+  }
+}
