@@ -240,6 +240,7 @@ export function DashboardPage() {
   const outTodayQuery = useDashboardOutToday()
   const upcomingQuery = useDashboardUpcoming()
   const pendingCountQuery = usePendingApprovalCount()
+  // Ambient cue — keeps the 30s cache; only the guided page itself forces a re-read.
   const onboardingQuery = useOnboarding(user?.role === 'HR_ADMIN')
   const pendingCount = pendingCountQuery.data?.count ?? 0
   const guidedOnboarding = onboardingQuery.isSuccess

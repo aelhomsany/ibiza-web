@@ -40,7 +40,9 @@ describe('Guided onboarding UX — Story 12.5', () => {
     expect(screen.getByTestId('onboarding-stage-people')).toBeVisible()
     expect(screen.getByTestId('onboarding-stage-entitlements')).toBeVisible()
     expect(screen.getByTestId('onboarding-stage-first-leave-cycle')).toBeVisible()
-    expect(screen.getByTestId('activation-status')).toHaveTextContent(/not commercially activated|workspace created/i)
+    // Reframed 2026-08-05 to the user's goal; the six milestones stay distinct underneath.
+    expect(screen.getByTestId('activation-status')).toHaveTextContent(/first leave cycle hasn't run yet/i)
+    expect(screen.getByTestId('activation-reassurance')).toHaveTextContent(/nothing is restricted/i)
     expect(screen.queryByTestId('commercial-activation-reached')).not.toBeInTheDocument()
   })
 
@@ -88,9 +90,10 @@ describe('Guided onboarding UX — Story 12.5', () => {
       /></MemoryRouter>,
     )
 
+    // Carries the origin marker so the destination can offer the way back (SetupReturnNotice).
     expect(screen.getByTestId('onboarding-next-action')).toHaveAttribute(
       'href',
-      '/settings?category=organization',
+      '/settings?category=organization&from=onboarding',
     )
     expect(screen.getByTestId('onboarding-stale-conflict')).toBeVisible()
     expect(screen.getByDisplayValue('Jordan Co')).toBeVisible()

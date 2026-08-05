@@ -101,9 +101,10 @@ test.describe(
             await page.goto('/onboarding')
 
             await expect(page.getByTestId('onboarding-progress')).toBeVisible()
+            // `from=onboarding` is what lets the destination offer the way back (SetupReturnNotice).
             await expect(page.getByTestId('onboarding-next-action')).toHaveAttribute(
               'href',
-              '/settings?category=working-calendars',
+              '/settings?category=working-calendars&from=onboarding',
             )
             await expect(page.getByTestId('onboarding-stage-working-calendars')).toHaveAttribute('aria-current', 'step')
             await expectNoPageOverflow(page)
@@ -134,18 +135,23 @@ test.describe(
         const page = await context.newPage()
         await page.goto('/onboarding')
 
-        await expect(page.getByTestId('activation-status')).toContainText(/not commercially activated/i)
+        // Reframed 2026-08-05 to the user's goal. The two states are now distinct phrases rather
+        // than one being a substring of the other, which is what let the old assertion pass on the
+        // exact state it claimed to distinguish.
+        await expect(page.getByTestId('activation-status')).toContainText(/first leave cycle hasn't run yet/i)
+        await expect(page.getByTestId('activation-reassurance')).toContainText(/nothing is restricted/i)
         await expect(page.getByTestId('activation-remaining-milestone')).toBeVisible()
         activated = true
         await page.reload()
 
         await expect(page.getByTestId('commercial-activation-reached')).toBeVisible()
-        // Anchored: /commercially activated/i is a substring of "Not commercially activated", so the
-    // previous assertion passed on the exact state it claimed to distinguish.
-    await expect(page.getByTestId('activation-status')).not.toContainText(/not commercially activated/i)
-    await expect(page.getByTestId('activation-status')).toContainText(/^commercially activated/i)
-    await expect(page.getByTestId('activation-state-commercialActivation')).toBeVisible()
-        await expect(page.getByTestId('activation-status')).toContainText(/workspace/i)
+        await expect(page.getByTestId('activation-status')).not.toContainText(/hasn't run yet/i)
+        await expect(page.getByTestId('activation-status')).toContainText(/first leave cycle is complete/i)
+        await expect(page.getByTestId('activation-state-commercialActivation')).toBeVisible()
+        // Workspace creation stays on screen and stays a separate milestone after the cycle
+        // completes. The previous assertion aimed at this but targeted `activation-status`, whose
+        // text can never contain "workspace" — so it could only ever fail.
+        await expect(page.getByTestId('activation-state-workspaceCreated')).toBeVisible()
         await expectNoPageOverflow(page)
         await context.close()
       },
@@ -163,6 +169,10 @@ test.describe(
         await nextAction.focus()
         await page.keyboard.press('Enter')
         await expect(page).toHaveURL(/\/settings\?category=working-calendars/)
+        // The loop closes: the card tells the user to return afterward, so the destination has to
+        // offer the way back — onboarding has no sidebar entry to fall back on.
+        await expect(page.getByTestId('setup-return-notice')).toBeVisible()
+        await expect(page.getByTestId('setup-return-action')).toHaveAttribute('href', '/onboarding')
         await expect(page.getByText(/enable analytics|analytics required/i)).toHaveCount(0)
         await context.close()
       },

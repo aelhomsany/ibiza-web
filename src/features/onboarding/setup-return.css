@@ -1,0 +1,42 @@
+/*
+ * Mirrors the BillingNotice shell-banner geometry so the two never disagree about where a
+ * shell-level notice sits. Deliberately NOT the pending/amber surface that BillingNotice uses:
+ * this is a wayfinding aid, and borrowing the warning colour would dilute a real billing warning.
+ *
+ * Kept out of onboarding.css: this component mounts in OrgShell on every org route, and importing
+ * the guided page's stylesheet here would pull all of it into the shell bundle.
+ */
+.setup-return-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  padding: var(--space-md) var(--space-xl);
+  border-block-end: 1px solid var(--color-border-default);
+  background: var(--color-surface-subtle);
+}
+
+.setup-return-notice p {
+  margin: var(--space-xs) 0 0;
+  color: var(--color-text-secondary);
+}
+
+.setup-return-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .setup-return-notice {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .setup-return-action {
+    inline-size: 100%;
+    justify-content: center;
+  }
+}

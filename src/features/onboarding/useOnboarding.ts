@@ -16,7 +16,14 @@ export function onboardingQueryKey(userId?: number | string) {
   return ['onboarding', userId ?? 'anonymous'] as const
 }
 
-export function useOnboarding(enabled = true) {
+/**
+ * `alwaysRefetch` is for the guided page itself. Its whole promise is authoritative server
+ * evidence, and it is returned to immediately after the user changed that evidence in Settings —
+ * within the 30s staleTime, so React Query served the cached copy and the step they had just
+ * finished still read as outstanding. No Settings mutation invalidates this key, so remount is the
+ * only point where the page can re-read. Ambient consumers (the dashboard cue) keep the cache.
+ */
+export function useOnboarding(enabled = true, options: { alwaysRefetch?: boolean } = {}) {
   const { user } = useAuth()
   return useQuery({
     queryKey: onboardingQueryKey(user?.id),
@@ -24,6 +31,7 @@ export function useOnboarding(enabled = true) {
     enabled,
     retry: false,
     staleTime: 30_000,
+    refetchOnMount: options.alwaysRefetch ? 'always' : true,
   })
 }
 

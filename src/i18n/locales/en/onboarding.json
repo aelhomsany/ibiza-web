@@ -3,7 +3,13 @@
   "title": "Set up your workspace",
   "subtitle": "Continue from the next step supported by your saved workspace evidence.",
   "resumeStatus": "Progress is saved securely and resumes on any device.",
+  "refreshing": "Checking your latest saved progress…",
   "progressLabel": "Onboarding progress",
+  "returnNotice": {
+    "title": "You're in guided setup",
+    "body": "Make your change here, then head back to see your progress update.",
+    "action": "Back to Setup"
+  },
   "loading": "Loading onboarding progress",
   "status": {
     "complete": "Complete",
@@ -42,7 +48,7 @@
       "OPEN_WORKING_CALENDARS": "Review Working Calendars",
       "INVITE_PEOPLE": "Invite Your Team",
       "REVIEW_ENTITLEMENTS": "Review Leave Policies",
-      "WAIT_FOR_INVITATION_ACCEPTANCE": "Wait for a Teammate to Join",
+      "WAIT_FOR_INVITATION_ACCEPTANCE": "Waiting for a Teammate to Join",
       "SUBMIT_FIRST_REQUEST": "Submit the First Leave Request",
       "APPROVE_FIRST_REQUEST": "Approve the First Leave Request",
       "REVIEW_RECONCILIATION": "Review Calendar Reconciliation",
@@ -51,30 +57,35 @@
     }
   },
   "activation": {
-    "eyebrow": "Activation",
-    "title": "Commercial Activation",
-    "notActivated": "Not commercially activated",
-    "activated": "Commercially activated",
-    "workspaceCreated": "Your workspace was created earlier. Activation requires a completed real leave cycle.",
-    "reached": "Commercial Activation reached once with reconciled evidence.",
-    "honesty": "Workspace creation, onboarding completion, and Commercial Activation are separate milestones.",
+    "eyebrow": "First leave cycle",
+    "title": "Your first leave cycle",
+    "reassurance": "Your account is live and nothing is restricted. Complete these steps to get your first leave cycle running.",
+    "notActivated": "Your first leave cycle hasn't run yet",
+    "activated": "Your first leave cycle is complete",
+    "workspaceCreated": "Your workspace was created earlier. A completed real leave cycle is a separate milestone.",
+    "reached": "Your first leave cycle completed once, with reconciled evidence.",
+    "honesty": "Creating your workspace, finishing setup, and running your first leave cycle are separate milestones.",
     "remaining": {
-      "invitation": "Remaining milestone: one additional invited teammate must accept.",
-      "request": "Remaining milestone: submit a real leave request.",
-      "approval": "Remaining milestone: approve the first real leave request.",
-      "reconciliation": "Remaining milestone: reconcile the request, balance, and Team Calendar.",
-      "finalizing": "Activation evidence is reconciled and is being finalized."
+      "invitation": "Waiting for an invited teammate to accept.",
+      "request": "Waiting for the first real leave request to be submitted.",
+      "approval": "Waiting for the first leave request to be approved.",
+      "reconciliation": "Waiting for the request, balance, and Team Calendar to reconcile.",
+      "finalizing": "Waiting for the final check — everything else has reconciled."
     },
-    "reachedLabel": "Reached",
-    "pendingLabel": "Pending",
+    "reachedLabel": "Done",
+    "pendingLabel": "To do",
+    "waitingLabels": {
+      "workspaceCreated": "Waiting for setup to finish",
+      "commercialActivation": "Waiting for your team"
+    },
     "evidenceSummary": "Reconciled evidence: an additional teammate accepted their invitation, a real leave request was submitted and approved, and the request, balance, and Team Calendar agree.",
     "states": {
-      "registrationAccepted": "Registration accepted",
-      "emailVerified": "Email verified",
-      "paymentConfirmed": "Payment confirmed",
-      "workspaceCreated": "Workspace created",
-      "onboardingComplete": "Onboarding complete",
-      "commercialActivation": "Commercial Activation"
+      "registrationAccepted": "You created your account",
+      "emailVerified": "You verified your email",
+      "paymentConfirmed": "You confirmed payment",
+      "workspaceCreated": "Your workspace was created",
+      "onboardingComplete": "You finished workspace setup",
+      "commercialActivation": "Your team ran a real leave cycle"
     }
   },
   "conflict": {

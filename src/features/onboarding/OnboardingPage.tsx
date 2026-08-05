@@ -5,34 +5,42 @@ import { LoadingState } from '../../components/ui/LoadingState'
 import { CheckIcon, RefreshCwIcon } from '../../components/ui/icons'
 import { useOnboarding, useOnboardingPresentation } from './useOnboarding'
 import { OnboardingProgress } from './OnboardingProgress'
+import { safeHref, withSetupReturn } from './stageRoutes'
 import './onboarding.css'
 
 type OnboardingPageProps = {
   state?: OnboardingState
   onRetryConflict?: () => void
   onAdvancePresentation?: () => void
-}
-
-function safeHref(href: string | undefined): string {
-  if (!href || !href.startsWith('/') || href.startsWith('//')) return '/settings'
-  return href
+  isRefreshing?: boolean
 }
 
 /**
  * The provisioning-to-activation states AC3 requires the UI to keep distinct. Each is derived from
- * a separate server fact, so "workspace created" can never read as "commercially activated".
+ * a separate server fact, so "workspace created" can never read as a completed first leave cycle.
+ *
+ * The six milestones are unchanged — they still back the funnel analytics — but they are named for
+ * what the *user* did, not for the internal activation ladder. `dependsOnOthers` marks the two the
+ * admin cannot complete alone, so those read "Waiting for…" instead of sitting on their to-do list.
  */
 function activationStages(state: OnboardingState) {
   const activated = state.activationStatus === 'COMMERCIALLY_ACTIVATED'
   const paid = state.plan === 'STARTER' || state.plan === 'GROWTH'
   return [
-    { key: 'registrationAccepted', reached: true },
-    { key: 'emailVerified', reached: true },
-    ...(paid ? [{ key: 'paymentConfirmed', reached: true }] : []),
-    { key: 'workspaceCreated', reached: state.workspaceCreated !== false },
-    { key: 'onboardingComplete', reached: state.onboardingComplete === true },
-    { key: 'commercialActivation', reached: activated },
+    { key: 'registrationAccepted', reached: true, dependsOnOthers: false },
+    { key: 'emailVerified', reached: true, dependsOnOthers: false },
+    ...(paid ? [{ key: 'paymentConfirmed', reached: true, dependsOnOthers: false }] : []),
+    { key: 'workspaceCreated', reached: state.workspaceCreated !== false, dependsOnOthers: true },
+    { key: 'onboardingComplete', reached: state.onboardingComplete === true, dependsOnOthers: false },
+    { key: 'commercialActivation', reached: activated, dependsOnOthers: true },
   ]
+}
+
+function stageStatusKey(stage: { key: string; reached: boolean; dependsOnOthers: boolean }): string {
+  if (stage.reached) return 'onboarding:activation.reachedLabel'
+  return stage.dependsOnOthers
+    ? `onboarding:activation.waitingLabels.${stage.key}`
+    : 'onboarding:activation.pendingLabel'
 }
 
 function remainingMilestoneKey(state: OnboardingState): string {
@@ -47,13 +55,15 @@ function OnboardingView({
   state,
   onRetryConflict,
   onAdvancePresentation,
+  isRefreshing = false,
 }: Required<Pick<OnboardingPageProps, 'state'>> &
-  Pick<OnboardingPageProps, 'onRetryConflict' | 'onAdvancePresentation'>) {
+  Pick<OnboardingPageProps, 'onRetryConflict' | 'onAdvancePresentation' | 'isRefreshing'>) {
   const { t } = useTranslation(['onboarding', 'common'])
   const activated = state.activationStatus === 'COMMERCIALLY_ACTIVATED'
+  // The kill switch withdraws the guided surface, so its fallback must not advertise a return to it.
   const nextHref = state.presentationEnabled === false
     ? safeHref(state.fallbackRoute)
-    : safeHref(state.nextSafeAction?.href)
+    : withSetupReturn(safeHref(state.nextSafeAction?.href))
 
   return (
     <main className="page page-wide onboarding-page" data-testid="onboarding-page">
@@ -63,8 +73,18 @@ function OnboardingView({
           <h1 className="page-title">{t('onboarding:title')}</h1>
           <p className="page-sub">{t('onboarding:subtitle')}</p>
         </div>
-        <p className="onboarding-resume-status" data-testid="onboarding-resume-status" role="status">
-          {t('onboarding:resumeStatus')}
+        {/*
+          A background refetch swaps the evidence under the user. Announcing it here — in the live
+          region that already exists — is what makes the returning-from-Settings update legible
+          rather than a silent flicker between two different answers.
+        */}
+        <p
+          className="onboarding-resume-status"
+          data-testid="onboarding-resume-status"
+          role="status"
+          aria-busy={isRefreshing || undefined}
+        >
+          {isRefreshing ? t('onboarding:refreshing') : t('onboarding:resumeStatus')}
         </p>
       </header>
 
@@ -117,6 +137,13 @@ function OnboardingView({
           <section className="activation-card" aria-labelledby="activation-title">
             <p className="onboarding-card-eyebrow">{t('onboarding:activation.eyebrow')}</p>
             <h2 id="activation-title">{t('onboarding:activation.title')}</h2>
+            {/*
+              Says plainly that nothing is gated. The internal "Not commercially activated" framing
+              read as a billing problem on an account that is, in fact, fully live.
+            */}
+            <p className="activation-reassurance" data-testid="activation-reassurance">
+              {t('onboarding:activation.reassurance')}
+            </p>
             <div className="activation-status" data-testid="activation-status" role="status">
               <strong>
                 {activated
@@ -128,14 +155,12 @@ function OnboardingView({
               {activationStages(state).map((stage) => (
                 <li
                   key={stage.key}
-                  className={stage.reached ? 'activation-state is-reached' : 'activation-state'}
+                  className={`activation-state${stage.reached ? ' is-reached' : stage.dependsOnOthers ? ' is-waiting' : ''}`}
                   data-testid={`activation-state-${stage.key}`}
                 >
                   {stage.reached ? <CheckIcon size={16} aria-hidden="true" /> : null}
                   <span>{t(`onboarding:activation.states.${stage.key}`)}</span>
-                  <span className="activation-state-label">
-                    {t(stage.reached ? 'onboarding:activation.reachedLabel' : 'onboarding:activation.pendingLabel')}
-                  </span>
+                  <span className="activation-state-label">{t(stageStatusKey(stage))}</span>
                 </li>
               ))}
             </ol>
@@ -164,7 +189,7 @@ function OnboardingView({
 
 function ServerOnboardingPage() {
   const { t } = useTranslation(['onboarding', 'common'])
-  const query = useOnboarding()
+  const query = useOnboarding(true, { alwaysRefetch: true })
   const presentation = useOnboardingPresentation()
 
   if (query.isPending) {
@@ -211,6 +236,8 @@ function ServerOnboardingPage() {
   return (
     <OnboardingView
       state={state}
+      // isPending is already handled above by the skeleton; this is the remount/background re-read.
+      isRefreshing={query.isFetching}
       onRetryConflict={() => void query.refetch()}
       // Persisting the position is what makes the optimistic-lock version meaningful: without a
       // caller the 409 contract and its recovery UI were unreachable in the running app.
@@ -222,13 +249,19 @@ function ServerOnboardingPage() {
   )
 }
 
-export function OnboardingPage({ state, onRetryConflict, onAdvancePresentation }: OnboardingPageProps = {}) {
+export function OnboardingPage({
+  state,
+  onRetryConflict,
+  onAdvancePresentation,
+  isRefreshing,
+}: OnboardingPageProps = {}) {
   if (state) {
     return (
       <OnboardingView
         state={state}
         onRetryConflict={onRetryConflict}
         onAdvancePresentation={onAdvancePresentation}
+        isRefreshing={isRefreshing}
       />
     )
   }

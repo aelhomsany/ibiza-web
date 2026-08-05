@@ -13,6 +13,7 @@ import { SkipToMainLink } from './SkipToMainLink'
 import { useMobileNavDrawer } from './useMobileNavDrawer'
 import './org-shell.css'
 import { BillingNotice } from '../../features/billing/BillingNotice'
+import { SetupReturnNotice } from '../../features/onboarding/SetupReturnNotice'
 
 export function OrgShell() {
   const { t, i18n } = useTranslation(['layout', 'common'])
@@ -78,6 +79,7 @@ export function OrgShell() {
             actionsInert={navOpen}
           />
           <BillingNotice />
+          <SetupReturnNotice />
           <main
             id="main-content"
             className="org-shell__main"
