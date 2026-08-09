@@ -4035,6 +4035,7 @@ export type PublicHolidayResponse = RequiredSchema<"PublicHolidayResponse">;
 export type RecentApprovalDecisionResponse = RequiredSchema<"RecentApprovalDecisionResponse">;
 export type RecentRequestResponse = RequiredSchema<"RecentRequestResponse">;
 export type AuditEventResponse = RequiredSchema<"AuditEventResponse">;
+export type AcceptInvitationRequest = RequiredSchema<"AcceptInvitationRequest">;
 export type ResetPasswordRequest = RequiredSchema<"ResetPasswordRequest">;
 export type TeamMemberDetailResponse = Omit<RequiredSchema<"TeamMemberDetailResponse">, "entitlements"> & {
     entitlements: EntitlementResponse[];

@@ -50,6 +50,7 @@
     "recover": "Recover Registration"
   },
   "routes": {
+    "acceptInvitation": "Accept invitation",
     "approvals": "Approvals",
     "billing": "Plan & Billing",
     "calendar": "Team Calendar",

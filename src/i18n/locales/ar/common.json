@@ -50,6 +50,7 @@
     "recover": "استعادة التسجيل"
   },
   "routes": {
+    "acceptInvitation": "قبول الدعوة",
     "approvals": "الموافقات",
     "billing": "الخطة والفوترة",
     "calendar": "تقويم الفريق",

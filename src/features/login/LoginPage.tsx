@@ -130,6 +130,14 @@ export function LoginPage() {
               </div>
             )}
 
+          {location.state &&
+            typeof location.state === 'object' &&
+            (location.state as { invitationAccepted?: unknown }).invitationAccepted === true && (
+              <div className="auth-success" role="status">
+                {t('auth:login.invitationAcceptedSuccess')}
+              </div>
+            )}
+
           {error && (
             <div className="auth-error" role="alert">
               {error}

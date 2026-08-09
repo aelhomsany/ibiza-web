@@ -54,6 +54,31 @@ describe('LoginPage', () => {
     expect(screen.getByTestId('sign-in-submit')).toBeInTheDocument()
   })
 
+  it('announces successful invitation acceptance from route state', () => {
+    render(
+      <MemoryRouter
+        initialEntries={[
+          { pathname: '/login', state: { invitationAccepted: true } },
+        ]}
+      >
+        <AuthTestProvider
+          value={createMockAuthValue({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            login,
+          })}
+        >
+          <LoginPage />
+        </AuthTestProvider>
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Invitation accepted. Sign in with your new password.',
+    )
+  })
+
   it('redirects authenticated user to role-appropriate home', () => {
     render(
       <MemoryRouter>

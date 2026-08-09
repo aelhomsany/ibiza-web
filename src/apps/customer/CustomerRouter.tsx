@@ -40,6 +40,11 @@ const ResetPasswordPage = lazy(() =>
     default: module.ResetPasswordPage,
   })),
 )
+const AcceptInvitationPage = lazy(() =>
+  import('../../features/login/AcceptInvitationPage').then((module) => ({
+    default: module.AcceptInvitationPage,
+  })),
+)
 const TeamCalendarPage = lazy(() =>
   import('../../features/calendar/TeamCalendarPage').then((module) => ({
     default: module.TeamCalendarPage,
@@ -103,6 +108,10 @@ export function CustomerRoutes() {
         <Route
           path="/reset-password"
           element={titled('routes.resetPassword', <ResetPasswordPage />)}
+        />
+        <Route
+          path="/accept-invitation"
+          element={titled('routes.acceptInvitation', <AcceptInvitationPage />)}
         />
 
         <Route element={<ProtectedRoute />}>

@@ -186,6 +186,21 @@ describe('AppRoutes', () => {
     expect(document.title).toBe('Sign in — Ibiza')
   })
 
+  it('renders invitation acceptance publicly for a logged-out invitee and sets its title', async () => {
+    renderAppRoutes(
+      ['/accept-invitation?token=route-token'],
+      createMockAuthValue({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      }),
+    )
+
+    expect(await screen.findByTestId('accept-invitation-page')).toBeInTheDocument()
+    expect(screen.queryByTestId('login-page')).not.toBeInTheDocument()
+    expect(document.title).toBe('Accept invitation — Ibiza')
+  })
+
   it('uses the static product title before React boots', () => {
     const html = readFileSync(indexHtmlPath, 'utf-8')
     expect(html).toContain('<title>Ibiza — Team Leave Management</title>')

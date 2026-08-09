@@ -42,6 +42,11 @@ const ResetPasswordPage = lazy(() =>
     default: m.ResetPasswordPage,
   })),
 )
+const AcceptInvitationPage = lazy(() =>
+  import('../features/login/AcceptInvitationPage').then((m) => ({
+    default: m.AcceptInvitationPage,
+  })),
+)
 const TeamCalendarPage = lazy(() =>
   import('../features/calendar/TeamCalendarPage').then((m) => ({
     default: m.TeamCalendarPage,
@@ -90,6 +95,10 @@ export function AppRoutes() {
         <Route path="/login" element={withPageTitle('routes.signIn', <LoginPage />)} />
         <Route path="/forgot-password" element={withPageTitle('routes.forgotPassword', <ForgotPasswordPage />)} />
         <Route path="/reset-password" element={withPageTitle('routes.resetPassword', <ResetPasswordPage />)} />
+        <Route
+          path="/accept-invitation"
+          element={withPageTitle('routes.acceptInvitation', <AcceptInvitationPage />)}
+        />
 
         <Route element={<ProtectedRoute />}>
           {/* OrgShell unconditionally: ProfileRouteShell used to branch to AdminShell

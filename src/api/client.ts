@@ -1,4 +1,5 @@
 import type {
+  AcceptInvitationRequest,
   BalanceCardResponse,
   OutTodayResponse,
   RecentRequestResponse,
@@ -315,6 +316,16 @@ export async function postForgotPassword(payload: ForgotPasswordRequest): Promis
 
 export async function postResetPassword(payload: ResetPasswordRequest): Promise<void> {
   await request<void>('/api/v1/auth/reset-password', {
+    method: 'POST',
+    body: payload,
+    skipAuthRefresh: true,
+  })
+}
+
+export async function postAcceptInvitation(
+  payload: AcceptInvitationRequest,
+): Promise<TeamMemberDetailResponse> {
+  return request<TeamMemberDetailResponse>('/api/v1/auth/accept-invitation', {
     method: 'POST',
     body: payload,
     skipAuthRefresh: true,
@@ -718,6 +729,7 @@ export const apiClient = {
   getMe,
   postForgotPassword,
   postResetPassword,
+  postAcceptInvitation,
   getWorkforceGroups,
   createWorkforceGroup,
   putWorkforceGroupWeekendDays,
