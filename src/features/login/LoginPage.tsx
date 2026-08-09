@@ -5,6 +5,7 @@ import { ApiError, getOnboarding } from '../../api/client'
 import { getHomePath, getSafeRedirectPath } from '../../auth/authUtils'
 import { useAuth } from '../../auth/useAuth'
 import { BuildingIcon, UmbrellaIcon } from '../../components/ui/icons'
+import { hasSkippedOnboardingRedirect } from '../onboarding/redirectPreference'
 import { AuthProofPanel } from './AuthProofPanel'
 import './auth-form.css'
 
@@ -63,7 +64,13 @@ export function LoginPage() {
       // The exit condition is onboardingComplete, not Commercial Activation. Activation additionally
       // requires another user to accept an invitation and a full reconciled leave cycle, so gating
       // on it redirected single-admin Organizations to /onboarding on every sign-in forever.
-      if (!fromPath && signedInUser.role === 'HR_ADMIN') {
+      // A user who chose "Not now" on the guided page keeps their own destination. Without a
+      // persisted opt-out, an admin signing in to approve a request was diverted on every login.
+      if (
+        !fromPath
+        && signedInUser.role === 'HR_ADMIN'
+        && !hasSkippedOnboardingRedirect(signedInUser.id)
+      ) {
         try {
           const onboarding = await withTimeout(getOnboarding(), ONBOARDING_LOOKUP_TIMEOUT_MS)
           if (onboarding.presentationEnabled !== false && onboarding.onboardingComplete !== true) {

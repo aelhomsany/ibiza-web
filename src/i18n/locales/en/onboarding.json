@@ -5,10 +5,18 @@
   "resumeStatus": "Progress is saved securely and resumes on any device.",
   "refreshing": "Checking your latest saved progress…",
   "progressLabel": "Onboarding progress",
+  "progressCount": "Setup progress: {{completed}} of {{total}}",
+  "progressEmpty": "No setup steps are available yet.",
+  "groups": {
+    "yourSetup": "Your setup",
+    "waitingOn": "What we're waiting for",
+    "waitingOnNote": "These move when your team acts — nothing here is yours to complete."
+  },
   "returnNotice": {
     "title": "You're in guided setup",
     "body": "Make your change here, then head back to see your progress update.",
-    "action": "Back to Setup"
+    "action": "Back to Setup",
+    "dismiss": "Dismiss guided setup banner"
   },
   "loading": "Loading onboarding progress",
   "status": {
@@ -43,6 +51,8 @@
     "body": "This opens the existing workspace surface that owns the change. Return here afterward to refresh progress.",
     "continue": "Continue Setup",
     "openSettings": "Open Settings",
+    "notNow": "Not Now",
+    "notNowHint": "We'll stop opening setup when you sign in. Pick it back up any time from your dashboard.",
     "actions": {
       "OPEN_ORGANIZATION_SETTINGS": "Review Organization Settings",
       "OPEN_WORKING_CALENDARS": "Review Working Calendars",
@@ -75,8 +85,10 @@
     "reachedLabel": "Done",
     "pendingLabel": "To do",
     "waitingLabels": {
-      "workspaceCreated": "Waiting for setup to finish",
       "commercialActivation": "Waiting for your team"
+    },
+    "pendingStates": {
+      "paymentConfirmed": "Confirm your payment"
     },
     "evidenceSummary": "Reconciled evidence: an additional teammate accepted their invitation, a real leave request was submitted and approved, and the request, balance, and Team Calendar agree.",
     "states": {
@@ -98,7 +110,8 @@
     "title": "Onboarding progress is temporarily unavailable",
     "body": "You can retry or continue through the existing Settings path. Your server evidence is preserved.",
     "forbiddenTitle": "Guided onboarding is available to HR Admins",
-    "forbiddenBody": "Your role does not have access to this page. Continue in Settings or ask an HR Admin for help."
+    "forbiddenBody": "Your role does not have access to this page. Continue in Settings or ask an HR Admin for help.",
+    "legacyOrganization": "Guided setup isn't available for this workspace. Your setup lives in Settings."
   },
   "dashboardCue": {
     "eyebrow": "Guided onboarding",

@@ -47,10 +47,64 @@ html[lang='ar'] .onboarding-card-eyebrow {
   padding: var(--space-card-padding);
 }
 
+.onboarding-progress-card {
+  display: grid;
+  gap: var(--space-lg);
+  align-content: start;
+}
+
+.onboarding-progress-summary {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.onboarding-progress-count {
+  font-weight: var(--font-label-weight);
+}
+
+.onboarding-progress-bar {
+  block-size: var(--space-xs);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-subtle);
+  overflow: hidden;
+}
+
+.onboarding-progress-bar-fill {
+  display: block;
+  block-size: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-status-approved-fg);
+}
+
+.onboarding-progress-group {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+/* Separates work the admin owns from work that turns on other people. */
+.onboarding-progress-group-title {
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-label-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+}
+
+.onboarding-progress-group-note {
+  font-size: var(--font-caption-size);
+  color: var(--color-text-secondary);
+}
+
+.onboarding-progress-empty {
+  color: var(--color-text-secondary);
+}
+
 .onboarding-progress {
   display: grid;
   gap: var(--space-md);
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .onboarding-stage {
@@ -70,6 +124,9 @@ html[lang='ar'] .onboarding-card-eyebrow {
   color: inherit;
   text-decoration: none;
 }
+
+/* No :focus-visible rule here on purpose — global.css already rings every a[href], and the
+   box-shadow follows the border-radius above. Adding a local outline would double the ring. */
 
 .onboarding-stage:hover {
   background: var(--color-surface-subtle);
@@ -129,9 +186,15 @@ html[lang='ar'] .onboarding-card-eyebrow {
   font-size: var(--font-section-title-size);
 }
 
-.onboarding-next-action {
-  align-self: flex-start;
+.onboarding-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
   margin-block-start: auto;
+}
+
+.onboarding-next-action {
   text-decoration: none;
 }
 
@@ -264,7 +327,12 @@ html[lang='ar'] .onboarding-card-eyebrow {
     align-self: start;
   }
 
-  .onboarding-next-action,
+  .onboarding-action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .onboarding-action-row .btn,
   .onboarding-conflict .btn {
     inline-size: 100%;
   }

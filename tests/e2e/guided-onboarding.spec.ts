@@ -106,7 +106,11 @@ test.describe(
               'href',
               '/settings?category=working-calendars&from=onboarding',
             )
-            await expect(page.getByTestId('onboarding-stage-working-calendars')).toHaveAttribute('aria-current', 'step')
+            // aria-current sits on the link, not the row: the link is what a keyboard user focuses.
+            await expect(page.getByTestId('onboarding-stage-working-calendars-link')).toHaveAttribute(
+              'aria-current',
+              'step',
+            )
             await expectNoPageOverflow(page)
             if (locale === 'ar') {
               await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
@@ -174,6 +178,48 @@ test.describe(
         await expect(page.getByTestId('setup-return-notice')).toBeVisible()
         await expect(page.getByTestId('setup-return-action')).toHaveAttribute('href', '/onboarding')
         await expect(page.getByText(/enable analytics|analytics required/i)).toHaveCount(0)
+        await context.close()
+      },
+    )
+
+    test(
+      '[P1] Given the return notice mounts on every org route, When the destination is viewed at each breakpoint in either locale, Then no page-level horizontal overflow occurs',
+      async ({ browser }) => {
+        // AC5/L7 hold for the banner too: it is shell-mounted, so it changes the layout of Settings,
+        // My Leaves, Approvals, and Calendar rather than only the guided page.
+        for (const locale of ['en', 'ar'] as const) {
+          for (const width of [390, 768, 900, 901, 1280, 1440]) {
+            const context = await browser.newContext({ viewport: { width, height: 900 } })
+            await mockAuthenticatedOnboarding(context, () => response(), locale)
+            const page = await context.newPage()
+            await page.goto('/settings?category=working-calendars&from=onboarding')
+
+            await expect(page.getByTestId('setup-return-notice')).toBeVisible()
+            await expect(page.getByTestId('setup-return-dismiss')).toBeVisible()
+            await expectNoPageOverflow(page)
+            if (locale === 'ar') {
+              await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+            }
+            await context.close()
+          }
+        }
+      },
+    )
+
+    test(
+      '[P1] Given the marker rides in a bookmarkable URL, When the admin dismisses the return notice, Then it stays dismissed for the tab session',
+      async ({ browser }) => {
+        const context = await browser.newContext()
+        await mockAuthenticatedOnboarding(context, () => response())
+        const page = await context.newPage()
+        await page.goto('/settings?category=working-calendars&from=onboarding')
+
+        await page.getByTestId('setup-return-dismiss').click()
+        await expect(page.getByTestId('setup-return-notice')).toBeHidden()
+
+        // Same tab, marker still in the URL — a reload must not resurrect it.
+        await page.reload()
+        await expect(page.getByTestId('setup-return-notice')).toBeHidden()
         await context.close()
       },
     )

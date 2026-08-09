@@ -17,8 +17,27 @@ export const STAGE_HREFS: Record<OnboardingStageId, string> = {
   FIRST_LEAVE_CYCLE: '/my-leaves',
 }
 
+/**
+ * Stages the admin cannot finish on their own — they turn on a teammate accepting an invitation and
+ * on a real leave cycle reconciling. Listing them beside the four setup stages in identical styling
+ * read as one backlog, so work that was never theirs to do looked outstanding on their side.
+ */
+export const WAITING_STAGES = new Set<OnboardingStageId>(['FIRST_LEAVE_CYCLE'])
+
+export function isWaitingStage(stageId: OnboardingStageId): boolean {
+  return WAITING_STAGES.has(stageId)
+}
+
+/**
+ * Same-origin app paths only.
+ *
+ * The backslash case is not theoretical: `/\evil.com` starts with `/` and does not start with `//`,
+ * but browsers normalise `\` to `/` while parsing, so a plain `startsWith` pair renders an anchor
+ * that resolves off-origin the moment it is middle-clicked or opened in a new tab — the router only
+ * intercepts the ordinary left click.
+ */
 export function safeHref(href: string | undefined): string {
-  if (!href || !href.startsWith('/') || href.startsWith('//')) return '/settings'
+  if (!href || !/^\/[^/\\]/.test(href)) return href === '/' ? '/' : '/settings'
   return href
 }
 
@@ -29,20 +48,27 @@ export function safeHref(href: string | undefined): string {
  */
 export function withSetupReturn(href: string): string {
   if (href === '/') return href
-  const [path, query] = href.split('?')
-  const params = new URLSearchParams(query)
+  // Split the fragment off first. `'/settings#section'.split('?')` yields no query at all, so a
+  // naive append lands the marker *inside* the fragment (`/settings#section?from=onboarding`) —
+  // the URL still resolves, but `useSearchParams` never sees `from` and the return notice silently
+  // never renders.
+  const [base, ...fragment] = href.split('#')
+  const [path, ...query] = base.split('?')
+  const params = new URLSearchParams(query.join('?'))
   params.set('from', 'onboarding')
-  return `${path}?${params.toString()}`
+  const hash = fragment.length > 0 ? `#${fragment.join('#')}` : ''
+  return `${path}?${params.toString()}${hash}`
 }
 
 /**
- * The row's own destination. Prefers the server's next-safe-action href for the recommended stage
- * so the two never disagree, and falls back to the static table for every other row.
+ * The row's own destination — always the static table.
+ *
+ * The server's `nextSafeAction.href` is deliberately *not* consulted here. It points at the next
+ * sub-step rather than at the stage, so honouring it moved a row under the user between visits:
+ * "First leave cycle" linked to `/approvals` while it was the recommended stage and `/my-leaves`
+ * once it was not. A row now always means the same destination; the Continue button remains the
+ * place where the server's more precise next step is offered.
  */
-export function stageHref(
-  stageId: OnboardingStageId,
-  nextSafeAction?: { stage: OnboardingStageId; href: string },
-): string {
-  const href = nextSafeAction?.stage === stageId ? nextSafeAction.href : STAGE_HREFS[stageId]
-  return withSetupReturn(safeHref(href))
+export function stageHref(stageId: OnboardingStageId): string {
+  return withSetupReturn(safeHref(STAGE_HREFS[stageId]))
 }

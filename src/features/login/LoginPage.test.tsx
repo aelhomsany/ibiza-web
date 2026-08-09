@@ -5,12 +5,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '../../api/client'
 import i18n from '../../i18n/config'
 import { AuthTestProvider, createMockAuthValue } from '../../test/authTestUtils'
+import { skipOnboardingRedirect } from '../onboarding/redirectPreference'
 import { LoginPage } from './LoginPage'
 
 describe('LoginPage', () => {
   const login = vi.fn()
 
   beforeEach(() => {
+    window.localStorage.clear()
     login.mockReset()
     login.mockResolvedValue({
       id: 1,
@@ -214,6 +216,50 @@ describe('LoginPage', () => {
       '/api/v1/onboarding',
       expect.objectContaining({ method: 'GET' }),
     )
+  })
+
+  it('respects a persisted "Not now" instead of diverting the admin on every sign-in', async () => {
+    const user = userEvent.setup()
+    const hrAdmin = {
+      id: 7,
+      email: 'hr@company.com',
+      fullName: 'Harper Admin',
+      role: 'HR_ADMIN' as const,
+      organizationId: 1,
+      organizationName: 'Nile Harbor',
+      timezone: 'America/New_York',
+    }
+    login.mockResolvedValue(hrAdmin)
+    skipOnboardingRedirect(hrAdmin.id)
+    vi.stubGlobal('fetch', vi.fn())
+
+    render(
+      <MemoryRouter initialEntries={['/login']}>
+        <AuthTestProvider
+          value={createMockAuthValue({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            login,
+          })}
+        >
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<div data-testid="dashboard">Dashboard</div>} />
+            <Route path="/onboarding" element={<div data-testid="guided-onboarding">Guided onboarding</div>} />
+          </Routes>
+        </AuthTestProvider>
+      </MemoryRouter>,
+    )
+
+    await user.type(screen.getByTestId('sign-in-email'), 'hr@company.com')
+    await user.type(screen.getByTestId('sign-in-password'), 'Secret1!')
+    await user.click(screen.getByTestId('sign-in-submit'))
+
+    expect(await screen.findByTestId('dashboard')).toBeInTheDocument()
+    expect(screen.queryByTestId('guided-onboarding')).not.toBeInTheDocument()
+    // The opt-out short-circuits before the lookup — no reason to ask.
+    expect(fetch).not.toHaveBeenCalled()
   })
 
   it('preserves the existing HR home when onboarding is unavailable', async () => {

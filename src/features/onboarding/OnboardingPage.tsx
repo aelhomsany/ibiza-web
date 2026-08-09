@@ -1,10 +1,14 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { ApiError, type OnboardingState } from '../../api/client'
+import { useAuth } from '../../auth/useAuth'
 import { LoadingState } from '../../components/ui/LoadingState'
+import { useToast } from '../../components/ui/useToast'
 import { CheckIcon, RefreshCwIcon } from '../../components/ui/icons'
 import { useOnboarding, useOnboardingPresentation } from './useOnboarding'
 import { OnboardingProgress } from './OnboardingProgress'
+import { clearOnboardingRedirectSkip, skipOnboardingRedirect } from './redirectPreference'
 import { safeHref, withSetupReturn } from './stageRoutes'
 import './onboarding.css'
 
@@ -12,6 +16,7 @@ type OnboardingPageProps = {
   state?: OnboardingState
   onRetryConflict?: () => void
   onAdvancePresentation?: () => void
+  onSkip?: () => void
   isRefreshing?: boolean
 }
 
@@ -20,17 +25,23 @@ type OnboardingPageProps = {
  * a separate server fact, so "workspace created" can never read as a completed first leave cycle.
  *
  * The six milestones are unchanged — they still back the funnel analytics — but they are named for
- * what the *user* did, not for the internal activation ladder. `dependsOnOthers` marks the two the
- * admin cannot complete alone, so those read "Waiting for…" instead of sitting on their to-do list.
+ * what the *user* did, not for the internal activation ladder. `dependsOnOthers` marks the step the
+ * admin cannot complete alone, so it reads "Waiting for…" instead of sitting on their to-do list.
  */
 function activationStages(state: OnboardingState) {
   const activated = state.activationStatus === 'COMMERCIALLY_ACTIVATED'
   const paid = state.plan === 'STARTER' || state.plan === 'GROWTH'
+  // Paid plan is not the same fact as paid invoice. The server sends `billingInOnboarding` for
+  // exactly the recovery states (PENDING_PAYMENT, PAST_DUE_GRACE, RESTRICTED), so reading plan
+  // alone told an Organization that had not paid, in the first person, that it had.
+  const paymentSettled = state.billingInOnboarding !== true
   return [
     { key: 'registrationAccepted', reached: true, dependsOnOthers: false },
     { key: 'emailVerified', reached: true, dependsOnOthers: false },
-    ...(paid ? [{ key: 'paymentConfirmed', reached: true, dependsOnOthers: false }] : []),
-    { key: 'workspaceCreated', reached: state.workspaceCreated !== false, dependsOnOthers: true },
+    ...(paid ? [{ key: 'paymentConfirmed', reached: paymentSettled, dependsOnOthers: false }] : []),
+    // Provisioning precedes setup and is blocked on nobody, so it is not a "waiting on your team"
+    // step — labelling it that pointed the user forward at work the same list calls their own.
+    { key: 'workspaceCreated', reached: state.workspaceCreated !== false, dependsOnOthers: false },
     { key: 'onboardingComplete', reached: state.onboardingComplete === true, dependsOnOthers: false },
     { key: 'commercialActivation', reached: activated, dependsOnOthers: true },
   ]
@@ -41,6 +52,22 @@ function stageStatusKey(stage: { key: string; reached: boolean; dependsOnOthers:
   return stage.dependsOnOthers
     ? `onboarding:activation.waitingLabels.${stage.key}`
     : 'onboarding:activation.pendingLabel'
+}
+
+/**
+ * Milestones whose first-person name only makes sense once reached — "You confirmed payment" is a
+ * false statement while billing is still recovering, so an unreached row needs its own wording.
+ *
+ * Resolved in JS rather than through i18next `defaultValue`: this project's `parseMissingKeyHandler`
+ * returns the empty string for a missing key, which takes precedence over `defaultValue` and would
+ * silently blank the label.
+ */
+const PENDING_STATE_KEYS = new Set(['paymentConfirmed'])
+
+function stageNameKey(stage: { key: string; reached: boolean }): string {
+  return !stage.reached && PENDING_STATE_KEYS.has(stage.key)
+    ? `onboarding:activation.pendingStates.${stage.key}`
+    : `onboarding:activation.states.${stage.key}`
 }
 
 function remainingMilestoneKey(state: OnboardingState): string {
@@ -55,9 +82,10 @@ function OnboardingView({
   state,
   onRetryConflict,
   onAdvancePresentation,
+  onSkip,
   isRefreshing = false,
 }: Required<Pick<OnboardingPageProps, 'state'>> &
-  Pick<OnboardingPageProps, 'onRetryConflict' | 'onAdvancePresentation' | 'isRefreshing'>) {
+  Pick<OnboardingPageProps, 'onRetryConflict' | 'onAdvancePresentation' | 'onSkip' | 'isRefreshing'>) {
   const { t } = useTranslation(['onboarding', 'common'])
   const activated = state.activationStatus === 'COMMERCIALLY_ACTIVATED'
   // The kill switch withdraws the guided surface, so its fallback must not advertise a return to it.
@@ -77,12 +105,15 @@ function OnboardingView({
           A background refetch swaps the evidence under the user. Announcing it here — in the live
           region that already exists — is what makes the returning-from-Settings update legible
           rather than a silent flicker between two different answers.
+
+          No aria-busy on the region itself: it tells assistive tech to withhold live updates until
+          it clears, which suppressed the very "checking…" message it was added to announce and let
+          only the idle text through.
         */}
         <p
           className="onboarding-resume-status"
           data-testid="onboarding-resume-status"
           role="status"
-          aria-busy={isRefreshing || undefined}
         >
           {isRefreshing ? t('onboarding:refreshing') : t('onboarding:resumeStatus')}
         </p>
@@ -119,16 +150,35 @@ function OnboardingView({
             <p className="onboarding-card-eyebrow">{t('onboarding:next.eyebrow')}</p>
             <h2 id="onboarding-next-title">{t(`onboarding:next.actions.${state.nextSafeAction?.action ?? 'CONTINUE'}`)}</h2>
             <p>{t('onboarding:next.body')}</p>
-            <Link
-              className="btn btn-primary onboarding-next-action"
-              data-testid="onboarding-next-action"
-              to={nextHref}
-              onClick={onAdvancePresentation}
-            >
-              {state.presentationEnabled === false
-                ? t('onboarding:next.openSettings')
-                : t('onboarding:next.continue')}
-            </Link>
+            <div className="onboarding-action-row">
+              <Link
+                className="btn btn-primary onboarding-next-action"
+                data-testid="onboarding-next-action"
+                to={nextHref}
+                onClick={onAdvancePresentation}
+              >
+                {state.presentationEnabled === false
+                  ? t('onboarding:next.openSettings')
+                  : t('onboarding:next.continue')}
+              </Link>
+              {/*
+                Persisted opt-out. Sign-in used to divert every HR Admin here until setup completed,
+                so an admin who came to approve a request was overridden on every login.
+              */}
+              {onSkip ? (
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  data-testid="onboarding-skip-action"
+                  onClick={onSkip}
+                >
+                  {t('onboarding:next.notNow')}
+                </button>
+              ) : null}
+            </div>
+            {onSkip ? (
+              <p className="onboarding-consent-note">{t('onboarding:next.notNowHint')}</p>
+            ) : null}
             {state.analyticsConsent === 'NECESSARY_ONLY' ? (
               <p className="onboarding-consent-note">{t('onboarding:analyticsOptional')}</p>
             ) : null}
@@ -159,7 +209,12 @@ function OnboardingView({
                   data-testid={`activation-state-${stage.key}`}
                 >
                   {stage.reached ? <CheckIcon size={16} aria-hidden="true" /> : null}
-                  <span>{t(`onboarding:activation.states.${stage.key}`)}</span>
+                  {/*
+                    The first-person names assert the thing was done, so an unreached milestone
+                    needs its own wording — "You confirmed payment / To do" contradicts itself.
+                    Milestones with no pending variant keep the same name.
+                  */}
+                  <span>{t(stageNameKey(stage))}</span>
                   <span className="activation-state-label">{t(stageStatusKey(stage))}</span>
                 </li>
               ))}
@@ -187,10 +242,36 @@ function OnboardingView({
   )
 }
 
+/**
+ * An Organization that predates guided onboarding keeps the Settings flow — but redirecting it to
+ * the dashboard in silence was indistinguishable from a broken link. The toast host sits above the
+ * router, so the notice survives the navigation it explains.
+ */
+function LegacyOrganizationRedirect() {
+  const { t } = useTranslation('onboarding')
+  const { showToast } = useToast()
+
+  useEffect(() => {
+    showToast(t('error.legacyOrganization'), 'warning')
+  }, [showToast, t])
+
+  return <Navigate to="/" replace />
+}
+
 function ServerOnboardingPage() {
   const { t } = useTranslation(['onboarding', 'common'])
+  const navigate = useNavigate()
+  const { user } = useAuth()
   const query = useOnboarding(true, { alwaysRefetch: true })
   const presentation = useOnboardingPresentation()
+
+  // Once setup is finished the opt-out has nothing left to suppress, and keeping it would let a
+  // decision about a completed workflow silently govern a later one.
+  const settled = query.data?.onboardingComplete === true
+  const userId = user?.id
+  useEffect(() => {
+    if (settled) clearOnboardingRedirectSkip(userId)
+  }, [settled, userId])
 
   if (query.isPending) {
     return (
@@ -204,7 +285,7 @@ function ServerOnboardingPage() {
     // 404 means this Organization predates guided onboarding: it keeps the Settings flow rather
     // than being shown an error it can never clear.
     if (status === 404) {
-      return <Navigate to="/" replace />
+      return <LegacyOrganizationRedirect />
     }
     // A 403 is permanent for this session. Offering Retry on it hands the user a button that can
     // only ever fail again.
@@ -238,6 +319,10 @@ function ServerOnboardingPage() {
       state={state}
       // isPending is already handled above by the skeleton; this is the remount/background re-read.
       isRefreshing={query.isFetching}
+      onSkip={() => {
+        skipOnboardingRedirect(user?.id)
+        navigate('/', { replace: true })
+      }}
       onRetryConflict={() => void query.refetch()}
       // Persisting the position is what makes the optimistic-lock version meaningful: without a
       // caller the 409 contract and its recovery UI were unreachable in the running app.
@@ -253,6 +338,7 @@ export function OnboardingPage({
   state,
   onRetryConflict,
   onAdvancePresentation,
+  onSkip,
   isRefreshing,
 }: OnboardingPageProps = {}) {
   if (state) {
@@ -261,6 +347,7 @@ export function OnboardingPage({
         state={state}
         onRetryConflict={onRetryConflict}
         onAdvancePresentation={onAdvancePresentation}
+        onSkip={onSkip}
         isRefreshing={isRefreshing}
       />
     )

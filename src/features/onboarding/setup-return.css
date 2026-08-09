@@ -21,6 +21,12 @@
   color: var(--color-text-secondary);
 }
 
+.setup-return-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 .setup-return-action {
   display: inline-flex;
   align-items: center;
@@ -29,14 +35,28 @@
   white-space: nowrap;
 }
 
+/* Icon-only, so it needs the touch target the label would otherwise have given it. */
+.setup-return-dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: var(--min-touch-target);
+  min-block-size: var(--min-touch-target);
+  padding: 0;
+}
+
 @media (max-width: 900px) {
   .setup-return-notice {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .setup-return-action {
+  .setup-return-actions {
     inline-size: 100%;
+  }
+
+  .setup-return-action {
+    flex: 1;
     justify-content: center;
   }
 }

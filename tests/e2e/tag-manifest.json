@@ -490,7 +490,9 @@
       ],
       "tests": [
         "[P0] Given the real domain flow reconciles server-side, When onboarding refreshes, Then UI distinguishes unique Commercial Activation from workspace creation",
-        "[P0] Given Necessary Only analytics preference, When onboarding continues by keyboard, Then zero task failures occur"
+        "[P0] Given Necessary Only analytics preference, When onboarding continues by keyboard, Then zero task failures occur",
+        "[P1] Given the return notice mounts on every org route, When the destination is viewed at each breakpoint in either locale, Then no page-level horizontal overflow occurs",
+        "[P1] Given the marker rides in a bookmarkable URL, When the admin dismisses the return notice, Then it stays dismissed for the tab session"
       ]
     }
   },
