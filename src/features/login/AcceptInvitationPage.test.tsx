@@ -90,6 +90,27 @@ describe('AcceptInvitationPage', () => {
     expect(screen.getByTestId('accept-invitation-submit')).toBeDisabled()
   })
 
+  it('uses one shared auth layout landmark with the form card before the proof panel', () => {
+    renderPage()
+
+    const mainLandmarks = screen.getAllByRole('main')
+    expect(mainLandmarks).toHaveLength(1)
+    expect(mainLandmarks[0]).toHaveClass('auth-layout')
+
+    const heading = screen.getByRole('heading', { name: 'Accept your invitation' })
+    const card = heading.closest('section')
+    const form = screen.getByTestId('accept-invitation-submit').closest('form')
+    const proof = screen.getByTestId('auth-proof-panel')
+
+    expect(card).toHaveClass('auth-card')
+    expect(mainLandmarks[0]).toContainElement(card)
+    expect(mainLandmarks[0]).toContainElement(proof)
+    expect(card?.parentElement).toBe(mainLandmarks[0])
+    expect(proof.parentElement).toBe(mainLandmarks[0])
+    expect(form).not.toBeNull()
+    expect(form!.compareDocumentPosition(proof) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
   it('removes the token from the visible URL after retaining it in component memory', async () => {
     renderPage('/accept-invitation?token=memory-only-token&source=email')
 
@@ -265,6 +286,7 @@ describe('AcceptInvitationPage', () => {
     renderPage('/accept-invitation')
 
     expect(screen.getByRole('heading', { name: 'قبول دعوتك' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'اعرف بدقة تكلفة كل يوم' })).toBeInTheDocument()
     expect(screen.getByRole('alert')).toHaveTextContent('لا يمكن استخدام رابط الدعوة هذا')
     expect(document.documentElement).toHaveAttribute('dir', 'rtl')
   })

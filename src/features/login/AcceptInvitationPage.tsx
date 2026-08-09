@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ApiError, postAcceptInvitation } from '../../api/client'
 import { UmbrellaIcon } from '../../components/ui/icons'
+import { AuthProofPanel } from './AuthProofPanel'
 import { PasswordInput } from './PasswordInput'
 import { PasswordRequirements } from './PasswordRequirements'
 import { isPasswordStrong } from './passwordRules'
@@ -108,83 +109,87 @@ export function AcceptInvitationPage() {
 
   return (
     <div className="auth-page" data-testid="accept-invitation-page">
-      <main className="auth-card" aria-labelledby="accept-invitation-title">
-        <div className="auth-logo">
-          <div className="auth-logo-icon" aria-hidden="true">
-            <UmbrellaIcon size={34} />
+      <main className="auth-layout">
+        <section className="auth-card" aria-labelledby="accept-invitation-title">
+          <div className="auth-logo">
+            <div className="auth-logo-icon" aria-hidden="true">
+              <UmbrellaIcon size={34} />
+            </div>
+            <div className="auth-logo-title">{t('common:brand.name')}</div>
+            <div className="auth-logo-sub">{t('common:brand.tagline')}</div>
           </div>
-          <div className="auth-logo-title">{t('common:brand.name')}</div>
-          <div className="auth-logo-sub">{t('common:brand.tagline')}</div>
-        </div>
 
-        <h1 id="accept-invitation-title" className="auth-form-title">
-          {t('auth:invitation.title')}
-        </h1>
-        <p className="auth-form-intro">{t('auth:invitation.intro')}</p>
+          <h1 id="accept-invitation-title" className="auth-form-title">
+            {t('auth:invitation.title')}
+          </h1>
+          <p className="auth-form-intro">{t('auth:invitation.intro')}</p>
 
-        {effectiveToken.trim().length === 0 && (
-          <div className="auth-error" role="alert">
-            {t('auth:errors.invitationUnusable')}
-          </div>
-        )}
-
-        {error && (
-          <div className="auth-error" role="alert">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <PasswordInput
-            id="accept-invitation-password"
-            label={t('auth:fields.newPassword')}
-            testId="accept-invitation-password"
-            autoComplete="new-password"
-            required
-            minLength={8}
-            maxLength={128}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            disabled={invitationUnusable}
-            aria-describedby={requirementsId}
-          />
-
-          <PasswordRequirements id={requirementsId} password={password} />
-
-          <PasswordInput
-            id="accept-invitation-password-confirm"
-            label={t('auth:fields.confirmPassword')}
-            testId="accept-invitation-password-confirm"
-            autoComplete="new-password"
-            required
-            minLength={8}
-            maxLength={128}
-            value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
-            disabled={invitationUnusable}
-            aria-invalid={passwordsMismatch}
-            aria-describedby={passwordsMismatch ? mismatchId : undefined}
-          />
-          {passwordsMismatch && (
-            <p id={mismatchId} className="auth-field-hint" role="status">
-              {t('auth:errors.passwordMismatch')}
-            </p>
+          {effectiveToken.trim().length === 0 && (
+            <div className="auth-error" role="alert">
+              {t('auth:errors.invitationUnusable')}
+            </div>
           )}
 
-          <button
-            type="submit"
-            className="btn btn-primary btn-block"
-            data-testid="accept-invitation-submit"
-            disabled={!canSubmit}
-            aria-describedby={submitDescribedBy}
-          >
-            {submitting ? t('auth:actions.acceptingInvitation') : t('auth:actions.acceptInvitation')}
-          </button>
-        </form>
+          {error && (
+            <div className="auth-error" role="alert">
+              {error}
+            </div>
+          )}
 
-        <Link className="auth-link" to="/login">
-          {t('auth:actions.backToSignIn')}
-        </Link>
+          <form onSubmit={handleSubmit}>
+            <PasswordInput
+              id="accept-invitation-password"
+              label={t('auth:fields.newPassword')}
+              testId="accept-invitation-password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              maxLength={128}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              disabled={invitationUnusable}
+              aria-describedby={requirementsId}
+            />
+
+            <PasswordRequirements id={requirementsId} password={password} />
+
+            <PasswordInput
+              id="accept-invitation-password-confirm"
+              label={t('auth:fields.confirmPassword')}
+              testId="accept-invitation-password-confirm"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              maxLength={128}
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              disabled={invitationUnusable}
+              aria-invalid={passwordsMismatch}
+              aria-describedby={passwordsMismatch ? mismatchId : undefined}
+            />
+            {passwordsMismatch && (
+              <p id={mismatchId} className="auth-field-hint" role="status">
+                {t('auth:errors.passwordMismatch')}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-block"
+              data-testid="accept-invitation-submit"
+              disabled={!canSubmit}
+              aria-describedby={submitDescribedBy}
+            >
+              {submitting ? t('auth:actions.acceptingInvitation') : t('auth:actions.acceptInvitation')}
+            </button>
+          </form>
+
+          <Link className="auth-link" to="/login">
+            {t('auth:actions.backToSignIn')}
+          </Link>
+        </section>
+
+        <AuthProofPanel />
       </main>
     </div>
   )
