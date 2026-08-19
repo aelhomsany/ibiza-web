@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import { ApiError } from '../../api/client'
@@ -7,6 +7,7 @@ import * as apiClient from '../../api/client'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
 import { mockBackdropGeometry } from '../../test/backdropTestUtils'
 import { redirectToExternalUrl } from '../../navigation/redirect'
+import i18n from '../../i18n/config'
 import { TeamMemberModal } from './TeamMemberModal'
 import type {
   LeaveTypeResponse,
@@ -32,6 +33,7 @@ const mockLeaveTypes: LeaveTypeResponse[] = [
 
 const mockMembers: TeamMemberSummaryResponse[] = [
   { id: 3, fullName: 'Alex Johnson', email: 'alex@company.com', department: 'Engineering', role: 'MANAGER', workforceGroupId: 1, workforceGroupName: 'US', managerId: undefined, managerName: undefined },
+  { id: 5, fullName: 'Jordan Lee', email: 'jordan@company.com', department: 'People', role: 'HR_ADMIN', workforceGroupId: 1, workforceGroupName: 'US', managerId: undefined, managerName: undefined },
 ]
 
 function renderModal(
@@ -66,8 +68,11 @@ describe('TeamMemberModal — add mode', () => {
     vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(mockMembers)
   })
 
-  afterEach(() => {
+  afterEach(async () => {
     vi.restoreAllMocks()
+    if (i18n.language !== 'en') {
+      await act(() => i18n.changeLanguage('en'))
+    }
   })
 
   it('renders Add Team Member title', () => {
@@ -136,9 +141,47 @@ describe('TeamMemberModal — add mode', () => {
           department: 'IT',
           role: 'EMPLOYEE',
           workforceGroupId: 1,
+          approvalApproverIds: [5],
         }),
       )
       expect(onSuccess).toHaveBeenCalled()
+    })
+  })
+
+  it('[P0] blocks approval-level gaps and localizes reviewer roles', async () => {
+    const user = userEvent.setup()
+    const createSpy = vi.spyOn(apiClient, 'createTeamMember')
+    renderModal()
+
+    await waitFor(() => {
+      const optionLabels = screen.getAllByRole('option').map((option) => option.textContent)
+      expect(optionLabels).toContain('Alex Johnson — Manager')
+      expect(optionLabels).toContain('Jordan Lee — HR Admin')
+    })
+
+    await user.type(screen.getByLabelText(/Full name/i), 'Gap Test')
+    await user.type(screen.getByLabelText(/Email/i), 'gap@example.com')
+    await user.type(screen.getByLabelText(/Department/i), 'Product')
+    await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
+    await user.selectOptions(screen.getByLabelText(/Approval Level 1/), '3')
+    await user.selectOptions(screen.getByLabelText(/Approval Level 3/), '5')
+    await user.click(screen.getByRole('button', { name: /Save/i }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /use additional levels in order without gaps/i,
+    )
+    expect(createSpy).not.toHaveBeenCalled()
+  })
+
+  it('[P1] localizes approval reviewer roles in Arabic', async () => {
+    await act(() => i18n.changeLanguage('ar'))
+
+    renderModal()
+
+    await waitFor(() => {
+      const optionLabels = screen.getAllByRole('option').map((option) => option.textContent)
+      expect(optionLabels).toContain('Alex Johnson — مدير')
+      expect(optionLabels).toContain('Jordan Lee — مسؤول الموارد البشرية')
     })
   })
 
@@ -425,6 +468,7 @@ describe('TeamMemberModal — edit mode', () => {
           department: 'Product',
           role: 'EMPLOYEE',
           workforceGroupId: 1,
+          approvalApproverIds: undefined,
         }),
       )
       expect(onSuccess).toHaveBeenCalledWith('Team member updated.')

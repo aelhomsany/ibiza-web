@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ApiError,
@@ -99,6 +99,9 @@ export function TeamMemberModal({
   const [role, setRole] = useState<UserRole>('EMPLOYEE')
   const [workforceGroupId, setWorkforceGroupId] = useState<number | ''>('')
   const [managerId, setManagerId] = useState<number | ''>('')
+  const [approvalApproverIds, setApprovalApproverIds] = useState<Array<number | ''>>(['', '', ''])
+  const [approvalChainTouched, setApprovalChainTouched] = useState(false)
+  const [approvalChainError, setApprovalChainError] = useState(false)
   const [entitlements, setEntitlements] = useState<Record<number, number>>({})
   const [groupError, setGroupError] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
@@ -110,7 +113,7 @@ export function TeamMemberModal({
   const upgradePromptRef = useRef<HTMLDivElement>(null)
 
   const groups = groupsQuery.data ?? []
-  const allMembers = membersQuery.data ?? []
+  const allMembers = useMemo(() => membersQuery.data ?? [], [membersQuery.data])
   const cappedLeaveTypes: LeaveTypeOption[] = (leaveTypesQuery.data ?? [])
     .filter((lt) => lt.defaultBalanceDays != null)
     .map((lt) => ({ id: lt.id!, name: lt.name!, defaultBalanceDays: lt.defaultBalanceDays! }))
@@ -127,6 +130,8 @@ export function TeamMemberModal({
       setRole((m.role as UserRole) ?? 'EMPLOYEE')
       setWorkforceGroupId(m.workforceGroupId ?? '')
       setManagerId(m.managerId ?? '')
+      const chain = (m.approvalChain ?? []).map((step) => step.userId ?? '')
+      setApprovalApproverIds([chain[0] ?? m.managerId ?? '', chain[1] ?? '', chain[2] ?? ''])
       const entMap: Record<number, number> = {}
       for (const e of m.entitlements ?? []) {
         if (e.leaveTypeId) entMap[e.leaveTypeId] = e.allocatedDays ?? 0
@@ -160,6 +165,17 @@ export function TeamMemberModal({
       setManagerId('')
     }
   }, [role])
+
+  useEffect(() => {
+    if (isEdit || approvalChainTouched) return
+
+    const defaultApproverId = managerId !== ''
+      ? managerId
+      : allMembers.find((member) => member.role === 'HR_ADMIN' && member.status !== 'DEACTIVATED')?.id
+    if (defaultApproverId != null) {
+      setApprovalApproverIds((current) => [defaultApproverId, current[1], current[2]])
+    }
+  }, [allMembers, approvalChainTouched, isEdit, managerId])
 
   const upgradePromptVisible = upgradePrompt !== null
   useEffect(() => {
@@ -258,6 +274,18 @@ export function TeamMemberModal({
       setGroupError(true)
       return
     }
+    const firstBlankIndex = approvalApproverIds.findIndex((id) => id === '')
+    const hasGap = firstBlankIndex >= 0
+      && approvalApproverIds.slice(firstBlankIndex + 1).some((id) => id !== '')
+    if ((!isEdit || approvalChainTouched)
+      && (approvalApproverIds[0] === '' || hasGap)) {
+      setApprovalChainError(true)
+      return
+    }
+    const selectedApprovers = approvalApproverIds.filter(
+      (id): id is number => id !== '',
+    )
+    setApprovalChainError(false)
     setGroupError(false)
 
     const entitlementInputs: EntitlementInput[] = cappedLeaveTypes.map((lt) => ({
@@ -279,6 +307,7 @@ export function TeamMemberModal({
         role,
         workforceGroupId: workforceGroupId as number,
         managerId: resolvedManagerId ?? undefined,
+        approvalApproverIds: approvalChainTouched ? selectedApprovers : undefined,
         entitlements: entitlementInputs,
       }
       updateMutation.mutate({ id: editMemberId, payload })
@@ -291,6 +320,7 @@ export function TeamMemberModal({
         workforceGroupId: workforceGroupId as number,
         managerId:
           role === 'EMPLOYEE' && resolvedManagerId != null ? resolvedManagerId : undefined,
+        approvalApproverIds: selectedApprovers,
         entitlements: entitlementInputs,
       }
       createMutation.mutate(payload)
@@ -335,6 +365,9 @@ export function TeamMemberModal({
   const departmentError = fieldErrorProps('department')
   const roleError = fieldErrorProps('role')
   const groupFieldError = fieldErrorProps('workforceGroupId')
+  const approverOptions = allMembers.filter(
+    (member) => member.status !== 'DEACTIVATED' && member.id !== editMemberId,
+  )
 
   return (
     <Modal
@@ -482,6 +515,60 @@ export function TeamMemberModal({
               </select>
             </div>
           )}
+
+          <fieldset className="approval-chain-fields" data-testid="approval-chain-fields">
+            <legend>{t('settings:memberModal.approvals.title')}</legend>
+            <p className="form-help">{t('settings:memberModal.approvals.help')}</p>
+            {approvalApproverIds.map((selectedId, index) => (
+              <div className="form-group" key={index}>
+                <label htmlFor={`tm-approver-${index + 1}`}>
+                  {t('settings:memberModal.approvals.level', { level: index + 1 })}
+                  {index === 0 ? <span className="field-required"> *</span> : null}
+                </label>
+                <select
+                  id={`tm-approver-${index + 1}`}
+                  value={selectedId}
+                  required={index === 0}
+                  aria-invalid={approvalChainError || undefined}
+                  aria-describedby={approvalChainError ? 'approval-chain-error' : undefined}
+                  onChange={(event) => {
+                    const value = event.target.value === '' ? '' : Number(event.target.value)
+                    setApprovalApproverIds((current) => current.map((id, position) =>
+                      position === index ? value : id,
+                    ))
+                    setApprovalChainTouched(true)
+                    setApprovalChainError(false)
+                  }}
+                >
+                  <option value="">
+                    {index === 0
+                      ? t('settings:memberModal.approvals.selectRequired')
+                      : t('settings:memberModal.approvals.notUsed')}
+                  </option>
+                  {approverOptions.map((member) => (
+                    <option
+                      key={member.id}
+                      value={member.id}
+                      disabled={approvalApproverIds.some((id, position) =>
+                        position !== index && id === member.id,
+                      )}
+                    >
+                      {member.fullName} — {t(`settings:memberModal.roles.${
+                        member.role === 'HR_ADMIN'
+                          ? 'hrAdmin'
+                          : member.role === 'MANAGER' ? 'manager' : 'employee'
+                      }`)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
+            {approvalChainError ? (
+              <p id="approval-chain-error" className="field-error" role="alert">
+                {t('settings:memberModal.approvals.invalid')}
+              </p>
+            ) : null}
+          </fieldset>
 
           {cappedLeaveTypes.length > 0 && (
             <div className="form-group">

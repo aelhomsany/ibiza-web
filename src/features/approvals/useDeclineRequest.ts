@@ -8,12 +8,13 @@ export function useDeclineRequest() {
   const orgId = user?.organizationId
 
   return useMutation({
-    mutationFn: (args: { requestId: number; employeeUserId: number; reason: string }) =>
-      declineLeaveRequest(args.requestId, args.reason),
+    mutationFn: (args: { requestId: number; employeeUserId: number; reason: string; approvalLevel: number }) =>
+      declineLeaveRequest(args.requestId, args.reason, args.approvalLevel),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['approvals', 'pending'] })
       void queryClient.invalidateQueries({ queryKey: ['approvals', 'pending-count'] })
       void queryClient.invalidateQueries({ queryKey: ['approvals', 'recent-decisions'] })
+      void queryClient.invalidateQueries({ queryKey: ['approvals', 'capability'] })
       void queryClient.invalidateQueries({
         queryKey: ['dashboard', 'balances', variables.employeeUserId],
       })

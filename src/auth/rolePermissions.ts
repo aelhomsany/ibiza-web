@@ -68,12 +68,17 @@ export function getForbiddenRedirect(role: UserRole): string {
   return getHomePath(role)
 }
 
-export function getOrgNavItems(role: UserRole): NavItem[] {
+export function getOrgNavItems(
+  role: UserRole,
+  canReviewApprovals = role === 'MANAGER' || role === 'HR_ADMIN',
+): NavItem[] {
   if (role === 'PLATFORM_ADMIN') {
     return []
   }
 
-  return ORG_NAV_ITEMS.filter((item) => item.requiredRoles.includes(role)).map((item) => ({
+  return ORG_NAV_ITEMS.filter((item) =>
+    item.path === '/approvals' ? canReviewApprovals : item.requiredRoles.includes(role),
+  ).map((item) => ({
     label: item.label,
     path: item.path,
     icon: item.icon,
@@ -81,13 +86,17 @@ export function getOrgNavItems(role: UserRole): NavItem[] {
   }))
 }
 
-export function canAccessOrgRoute(role: UserRole, pathname: string): boolean {
+export function canAccessOrgRoute(
+  role: UserRole,
+  pathname: string,
+  canReviewApprovals = role === 'MANAGER' || role === 'HR_ADMIN',
+): boolean {
   if (role === 'PLATFORM_ADMIN') {
     return false
   }
 
   if (pathname === '/approvals' || pathname.startsWith('/approvals/')) {
-    return role === 'MANAGER' || role === 'HR_ADMIN'
+    return canReviewApprovals
   }
 
   if (pathname === '/settings' || pathname.startsWith('/settings/')) {

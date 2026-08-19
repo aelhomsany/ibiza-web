@@ -48,6 +48,8 @@ import type {
   OrganizationSummaryResponse,
   UpdateSubscriptionRequest,
   UpdateUserPreferencesRequest,
+  RecordApprovalConcernRequest,
+  ApprovalCapabilityResponse,
 } from './generated/types'
 import { clearAccessToken, getAccessToken, setAccessToken } from '../auth/tokenStorage'
 import { parseFieldViolations, type FieldViolationMap } from './fieldViolations'
@@ -457,6 +459,12 @@ export async function getPendingApprovalCount(): Promise<PendingApprovalCountRes
   })
 }
 
+export async function getApprovalCapability(): Promise<ApprovalCapabilityResponse> {
+  return request<ApprovalCapabilityResponse>('/api/v1/approvals/capability', {
+    method: 'GET',
+  })
+}
+
 export async function getNotifications(): Promise<NotificationResponse[]> {
   return request<NotificationResponse[]>('/api/v1/notifications', {
     method: 'GET',
@@ -487,8 +495,17 @@ export async function getRecentApprovalDecisions(): Promise<RecentApprovalDecisi
   })
 }
 
-export async function approveLeaveRequest(id: number): Promise<LeaveRequestResponse> {
-  return request<LeaveRequestResponse>(`/api/v1/leave-requests/${id}/approve`, {
+function approvalLevelQuery(approvalLevel?: number): string {
+  if (approvalLevel == null) return ''
+  return `?${new URLSearchParams({ approvalLevel: String(approvalLevel) }).toString()}`
+}
+
+export async function approveLeaveRequest(
+  id: number,
+  approvalLevel?: number,
+): Promise<LeaveRequestResponse> {
+  const query = approvalLevelQuery(approvalLevel)
+  return request<LeaveRequestResponse>(`/api/v1/leave-requests/${id}/approve${query}`, {
     method: 'POST',
   })
 }
@@ -496,9 +513,24 @@ export async function approveLeaveRequest(id: number): Promise<LeaveRequestRespo
 export async function declineLeaveRequest(
   id: number,
   reason: string,
+  approvalLevel?: number,
 ): Promise<LeaveRequestResponse> {
   const payload: DeclineLeaveRequestRequest = { reason }
-  return request<LeaveRequestResponse>(`/api/v1/leave-requests/${id}/decline`, {
+  const query = approvalLevelQuery(approvalLevel)
+  return request<LeaveRequestResponse>(`/api/v1/leave-requests/${id}/decline${query}`, {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function recordApprovalConcern(
+  id: number,
+  note: string,
+  approvalLevel?: number,
+): Promise<LeaveRequestResponse> {
+  const payload: RecordApprovalConcernRequest = { note }
+  const query = approvalLevelQuery(approvalLevel)
+  return request<LeaveRequestResponse>(`/api/v1/leave-requests/${id}/concern${query}`, {
     method: 'POST',
     body: payload,
   })

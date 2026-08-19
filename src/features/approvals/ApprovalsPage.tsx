@@ -11,15 +11,18 @@ import { useDashboardUpcoming } from '../dashboard/useDashboardUpcoming'
 import { formatDateRange } from '../dashboard/leaveRequestFormatting'
 import { ApprovalCard } from './ApprovalCard'
 import { DeclineModal } from './DeclineModal'
+import { ConcernModal } from './ConcernModal'
 import { RecentDecisionRow } from './RecentDecisionRow'
 import { useApproveRequest } from './useApproveRequest'
 import { useDeclineRequest } from './useDeclineRequest'
 import { usePendingApprovals } from './usePendingApprovals'
 import { useRecentApprovalDecisions } from './useRecentApprovalDecisions'
+import { useRecordApprovalConcern } from './useRecordApprovalConcern'
 import './approvals.css'
 
 type DeclineTarget = {
   requestId: number
+  approvalLevel: number
   employeeUserId: number
   employeeName: string
   dateRange: string
@@ -28,6 +31,14 @@ type DeclineTarget = {
 type DecisionFeedback = {
   tone: 'status' | 'alert'
   message: string
+}
+
+type ConcernTarget = { requestId: number; approvalLevel: number; employeeName: string }
+
+type ApprovalKey = `${number}:${number}`
+
+function approvalKey(requestId: number, approvalLevel: number): ApprovalKey {
+  return `${requestId}:${approvalLevel}`
 }
 
 export function ApprovalsPage() {
@@ -41,21 +52,25 @@ export function ApprovalsPage() {
   } = useRecentApprovalDecisions()
   const approveMutation = useApproveRequest()
   const declineMutation = useDeclineRequest()
+  const concernMutation = useRecordApprovalConcern()
   const outTodayQuery = useDashboardOutToday()
   const upcomingQuery = useDashboardUpcoming()
   const [declineTarget, setDeclineTarget] = useState<DeclineTarget | null>(null)
   const [declineReason, setDeclineReason] = useState('')
   const [declineSubmitError, setDeclineSubmitError] = useState<string | null>(null)
-  const [removedRequestIds, setRemovedRequestIds] = useState<Set<number>>(
+  const [concernTarget, setConcernTarget] = useState<ConcernTarget | null>(null)
+  const [concernNote, setConcernNote] = useState('')
+  const [concernError, setConcernError] = useState<string | null>(null)
+  const [removedApprovalKeys, setRemovedApprovalKeys] = useState<Set<ApprovalKey>>(
     () => new Set(),
   )
-  const [staleRequestIds, setStaleRequestIds] = useState<Set<number>>(
+  const [staleApprovalKeys, setStaleApprovalKeys] = useState<Set<ApprovalKey>>(
     () => new Set(),
   )
   const [decisionFeedback, setDecisionFeedback] =
     useState<DecisionFeedback | null>(null)
-  const [focusTarget, setFocusTarget] = useState<number | 'empty' | null>(null)
-  const headingRefs = useRef(new Map<number, HTMLHeadingElement>())
+  const [focusTarget, setFocusTarget] = useState<ApprovalKey | 'empty' | null>(null)
+  const headingRefs = useRef(new Map<ApprovalKey, HTMLHeadingElement>())
   const emptyHeadingRef = useRef<HTMLHeadingElement>(null)
   const isHrAdmin = user?.role === 'HR_ADMIN'
   const subtitle = isHrAdmin
@@ -66,9 +81,12 @@ export function ApprovalsPage() {
     () =>
       pendingApprovals.filter(
         (approval) =>
-          approval.requestId != null && !removedRequestIds.has(approval.requestId),
+          approval.requestId != null && !removedApprovalKeys.has(approvalKey(
+            approval.requestId,
+            approval.approvalLevel ?? 1,
+          )),
       ),
-    [pendingApprovals, removedRequestIds],
+    [pendingApprovals, removedApprovalKeys],
   )
   const offToday = (outTodayQuery.data ?? []).filter(
     (row) => row.presence === 'OFF',
@@ -98,10 +116,13 @@ export function ApprovalsPage() {
         // The computed next card was removed by a refetch before focus landed;
         // fall back to the first remaining card heading, then the empty-state
         // heading, so keyboard/SR focus is never dropped to <body>.
-        const firstRemaining = visibleApprovals[0]?.requestId
+        const firstRemaining = visibleApprovals[0]
         target =
-          (firstRemaining != null
-            ? headingRefs.current.get(firstRemaining)
+          (firstRemaining?.requestId != null
+            ? headingRefs.current.get(approvalKey(
+                firstRemaining.requestId,
+                firstRemaining.approvalLevel ?? 1,
+              ))
             : null) ?? emptyHeadingRef.current
       }
     }
@@ -112,17 +133,20 @@ export function ApprovalsPage() {
   // Keep the removed/stale id sets bounded: drop ids no longer present in the
   // refetched pending list so they cannot accumulate across a long session.
   useEffect(() => {
-    const presentIds = new Set(
+    const presentKeys = new Set<ApprovalKey>(
       pendingApprovals
-        .map((approval) => approval.requestId)
-        .filter((id): id is number => id != null),
+        .filter((approval) => approval.requestId != null)
+        .map((approval) => approvalKey(
+          approval.requestId!,
+          approval.approvalLevel ?? 1,
+        )),
     )
-    const prune = (current: Set<number>): Set<number> => {
-      const next = new Set([...current].filter((id) => presentIds.has(id)))
+    const prune = (current: Set<ApprovalKey>): Set<ApprovalKey> => {
+      const next = new Set([...current].filter((key) => presentKeys.has(key)))
       return next.size === current.size ? current : next
     }
-    setRemovedRequestIds((current) => prune(current))
-    setStaleRequestIds((current) => prune(current))
+    setRemovedApprovalKeys((current) => prune(current))
+    setStaleApprovalKeys((current) => prune(current))
   }, [pendingApprovals])
 
   const resolveMutationError = (error: unknown, fallback: string): string => {
@@ -144,22 +168,30 @@ export function ApprovalsPage() {
     })
   }
 
-  const finishDecision = (requestId: number, message: string) => {
+  const finishDecision = (requestId: number, approvalLevel: number, message: string) => {
+    const completedKey = approvalKey(requestId, approvalLevel)
     const currentIndex = visibleApprovals.findIndex(
-      (approval) => approval.requestId === requestId,
+      (approval) => approval.requestId === requestId
+        && (approval.approvalLevel ?? 1) === approvalLevel,
     )
     const remaining = visibleApprovals.filter(
-      (approval) => approval.requestId !== requestId,
+      (approval) => approval.requestId !== requestId
+        || (approval.approvalLevel ?? 1) !== approvalLevel,
     )
     const nextApproval = remaining[currentIndex] ?? remaining[0]
 
-    setRemovedRequestIds((current) => new Set(current).add(requestId))
+    setRemovedApprovalKeys((current) => new Set(current).add(completedKey))
     setDecisionFeedback({ tone: 'status', message })
-    setFocusTarget(nextApproval?.requestId ?? 'empty')
+    setFocusTarget(nextApproval?.requestId == null ? 'empty' : approvalKey(
+      nextApproval.requestId,
+      nextApproval.approvalLevel ?? 1,
+    ))
   }
 
-  const markStale = (requestId: number, employeeName: string) => {
-    setStaleRequestIds((current) => new Set(current).add(requestId))
+  const markStale = (requestId: number, approvalLevel: number, employeeName: string) => {
+    setStaleApprovalKeys((current) => new Set(current).add(
+      approvalKey(requestId, approvalLevel),
+    ))
     setDecisionFeedback({
       tone: 'alert',
       message: t('approvals:stale.announcement', { name: employeeName }),
@@ -170,20 +202,22 @@ export function ApprovalsPage() {
     requestId: number,
     employeeUserId: number,
     employeeName: string,
+    approvalLevel: number,
   ) => {
     setDecisionFeedback(null)
     approveMutation.mutate(
-      { requestId, employeeUserId },
+      { requestId, employeeUserId, approvalLevel },
       {
         onSuccess: () => {
           finishDecision(
             requestId,
+            approvalLevel,
             t('approvals:success.approved', { name: employeeName }),
           )
         },
         onError: (error) => {
           if (error instanceof ApiError && error.status === 409) {
-            markStale(requestId, employeeName)
+            markStale(requestId, approvalLevel, employeeName)
             return
           }
           setDecisionFeedback({
@@ -208,6 +242,7 @@ export function ApprovalsPage() {
       {
         requestId: declineTarget.requestId,
         employeeUserId: declineTarget.employeeUserId,
+        approvalLevel: declineTarget.approvalLevel,
         reason,
       },
       {
@@ -218,6 +253,7 @@ export function ApprovalsPage() {
           setDeclineSubmitError(null)
           finishDecision(
             completedTarget.requestId,
+            completedTarget.approvalLevel,
             t('approvals:success.declined', {
               name: completedTarget.employeeName,
             }),
@@ -225,7 +261,11 @@ export function ApprovalsPage() {
         },
         onError: (error) => {
           if (error instanceof ApiError && error.status === 409) {
-            markStale(declineTarget.requestId, declineTarget.employeeName)
+            markStale(
+              declineTarget.requestId,
+              declineTarget.approvalLevel,
+              declineTarget.employeeName,
+            )
             setDeclineSubmitError(
               t('approvals:stale.modal', {
                 name: declineTarget.employeeName,
@@ -236,6 +276,40 @@ export function ApprovalsPage() {
           setDeclineSubmitError(
             resolveMutationError(error, t('approvals:errors.decline')),
           )
+        },
+      },
+    )
+  }
+
+  const handleConcernConfirm = (note: string) => {
+    if (!concernTarget) return
+    setConcernError(null)
+    concernMutation.mutate(
+      {
+        requestId: concernTarget.requestId,
+        approvalLevel: concernTarget.approvalLevel,
+        note,
+      },
+      {
+        onSuccess: () => {
+          const completed = concernTarget
+          setConcernTarget(null)
+          setConcernNote('')
+          finishDecision(
+            completed.requestId,
+            completed.approvalLevel,
+            t('approvals:success.concern', { name: completed.employeeName }),
+          )
+        },
+        onError: (error) => {
+          if (error instanceof ApiError && error.status === 409) {
+            markStale(
+              concernTarget.requestId,
+              concernTarget.approvalLevel,
+              concernTarget.employeeName,
+            )
+          }
+          setConcernError(resolveMutationError(error, t('approvals:errors.concern')))
         },
       },
     )
@@ -343,6 +417,8 @@ export function ApprovalsPage() {
             <div className="approvals-card-list" data-testid="approvals-pending-list">
               {visibleApprovals.map((approval) => {
                 const requestId = approval.requestId!
+                const approvalLevel = approval.approvalLevel ?? 1
+                const itemKey = approvalKey(requestId, approvalLevel)
                 const employeeUserId = approval.employeeUserId ?? 0
                 const employeeName =
                   approval.employeeFullName?.trim() || t('common:unknown')
@@ -360,7 +436,7 @@ export function ApprovalsPage() {
 
                 return (
                   <ApprovalCard
-                    key={requestId}
+                    key={itemKey}
                     approval={approval}
                     coverage={{
                       isLoading: coverageIsLoading,
@@ -369,32 +445,40 @@ export function ApprovalsPage() {
                     }}
                     headingRef={(element) => {
                       if (element) {
-                        headingRefs.current.set(requestId, element)
+                        headingRefs.current.set(itemKey, element)
                       } else {
-                        headingRefs.current.delete(requestId)
+                        headingRefs.current.delete(itemKey)
                       }
                     }}
                     isApproving={
                       approveMutation.isPending &&
                       approveMutation.variables?.requestId === requestId
+                      && approveMutation.variables.approvalLevel === approvalLevel
                     }
                     isDeclining={
                       declineMutation.isPending &&
                       declineMutation.variables?.requestId === requestId
+                      && declineMutation.variables.approvalLevel === approvalLevel
                     }
-                    isStale={staleRequestIds.has(requestId)}
+                    isStale={staleApprovalKeys.has(itemKey)}
                     onApprove={() =>
-                      handleApprove(requestId, employeeUserId, employeeName)
+                      handleApprove(requestId, employeeUserId, employeeName, approvalLevel)
                     }
                     onDecline={() => {
                       setDeclineReason('')
                       setDeclineSubmitError(null)
                       setDeclineTarget({
                         requestId,
+                        approvalLevel,
                         employeeUserId,
                         employeeName,
                         dateRange,
                       })
+                    }}
+                    onConcern={() => {
+                      setConcernNote('')
+                      setConcernError(null)
+                      setConcernTarget({ requestId, approvalLevel, employeeName })
                     }}
                   />
                 )
@@ -493,6 +577,7 @@ export function ApprovalsPage() {
                   {isHrAdmin ? (
                     <th scope="col">{t('approvals:table.audit')}</th>
                   ) : null}
+                  <th scope="col">{t('approvals:table.approvalEvidence')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -529,7 +614,25 @@ export function ApprovalsPage() {
           }}
           isSubmitting={declineMutation.isPending}
           submitError={declineSubmitError}
-          isStale={staleRequestIds.has(declineTarget.requestId)}
+          isStale={staleApprovalKeys.has(approvalKey(
+            declineTarget.requestId,
+            declineTarget.approvalLevel,
+          ))}
+        />
+      ) : null}
+      {concernTarget ? (
+        <ConcernModal
+          employeeName={concernTarget.employeeName}
+          note={concernNote}
+          isSubmitting={concernMutation.isPending}
+          error={concernError}
+          onNoteChange={setConcernNote}
+          onConfirm={handleConcernConfirm}
+          onClose={() => {
+            setConcernTarget(null)
+            setConcernNote('')
+            setConcernError(null)
+          }}
         />
       ) : null}
     </div>

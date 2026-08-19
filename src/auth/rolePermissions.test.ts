@@ -19,6 +19,10 @@ describe('rolePermissions', () => {
       ])
     })
 
+    it('includes Approvals for an employee assigned to the current approval step', () => {
+      expect(getOrgNavItems('EMPLOYEE', true).map((item) => item.label)).toContain('Approvals')
+    })
+
     it('returns 4 items for MANAGER including Approvals', () => {
       const items = getOrgNavItems('MANAGER')
       expect(items).toHaveLength(4)
@@ -60,8 +64,9 @@ describe('rolePermissions', () => {
       expect(canAccessOrgRoute('EMPLOYEE', '/calendar')).toBe(true)
     })
 
-    it('restricts approvals to manager and HR admin', () => {
+    it('allows approvals for managers, HR admins, and assigned employees only', () => {
       expect(canAccessOrgRoute('EMPLOYEE', '/approvals')).toBe(false)
+      expect(canAccessOrgRoute('EMPLOYEE', '/approvals', true)).toBe(true)
       expect(canAccessOrgRoute('MANAGER', '/approvals')).toBe(true)
       expect(canAccessOrgRoute('HR_ADMIN', '/approvals')).toBe(true)
     })

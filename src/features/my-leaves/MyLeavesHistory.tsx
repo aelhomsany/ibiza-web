@@ -11,6 +11,7 @@ import { InboxIcon, PlusIcon } from '../../components/ui/icons'
 import { LeaveStatusBadge } from '../../components/ui/LeaveStatusBadge'
 import { WorkingDayExplainer } from '../../components/ui/WorkingDayExplainer'
 import { AuditHistoryExpander } from '../approvals/AuditHistoryExpander'
+import { ApprovalProgress } from '../approvals/ApprovalProgress'
 import { LeaveTypeTag } from '../dashboard/LeaveTypeTag'
 import {
   formatDateRange,
@@ -94,6 +95,7 @@ function RequestDetails({
         }
         excludedSummary={t('explainer.aggregateOnly')}
       />
+      <ApprovalProgress evidence={request.approvalEvidence} />
     </div>
   )
 }

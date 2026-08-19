@@ -4,6 +4,7 @@ import { WorkingDayExplainer } from '../../components/ui/WorkingDayExplainer'
 import { CheckIcon } from '../../components/ui/icons'
 import { LeaveTypeTag } from '../dashboard/LeaveTypeTag'
 import { formatDateRange } from '../dashboard/leaveRequestFormatting'
+import { ApprovalProgress } from './ApprovalProgress'
 
 type ApprovalCoverage = {
   isLoading: boolean
@@ -16,6 +17,7 @@ type ApprovalCardProps = {
   coverage: ApprovalCoverage
   onApprove: () => void
   onDecline: () => void
+  onConcern: () => void
   headingRef?: (element: HTMLHeadingElement | null) => void
   isApproving?: boolean
   isDeclining?: boolean
@@ -27,6 +29,7 @@ export function ApprovalCard({
   coverage,
   onApprove,
   onDecline,
+  onConcern,
   headingRef,
   isApproving = false,
   isDeclining = false,
@@ -55,7 +58,10 @@ export function ApprovalCard({
   const busy = isApproving || isDeclining
   const balanceInsufficient =
     approval.balanceCapped === true && approval.balanceSufficient === false
-  const approveDisabled = busy || isStale || workingDays === 0 || balanceInsufficient
+  const isOperationalLevel = (approval.approvalLevel ?? 1) === 1
+  const approveDisabled = busy || isStale || (isOperationalLevel && (
+    workingDays === 0 || balanceInsufficient
+  ))
   // Wrap standalone numbers in a Unicode isolate (FSI…PDI) so digits keep their
   // reading order when interpolated into an RTL sentence (e.g. the "before → after"
   // balance string in Arabic). Not applied to plural `count` values, which must stay
@@ -132,22 +138,22 @@ export function ApprovalCard({
         <div className="approval-card-policy">
           <span className="approval-group-pill">{workforceGroupName}</span>
           <span className="approval-weekend-rule">{weekendRule}</span>
-          {approval.nominalManagerFirstName ? (
+          {approval.nominalApproverFirstName ? (
             <>
               <span
                 className="approval-reports-to-pill"
-                data-testid={`reports-to-pill-${requestId}`}
+                data-testid={`assigned-approver-pill-${requestId}`}
               >
-                {t('approvals:manager.reportsTo', {
-                  name: approval.nominalManagerFirstName,
+                {t('approvals:approver.assigned', {
+                  name: approval.nominalApproverFirstName,
                 })}
               </span>
               <p
                 className="approval-on-behalf-notice"
                 data-testid={`on-behalf-notice-${requestId}`}
               >
-                {t('approvals:manager.actingOnBehalf', {
-                  name: approval.nominalManagerFirstName,
+                {t('approvals:approver.actingOnBehalf', {
+                  name: approval.nominalApproverFirstName,
                 })}
               </p>
             </>
@@ -167,6 +173,12 @@ export function ApprovalCard({
           <strong data-testid={`approval-balance-${requestId}`}>{balanceText}</strong>
         </div>
       </div>
+
+      <p className="approval-card-step">
+        {t('approvals:progress.currentLevel', { level: approval.approvalLevel ?? 1 })}
+      </p>
+
+      <ApprovalProgress evidence={approval.approvalEvidence} compact />
 
       <WorkingDayExplainer
         compact
@@ -219,17 +231,30 @@ export function ApprovalCard({
       ) : null}
 
       <div className="approval-actions">
-        <button
-          type="button"
-          className="btn btn-danger-outline"
-          data-testid={`decline-btn-${requestId}`}
-          onClick={onDecline}
-          disabled={busy || isStale}
-          data-busy={isDeclining ? 'true' : undefined}
-          aria-label={t('approvals:aria.declineRequest', { name: employeeName })}
-        >
-          {t('approvals:actions.decline')}
-        </button>
+        {isOperationalLevel ? (
+          <button
+            type="button"
+            className="btn btn-danger-outline"
+            data-testid={`decline-btn-${requestId}`}
+            onClick={onDecline}
+            disabled={busy || isStale}
+            data-busy={isDeclining ? 'true' : undefined}
+            aria-label={t('approvals:aria.declineRequest', { name: employeeName })}
+          >
+            {t('approvals:actions.decline')}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="btn btn-outline"
+            data-testid={`concern-btn-${requestId}`}
+            onClick={onConcern}
+            disabled={busy || isStale}
+            aria-label={t('approvals:aria.concernRequest', { name: employeeName })}
+          >
+            {t('approvals:actions.concern')}
+          </button>
+        )}
         <button
           type="button"
           className="btn btn-success"

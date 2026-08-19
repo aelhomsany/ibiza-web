@@ -340,6 +340,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/leave-requests/{id}/concern": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Record a documentary concern at approval level 2 or 3 */
+        post: operations["recordConcern"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/leave-requests/{id}/approve": {
         parameters: {
             query?: never;
@@ -1217,6 +1234,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/approvals/capability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Report whether the caller can review current or recorded approvals */
+        get: operations["getCapability"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/calendar-sync/{provider}": {
         parameters: {
             query?: never;
@@ -1264,6 +1298,7 @@ export interface components {
             timezone?: string | null;
             workforceGroupName?: string | null;
             profileImageUrl?: string | null;
+            canReviewApprovals?: boolean;
             preferredLanguage?: string | null;
         };
         CreateTeamMemberRequest: {
@@ -1276,6 +1311,8 @@ export interface components {
             workforceGroupId: number;
             /** Format: int64 */
             managerId?: number;
+            /** @description Ordered approval-chain user ids (1 to 3) */
+            approvalApproverIds?: number[];
             entitlements?: components["schemas"]["EntitlementInput"][];
         };
         EntitlementInput: {
@@ -1283,6 +1320,13 @@ export interface components {
             leaveTypeId: number;
             /** Format: int32 */
             allocatedDays: number;
+        };
+        ApprovalApproverResponse: {
+            /** Format: int32 */
+            level?: number;
+            /** Format: int64 */
+            userId?: number;
+            fullName?: string;
         };
         EntitlementResponse: {
             /** Format: int64 */
@@ -1308,6 +1352,7 @@ export interface components {
             /** Format: date-time */
             deactivatedAt?: string;
             entitlements?: components["schemas"]["EntitlementResponse"][];
+            approvalChain?: components["schemas"]["ApprovalApproverResponse"][];
         };
         TeamMemberInvitationResponse: {
             id?: string;
@@ -1472,6 +1517,25 @@ export interface components {
             dateTo: string;
             note?: string;
         };
+        ApprovalStepEvidenceResponse: {
+            /** Format: int32 */
+            level?: number;
+            /** Format: int64 */
+            nominalApproverId?: number;
+            nominalApproverFullName?: string;
+            /** Format: int64 */
+            actualActorId?: number | null;
+            actualActorFullName?: string | null;
+            /** @enum {string} */
+            status?: "WAITING" | "PENDING" | "APPROVED" | "CONCERN_RECORDED" | "SKIPPED";
+            /** @enum {string|null} */
+            result?: "APPROVED" | "DECLINED" | "CONCERN_RECORDED" | null;
+            note?: string | null;
+            /** Format: date-time */
+            decidedAt?: string | null;
+            current?: boolean;
+            actedOnBehalf?: boolean;
+        };
         LeaveRequestResponse: {
             /** Format: int64 */
             id?: number;
@@ -1495,10 +1559,14 @@ export interface components {
             declineReason?: string;
             balanceApplied?: boolean;
             decidedOnBehalf?: boolean;
-            nominalManagerFirstName?: string;
+            nominalApproverFirstName?: string;
+            approvalEvidence?: components["schemas"]["ApprovalStepEvidenceResponse"][];
         };
         DeclineLeaveRequestRequest: {
             reason?: string;
+        };
+        RecordApprovalConcernRequest: {
+            note: string;
         };
         PreviewLeaveRequestRequest: {
             /** Format: date */
@@ -1647,6 +1715,7 @@ export interface components {
             role?: "EMPLOYEE" | "MANAGER" | "HR_ADMIN";
             /** Format: int64 */
             workforceGroupId?: number;
+            approvalApproverIds?: number[];
             entitlements?: components["schemas"]["EntitlementInput"][];
             /** Format: int64 */
             managerId?: number;
@@ -1689,8 +1758,14 @@ export interface components {
         };
         UpdateOnboardingPresentationRequest: {
             /** Format: int64 */
-            version?: number;
+            version: number;
             presentationStep?: string;
+        };
+        ConflictResponse: {
+            message?: string;
+            recoverableInput?: {
+                [key: string]: string;
+            };
         };
         EvidenceResponse: {
             complete?: boolean;
@@ -1729,6 +1804,8 @@ export interface components {
             creationSource?: string;
             presentationEnabled?: boolean;
             fallbackRoute?: string;
+            analyticsConsent?: string;
+            conflict?: components["schemas"]["ConflictResponse"];
         };
         StageResponse: {
             id?: string;
@@ -1738,7 +1815,7 @@ export interface components {
             /** Format: int64 */
             id?: number;
             /** @enum {string} */
-            type?: "NEW_REQUEST" | "APPROVED" | "DECLINED";
+            type?: "NEW_REQUEST" | "APPROVED" | "DECLINED" | "CONCERN_RECORDED" | "APPROVAL_COMPLETED";
             message?: string;
             /** Format: date-time */
             occurredAt?: string;
@@ -1858,6 +1935,7 @@ export interface components {
             statusHint?: string;
             declineReason?: string | null;
             approverFirstName?: string | null;
+            approvalEvidence?: components["schemas"]["ApprovalStepEvidenceResponse"][];
         };
         LeaveRequestContextResponse: {
             /** Format: int64 */
@@ -1881,12 +1959,13 @@ export interface components {
             statusHint?: string;
             declineReason?: string | null;
             approverFirstName?: string | null;
+            approvalEvidence?: components["schemas"]["ApprovalStepEvidenceResponse"][];
         };
         AuditEventResponse: {
             /** Format: int64 */
             id?: number;
             /** @enum {string} */
-            action?: "SUBMITTED" | "APPROVED" | "DECLINED";
+            action?: "SUBMITTED" | "APPROVED" | "DECLINED" | "CONCERN_RECORDED";
             /** Format: int64 */
             actorUserId?: number;
             actorFirstName?: string;
@@ -1895,7 +1974,7 @@ export interface components {
             /** Format: int64 */
             leaveRequestId?: number;
             onBehalf?: boolean;
-            nominalManagerFirstName?: string;
+            nominalApproverFirstName?: string;
         };
         UpcomingAbsenceResponse: {
             /** Format: int64 */
@@ -2026,10 +2105,13 @@ export interface components {
             workingDays?: number;
             /** @enum {string} */
             status?: "PENDING" | "APPROVED" | "DECLINED";
+            /** @enum {string} */
+            decisionResult?: "APPROVED" | "DECLINED" | "CONCERN_RECORDED";
             actorFirstName?: string;
             decidedAt?: string;
             decidedOnBehalf?: boolean;
-            nominalManagerFirstName?: string;
+            nominalApproverFirstName?: string;
+            approvalEvidence?: components["schemas"]["ApprovalStepEvidenceResponse"][];
         };
         PendingApprovalResponse: {
             /** Format: int64 */
@@ -2059,11 +2141,17 @@ export interface components {
             balanceSufficient?: boolean;
             submittedAt?: string;
             decidedOnBehalf?: boolean;
-            nominalManagerFirstName?: string;
+            nominalApproverFirstName?: string;
+            /** Format: int32 */
+            approvalLevel?: number;
+            approvalEvidence?: components["schemas"]["ApprovalStepEvidenceResponse"][];
         };
         PendingApprovalCountResponse: {
             /** Format: int64 */
             count?: number;
+        };
+        ApprovalCapabilityResponse: {
+            canReviewApprovals?: boolean;
         };
     };
     responses: never;
@@ -2675,7 +2763,9 @@ export interface operations {
     };
     decline: {
         parameters: {
-            query?: never;
+            query?: {
+                approvalLevel?: number;
+            };
             header?: never;
             path: {
                 id: number;
@@ -2699,9 +2789,39 @@ export interface operations {
             };
         };
     };
+    recordConcern: {
+        parameters: {
+            query?: {
+                approvalLevel?: number;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordApprovalConcernRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LeaveRequestResponse"];
+                };
+            };
+        };
+    };
     approve: {
         parameters: {
-            query?: never;
+            query?: {
+                approvalLevel?: number;
+            };
             header?: never;
             path: {
                 id: number;
@@ -3947,6 +4067,26 @@ export interface operations {
             };
         };
     };
+    getCapability: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApprovalCapabilityResponse"];
+                };
+            };
+        };
+    };
     disconnect: {
         parameters: {
             query?: never;
@@ -3968,11 +4108,12 @@ export interface operations {
         };
     };
 }
-
 // Ibiza keeps these schema aliases for feature code ergonomics, even though
 // openapi-typescript exposes schemas through components["schemas"].
 type RequiredSchema<K extends keyof components["schemas"]> = Required<components["schemas"][K]>;
 
+export type ApprovalCapabilityResponse = RequiredSchema<"ApprovalCapabilityResponse">;
+export type ApprovalStepEvidenceResponse = RequiredSchema<"ApprovalStepEvidenceResponse">;
 export type BalanceCardResponse = RequiredSchema<"BalanceCardResponse">;
 export type CalendarAbsenceResponse = RequiredSchema<"CalendarAbsenceResponse">;
 export type CalendarHolidayResponse = RequiredSchema<"CalendarHolidayResponse">;
@@ -3992,11 +4133,16 @@ export type CreatePublicHolidayRequest = components["schemas"]["CreatePublicHoli
 export type CreateTeamMemberRequest = components["schemas"]["CreateTeamMemberRequest"];
 export type CreateWorkforceGroupRequest = components["schemas"]["CreateWorkforceGroupRequest"];
 export type DeclineLeaveRequestRequest = components["schemas"]["DeclineLeaveRequestRequest"];
+export type RecordApprovalConcernRequest = components["schemas"]["RecordApprovalConcernRequest"];
 export type EntitlementResponse = RequiredSchema<"EntitlementResponse">;
 export type EntitlementInput = RequiredSchema<"EntitlementInput">;
 export type ForgotPasswordRequest = components["schemas"]["ForgotPasswordRequest"];
-export type LeaveRequestResponse = RequiredSchema<"LeaveRequestResponse">;
-export type LeaveRequestContextResponse = RequiredSchema<"LeaveRequestContextResponse">;
+export type LeaveRequestResponse = Omit<RequiredSchema<"LeaveRequestResponse">, "approvalEvidence"> & {
+    approvalEvidence?: ApprovalStepEvidenceResponse[];
+};
+export type LeaveRequestContextResponse = Omit<RequiredSchema<"LeaveRequestContextResponse">, "approvalEvidence"> & {
+    approvalEvidence?: ApprovalStepEvidenceResponse[];
+};
 export type LeaveTypeResponse = RequiredSchema<"LeaveTypeResponse">;
 export type LoginRequest = components["schemas"]["LoginRequest"];
 export type MarkAllReadResponse = RequiredSchema<"MarkAllReadResponse">;
@@ -4013,6 +4159,7 @@ export type PendingApprovalResponse = Omit<
     | "balanceAfterApproval"
     | "balanceSufficient"
     | "submittedAt"
+    | "approvalEvidence"
 > & {
     weekendDays?: string[];
     balanceCapped?: boolean | null;
@@ -4020,6 +4167,7 @@ export type PendingApprovalResponse = Omit<
     balanceAfterApproval?: number | null;
     balanceSufficient?: boolean | null;
     submittedAt?: string | null;
+    approvalEvidence?: ApprovalStepEvidenceResponse[];
 };
 export type PreviewLeaveRequestRequest = components["schemas"]["PreviewLeaveRequestRequest"];
 export type PreviewLeaveRequestResponse = RequiredSchema<"PreviewLeaveRequestResponse">;
@@ -4032,8 +4180,12 @@ export type ProblemDetail = {
     [key: string]: unknown;
 };
 export type PublicHolidayResponse = RequiredSchema<"PublicHolidayResponse">;
-export type RecentApprovalDecisionResponse = RequiredSchema<"RecentApprovalDecisionResponse">;
-export type RecentRequestResponse = RequiredSchema<"RecentRequestResponse">;
+export type RecentApprovalDecisionResponse = Omit<RequiredSchema<"RecentApprovalDecisionResponse">, "approvalEvidence"> & {
+    approvalEvidence?: ApprovalStepEvidenceResponse[];
+};
+export type RecentRequestResponse = Omit<RequiredSchema<"RecentRequestResponse">, "approvalEvidence"> & {
+    approvalEvidence?: ApprovalStepEvidenceResponse[];
+};
 export type AuditEventResponse = RequiredSchema<"AuditEventResponse">;
 export type AcceptInvitationRequest = RequiredSchema<"AcceptInvitationRequest">;
 export type ResetPasswordRequest = RequiredSchema<"ResetPasswordRequest">;
@@ -4053,7 +4205,7 @@ export type UpdateUserPreferencesRequest = components["schemas"]["UpdateUserPref
 export type UpdateWeekendDaysRequest = components["schemas"]["UpdateWeekendDaysRequest"];
 export type UserSummaryResponse = Omit<
     RequiredSchema<"UserSummaryResponse">,
-    "organizationId" | "organizationName" | "timezone" | "workforceGroupName" | "preferredLanguage" | "profileImageUrl"
+    "organizationId" | "organizationName" | "timezone" | "workforceGroupName" | "preferredLanguage" | "profileImageUrl" | "canReviewApprovals"
 > & {
     organizationId?: number | null;
     organizationName?: string | null;
@@ -4061,6 +4213,7 @@ export type UserSummaryResponse = Omit<
     workforceGroupName?: string | null;
     preferredLanguage?: string | null;
     profileImageUrl?: string | null;
+    canReviewApprovals?: boolean;
 };
 export type DayOfWeek = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
 export type WorkforceGroupResponse = Omit<RequiredSchema<"WorkforceGroupResponse">, "weekendDays"> & {

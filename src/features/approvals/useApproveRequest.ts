@@ -8,12 +8,13 @@ export function useApproveRequest() {
   const orgId = user?.organizationId
 
   return useMutation({
-    mutationFn: (args: { requestId: number; employeeUserId: number }) =>
-      approveLeaveRequest(args.requestId),
+    mutationFn: (args: { requestId: number; employeeUserId: number; approvalLevel: number }) =>
+      approveLeaveRequest(args.requestId, args.approvalLevel),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['approvals', 'pending'] })
       void queryClient.invalidateQueries({ queryKey: ['approvals', 'pending-count'] })
       void queryClient.invalidateQueries({ queryKey: ['approvals', 'recent-decisions'] })
+      void queryClient.invalidateQueries({ queryKey: ['approvals', 'capability'] })
       void queryClient.invalidateQueries({
         queryKey: ['dashboard', 'balances', variables.employeeUserId],
       })

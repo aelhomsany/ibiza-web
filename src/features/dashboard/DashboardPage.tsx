@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom'
 import type {
   RecentRequestResponse,
   UpcomingAbsenceResponse,
-  UserRole,
 } from '../../api/generated/types'
 import { useAuth } from '../../auth/useAuth'
 import { AttentionCallout } from '../../components/ui/AttentionCallout'
@@ -12,6 +11,7 @@ import { LoadingState } from '../../components/ui/LoadingState'
 import { PlusIcon } from '../../components/ui/icons'
 import { useToast } from '../../components/ui/useToast'
 import { usePendingApprovalCount } from '../approvals/usePendingApprovalCount'
+import { useApprovalCapability } from '../approvals/useApprovalCapability'
 import { BalanceCard } from './BalanceCard'
 import { DashboardValueProof } from './DashboardValueProof'
 import { FirstUseCue } from './FirstUseCue'
@@ -41,7 +41,7 @@ function timeGreetingKey(): string {
 }
 
 type DashboardAttentionProps = {
-  role?: UserRole
+  canReviewApprovals: boolean
   pendingCount: number
   isPendingCountLoading: boolean
   isPendingCountError: boolean
@@ -56,7 +56,7 @@ type DashboardAttentionProps = {
 }
 
 function DashboardAttention({
-  role,
+  canReviewApprovals,
   pendingCount,
   isPendingCountLoading,
   isPendingCountError,
@@ -70,7 +70,7 @@ function DashboardAttention({
   onRetryRecent,
 }: DashboardAttentionProps) {
   const { t } = useTranslation(['dashboard', 'common'])
-  const reviewsApprovals = role === 'MANAGER' || role === 'HR_ADMIN'
+  const reviewsApprovals = canReviewApprovals
 
   if (reviewsApprovals && isPendingCountLoading) {
     return (
@@ -240,6 +240,7 @@ export function DashboardPage() {
   const outTodayQuery = useDashboardOutToday()
   const upcomingQuery = useDashboardUpcoming()
   const pendingCountQuery = usePendingApprovalCount()
+  const approvalCapability = useApprovalCapability()
   // Ambient cue — keeps the 30s cache; only the guided page itself forces a re-read.
   const onboardingQuery = useOnboarding(user?.role === 'HR_ADMIN')
   const pendingCount = pendingCountQuery.data?.count ?? 0
@@ -303,7 +304,10 @@ export function DashboardPage() {
       <div className="dashboard-value-row" data-testid="dashboard-value-row">
         <div className="dashboard-attention-slot">
           <DashboardAttention
-            role={user?.role}
+            canReviewApprovals={Boolean(
+              approvalCapability.data?.canReviewApprovals ?? user?.canReviewApprovals
+                ?? (user?.role === 'MANAGER' || user?.role === 'HR_ADMIN'),
+            )}
             pendingCount={pendingCount}
             isPendingCountLoading={pendingCountQuery.isPending}
             isPendingCountError={pendingCountQuery.isError}

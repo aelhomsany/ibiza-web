@@ -14,7 +14,13 @@ import {
 import { ToastProvider } from '../ui/ToastProvider'
 import { OrgShell } from './OrgShell'
 
-function renderOrgShell(role: Parameters<typeof createMockAuthForRole>[0]) {
+function renderOrgShell(
+  role: Parameters<typeof createMockAuthForRole>[0],
+  serverCapability = role === 'MANAGER' || role === 'HR_ADMIN',
+) {
+  vi.mocked(apiClient.getApprovalCapability).mockResolvedValue({
+    canReviewApprovals: serverCapability,
+  })
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
@@ -41,6 +47,9 @@ function renderOrgShell(role: Parameters<typeof createMockAuthForRole>[0]) {
 
 describe('OrgShell', () => {
   beforeEach(() => {
+    vi.spyOn(apiClient, 'getApprovalCapability').mockResolvedValue({
+      canReviewApprovals: false,
+    })
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue([])
     vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 0 })
     vi.spyOn(apiClient, 'getUnreadNotificationCount').mockResolvedValue({ count: 0 })
@@ -94,6 +103,12 @@ describe('OrgShell', () => {
 
     expect(screen.getByTestId('nav-approvals')).toBeInTheDocument()
     expect(screen.queryByTestId('nav-settings')).not.toBeInTheDocument()
+  })
+
+  it('shows Approvals for an assigned EMPLOYEE after capability refresh', async () => {
+    renderOrgShell('EMPLOYEE', true)
+
+    expect(await screen.findByTestId('nav-approvals')).toBeInTheDocument()
   })
 
   it('shows Approvals and Settings for HR_ADMIN', () => {

@@ -159,6 +159,7 @@
   "statusHints": {
     "approved": "Approved",
     "approvedBy": "Approved by {{name}}",
+    "approvalProgress": "Operationally approved · {{recorded}} of {{total}} approvals recorded",
     "pending": "Waiting for approval"
   },
   "subtitle": "Plan time away, understand what counts, and see what needs action.",

@@ -232,6 +232,15 @@
     "title": "Team Members"
   },
   "memberModal": {
+    "approvals": {
+      "help": "Choose one required operational approver and up to two documentary reviewers. Level 1 puts approved leave on calendars immediately.",
+      "invalid": "Select Level 1 and use additional levels in order without gaps.",
+      "level": "Approval Level {{level}}",
+      "notUsed": "— Not used —",
+      "required": "Select at least one approver.",
+      "selectRequired": "— Select approver —",
+      "title": "Approval Chain"
+    },
     "actions": {
       "opening": "Opening…",
       "upgrade": "Upgrade"

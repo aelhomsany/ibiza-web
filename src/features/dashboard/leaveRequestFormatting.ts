@@ -27,6 +27,14 @@ export function localizedRequestStatusHint(
     return t('dashboard:statusHints.pending')
   }
   if (request.status === 'APPROVED') {
+    const evidence = request.approvalEvidence ?? []
+    if (evidence.length > 1) {
+      const recorded = evidence.filter((step) => step.result != null).length
+      return t('dashboard:statusHints.approvalProgress', {
+        recorded,
+        total: evidence.length,
+      })
+    }
     return request.approverFirstName
       ? t('dashboard:statusHints.approvedBy', {
           name: request.approverFirstName,

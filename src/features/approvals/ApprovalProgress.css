@@ -1,0 +1,54 @@
+.approval-progress ol {
+  display: grid;
+  /* auto-fit collapses tracks with no <li> in them, so a 1- or 2-level chain
+     doesn't reserve empty grid space for a level that doesn't exist. */
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.approval-progress li {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+}
+
+.approval-progress li[data-current='true'] {
+  border-color: var(--color-action-primary);
+  background: var(--color-surface-selected);
+}
+
+.approval-progress-level,
+.approval-progress strong {
+  color: var(--color-text-primary);
+}
+
+.approval-progress p {
+  margin: var(--space-xs) 0 0;
+  color: var(--color-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.approval-progress--compact ol {
+  display: flex;
+  min-width: 240px;
+}
+
+.approval-progress--compact li {
+  flex: 1 1 0;
+  padding: var(--space-sm);
+}
+
+@media (max-width: 900px) {
+  .approval-progress ol {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

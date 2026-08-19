@@ -4,6 +4,7 @@ import { ApiError } from '../../api/client'
 import { useAuth } from '../../auth/useAuth'
 import { LeaveStatusBadge } from '../../components/ui/LeaveStatusBadge'
 import { AuditHistoryExpander } from '../approvals/AuditHistoryExpander'
+import { ApprovalProgress } from '../approvals/ApprovalProgress'
 import { LeaveTypeTag } from '../dashboard/LeaveTypeTag'
 import { formatDateRange } from '../dashboard/leaveRequestFormatting'
 import { useLeaveRequestContext } from './useLeaveRequestContext'
@@ -76,6 +77,19 @@ export function RequestContextPage() {
   }
 
   const request = query.data
+  const approvalEvidence = request.approvalEvidence ?? []
+  const localizedStatusHint = request.status === 'PENDING'
+    ? t('requestContext.pending')
+    : request.status === 'APPROVED' && approvalEvidence.length > 1
+      ? t('requestContext.approvalProgress', {
+          recorded: approvalEvidence.filter((step) => step.result != null).length,
+          total: approvalEvidence.length,
+        })
+      : request.status === 'APPROVED' && request.approverFirstName
+        ? t('requestContext.approvedBy', { name: request.approverFirstName })
+        : request.status === 'APPROVED'
+          ? t('requestContext.approved')
+          : null
 
   return (
     <div className="page page-wide" data-testid="request-context-page">
@@ -126,7 +140,7 @@ export function RequestContextPage() {
             <dt>{t('requestContext.status')}</dt>
             <dd>
               <LeaveStatusBadge status={request.status} />
-              {request.statusHint ? <span className="status-hint">{request.statusHint}</span> : null}
+              {localizedStatusHint ? <span className="status-hint">{localizedStatusHint}</span> : null}
               {request.status === 'DECLINED' && request.declineReason ? (
                 <span className="decline-reason">&quot;{request.declineReason}&quot;</span>
               ) : null}
@@ -141,6 +155,7 @@ export function RequestContextPage() {
             </div>
           ) : null}
         </dl>
+        <ApprovalProgress evidence={request.approvalEvidence} />
       </section>
     </div>
   )

@@ -58,6 +58,9 @@
     "workingDays_zero": "No working days"
   },
   "requestContext": {
+    "approved": "Approved",
+    "approvedBy": "Approved by {{name}}",
+    "approvalProgress": "Operationally approved · {{recorded}} of {{total}} approvals recorded",
     "audit": "Audit",
     "dates": "Dates",
     "details": "Request Details",
@@ -66,6 +69,7 @@
     "leaveType": "Leave type",
     "loading": "Loading request context…",
     "notFound": "Request Not Found",
+    "pending": "Waiting for approval",
     "requester": "Requester",
     "status": "Status",
     "unavailable": "Request context is unavailable.",

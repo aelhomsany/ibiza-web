@@ -31,7 +31,19 @@ const mockLeaveTypes: LeaveTypeResponse[] = [
   },
 ]
 
-const mockMembers: TeamMemberSummaryResponse[] = []
+const mockMembers: TeamMemberSummaryResponse[] = [
+  {
+    id: 5,
+    fullName: 'Jordan HR',
+    email: 'hr@company.com',
+    department: 'People Ops',
+    role: 'HR_ADMIN',
+    workforceGroupId: 1,
+    workforceGroupName: 'US',
+    managerId: undefined,
+    managerName: undefined,
+  },
+]
 
 function renderModal(onClose = vi.fn(), onWarning = vi.fn()) {
   vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue(mockGroups)

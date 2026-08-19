@@ -2,15 +2,18 @@
   "actions": {
     "approve": "Approve",
     "confirmDecline": "Confirm Decline",
-    "decline": "Decline"
+    "decline": "Decline",
+    "concern": "Record Concern"
   },
   "aria": {
     "approveRequest": "Approve request from {{name}}",
+    "concernRequest": "Record a concern for {{name}}'s request",
     "declineRequest": "Decline request from {{name}}"
   },
   "audit": {
     "actions": {
       "approved": "Approved",
+      "concernRecorded": "Concern recorded",
       "declined": "Declined",
       "submitted": "Submitted"
     },
@@ -23,6 +26,11 @@
     "show": "Audit history",
     "showFor": "Show audit history for {{name}}",
     "title": "Audit History"
+  },
+  "approver": {
+    "actingOnBehalf": "You are acting on behalf of assigned approver {{name}}.",
+    "assigned": "Assigned approver: {{name}}",
+    "onBehalf": "On behalf of assigned approver {{name}}"
   },
   "balance": {
     "consequence": "{{before}} days available → {{after}} after approval",
@@ -73,14 +81,30 @@
   "emptyDescription": "There are no pending requests. Recent decisions remain available below.",
   "errors": {
     "approve": "Unable to approve request",
+    "concern": "Unable to record concern",
     "decline": "Unable to decline request",
     "pending": "We couldn't load pending requests. Please try again.",
     "recent": "We couldn't load recent decisions. Please try again."
   },
-  "manager": {
-    "actingOnBehalf": "You are deciding on behalf of {{name}}.",
-    "onBehalf": "On behalf of {{name}}",
-    "reportsTo": "Reports to {{name}}"
+  "concern": {
+    "title": "Record Project Concern",
+    "help": "Document the concern for {{name}}. The request remains operationally approved.",
+    "note": "Concern note",
+    "confirm": "Record Concern"
+  },
+  "progress": {
+    "label": "Approval progress",
+    "level": "Level {{level}}",
+    "currentLevel": "Current approval: level {{level}}",
+    "onBehalf": "Recorded by {{name}} on behalf of the assigned approver",
+    "status": {
+      "WAITING": "Waiting",
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "CONCERN_RECORDED": "Concern recorded",
+      "DECLINED": "Declined",
+      "SKIPPED": "Skipped"
+    }
   },
   "queue": {
     "description": "Oldest requests appear first. Each card keeps policy, balance, calculation, coverage, and actions together.",
@@ -101,12 +125,13 @@
     "modal": "{{name}}'s request was decided elsewhere. Your reason is preserved; close this dialog to review the retained context."
   },
   "subtitle": {
-    "hr": "Review all requests — you can approve on behalf of any manager",
-    "manager": "Review and action your team's leave requests"
+    "hr": "Review organization approval requests and act on behalf when needed",
+    "manager": "Review leave requests assigned to you"
   },
   "success": {
     "approved": "{{name}}'s request approved",
-    "declined": "{{name}}'s request declined"
+    "declined": "{{name}}'s request declined",
+    "concern": "Concern recorded for {{name}}'s request"
   },
   "summary": {
     "coverageFacts": "{{off}} off today · {{upcoming}} upcoming",
@@ -118,6 +143,7 @@
     "pendingLabel": "Pending requests"
   },
   "table": {
+    "approvalEvidence": "Approval evidence",
     "audit": "Audit",
     "dates": "Dates",
     "days": "Days",

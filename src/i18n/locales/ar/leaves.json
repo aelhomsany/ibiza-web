@@ -58,6 +58,9 @@
     "workingDays_zero": "لا توجد أيام عمل"
   },
   "requestContext": {
+    "approved": "تمت الموافقة",
+    "approvedBy": "وافق عليه {{name}}",
+    "approvalProgress": "تمت الموافقة التشغيلية · تم توثيق {{recorded}} من {{total}} موافقات",
     "audit": "سجل التدقيق",
     "dates": "التواريخ",
     "details": "تفاصيل الطلب",
@@ -66,6 +69,7 @@
     "leaveType": "نوع الإجازة",
     "loading": "جارٍ تحميل تفاصيل الطلب…",
     "notFound": "الطلب غير موجود",
+    "pending": "بانتظار الموافقة",
     "requester": "مقدم الطلب",
     "status": "الحالة",
     "unavailable": "تفاصيل الطلب غير متاحة.",

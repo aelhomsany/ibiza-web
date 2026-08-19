@@ -33,7 +33,7 @@ const mockTimeline: AuditEventResponse[] = [
     occurredAt: '2026-06-11T14:30:00Z',
     leaveRequestId: 101,
     onBehalf: true,
-    nominalManagerFirstName: 'Alex',
+    nominalApproverFirstName: 'Alex',
   },
 ]
 

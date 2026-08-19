@@ -28,6 +28,7 @@ describe('ApprovalCard query feedback ATDD — Story 10.8 / 11.4', () => {
         isApproving
         onApprove={vi.fn()}
         onDecline={vi.fn()}
+        onConcern={vi.fn()}
       />,
     )
 
@@ -44,10 +45,62 @@ describe('ApprovalCard query feedback ATDD — Story 10.8 / 11.4', () => {
         coverage={{ isLoading: false, isPartial: false, overlappingStarts: 0 }}
         onApprove={vi.fn()}
         onDecline={vi.fn()}
+        onConcern={vi.fn()}
       />,
     )
 
     expect(screen.getByRole('button', { name: /approve request.*sarah chen/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /decline request.*sarah chen/i })).toBeInTheDocument()
+  })
+
+  test('[P0] documentary levels offer approval or concern without balance or day guards', () => {
+    render(
+      <ApprovalCard
+        approval={{
+          ...approval,
+          approvalLevel: 2,
+          workingDays: 0,
+          balanceCapped: true,
+          balanceSufficient: false,
+          approvalEvidence: [
+            {
+              level: 1,
+              nominalApproverId: 3,
+              nominalApproverFullName: 'Alex Manager',
+              status: 'APPROVED',
+              result: 'APPROVED',
+              actualActorId: 3,
+              actualActorFullName: 'Alex Manager',
+              note: null,
+              decidedAt: '2026-08-01T10:00:00Z',
+              actedOnBehalf: false,
+              current: false,
+            },
+            {
+              level: 2,
+              nominalApproverId: 9,
+              nominalApproverFullName: 'Parker PM',
+              status: 'PENDING',
+              result: null,
+              actualActorId: null,
+              actualActorFullName: null,
+              note: null,
+              decidedAt: null,
+              actedOnBehalf: false,
+              current: true,
+            },
+          ],
+        }}
+        coverage={{ isLoading: false, isPartial: false, overlappingStarts: 0 }}
+        onApprove={vi.fn()}
+        onDecline={vi.fn()}
+        onConcern={vi.fn()}
+      />,
+    )
+
+    expect(screen.queryByTestId('decline-btn-101')).not.toBeInTheDocument()
+    expect(screen.getByTestId('concern-btn-101')).toBeEnabled()
+    expect(screen.getByTestId('approve-btn-101')).toBeEnabled()
+    expect(screen.getByText('Parker PM')).toBeInTheDocument()
   })
 })

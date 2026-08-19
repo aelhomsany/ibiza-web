@@ -258,6 +258,57 @@ describe('MyLeavesPage', () => {
     expect(screen.getByTestId('my-leaves-request-row-1')).toHaveTextContent('Pending')
   })
 
+  it('[P1] renders ordered approval evidence in personal history', async () => {
+    const historyWithEvidence: RecentRequestResponse[] = [{
+      ...mockHistory[0],
+      approvalEvidence: [
+        {
+          level: 1,
+          nominalApproverId: 3,
+          nominalApproverFullName: 'Alex Manager',
+          status: 'APPROVED',
+          result: 'APPROVED',
+          current: false,
+          actedOnBehalf: false,
+          actualActorId: 3,
+          actualActorFullName: 'Alex Manager',
+          decidedAt: '2026-07-01T10:00:00Z',
+        },
+        {
+          level: 2,
+          nominalApproverId: 7,
+          nominalApproverFullName: 'Parker PM',
+          status: 'CONCERN_RECORDED',
+          result: 'CONCERN_RECORDED',
+          current: false,
+          actedOnBehalf: true,
+          actualActorId: 9,
+          actualActorFullName: 'Harper HR',
+          note: 'Project coverage was discussed',
+          decidedAt: '2026-07-01T11:00:00Z',
+        },
+      ],
+    }]
+    vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(historyWithEvidence)
+    const user = userEvent.setup()
+
+    renderMyLeavesPage()
+
+    const row = await screen.findByTestId('my-leaves-request-row-3')
+    await user.click(within(row).getByRole('button', { name: /Details for Annual Leave/i }))
+
+    const details = await screen.findByTestId('my-leaves-request-details-3')
+    const progress = within(details).getByTestId('approval-progress')
+    const steps = within(progress).getAllByRole('listitem')
+    expect(steps).toHaveLength(2)
+    expect(steps[0]).toHaveTextContent('Level 1Alex ManagerApproved')
+    expect(steps[1]).toHaveTextContent('Level 2Parker PMConcern recorded')
+    expect(steps[1]).toHaveTextContent(
+      'Recorded by Harper HR on behalf of the assigned approver',
+    )
+  })
+
   it('[P1] preserves the HR audit column while personal-history filters are active', async () => {
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
     vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)

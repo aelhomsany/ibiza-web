@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
@@ -149,7 +149,7 @@ describe('ApprovalsPage', () => {
     })
 
     expect(
-      screen.getByText(/Review all requests — you can approve on behalf of any manager/i),
+      screen.getByText(/Review organization approval requests and act on behalf when needed/i),
     ).toBeInTheDocument()
   })
 
@@ -171,7 +171,7 @@ describe('ApprovalsPage', () => {
     await waitFor(() => expect(screen.getByTestId('approve-btn-101')).toBeEnabled())
     await user.click(screen.getByTestId('approve-btn-101'))
 
-    expect(approveSpy).toHaveBeenCalledWith(101)
+    expect(approveSpy).toHaveBeenCalledWith(101, 1)
     await waitFor(() =>
       expect(screen.getByTestId('approvals-decision-feedback')).toHaveTextContent(/approved/i),
     )
@@ -195,20 +195,55 @@ describe('ApprovalsPage', () => {
     expect(screen.getByTestId('decline-confirm-btn')).toBeDisabled()
   })
 
-  it('[P1] renders the reports-to pill when HR views a backstop pending row', async () => {
+  it('[P0] level-two reviewer records a required concern and advances the queue', async () => {
+    const levelTwoApproval: PendingApprovalResponse = {
+      ...mockPendingApprovals[0],
+      approvalLevel: 2,
+      approvalEvidence: [],
+    }
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([levelTwoApproval])
+    const concernSpy = vi.spyOn(apiClient, 'recordApprovalConcern').mockResolvedValue({
+      id: 101,
+      leaveTypeId: 1,
+      dateFrom: '2026-06-15',
+      dateTo: '2026-06-17',
+      days: 2,
+      status: 'APPROVED',
+    })
+    const user = userEvent.setup()
+
+    renderApprovalsPage('MANAGER')
+
+    await user.click(await screen.findByTestId('concern-btn-101'))
+    const dialog = screen.getByRole('dialog', { name: /record project concern/i })
+    const confirm = within(dialog).getByRole('button', { name: /record concern/i })
+    expect(confirm).toBeDisabled()
+
+    await user.type(within(dialog).getByLabelText(/concern note/i), 'Project coverage discussed')
+    await user.click(confirm)
+
+    expect(concernSpy).toHaveBeenCalledWith(101, 'Project coverage discussed', 2)
+    await waitFor(() => {
+      expect(screen.getByTestId('approvals-decision-feedback')).toHaveTextContent(/concern recorded/i)
+    })
+  })
+
+  it('[P1] identifies the assigned approver when HR acts on a pending row', async () => {
     vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([
       {
         ...mockPendingApprovals[0],
-        nominalManagerFirstName: 'Morgan',
+        nominalApproverFirstName: 'Morgan',
       },
     ])
 
     renderApprovalsPage('HR_ADMIN')
 
     await waitFor(() => expect(screen.getByTestId('approval-card-101')).toBeInTheDocument())
-    expect(screen.getByTestId('reports-to-pill-101')).toHaveTextContent(/Reports to Morgan/i)
+    expect(screen.getByTestId('assigned-approver-pill-101')).toHaveTextContent(
+      /Assigned approver: Morgan/i,
+    )
     expect(screen.getByTestId('on-behalf-notice-101')).toHaveTextContent(
-      /deciding on behalf of Morgan/i,
+      /acting on behalf of assigned approver Morgan/i,
     )
     expect(screen.queryByTestId('on-behalf-pill-101')).not.toBeInTheDocument()
   })
@@ -258,7 +293,7 @@ describe('ApprovalsPage', () => {
     await user.type(screen.getByTestId('decline-reason-input'), 'Coverage gap that week')
     await user.click(screen.getByTestId('decline-confirm-btn'))
 
-    expect(declineSpy).toHaveBeenCalledWith(101, 'Coverage gap that week')
+    expect(declineSpy).toHaveBeenCalledWith(101, 'Coverage gap that week', 1)
     await waitFor(() =>
       expect(screen.getByTestId('approvals-decision-feedback')).toHaveTextContent(/declined/i),
     )
@@ -305,7 +340,7 @@ describe('ApprovalsPage', () => {
       {
         ...mockRecentDecisions[0],
         decidedOnBehalf: true,
-        nominalManagerFirstName: 'Morgan',
+        nominalApproverFirstName: 'Morgan',
         actorFirstName: 'Jordan',
       },
     ])
@@ -316,7 +351,9 @@ describe('ApprovalsPage', () => {
       expect(screen.getByTestId('recent-on-behalf-pill-201')).toBeInTheDocument()
     })
 
-    expect(screen.getByTestId('recent-on-behalf-pill-201')).toHaveTextContent(/On behalf of Morgan/i)
+    expect(screen.getByTestId('recent-on-behalf-pill-201')).toHaveTextContent(
+      /On behalf of assigned approver Morgan/i,
+    )
   })
 
   it('[P1] approve invalidates pending count and recent decisions queries', async () => {
@@ -344,6 +381,36 @@ describe('ApprovalsPage', () => {
     const invalidatedKeys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]))
     expect(invalidatedKeys.some((k) => k.includes('pending-count'))).toBe(true)
     expect(invalidatedKeys.some((k) => k.includes('recent-decisions'))).toBe(true)
+  })
+
+  it('[P0] keeps the same request visible when it advances to the next approval level', async () => {
+    const levelOne = { ...mockPendingApprovals[0], approvalLevel: 1 }
+    const levelTwo = {
+      ...mockPendingApprovals[0],
+      approvalLevel: 2,
+      approvalEvidence: [],
+    }
+    vi.spyOn(apiClient, 'getPendingApprovals')
+      .mockResolvedValueOnce([levelOne])
+      .mockResolvedValue([levelTwo])
+    vi.spyOn(apiClient, 'approveLeaveRequest').mockResolvedValue({
+      id: 101,
+      leaveTypeId: 1,
+      dateFrom: '2026-06-15',
+      dateTo: '2026-06-17',
+      days: 2,
+      status: 'APPROVED',
+    })
+    const user = userEvent.setup()
+
+    renderApprovalsPage('MANAGER')
+    await user.click(await screen.findByTestId('approve-btn-101'))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('approval-card-101')).toHaveTextContent(
+        /Current approval: level 2/i,
+      )
+    })
   })
 
   it('[P1] approve refetch clears pending row and adds Recent Decisions entry', async () => {

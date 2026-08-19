@@ -17,6 +17,8 @@ function actionKey(action: AuditEventResponse['action']): string | null {
       return 'audit.actions.approved'
     case 'DECLINED':
       return 'audit.actions.declined'
+    case 'CONCERN_RECORDED':
+      return 'audit.actions.concernRecorded'
     default:
       return null
   }
@@ -97,12 +99,12 @@ export function AuditHistoryPanel({ requestId, panelId }: AuditHistoryPanelProps
               </div>
               <div className="audit-history-actor">
                 <span>{event.actorFirstName ?? t('common:unknown')}</span>
-                {event.onBehalf && event.nominalManagerFirstName ? (
+                {event.onBehalf && event.nominalApproverFirstName ? (
                   <span
                     className="approval-on-behalf-pill"
                     data-testid={`audit-on-behalf-pill-${eventId}`}
                   >
-                    {t('approvals:audit.onBehalf', { name: event.nominalManagerFirstName })}
+                    {t('approvals:audit.onBehalf', { name: event.nominalApproverFirstName })}
                   </span>
                 ) : null}
               </div>

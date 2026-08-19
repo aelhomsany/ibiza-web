@@ -180,6 +180,27 @@
   text-align: end;
 }
 
+.approval-chain-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-md);
+  margin: 0 0 var(--space-lg);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.approval-chain-fields legend {
+  padding-inline: var(--space-sm);
+  font-weight: 700;
+}
+
+.approval-chain-fields .form-help,
+.approval-chain-fields .field-error {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
 /* ---- Plan-limit upgrade prompt ---- */
 .upgrade-prompt {
   display: grid;
@@ -240,7 +261,8 @@
   }
 
   .upgrade-prompt,
-  .upgrade-prompt-actions {
+  .upgrade-prompt-actions,
+  .approval-chain-fields {
     grid-template-columns: 1fr;
   }
 }

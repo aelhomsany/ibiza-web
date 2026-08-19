@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { getOrgNavItems } from '../../auth/rolePermissions'
 import { useAuth } from '../../auth/useAuth'
 import { usePendingApprovalCount } from '../../features/approvals/usePendingApprovalCount'
+import { useApprovalCapability } from '../../features/approvals/useApprovalCapability'
 import { NotificationBell } from '../../features/notifications/NotificationBell'
 import { ErrorBoundary } from '../ui/ErrorBoundary'
 import { AppHeader } from './AppHeader'
@@ -19,13 +20,16 @@ export function OrgShell() {
   const { t, i18n } = useTranslation(['layout', 'common'])
   const { user, logout } = useAuth()
   const role = user?.role ?? 'EMPLOYEE'
+  const capability = useApprovalCapability()
+  const canReviewApprovals = capability.data?.canReviewApprovals ?? user?.canReviewApprovals
+    ?? (role === 'MANAGER' || role === 'HR_ADMIN')
   const { data: pendingCountData } = usePendingApprovalCount()
   const pendingCount = pendingCountData?.count ?? 0
   const { navOpen, menuButtonRef, closeNav, toggleNav, onNavigate } =
     useMobileNavDrawer()
   const location = useLocation()
 
-  const navItems = getOrgNavItems(role).map((item) => {
+  const navItems = getOrgNavItems(role, canReviewApprovals).map((item) => {
     const sourceKey = item.testId?.replace('nav-', '') ?? ''
     const key = sourceKey === 'my-leaves' ? 'myLeaves' : sourceKey
     const label = i18n.exists(`layout:nav.${key}`) ? t(`nav.${key}`) : item.label

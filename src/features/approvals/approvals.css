@@ -251,6 +251,17 @@ html[lang='ar'] .approval-card-eyebrow {
   min-width: 0;
 }
 
+.approval-card-step {
+  margin: 0;
+  color: var(--color-working-policy);
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+}
+
+.recent-decision-progress {
+  min-width: 320px;
+}
+
 .approval-card-coverage {
   min-width: 0;
   padding: var(--space-lg);

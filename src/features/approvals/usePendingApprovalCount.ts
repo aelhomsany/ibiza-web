@@ -1,9 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { getPendingApprovalCount } from '../../api/client'
 import { useAuth } from '../../auth/useAuth'
-import type { UserRole } from '../../api/generated/types'
-
-const APPROVAL_ROLES: UserRole[] = ['MANAGER', 'HR_ADMIN']
+import { useApprovalCapability } from './useApprovalCapability'
 
 export function pendingApprovalCountQueryKey(userId: number | undefined) {
   return ['approvals', 'pending-count', userId] as const
@@ -11,9 +9,11 @@ export function pendingApprovalCountQueryKey(userId: number | undefined) {
 
 export function usePendingApprovalCount() {
   const { user } = useAuth()
+  const capability = useApprovalCapability()
   const userId = user?.id
-  const role = user?.role
-  const enabled = userId != null && role != null && APPROVAL_ROLES.includes(role)
+  const canReview = capability.data?.canReviewApprovals ?? user?.canReviewApprovals
+    ?? (user?.role === 'MANAGER' || user?.role === 'HR_ADMIN')
+  const enabled = userId != null && canReview
 
   return useQuery({
     queryKey: pendingApprovalCountQueryKey(userId),

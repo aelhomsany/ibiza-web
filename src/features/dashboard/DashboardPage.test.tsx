@@ -94,6 +94,9 @@ const approvedUpcoming: UpcomingAbsenceResponse = {
 function renderDashboardPage(
   role: 'EMPLOYEE' | 'MANAGER' | 'HR_ADMIN' = 'EMPLOYEE',
 ) {
+  vi.mocked(apiClient.getApprovalCapability).mockResolvedValue({
+    canReviewApprovals: role === 'MANAGER' || role === 'HR_ADMIN',
+  })
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
@@ -116,6 +119,9 @@ function renderDashboardPage(
 
 describe('DashboardPage — Story 11.2 hierarchy and prioritization', () => {
   beforeEach(() => {
+    vi.spyOn(apiClient, 'getApprovalCapability').mockResolvedValue({
+      canReviewApprovals: false,
+    })
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
     vi.spyOn(apiClient, 'getDashboardRecentRequests').mockResolvedValue([])
     vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
