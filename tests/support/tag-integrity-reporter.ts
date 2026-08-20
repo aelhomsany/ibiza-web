@@ -24,8 +24,8 @@ const storyTagPattern = /^@story-\d+-\d+$/
 const reservedTagTokenPattern = /@(smoke|regression|api|ui-only|a11y|keyboard|story-[^\s:]*)/
 const expectedTagCounts = new Map([
   ['@smoke', 7],
-  ['@regression', 91],
-  ['@api', 69],
+  ['@regression', 92],
+  ['@api', 70],
   ['@ui-only', 22],
 ])
 const approvedSmokeIdentities = new Set([

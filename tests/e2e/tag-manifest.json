@@ -494,6 +494,15 @@
         "[P1] Given the return notice mounts on every org route, When the destination is viewed at each breakpoint in either locale, Then no page-level horizontal overflow occurs",
         "[P1] Given the marker rides in a bookmarkable URL, When the admin dismisses the return notice, Then it stays dismissed for the tab session"
       ]
+    },
+    "platform-admin-auth.spec.ts::Platform admin authentication": {
+      "tags": [
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "[P0] real Platform Admin login lands in admin shell without org navigation"
+      ]
     }
   },
   "permanentlySkippedTests": [
