@@ -59,4 +59,27 @@ describe('Plan and billing recovery surfaces — Story 12.4', () => {
     expect(await screen.findByTestId('billing-restricted-banner')).toHaveAttribute('role', 'alert')
     expect(screen.getByTestId('cta-update-payment')).toBeVisible()
   })
+
+  it('[BILLING-VAL-120] restricted recovery keeps seat reduction reachable next to payment', async () => {
+    vi.spyOn(client, 'getBillingSubscription').mockResolvedValue({
+      ...subscription,
+      billingStatus: 'RESTRICTED',
+    })
+
+    render(<BillingNotice />)
+
+    expect(await screen.findByTestId('billing-restricted-banner')).toBeVisible()
+    const reduceSeats = screen.getByTestId('cta-reduce-seats')
+    expect(reduceSeats).toHaveAttribute('href', '/settings?category=people')
+    expect(screen.getByTestId('cta-update-payment')).toBeVisible()
+  })
+
+  it('[BILLING-VAL-120] grace notice does not offer seat reduction as a remediation step', async () => {
+    vi.spyOn(client, 'getBillingSubscription').mockResolvedValue(subscription)
+
+    render(<BillingNotice />)
+
+    expect(await screen.findByTestId('billing-grace-notice')).toBeVisible()
+    expect(screen.queryByTestId('cta-reduce-seats')).not.toBeInTheDocument()
+  })
 })

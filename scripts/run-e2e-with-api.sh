@@ -31,6 +31,11 @@ export DB_PORT="${DB_PORT:-3306}"
 export DB_NAME="${DB_NAME:-ibiza}"
 export DB_USER="${DB_USER:-root}"
 export DB_PASSWORD="${DB_PASSWORD:-}"
+# Story 12.4: the paid registration surfaces are behind their own feature control, independent of
+# Free. Without this the API refuses every paid Checkout start with 503 and any paid-path E2E is
+# untestable — which is exactly why the Story 12.4 specs previously gated themselves off and never
+# ran. Free registration keeps its own control, so enabling one does not enable the other.
+export PAID_REGISTRATION_ENABLED="${PAID_REGISTRATION_ENABLED:-true}"
 
 cd "$API_DIR"
 ./mvnw -q spring-boot:run -Dspring-boot.run.arguments="--server.port=${API_PORT}" \
@@ -41,6 +46,7 @@ API_PID=$!
 
 cd "$ROOT"
 export E2E_API_AVAILABLE=true
+export E2E_PAID_REGISTRATION=true
 export API_URL="http://localhost:${API_PORT}"
 export BASE_URL="http://localhost:${WEB_PORT}"
 npm run test:e2e:ci -- "$@"

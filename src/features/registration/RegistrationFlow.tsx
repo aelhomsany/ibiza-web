@@ -32,6 +32,26 @@ function safeReturnPath(): string {
     : '/'
 }
 
+/**
+ * Paid recovery quotes a short, stable reference so support can correlate the case without the
+ * customer reading out an email address or a Stripe identifier. It is derived from the
+ * registration capability the holder already possesses, so it discloses nothing new.
+ */
+function supportReference(registrationId: string): string {
+  return `REG-${registrationId.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 8)}`
+}
+
+/**
+ * Registration states where money is already committed, the workspace is not yet usable, and the
+ * customer is the one who has to act. `PAID_PROVISIONING` is deliberately absent: provisioning is
+ * running server-side, so offering "Complete Workspace Setup" put a button on screen with nothing
+ * to complete. That state gets a status line instead.
+ */
+const PAID_UNPROVISIONED = new Set<RegistrationState['status']>([
+  'PAYMENT_CONFIRMED',
+  'PROVISIONING_FAILED',
+])
+
 /** Replaces every occurrence — a template repeating a placeholder must substitute them all. */
 function interpolate(template: string, values: Record<string, string | number>) {
   return Object.entries(values).reduce(
@@ -151,6 +171,24 @@ export function RegistrationFlow({ locale, route }: Props) {
       })
   }, [copy.expired, locale, route])
 
+  // The recovery route stays non-enumerating: an unreadable or unknown id silently falls back to
+  // the neutral email form rather than confirming or denying that a registration exists.
+  useEffect(() => {
+    if (route !== '/register/recovery') return
+    const requested = new URLSearchParams(window.location.search).get('registrationId')
+      ?? sessionStorage.getItem('ibiza.registrationId')
+    if (!requested) return
+    void loadRegistration(requested)
+      .then((current) => {
+        setState(current)
+        // The next action on this page links to /register, which resumes from sessionStorage
+        // only. Without this a customer arriving by recovery link dropped into an empty start
+        // form. Written after the load succeeds, so an unknown id is never persisted.
+        sessionStorage.setItem('ibiza.registrationId', current.registrationId)
+      })
+      .catch(() => undefined)
+  }, [route])
+
   useEffect(() => {
     if (route !== '/register') return
     const registrationId = sessionStorage.getItem('ibiza.registrationId')
@@ -206,7 +244,15 @@ export function RegistrationFlow({ locale, route }: Props) {
 		setSubmitting(true)
 		setError(null)
 		try {
-			checkoutKey.current ??= `checkout-${state.registrationId}-${state.selectedPlan}-${state.intendedCount}`
+			// A fresh key per attempt, not a value derived from the commitment. The derived key was
+			// identical on every mount, so a customer returning after expiry replayed a key the
+			// server had already consumed: it bumped the attempt, minted a session, then rolled back
+			// on uk_registration_operation_key and answered 409. Only the second click worked.
+			// Reusing a key across a reload buys nothing either — while a session is still live the
+			// server returns the stored URL before it ever reads the idempotency table, and the key
+			// only decides anything when a *new* session is being minted, which is exactly when it
+			// must be new. Within one mount the key is stable, which is what stops a double-submit.
+			checkoutKey.current ??= publicUuid()
 			const result = await startRegistrationCheckout(
 				state.registrationId, state.selectedPlan, state.intendedCount,
 				checkoutToken(), checkoutKey.current,
@@ -214,7 +260,9 @@ export function RegistrationFlow({ locale, route }: Props) {
 			window.location.assign(result.checkoutUrl)
 		} catch (requestError) {
 			resetCheckout()
-			if (requestError instanceof PublicApiError && requestError.status === 409) checkoutKey.current = null
+			if (requestError instanceof PublicApiError && requestError.status === 409) {
+				checkoutKey.current = null
+			}
 			setError(requestError instanceof PublicApiError && requestError.status === 503
 				? copy.paid.checkoutUnavailable : copy.error)
 		} finally {
@@ -395,7 +443,40 @@ export function RegistrationFlow({ locale, route }: Props) {
           </form>
         ) : null}
 
-        {phase === 'recovery' ? recoveryAccepted ? (
+        {/* Money is already committed here, so the only offered action completes the workspace —
+            never a second Checkout. */}
+        {phase === 'recovery' && state && state.selectedPlan !== 'FREE'
+          && PAID_UNPROVISIONED.has(state.status) ? (
+          <div data-testid="paid-unprovisioned-recovery">
+            {planSummary()}
+            <p>{copy.paid.recoveryBody}</p>
+            <p>
+              {copy.paid.supportReferenceLabel}
+              {': '}
+              <bdi dir="ltr" data-testid="support-reference">{supportReference(state.registrationId)}</bdi>
+            </p>
+            <a
+              className="btn btn-primary"
+              data-testid="recovery-next-action"
+              href={locale === 'ar' ? '/ar/register' : '/register'}
+            >
+              {copy.paid.recoveryAction}
+            </a>
+          </div>
+        ) : phase === 'recovery' && state && state.selectedPlan !== 'FREE'
+          && state.status === 'PAID_PROVISIONING' ? (
+          /* Provisioning is running server-side. There is nothing for the customer to complete,
+             so this states the fact instead of offering a button with no work behind it. */
+          <div data-testid="paid-provisioning-status" role="status">
+            {planSummary()}
+            <p>{copy.paid.provisioningRunning}</p>
+            <p>
+              {copy.paid.supportReferenceLabel}
+              {': '}
+              <bdi dir="ltr" data-testid="support-reference">{supportReference(state.registrationId)}</bdi>
+            </p>
+          </div>
+        ) : phase === 'recovery' ? recoveryAccepted ? (
           <p data-testid="registration-recovery" role="status">{copy.recoveryAccepted}</p>
         ) : (
           <form onSubmit={(event) => void recover(event)} data-testid="registration-expired-recovery">

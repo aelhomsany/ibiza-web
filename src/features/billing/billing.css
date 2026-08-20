@@ -9,6 +9,7 @@
 }
 
 .billing-notice p { margin: var(--space-xs) 0 0; }
+.billing-notice-actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
 .billing-notice--restricted { background: var(--color-status-risk-bg); }
 .billing-page { display: grid; gap: var(--space-section-gap); }
 .billing-summary, .billing-actions { padding: var(--space-card-padding); }

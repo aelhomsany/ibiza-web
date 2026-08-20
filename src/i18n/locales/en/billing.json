@@ -1,5 +1,5 @@
 {
-  "actions": { "compare": "Compare Paid Plans", "free": "Schedule Free at Renewal", "portal": "Open Billing Portal", "remediate": "Update Payment", "sales": "Contact Sales", "starter": "Schedule Starter at Renewal" },
+  "actions": { "compare": "Compare Paid Plans", "free": "Schedule Free at Renewal", "portal": "Open Billing Portal", "reduceSeats": "Reduce Seats", "remediate": "Update Payment", "sales": "Contact Sales", "starter": "Schedule Starter at Renewal" },
   "errors": { "downgrade": "The downgrade is not eligible yet. Reduce seats or pending invitations first.", "load": "Billing details could not be loaded.", "portal": "The Billing Portal is temporarily unavailable." },
   "loading": "Loading authoritative billing status…",
   "manage": { "body": "Payment methods, invoices, and provider cancellation are managed in the secure Billing Portal. Ibiza validates plan and seat eligibility.", "title": "Manage subscription" },

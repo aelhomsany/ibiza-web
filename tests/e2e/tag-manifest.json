@@ -454,7 +454,7 @@
     "paid-registration.spec.ts::Paid registration — Story 12.4": {
       "tags": [
         "@regression",
-        "@api",
+        "@ui-only",
         "@story-12-4"
       ],
       "tests": [
@@ -465,7 +465,7 @@
     "billing-recovery.spec.ts::Billing remediation — Story 12.4": {
       "tags": [
         "@regression",
-        "@api",
+        "@ui-only",
         "@story-12-4"
       ],
       "tests": [

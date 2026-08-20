@@ -30,9 +30,21 @@ export function BillingNotice() {
           date: subscription.graceEndsAt ? new Date(subscription.graceEndsAt).toLocaleDateString() : '',
         })}</p>
       </div>
-      <a className="btn btn-outline btn-sm" href="/settings/billing" data-testid="cta-update-payment">
-        {t('actions.remediate')}
-      </a>
+      <div className="billing-notice-actions">
+        <a className="btn btn-outline btn-sm" href="/settings/billing" data-testid="cta-update-payment">
+          {t('actions.remediate')}
+        </a>
+        {/* AC4: restricted recovery must keep seat reduction reachable, not only payment. */}
+        {restricted ? (
+          <a
+            className="btn btn-outline btn-sm"
+            href="/settings?category=people"
+            data-testid="cta-reduce-seats"
+          >
+            {t('actions.reduceSeats')}
+          </a>
+        ) : null}
+      </div>
     </aside>
   )
 }
