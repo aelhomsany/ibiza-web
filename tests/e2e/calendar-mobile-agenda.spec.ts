@@ -57,10 +57,11 @@ test.describe(
         const filter = page.getByRole('combobox', { name: 'Workforce Group' })
         await expect(filter).toBeVisible()
 
-        const egypt = filter.locator('option', { hasText: 'Egypt' })
-        if ((await egypt.count()) === 0) {
-          test.skip(true, 'Seed data lacks a second Workforce Group for filter persistence proof')
-        }
+        // The curated demo seed always provisions two Workforce Groups (US + Egypt) —
+        // DemoScenarioSeeder.EGYPT_GROUP, asserted by DemoDataResetIntegrationTest
+        // #resetSeedsCurrentYearHolidaysNotificationsBalancesAndAuditHistory. A missing
+        // option is a seed defect, so fail here instead of reporting a green skip.
+        await expect(filter.locator('option', { hasText: 'Egypt' })).toHaveCount(1)
 
         await filter.selectOption({ label: 'Egypt' })
         await expect(filter).toHaveValue(/.+/)
@@ -78,19 +79,19 @@ test.describe(
     test(
       '[P1] Given a permitted absence chip, When activated, Then request context navigation succeeds',
       async ({ page }) => {
-        await loginViaUi(page, { email: 'sarah@company.com', password })
+        // HR Admin, not an Employee: LeaveRequestContextService#canViewRequestContext
+        // grants HR_ADMIN request context for every absence in the org, so the chip is
+        // always a link. The curated seed anchors Mike's approved WFH to
+        // nearestWorkingDay(today) (LeaveRequestProvisioner KEY_MIKE_WFH_TODAY), which
+        // guarantees at least one permitted absence inside the default period.
+        await loginViaUi(page, { email: 'jordan@company.com', password })
         await navigateInApp(page, '/calendar')
 
         await expect(page.getByTestId('team-calendar-page')).toBeVisible()
         await expect(page.getByTestId('team-calendar-loading')).not.toBeVisible()
 
         const permitted = page.locator('a[data-testid^="calendar-event-"]').first()
-        if ((await permitted.count()) === 0) {
-          test.skip(
-            true,
-            'Seed data has no permitted approved absence for click-through in this period',
-          )
-        }
+        await expect(permitted).toBeVisible()
 
         await permitted.click()
         await expect(page).toHaveURL(/\/leave-requests\/\d+/)
