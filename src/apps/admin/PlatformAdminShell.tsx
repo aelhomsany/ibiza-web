@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation } from 'react-router-dom'
-import { BuildingIcon, GlobeIcon, LogOutIcon, RefreshCwIcon } from '../../components/ui/icons'
+import { BuildingIcon, CheckIcon, GlobeIcon, RefreshCwIcon } from '../../components/ui/icons'
 import { AppHeader } from '../../components/layout/AppHeader'
+import { UserMenu } from '../../components/layout/UserMenu'
 import { Sidebar, type NavItem } from '../../components/layout/Sidebar'
 import { SkipToMainLink } from '../../components/layout/SkipToMainLink'
 import { useMobileNavDrawer } from '../../components/layout/useMobileNavDrawer'
@@ -46,6 +47,12 @@ export function PlatformAdminShell() {
     storePreferredLanguage(locale)
   }
 
+  const activeLocale: SupportedLocale = i18n.language?.startsWith('ar') ? 'ar' : 'en'
+  const localeOptions: { locale: SupportedLocale; label: string }[] = [
+    { locale: 'en', label: t('platformAuth:actions.english') },
+    { locale: 'ar', label: t('platformAuth:actions.arabic') },
+  ]
+
   return (
     <div className="admin-shell platform-admin-shell" data-testid="admin-shell">
       <SkipToMainLink inert={navOpen} />
@@ -74,25 +81,36 @@ export function PlatformAdminShell() {
             title={t('platformAuth:realm')}
             contextLabel={`${t('platformAuth:operatorOnly')} · ${user?.fullName ?? ''}`}
             actions={
-              <div className="platform-admin-actions">
-                <div className="platform-admin-language" aria-label={t('layout:header.language')}>
-                  <GlobeIcon size={18} aria-hidden="true" />
-                  <button type="button" onClick={() => void changeLocale('en')}>
-                    {t('platformAuth:actions.english')}
-                  </button>
-                  <button type="button" onClick={() => void changeLocale('ar')}>
-                    {t('platformAuth:actions.arabic')}
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-ghost platform-admin-signout"
-                  onClick={() => void logout()}
-                >
-                  <LogOutIcon size={18} aria-hidden="true" />
-                  {t('platformAuth:actions.signOut')}
-                </button>
-              </div>
+              <UserMenu
+                userName={user?.fullName?.trim() || t('layout:header.userFallback')}
+                userRole={user?.role ?? 'PLATFORM_ADMIN'}
+                onSignOut={logout}
+                variant="admin"
+                languageSwitcher={
+                  <div
+                    className="platform-admin-language"
+                    role="group"
+                    aria-label={t('layout:header.language')}
+                    data-testid="platform-admin-language"
+                  >
+                    <GlobeIcon size={18} aria-hidden="true" />
+                    {localeOptions.map(({ locale, label }) => (
+                      <button
+                        key={locale}
+                        type="button"
+                        role="menuitemradio"
+                        aria-checked={locale === activeLocale}
+                        onClick={() => void changeLocale(locale)}
+                      >
+                        <span>{label}</span>
+                        {locale === activeLocale ? (
+                          <CheckIcon size={14} aria-label={t('layout:language.current')} />
+                        ) : null}
+                      </button>
+                    ))}
+                  </div>
+                }
+              />
             }
             navOpen={navOpen}
             menuButtonRef={menuButtonRef}

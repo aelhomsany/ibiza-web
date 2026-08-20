@@ -13,7 +13,6 @@
   "actions": {
     "signIn": "Sign In as Platform Admin",
     "signingIn": "Signing In…",
-    "signOut": "Sign Out",
     "english": "English",
     "arabic": "العربية"
   },
@@ -31,5 +30,17 @@
     "title": "Operator Page Not Found",
     "body": "This route is not available in the Platform Admin application.",
     "action": "Back to Organizations"
+  },
+  "profile": {
+    "title": "Operator Profile",
+    "subtitle": "Your Ibiza platform operator account.",
+    "summary": "Operator account summary",
+    "account": "Account",
+    "boundary": "Operator accounts are platform-scoped. They hold no organization, workforce group, or leave data.",
+    "fields": {
+      "name": "Name",
+      "role": "Access level",
+      "preferredLanguage": "Language"
+    }
   }
 }

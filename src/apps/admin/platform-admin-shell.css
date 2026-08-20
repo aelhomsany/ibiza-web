@@ -1,4 +1,3 @@
-.platform-admin-actions,
 .platform-admin-language {
   display: flex;
   align-items: center;
@@ -27,12 +26,11 @@
   background: var(--color-surface-subtle);
 }
 
-@media (max-width: 900px) {
-  .platform-admin-language {
-    display: none;
-  }
-
-  .platform-admin-signout {
-    padding-inline: var(--space-md);
-  }
+/* The control now lives inside the user-menu panel, which is itself the responsive
+   surface — hiding it at <=900px (as it was when it sat in the header bar) would
+   remove the operator realm's only language control on mobile. */
+.platform-admin-language button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
 }

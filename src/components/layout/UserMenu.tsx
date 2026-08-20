@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import '../../i18n/config'
 import type { UserRole } from '../../api/generated/types'
 import { ProfileAvatar } from '../../features/profile/ProfileAvatar'
-import { ORG_NAV_ITEMS } from '../../auth/rolePermissions'
+import { canAccessSettings } from '../../auth/settingsAccess'
 import {
   ClipboardListIcon,
   LogOutIcon,
@@ -18,11 +18,6 @@ import { LANGUAGE_SWITCHER_MENU_ID } from './LanguageSwitcher'
 import './user-menu.css'
 
 const HEADER_MENU_ID = 'user-menu'
-
-function canAccessSettings(role: UserRole): boolean {
-  const settingsItem = ORG_NAV_ITEMS.find((item) => item.testId === 'nav-settings')
-  return settingsItem ? settingsItem.requiredRoles.includes(role) : false
-}
 
 type UserMenuProps = {
   userName: string
@@ -103,7 +98,7 @@ export function UserMenu({ userName, userRole, profileImageUrl, onSignOut, varia
             label: t('menu.profile'),
             icon: UserIcon,
             kind: 'link',
-            to: '/profile',
+            to: '/app-admin/profile',
           },
           {
             id: 'sign-out',
@@ -271,7 +266,7 @@ export function UserMenu({ userName, userRole, profileImageUrl, onSignOut, varia
           data-testid="user-menu-panel"
         >
           <div className="user-menu-header">
-            <div className="user-menu-name">{userName}</div>
+            <div className="user-menu-name" title={userName}>{userName}</div>
             <div className="user-menu-role">{t(`common:roles.${roleKey(userRole)}`)}</div>
           </div>
 

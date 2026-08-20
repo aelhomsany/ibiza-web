@@ -1,0 +1,40 @@
+.platform-profile-list {
+  margin: 0;
+  padding: 0 var(--space-card-padding) var(--space-md);
+  display: grid;
+  gap: var(--space-md);
+}
+
+.platform-profile-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--space-md);
+  align-items: start;
+}
+
+.platform-profile-row dt {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.platform-profile-row dd {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-foreground);
+  overflow-wrap: anywhere;
+}
+
+.platform-profile-boundary {
+  margin: 0;
+  padding: 0 var(--space-card-padding) var(--space-card-padding);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+@media (max-width: 900px) {
+  .platform-profile-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-xs);
+  }
+}

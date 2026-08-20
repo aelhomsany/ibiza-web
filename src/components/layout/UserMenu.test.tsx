@@ -132,7 +132,9 @@ describe('UserMenu', () => {
     await openMenu()
 
     await userEvent.click(screen.getByTestId('user-menu-item-profile'))
-    expect(screen.getByTestId('location-path')).toHaveTextContent('/profile')
+    // Anchored: '/profile' is a substring of the admin variant's '/app-admin/profile',
+    // so an org -> admin regression would slip past a bare toHaveTextContent.
+    expect(screen.getByTestId('location-path').textContent).toBe('/profile')
     expect(screen.queryByTestId('user-menu-panel')).not.toBeInTheDocument()
   })
 
@@ -221,6 +223,18 @@ describe('UserMenu', () => {
     expect(screen.queryByTestId('user-menu-item-settings')).not.toBeInTheDocument()
     expect(screen.getByTestId('user-menu-item-sign-out')).toBeInTheDocument()
     expect(within(screen.getByTestId('user-menu-panel')).getByText('Platform Admin')).toBeInTheDocument()
+  })
+
+  it('[P0] admin variant links Profile to the admin profile route', async () => {
+    renderUserMenu('PLATFORM_ADMIN', 'admin', 'Riley Morgan')
+    await openMenu()
+
+    await userEvent.click(screen.getByTestId('user-menu-item-profile'))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location-path').textContent).toBe('/app-admin/profile')
+    })
+    expect(screen.queryByTestId('user-menu-panel')).not.toBeInTheDocument()
   })
 
   it('[P0] ArrowDown focuses the first item after the menu is opened by mouse click', async () => {

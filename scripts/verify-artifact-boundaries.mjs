@@ -97,6 +97,11 @@ const adminGraph = walk(join(dist, 'admin'))
   .map((path) => readFileSync(path, 'utf8'))
   .join('\n')
 check(!/forgot-password|reset-password|features\/dashboard|features\/my-leaves/.test(adminGraph), 'Admin graph contains customer recovery or workforce code')
+// Org nav metadata leaks through shared layout components rather than through feature
+// imports, so the module-path greps above cannot see it: UserMenu is mounted by both
+// shells, and its ORG_NAV_ITEMS import once shipped the whole org nav catalog into the
+// admin artifact while this gate stayed green.
+check(!/nav-dashboard|nav-my-leaves|nav-approvals|nav-calendar/.test(adminGraph), 'Admin graph contains org workforce navigation metadata')
 
 if (errors.length) {
   console.error(errors.map((error) => `- ${error}`).join('\n'))

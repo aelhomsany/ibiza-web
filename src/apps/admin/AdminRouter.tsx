@@ -22,6 +22,11 @@ const PaidRegistrationRecoveryPage = lazy(() =>
     default: module.PaidRegistrationRecoveryPage,
   })),
 )
+const PlatformProfilePage = lazy(() =>
+  import('../../features/platform-profile/PlatformProfilePage').then((module) => ({
+    default: module.PlatformProfilePage,
+  })),
+)
 
 function OrganizationsRoute() {
   const { t } = useTranslation(['common', 'platformAuth'])
@@ -29,6 +34,14 @@ function OrganizationsRoute() {
     document.title = `${t('common:routes.organizations')} | ${t('platformAuth:realm')} | Ibiza`
   }, [t])
   return <OrganizationsPage />
+}
+
+function ProfileRoute() {
+  const { t } = useTranslation(['platformAuth'])
+  useEffect(() => {
+    document.title = `${t('platformAuth:profile.title')} | ${t('platformAuth:realm')} | Ibiza`
+  }, [t])
+  return <PlatformProfilePage />
 }
 
 function NotFound() {
@@ -67,6 +80,7 @@ export function AdminRoutes() {
             />
             <Route path="/app-admin/organizations" element={<OrganizationsRoute />} />
             <Route path="/app-admin/registration-recovery" element={<PaidRegistrationRecoveryPage />} />
+            <Route path="/app-admin/profile" element={<ProfileRoute />} />
             <Route path="/app-admin/*" element={<NotFound />} />
           </Route>
         </Route>

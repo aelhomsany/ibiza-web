@@ -1,5 +1,6 @@
 import type { UserRole } from '../api/generated/types'
 import type { NavItem } from '../components/layout/Sidebar'
+import { SETTINGS_REQUIRED_ROLES } from './settingsAccess'
 import {
   CalendarIcon,
   CheckCircleIcon,
@@ -50,7 +51,7 @@ const ORG_BASE: NavCatalogItem[] = [
     path: '/settings',
     icon: SettingsIcon,
     testId: 'nav-settings',
-    requiredRoles: ['HR_ADMIN'],
+    requiredRoles: SETTINGS_REQUIRED_ROLES,
   },
 ]
 
