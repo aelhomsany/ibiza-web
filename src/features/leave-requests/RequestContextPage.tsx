@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import { ApiError } from '../../api/client'
 import { useAuth } from '../../auth/useAuth'
 import { LeaveStatusBadge } from '../../components/ui/LeaveStatusBadge'
@@ -86,7 +87,7 @@ export function RequestContextPage() {
           total: approvalEvidence.length,
         })
       : request.status === 'APPROVED' && request.approverFirstName
-        ? t('requestContext.approvedBy', { name: request.approverFirstName })
+        ? t('requestContext.approvedBy', { name: isolate(request.approverFirstName) })
         : request.status === 'APPROVED'
           ? t('requestContext.approved')
           : null
@@ -126,7 +127,7 @@ export function RequestContextPage() {
           </div>
           <div>
             <dt>{t('requestContext.requester')}</dt>
-            <dd>{request.requesterFullName}</dd>
+            <dd dir="auto">{request.requesterFullName}</dd>
           </div>
           <div>
             <dt>{t('requestContext.dates')}</dt>

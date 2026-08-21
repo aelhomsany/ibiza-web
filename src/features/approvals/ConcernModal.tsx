@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import { Modal } from '../../components/ui/Modal'
 import { CloseIcon } from '../../components/ui/icons'
 
@@ -36,7 +37,7 @@ export function ConcernModal({
           <CloseIcon size={18} />
         </button>
       </div>
-      <p>{t('approvals:concern.help', { name: employeeName })}</p>
+      <p>{t('approvals:concern.help', { name: isolate(employeeName) })}</p>
       <div className="form-group">
         <label htmlFor="approval-concern-note">{t('approvals:concern.note')}</label>
         <textarea

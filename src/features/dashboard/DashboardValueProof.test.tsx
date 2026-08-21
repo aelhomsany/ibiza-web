@@ -1,4 +1,5 @@
 import { cleanup, render, screen } from '@testing-library/react'
+import { isolate } from '../../i18n/bidi'
 import type { RecentRequestResponse } from '../../api/generated/types'
 import i18n from '../../i18n/config'
 import { DashboardValueProof } from './DashboardValueProof'
@@ -41,7 +42,7 @@ describe('DashboardValueProof', () => {
     expect(proof).toHaveTextContent('Annual Leave')
     expect(proof).toHaveTextContent('Aug 10, 2026 – Aug 14, 2026')
     expect(proof).toHaveTextContent('Waiting for approval')
-    expect(proof).toHaveTextContent('Policy source: US Workforce Group')
+    expect(proof).toHaveTextContent(`Policy source: ${isolate('US')} Workforce Group`)
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
     expect(screen.queryByText('How this is calculated')).not.toBeInTheDocument()
   })
@@ -58,7 +59,7 @@ describe('DashboardValueProof', () => {
     const proof = screen.getByTestId('dashboard-value-proof')
     expect(proof).toHaveTextContent('بانتظار الموافقة')
     expect(proof).not.toHaveTextContent('Waiting for approval')
-    expect(proof).toHaveTextContent('مصدر السياسة: مجموعة عمل Egypt')
+    expect(proof).toHaveTextContent(`مصدر السياسة: مجموعة عمل ${isolate('Egypt')}`)
   })
 
   it('[P0] labels education separately when no personal request exists', () => {

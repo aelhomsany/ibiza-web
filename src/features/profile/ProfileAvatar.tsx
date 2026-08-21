@@ -65,7 +65,7 @@ export function ProfileAvatar({
   }
 
   return (
-    <span className={className} data-testid={testId ?? 'profile-image-initials'}>
+    <span className={className} dir="auto" data-testid={testId ?? 'profile-image-initials'}>
       {getInitials(fullName)}
     </span>
   )

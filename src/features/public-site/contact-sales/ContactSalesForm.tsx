@@ -139,7 +139,7 @@ export function ContactSalesForm({
         <dl className="contact-sales-success__summary">
           <div>
             <dt>{copy.companyLabel}</dt>
-            <dd>{success.companyName}</dd>
+            <dd dir="auto">{success.companyName}</dd>
           </div>
           <div>
             <dt>{copy.intendedCountLabel}</dt>

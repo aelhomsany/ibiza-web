@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import { getLeaveRequestAuditEvents } from '../../api/client'
 import type { AuditEventResponse } from '../../api/generated/types'
 import './approvals.css'
@@ -104,7 +105,7 @@ export function AuditHistoryPanel({ requestId, panelId }: AuditHistoryPanelProps
                     className="approval-on-behalf-pill"
                     data-testid={`audit-on-behalf-pill-${eventId}`}
                   >
-                    {t('approvals:audit.onBehalf', { name: event.nominalApproverFirstName })}
+                    {t('approvals:audit.onBehalf', { name: isolate(event.nominalApproverFirstName) })}
                   </span>
                 ) : null}
               </div>

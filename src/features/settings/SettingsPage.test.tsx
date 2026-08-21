@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { isolate } from '../../i18n/bidi'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -170,7 +171,7 @@ describe('SettingsPage', () => {
       ])
     })
     expect(
-      await screen.findByText(/US weekend pattern saved/i),
+      await screen.findByText(`${isolate('US')} weekend pattern saved. Future calculations now use this policy.`),
     ).toHaveAttribute('role', 'status')
   })
 

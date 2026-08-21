@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import { createWorkforceGroup, putWorkforceGroupWeekendDays } from '../../api/client'
 import type { DayOfWeek } from '../../api/generated/types'
 import { Modal } from '../../components/ui/Modal'
@@ -58,7 +59,7 @@ export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: Workforce
       const groupId = created.id
       try {
         await putWorkforceGroupWeekendDays(groupId, weekendDays)
-        onSuccess(t('settings:groups.created', { name: trimmedName }), groupId)
+        onSuccess(t('settings:groups.created', { name: isolate(trimmedName) }), groupId)
       } catch {
         onSuccess(t('settings:groups.createdPartial'), groupId)
         onWarning?.(t('settings:groups.errors.saveWeekend'))

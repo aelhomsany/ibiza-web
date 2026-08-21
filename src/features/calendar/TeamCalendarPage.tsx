@@ -239,7 +239,7 @@ export function TeamCalendarPage() {
           >
             <option value="">{t('filter.all')}</option>
             {workforceGroupsQuery.data?.map((group) => (
-              <option key={group.id} value={group.id}>
+              <option key={group.id} value={group.id} dir="auto">
                 {group.name}
               </option>
             ))}

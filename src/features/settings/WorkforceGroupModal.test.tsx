@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import { isolate } from '../../i18n/bidi'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
@@ -75,7 +76,7 @@ describe('WorkforceGroupModal', () => {
     await waitFor(() => {
       expect(apiClient.createWorkforceGroup).toHaveBeenCalledWith({ name: 'UK' })
       expect(putSpy).toHaveBeenCalledWith(3, expect.arrayContaining(['SATURDAY', 'SUNDAY']))
-      expect(onSuccess).toHaveBeenCalledWith('Workforce Group "UK" created', 3)
+      expect(onSuccess).toHaveBeenCalledWith(`Workforce Group "${isolate('UK')}" created`, 3)
     })
   })
 })

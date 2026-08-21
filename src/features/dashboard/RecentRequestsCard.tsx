@@ -22,7 +22,7 @@ function RequestHint({ request }: { request: RecentRequestResponse }) {
   const { t } = useTranslation('dashboard')
   if (request.status === 'DECLINED' && request.declineReason) {
     return (
-      <p className="decline-reason recent-request-hint">
+      <p className="decline-reason recent-request-hint" dir="auto">
         &quot;{request.declineReason}&quot;
       </p>
     )

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import {
   ApiError,
   deactivateTeamMember,
@@ -259,9 +260,10 @@ export function TeamMembersCard({
             </div>
             <div className="member-details">
               <div className="member-name-row">
-                {member.fullName}
+                <bdi>{member.fullName}</bdi>
                 {member.workforceGroupName && (
                   <span
+                    dir="auto"
                     className="group-pill"
                     style={pillColorStyle(
                       member.workforceGroupId ?? member.workforceGroupName.trim().toLowerCase(),
@@ -272,10 +274,10 @@ export function TeamMembersCard({
                 )}
               </div>
               <div className="member-meta">
-                {member.email}
-                {member.department ? ` · ${member.department}` : ''}
+                <bdi>{member.email}</bdi>
+                {member.department ? <> · <bdi>{member.department}</bdi></> : ''}
                 {member.managerName
-                  ? ` · ${t('settings:members.reportsTo', { name: member.managerName.split(' ')[0] })}`
+                  ? ` · ${t('settings:members.reportsTo', { name: isolate(member.managerName.split(' ')[0]) })}`
                   : ''}
               </div>
             </div>
@@ -340,8 +342,8 @@ export function TeamMembersCard({
           <div className="modal-body">
             <p className="body-text">
               {isLifecycleDeactivation
-                ? t('settings:members.deactivateCopy', { name: lifecycleTarget.fullName })
-                : t('settings:members.reactivateCopy', { name: lifecycleTarget.fullName })}
+                ? t('settings:members.deactivateCopy', { name: isolate(lifecycleTarget.fullName) })
+                : t('settings:members.reactivateCopy', { name: isolate(lifecycleTarget.fullName) })}
             </p>
           </div>
           <div className="modal-actions">

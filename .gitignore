@@ -28,3 +28,8 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
+
+# Local mascot art staging. Note: the reference pack committed in 52e6c38 stays
+# tracked — this only keeps *new* drops out of the repo. Untrack the rest with
+# `git rm -r --cached capy_mascot_resources` if that is what is wanted.
+capy_mascot_resources/

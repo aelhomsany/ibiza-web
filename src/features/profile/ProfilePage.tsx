@@ -81,11 +81,11 @@ export function ProfilePage() {
           <dl className="profile-summary-list">
             <div className="profile-summary-row">
               <dt>{t('profile:fields.name')}</dt>
-              <dd>{user.fullName}</dd>
+              <dd dir="auto">{user.fullName}</dd>
             </div>
             <div className="profile-summary-row">
               <dt>{t('profile:fields.email')}</dt>
-              <dd>{user.email}</dd>
+              <dd dir="auto">{user.email}</dd>
             </div>
             <div className="profile-summary-row">
               <dt>{t('profile:fields.role')}</dt>

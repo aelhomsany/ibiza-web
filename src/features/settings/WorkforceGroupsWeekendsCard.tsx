@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import { type KeyboardEvent, useEffect, useMemo, useState } from 'react'
 import { getTeamMembers, getWorkforceGroups, putWorkforceGroupWeekendDays } from '../../api/client'
 import type {
@@ -250,7 +251,7 @@ export function WorkforceGroupsWeekendsCard({
         current?.map((group) => (group.id === updated.id ? updated : group)),
       )
       setDraftWeekendDays(updated.weekendDays)
-      setSavedMessage(t('groups.savedStatus', { name: updated.name }))
+      setSavedMessage(t('groups.savedStatus', { name: isolate(updated.name) }))
     },
     onError: () => {
       onWarning?.(t('groups.errors.updateWeekend'))
@@ -334,7 +335,7 @@ export function WorkforceGroupsWeekendsCard({
               onClick={() => requestGroupChange(group.id)}
               onKeyDown={(event) => handleTabKeyDown(event, index)}
             >
-              <span>{group.name}</span>
+              <span dir="auto">{group.name}</span>
               {group.id === resolvedActiveGroupId && (
                 <span className="group-tab-selected-indicator">
                   <CheckCircleIcon size={14} />
@@ -379,7 +380,7 @@ export function WorkforceGroupsWeekendsCard({
                           : activeMemberCount,
                       name: activeGroup.name,
                     })
-                  : t('groups.impact.noWeekend', { name: activeGroup.name })}
+                  : t('groups.impact.noWeekend', { name: isolate(activeGroup.name) })}
               </p>
               <p className="working-calendars-history-note">
                 {t('groups.impact.history')}
@@ -401,7 +402,7 @@ export function WorkforceGroupsWeekendsCard({
           <div className="settings-card-body">
             <div className="settings-col settings-col-weekends">
               <p className="settings-card-label">
-                {t('groups.weekendLabel')} <span>{activeGroup.name}</span>
+                {t('groups.weekendLabel')} <span dir="auto">{activeGroup.name}</span>
               </p>
               <WeekendDayChips
                 groupName={activeGroup.name}

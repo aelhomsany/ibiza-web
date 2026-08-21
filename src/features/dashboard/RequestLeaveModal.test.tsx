@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { isolate } from '../../i18n/bidi'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { readFileSync } from 'node:fs'
@@ -98,7 +99,7 @@ describe('RequestLeaveModal — Story 3.3', () => {
     )
 
     expect(screen.getByTestId('submit-request-btn')).toBeDisabled()
-    expect(screen.getByRole('alert')).toHaveTextContent(/US Workforce Group/i)
+    expect(screen.getByRole('alert')).toHaveTextContent(`${isolate('US')} Workforce Group`)
   })
 
   it('[P1] keeps shared disabled .btn CSS attached to disabled submit controls', async () => {

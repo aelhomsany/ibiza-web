@@ -5,6 +5,7 @@ import {
   type MutableRefObject,
 } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import type { RecentRequestResponse } from '../../api/generated/types'
 import { HorizontalScrollRegion } from '../../components/ui/HorizontalScrollRegion'
 import { InboxIcon, PlusIcon } from '../../components/ui/icons'
@@ -90,7 +91,7 @@ function RequestDetails({
         resultLabel={t('history.workingDays', { count: request.workingDays })}
         policyLabel={
           workforceGroupName
-            ? t('explainer.policy', { group: workforceGroupName })
+            ? t('explainer.policy', { group: isolate(workforceGroupName) })
             : t('explainer.policyFallback')
         }
         excludedSummary={t('explainer.aggregateOnly')}

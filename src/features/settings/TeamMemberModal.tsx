@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import {
   ApiError,
   createCheckoutSession,
@@ -189,7 +190,7 @@ export function TeamMemberModal({
     onSuccess: (created) => {
       void queryClient.invalidateQueries({ queryKey: ['team-members', orgId] })
       setUpgradePrompt(null)
-      onSuccess(t('settings:memberModal.success.added', { name: created.fullName }))
+      onSuccess(t('settings:memberModal.success.added', { name: isolate(created.fullName) }))
     },
     onError: (err) => {
       if (isPlanLimitReached(err)) {
@@ -485,7 +486,7 @@ export function TeamMemberModal({
               >
                 <option value="">{t('settings:memberModal.fields.selectGroup')}</option>
                 {groups.map((g) => (
-                  <option key={g.id} value={g.id}>
+                  <option key={g.id} value={g.id} dir="auto">
                     {g.name}
                   </option>
                 ))}
@@ -508,7 +509,7 @@ export function TeamMemberModal({
               >
                 <option value="">{t('settings:memberModal.fields.none')}</option>
                 {managers.map((m) => (
-                  <option key={m.id} value={m.id}>
+                  <option key={m.id} value={m.id} dir="auto">
                     {m.fullName}
                   </option>
                 ))}

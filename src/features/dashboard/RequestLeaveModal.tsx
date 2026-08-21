@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import { ApiError, getLeaveTypes } from '../../api/client'
 import { fieldErrorsFromApiError, LEAVE_REQUEST_FIELD_IDS } from '../../api/fieldViolations'
 import { DateField } from '../../components/DateField'
@@ -105,7 +106,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
         : previewState === 'loading'
           ? t('dashboard:request.preview.calculating')
           : previewState === 'zero' && preview
-            ? t('dashboard:request.preview.zero', { name: preview.workforceGroupName ?? '' })
+            ? t('dashboard:request.preview.zero', { name: isolate(preview.workforceGroupName ?? '') })
             : ''
 
   const submitDisabled =
@@ -243,7 +244,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
             >
               <option value="">{t('dashboard:request.fields.selectLeaveType')}</option>
               {(leaveTypesQuery.data ?? []).map((leaveType) => (
-                <option key={leaveType.id} value={leaveType.id}>
+                <option key={leaveType.id} value={leaveType.id} dir="auto">
                   {leaveType.icon ? `${leaveType.icon} ` : ''}
                   {leaveType.name}
                 </option>

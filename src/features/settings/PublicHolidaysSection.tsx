@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import {
   createPublicHoliday,
   deletePublicHoliday,
@@ -114,7 +115,7 @@ export function PublicHolidaysSection({
       setNewDateFrom('')
       setNewDateTo('')
       setNewName('')
-      onSuccess?.(t('settings:holidays.success.added', { name: activeGroupName }))
+      onSuccess?.(t('settings:holidays.success.added', { name: isolate(activeGroupName) }))
     },
     onError: () => onWarning?.(t('settings:holidays.errors.add')),
   })
@@ -134,7 +135,7 @@ export function PublicHolidaysSection({
     onSuccess: (updated) => {
       invalidate()
       setEditingId(null)
-      onSuccess?.(t('settings:holidays.success.updated', { name: updated.name }))
+      onSuccess?.(t('settings:holidays.success.updated', { name: isolate(updated.name) }))
     },
     onError: () => onWarning?.(t('settings:holidays.errors.update')),
   })
@@ -279,7 +280,7 @@ export function PublicHolidaysSection({
             ) : (
               <div key={holiday.id} className="holiday-card">
                 <div className="holiday-card-body">
-                  <span className="holiday-card-name" title={holiday.name}>
+                  <span className="holiday-card-name" dir="auto" title={holiday.name}>
                     {holiday.name}
                   </span>
                   <span className="holiday-card-date">

@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { isolate } from '../../i18n/bidi'
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -370,7 +371,7 @@ describe('MyLeavesPage', () => {
 
     const details = await screen.findByTestId('my-leaves-request-details-2')
     expect(details).toHaveTextContent('1 working day')
-    expect(details).toHaveTextContent('Workforce Group on your profile: US')
+    expect(details).toHaveTextContent(`Workforce Group on your profile: ${isolate('US')}`)
     expect(details).toHaveTextContent(
       'Individual charged and excluded dates were not returned',
     )

@@ -230,8 +230,8 @@ export function CalendarTimeline({
                         {person.userInitials}
                       </span>
                       <span className="calendar-person-copy">
-                        <span className="calendar-person-name">{person.userFullName}</span>
-                        <span className="calendar-person-group">
+                        <span className="calendar-person-name" dir="auto">{person.userFullName}</span>
+                        <span className="calendar-person-group" dir="auto">
                           {person.userWorkforceGroupName}
                         </span>
                       </span>

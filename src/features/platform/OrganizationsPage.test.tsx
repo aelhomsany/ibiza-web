@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { isolate } from '../../i18n/bidi'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -219,7 +220,7 @@ describe('OrganizationsPage', () => {
 
     expect(screen.getByTestId('edit-subscription-modal')).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { name: 'Edit Subscription — Nile Harbor' }),
+      screen.getByRole('heading', { name: `Edit Subscription — ${isolate('Nile Harbor')}` }),
     ).toBeInTheDocument()
     expect(screen.getByTestId('edit-subscription-plan')).toHaveValue('INTERNAL')
     expect(screen.getByTestId('edit-subscription-billing-status')).toHaveValue('MANUAL_ACTIVE')

@@ -124,8 +124,8 @@ export function OutTodaySidebar({
                     {row.initials}
                   </div>
                   <div className="person-details">
-                    <div className="person-name">{row.fullName}</div>
-                    <div className="person-sub">
+                    <div className="person-name" dir="auto">{row.fullName}</div>
+                    <div className="person-sub" dir="auto">
                       {row.leaveTypeIcon} {row.leaveTypeName}
                     </div>
                   </div>

@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import type {
   CalendarAbsenceResponse,
   CalendarHolidayResponse,
@@ -160,7 +161,7 @@ export function CalendarAgenda({
     sectionDate: string,
   ) => {
     const range = formatDateRange(holiday.dateFrom, holiday.dateTo, locale)
-    const group = t('agenda.group', { name: holiday.workforceGroupName })
+    const group = t('agenda.group', { name: isolate(holiday.workforceGroupName) })
 
     return (
       <article
@@ -238,7 +239,7 @@ export function CalendarAgenda({
             {t('agenda.absenceSummary', { range, days: workingDays })}
           </span>
           <span className="calendar-agenda-meta">
-            <span>{t('agenda.group', { name: absence.userWorkforceGroupName })}</span>
+            <span>{t('agenda.group', { name: isolate(absence.userWorkforceGroupName) })}</span>
             {progress.total >= 1 && progress.position >= 1 ? (
               <span className="calendar-agenda-progress">
                 {t('agenda.dayProgress', progress)}

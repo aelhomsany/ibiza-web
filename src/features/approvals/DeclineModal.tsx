@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import { Modal } from '../../components/ui/Modal'
 import './approvals.css'
 
@@ -49,7 +50,7 @@ export function DeclineModal({
       closeOnBackdrop={false}
     >
         <h2 id={titleId} className="decline-modal-title">
-          {t('approvals:declineModal.title', { name: employeeName })}
+          {t('approvals:declineModal.title', { name: isolate(employeeName) })}
         </h2>
         <p id={contextId} className="decline-modal-context">
           <bdi>{dateRange}</bdi>

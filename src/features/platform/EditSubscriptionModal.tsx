@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import type { OrganizationSummaryResponse, UpdateSubscriptionRequest } from '../../api/generated/types'
 import { DateField } from '../../components/DateField'
 import { Modal } from '../../components/ui/Modal'
@@ -73,7 +74,7 @@ export function EditSubscriptionModal({ organization, onClose, onSuccess }: Prop
     >
         <div className="modal-header">
           <h2 className="modal-title" id="edit-subscription-modal-title">
-            {t('platform:edit.title', { name: organization.name })}
+            {t('platform:edit.title', { name: isolate(organization.name) })}
           </h2>
           <button type="button" className="modal-close" onClick={onClose} aria-label={t('common:actions.close')}>
             <CloseIcon size={18} />

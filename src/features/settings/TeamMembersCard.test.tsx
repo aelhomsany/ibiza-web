@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { isolate } from '../../i18n/bidi'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
@@ -92,7 +93,25 @@ describe('TeamMembersCard', () => {
       (egyptPill as HTMLElement).style.getPropertyValue('--pill-bg'),
     )
     // Manager meta shown for Sarah
-    expect(screen.getByText(/Reports to Alex/)).toBeInTheDocument()
+    expect(screen.getByText(new RegExp(`Reports to ${isolate('Alex')}`))).toBeInTheDocument()
+  })
+
+  // Names, team names and emails are entered by users and are never translated with
+  // the UI. Without `dir="auto"` they inherit the page direction, so Latin data in
+  // the Arabic UI renders with its trailing punctuation at the wrong end — a name
+  // like "Alex J." becomes ".Alex J". See also the ApprovalCard guard.
+  it('[P0] renders user-entered member data with its own direction', async () => {
+    renderCard()
+
+    await waitFor(() => expect(screen.getByText('Sarah Chen')).toBeInTheDocument())
+
+    // Either mechanism is acceptable: <bdi> is dir="auto" plus isolation.
+    const keepsOwnDirection = (element: HTMLElement) =>
+      element.tagName === 'BDI' || element.getAttribute('dir') === 'auto'
+
+    expect(keepsOwnDirection(screen.getByText('Sarah Chen'))).toBe(true)
+    expect(keepsOwnDirection(screen.getByText('Egypt'))).toBe(true)
+    expect(keepsOwnDirection(screen.getByText('sarah@company.com'))).toBe(true)
   })
 
   it('[P1] filters the scalable people list by name, email, role, or group', async () => {

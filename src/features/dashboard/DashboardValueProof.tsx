@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import type { RecentRequestResponse } from '../../api/generated/types'
 import { WorkingDayExplainer } from '../../components/ui/WorkingDayExplainer'
 import {
@@ -23,7 +24,7 @@ export function DashboardValueProof({
 }: DashboardValueProofProps) {
   const { t, i18n } = useTranslation(['dashboard', 'common'])
   const policyLabel = workforceGroupName
-    ? t('dashboard:valueProof.policy', { group: workforceGroupName })
+    ? t('dashboard:valueProof.policy', { group: isolate(workforceGroupName) })
     : t('dashboard:valueProof.policyFallback')
 
   if (isLoading) {
