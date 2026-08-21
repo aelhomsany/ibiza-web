@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { isolate } from '../../i18n/bidi'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
@@ -24,6 +25,7 @@ const mockPendingApprovals: PendingApprovalResponse[] = [
     workingDays: 2,
     note: 'Family trip',
     workforceGroupName: 'US',
+    overlappingApprovedAbsences: 0,
   },
 ]
 
@@ -240,10 +242,10 @@ describe('ApprovalsPage', () => {
 
     await waitFor(() => expect(screen.getByTestId('approval-card-101')).toBeInTheDocument())
     expect(screen.getByTestId('assigned-approver-pill-101')).toHaveTextContent(
-      /Assigned approver: Morgan/i,
+      `Assigned approver: ${isolate('Morgan')}`,
     )
     expect(screen.getByTestId('on-behalf-notice-101')).toHaveTextContent(
-      /acting on behalf of assigned approver Morgan/i,
+      `acting on behalf of assigned approver ${isolate('Morgan')}`,
     )
     expect(screen.queryByTestId('on-behalf-pill-101')).not.toBeInTheDocument()
   })
@@ -492,6 +494,163 @@ describe('ApprovalsPage', () => {
     const invalidatedKeys = invalidateSpy.mock.calls.map((c) => JSON.stringify(c[0]))
     expect(invalidatedKeys.some((k) => k.includes('pending-count'))).toBe(true)
     expect(invalidatedKeys.some((k) => k.includes('recent-decisions'))).toBe(true)
+  })
+
+  // APPROVAL-VAL-022 (P0, SPA-only): in-flight decision state is keyed by
+  // (requestId, approvalLevel). Starting a second decision must not hand the first
+  // card back to the approver mid-flight (Story 11.4 AC6 duplicate-submit guarantee).
+  it('[P0] keeps the first card busy while a second decision starts', async () => {
+    const secondApproval: PendingApprovalResponse = {
+      ...mockPendingApprovals[0],
+      requestId: 102,
+      employeeUserId: 8,
+      employeeFullName: 'Jamie Lee',
+    }
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([
+      mockPendingApprovals[0],
+      secondApproval,
+    ])
+
+    const resolvers = new Map<number, (value: never) => void>()
+    const approveSpy = vi
+      .spyOn(apiClient, 'approveLeaveRequest')
+      .mockImplementation(
+        (id: number) =>
+          new Promise((resolve) => {
+            resolvers.set(id, resolve as (value: never) => void)
+          }),
+      )
+    const user = userEvent.setup()
+
+    renderApprovalsPage('MANAGER')
+
+    await waitFor(() => expect(screen.getByTestId('approve-btn-101')).toBeEnabled())
+
+    // Two clicks inside one tick, before React can re-render the button as disabled.
+    // This is the only path that actually reaches the `beginDecision` re-entrancy
+    // guard: every UI entry point is `disabled` once the card is busy, so clicking a
+    // busy button dispatches nothing and would assert the guard vacuously. If
+    // `beginDecision` stopped refusing, the second click would fire a second mutation.
+    await act(async () => {
+      const approveFirst = screen.getByTestId('approve-btn-101')
+      approveFirst.click()
+      approveFirst.click()
+    })
+    expect(approveSpy.mock.calls.filter(([id]) => id === 101)).toHaveLength(1)
+
+    await waitFor(() =>
+      expect(screen.getByTestId('approve-btn-101')).toHaveAttribute('data-busy', 'true'),
+    )
+
+    await user.click(screen.getByTestId('approve-btn-102'))
+    await waitFor(() =>
+      expect(screen.getByTestId('approve-btn-102')).toHaveAttribute('data-busy', 'true'),
+    )
+
+    // The second decision must not re-enable the first card's actions.
+    expect(screen.getByTestId('approve-btn-101')).toHaveAttribute('data-busy', 'true')
+    expect(screen.getByTestId('approve-btn-101')).toBeDisabled()
+    expect(screen.getByTestId('decline-btn-101')).toBeDisabled()
+
+    // Settling the first decision releases only its own key.
+    await act(async () => {
+      resolvers.get(101)?.({ id: 101, status: 'APPROVED' } as never)
+    })
+    await waitFor(() =>
+      expect(screen.queryByTestId('approval-card-101')).not.toBeInTheDocument(),
+    )
+    expect(screen.getByTestId('approve-btn-102')).toHaveAttribute('data-busy', 'true')
+
+    await act(async () => {
+      resolvers.get(102)?.({ id: 102, status: 'APPROVED' } as never)
+    })
+  })
+
+  // APPROVAL-VAL-016 (P0): the page must hand the server's coverage fact to the card.
+  // Nothing asserted this wiring, and because the fixture omitted the field every
+  // page test rendered the "unavailable" fallback — so ApprovalsPage could stop
+  // passing `overlappingApprovedAbsences` entirely and the suite stayed green.
+  // Missing i18n keys resolve to an empty string in this app (i18n/config.ts
+  // parseMissingKeyHandler), so this asserts the real sentence rather than presence.
+  it('[P0] renders the server-supplied overlap count on the card', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([
+      { ...mockPendingApprovals[0], overlappingApprovedAbsences: 2 },
+    ])
+
+    renderApprovalsPage('MANAGER')
+
+    const region = await screen.findByTestId('approval-coverage-101')
+    expect(region).toHaveTextContent(
+      '2 colleagues are away during this range.',
+    )
+    expect(region).not.toHaveTextContent('Some coverage facts are unavailable.')
+  })
+
+  // APPROVAL-VAL-032/033 (P0): decline and concern in-flight state moved off the shared
+  // mutation's `isPending` onto the keyed map. Both page tests resolved immediately, so
+  // no test observed either mid-flight — a wrong-kind lookup would leave the confirm
+  // enabled and the modal dismissable during the request with nothing failing.
+  it('[P0] keeps the decline modal and card busy while the decline is in flight', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([mockPendingApprovals[0]])
+    let releaseDecline: (value: never) => void = () => undefined
+    vi.spyOn(apiClient, 'declineLeaveRequest').mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseDecline = resolve as (value: never) => void
+        }),
+    )
+    const user = userEvent.setup()
+
+    renderApprovalsPage('MANAGER')
+
+    await user.click(await screen.findByTestId('decline-btn-101'))
+    await user.type(screen.getByTestId('decline-reason-input'), 'Coverage too thin')
+    await user.click(screen.getByTestId('decline-confirm-btn'))
+
+    await waitFor(() =>
+      expect(screen.getByTestId('decline-confirm-btn')).toHaveAttribute('data-busy', 'true'),
+    )
+    expect(screen.getByTestId('decline-confirm-btn')).toBeDisabled()
+    expect(screen.getByTestId('decline-cancel-btn')).toBeDisabled()
+    expect(screen.getByTestId('decline-btn-101')).toHaveAttribute('data-busy', 'true')
+
+    await act(async () => {
+      releaseDecline({ id: 101, status: 'DECLINED' } as never)
+    })
+  })
+
+  it('[P0] keeps the concern modal and card busy while the concern is in flight', async () => {
+    const levelTwoApproval: PendingApprovalResponse = {
+      ...mockPendingApprovals[0],
+      approvalLevel: 2,
+      approvalEvidence: [],
+    }
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([levelTwoApproval])
+    let releaseConcern: (value: never) => void = () => undefined
+    vi.spyOn(apiClient, 'recordApprovalConcern').mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseConcern = resolve as (value: never) => void
+        }),
+    )
+    const user = userEvent.setup()
+
+    renderApprovalsPage('MANAGER')
+
+    await user.click(await screen.findByTestId('concern-btn-101'))
+    const dialog = screen.getByRole('dialog', { name: /record project concern/i })
+    await user.type(within(dialog).getByLabelText(/concern note/i), 'Coverage discussed')
+    await user.click(within(dialog).getByRole('button', { name: /record concern/i }))
+
+    await waitFor(() =>
+      expect(screen.getByTestId('concern-btn-101')).toHaveAttribute('data-busy', 'true'),
+    )
+    expect(within(dialog).getByRole('button', { name: /record concern/i })).toBeDisabled()
+    expect(within(dialog).getByRole('button', { name: /cancel/i })).toBeDisabled()
+
+    await act(async () => {
+      releaseConcern({ id: 101, status: 'APPROVED' } as never)
+    })
   })
 
   it('[P2] does not show audit history affordance for managers', async () => {

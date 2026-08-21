@@ -37,6 +37,8 @@ type ConcernTarget = { requestId: number; approvalLevel: number; employeeName: s
 
 type ApprovalKey = `${number}:${number}`
 
+type DecisionKind = 'approve' | 'decline' | 'concern'
+
 function approvalKey(requestId: number, approvalLevel: number): ApprovalKey {
   return `${requestId}:${approvalLevel}`
 }
@@ -67,6 +69,17 @@ export function ApprovalsPage() {
   const [staleApprovalKeys, setStaleApprovalKeys] = useState<Set<ApprovalKey>>(
     () => new Set(),
   )
+  // Busy state is keyed by (requestId, approvalLevel) — the same key the removed/stale
+  // sets above use — because the three decision mutations are shared instances whose
+  // `variables` are re-pointed by the next call. Deriving busy state from those shared
+  // variables re-enabled an in-flight card as soon as a second decision started, which
+  // defeated the AC6 duplicate-submit guarantee. The ref is the authority for the
+  // re-entrancy guard so two clicks in one tick cannot both pass it; the state copy
+  // exists only to re-render.
+  const inFlightRef = useRef(new Map<ApprovalKey, DecisionKind>())
+  const [inFlightDecisions, setInFlightDecisions] = useState<
+    ReadonlyMap<ApprovalKey, DecisionKind>
+  >(() => new Map())
   const [decisionFeedback, setDecisionFeedback] =
     useState<DecisionFeedback | null>(null)
   const [focusTarget, setFocusTarget] = useState<ApprovalKey | 'empty' | null>(null)
@@ -149,6 +162,24 @@ export function ApprovalsPage() {
     setStaleApprovalKeys((current) => prune(current))
   }, [pendingApprovals])
 
+  // Returns false when a decision for this key is already in flight, so every handler
+  // can refuse a duplicate submit with a single guard.
+  const beginDecision = (key: ApprovalKey, kind: DecisionKind): boolean => {
+    if (inFlightRef.current.has(key)) {
+      return false
+    }
+    inFlightRef.current.set(key, kind)
+    setInFlightDecisions(new Map(inFlightRef.current))
+    return true
+  }
+
+  // Always called from a `finally` — releasing only on success would strand a card
+  // permanently disabled after a failed decision.
+  const endDecision = (key: ApprovalKey) => {
+    inFlightRef.current.delete(key)
+    setInFlightDecisions(new Map(inFlightRef.current))
+  }
+
   const resolveMutationError = (error: unknown, fallback: string): string => {
     if (error instanceof ApiError) {
       return error.problem.detail ?? fallback
@@ -198,121 +229,117 @@ export function ApprovalsPage() {
     })
   }
 
-  const handleApprove = (
+  // Each handler awaits its own mutation promise rather than the shared mutation
+  // observer's per-call callbacks: starting a second decision re-points that observer,
+  // so the first decision's callbacks would never fire and its key would never be
+  // released. `mutateAsync` still runs the hook-level onSuccess invalidations.
+  const handleApprove = async (
     requestId: number,
     employeeUserId: number,
     employeeName: string,
     approvalLevel: number,
   ) => {
-    setDecisionFeedback(null)
-    approveMutation.mutate(
-      { requestId, employeeUserId, approvalLevel },
-      {
-        onSuccess: () => {
-          finishDecision(
-            requestId,
-            approvalLevel,
-            t('approvals:success.approved', { name: employeeName }),
-          )
-        },
-        onError: (error) => {
-          if (error instanceof ApiError && error.status === 409) {
-            markStale(requestId, approvalLevel, employeeName)
-            return
-          }
-          setDecisionFeedback({
-            tone: 'alert',
-            message: resolveMutationError(
-              error,
-              t('approvals:errors.approve'),
-            ),
-          })
-        },
-      },
-    )
-  }
-
-  const handleDeclineConfirm = (reason: string) => {
-    if (!declineTarget) {
+    const key = approvalKey(requestId, approvalLevel)
+    if (!beginDecision(key, 'approve')) {
       return
     }
-    setDeclineSubmitError(null)
     setDecisionFeedback(null)
-    declineMutation.mutate(
-      {
-        requestId: declineTarget.requestId,
-        employeeUserId: declineTarget.employeeUserId,
-        approvalLevel: declineTarget.approvalLevel,
-        reason,
-      },
-      {
-        onSuccess: () => {
-          const completedTarget = declineTarget
-          setDeclineTarget(null)
-          setDeclineReason('')
-          setDeclineSubmitError(null)
-          finishDecision(
-            completedTarget.requestId,
-            completedTarget.approvalLevel,
-            t('approvals:success.declined', {
-              name: completedTarget.employeeName,
-            }),
-          )
-        },
-        onError: (error) => {
-          if (error instanceof ApiError && error.status === 409) {
-            markStale(
-              declineTarget.requestId,
-              declineTarget.approvalLevel,
-              declineTarget.employeeName,
-            )
-            setDeclineSubmitError(
-              t('approvals:stale.modal', {
-                name: declineTarget.employeeName,
-              }),
-            )
-            return
-          }
-          setDeclineSubmitError(
-            resolveMutationError(error, t('approvals:errors.decline')),
-          )
-        },
-      },
-    )
+    try {
+      await approveMutation.mutateAsync({ requestId, employeeUserId, approvalLevel })
+      finishDecision(
+        requestId,
+        approvalLevel,
+        t('approvals:success.approved', { name: employeeName }),
+      )
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        markStale(requestId, approvalLevel, employeeName)
+      } else {
+        setDecisionFeedback({
+          tone: 'alert',
+          message: resolveMutationError(error, t('approvals:errors.approve')),
+        })
+      }
+    } finally {
+      endDecision(key)
+    }
   }
 
-  const handleConcernConfirm = (note: string) => {
-    if (!concernTarget) return
+  const handleDeclineConfirm = async (reason: string) => {
+    const target = declineTarget
+    if (!target) {
+      return
+    }
+    const key = approvalKey(target.requestId, target.approvalLevel)
+    // Clear before the guard: a refused duplicate must not leave a stale error on screen
+    // with no other feedback that the press was received.
+    setDeclineSubmitError(null)
+    setDecisionFeedback(null)
+    if (!beginDecision(key, 'decline')) {
+      return
+    }
+    try {
+      await declineMutation.mutateAsync({
+        requestId: target.requestId,
+        employeeUserId: target.employeeUserId,
+        approvalLevel: target.approvalLevel,
+        reason,
+      })
+      setDeclineTarget(null)
+      setDeclineReason('')
+      setDeclineSubmitError(null)
+      finishDecision(
+        target.requestId,
+        target.approvalLevel,
+        t('approvals:success.declined', { name: target.employeeName }),
+      )
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        markStale(target.requestId, target.approvalLevel, target.employeeName)
+        setDeclineSubmitError(
+          t('approvals:stale.modal', { name: target.employeeName }),
+        )
+      } else {
+        setDeclineSubmitError(
+          resolveMutationError(error, t('approvals:errors.decline')),
+        )
+      }
+    } finally {
+      endDecision(key)
+    }
+  }
+
+  const handleConcernConfirm = async (note: string) => {
+    const target = concernTarget
+    if (!target) {
+      return
+    }
+    const key = approvalKey(target.requestId, target.approvalLevel)
     setConcernError(null)
-    concernMutation.mutate(
-      {
-        requestId: concernTarget.requestId,
-        approvalLevel: concernTarget.approvalLevel,
+    if (!beginDecision(key, 'concern')) {
+      return
+    }
+    try {
+      await concernMutation.mutateAsync({
+        requestId: target.requestId,
+        approvalLevel: target.approvalLevel,
         note,
-      },
-      {
-        onSuccess: () => {
-          const completed = concernTarget
-          setConcernTarget(null)
-          setConcernNote('')
-          finishDecision(
-            completed.requestId,
-            completed.approvalLevel,
-            t('approvals:success.concern', { name: completed.employeeName }),
-          )
-        },
-        onError: (error) => {
-          if (error instanceof ApiError && error.status === 409) {
-            markStale(
-              concernTarget.requestId,
-              concernTarget.approvalLevel,
-              concernTarget.employeeName,
-            )
-          }
-          setConcernError(resolveMutationError(error, t('approvals:errors.concern')))
-        },
-      },
-    )
+      })
+      setConcernTarget(null)
+      setConcernNote('')
+      finishDecision(
+        target.requestId,
+        target.approvalLevel,
+        t('approvals:success.concern', { name: target.employeeName }),
+      )
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        markStale(target.requestId, target.approvalLevel, target.employeeName)
+      }
+      setConcernError(resolveMutationError(error, t('approvals:errors.concern')))
+    } finally {
+      endDecision(key)
+    }
   }
 
   return (
@@ -427,21 +454,16 @@ export function ApprovalsPage() {
                   approval.dateTo ?? '',
                   i18n.language,
                 )
-                const overlappingStarts = (upcomingQuery.data ?? []).filter(
-                  (absence) =>
-                    Boolean(absence.dateFrom) &&
-                    absence.dateFrom! >= (approval.dateFrom ?? '') &&
-                    absence.dateFrom! <= (approval.dateTo ?? ''),
-                ).length
+                const inFlightKind = inFlightDecisions.get(itemKey)
 
                 return (
                   <ApprovalCard
                     key={itemKey}
                     approval={approval}
                     coverage={{
-                      isLoading: coverageIsLoading,
-                      isPartial: coverageIsPartial,
-                      overlappingStarts,
+                      // Server read-model fact: approved absences overlapping this
+                      // request's window, including absences already underway.
+                      overlappingAbsences: approval.overlappingApprovedAbsences,
                     }}
                     headingRef={(element) => {
                       if (element) {
@@ -450,20 +472,18 @@ export function ApprovalsPage() {
                         headingRefs.current.delete(itemKey)
                       }
                     }}
-                    isApproving={
-                      approveMutation.isPending &&
-                      approveMutation.variables?.requestId === requestId
-                      && approveMutation.variables.approvalLevel === approvalLevel
-                    }
-                    isDeclining={
-                      declineMutation.isPending &&
-                      declineMutation.variables?.requestId === requestId
-                      && declineMutation.variables.approvalLevel === approvalLevel
-                    }
+                    isApproving={inFlightKind === 'approve'}
+                    isDeclining={inFlightKind === 'decline'}
+                    isRecordingConcern={inFlightKind === 'concern'}
                     isStale={staleApprovalKeys.has(itemKey)}
-                    onApprove={() =>
-                      handleApprove(requestId, employeeUserId, employeeName, approvalLevel)
-                    }
+                    onApprove={() => {
+                      void handleApprove(
+                        requestId,
+                        employeeUserId,
+                        employeeName,
+                        approvalLevel,
+                      )
+                    }}
                     onDecline={() => {
                       setDeclineReason('')
                       setDeclineSubmitError(null)
@@ -606,13 +626,19 @@ export function ApprovalsPage() {
           dateRange={declineTarget.dateRange}
           reason={declineReason}
           onReasonChange={setDeclineReason}
-          onConfirm={handleDeclineConfirm}
+          onConfirm={(reason) => {
+            void handleDeclineConfirm(reason)
+          }}
           onCancel={() => {
             setDeclineTarget(null)
             setDeclineReason('')
             setDeclineSubmitError(null)
           }}
-          isSubmitting={declineMutation.isPending}
+          isSubmitting={
+            inFlightDecisions.get(
+              approvalKey(declineTarget.requestId, declineTarget.approvalLevel),
+            ) === 'decline'
+          }
           submitError={declineSubmitError}
           isStale={staleApprovalKeys.has(approvalKey(
             declineTarget.requestId,
@@ -624,10 +650,16 @@ export function ApprovalsPage() {
         <ConcernModal
           employeeName={concernTarget.employeeName}
           note={concernNote}
-          isSubmitting={concernMutation.isPending}
+          isSubmitting={
+            inFlightDecisions.get(
+              approvalKey(concernTarget.requestId, concernTarget.approvalLevel),
+            ) === 'concern'
+          }
           error={concernError}
           onNoteChange={setConcernNote}
-          onConfirm={handleConcernConfirm}
+          onConfirm={(note) => {
+            void handleConcernConfirm(note)
+          }}
           onClose={() => {
             setConcernTarget(null)
             setConcernNote('')

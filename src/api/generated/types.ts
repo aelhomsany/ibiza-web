@@ -2139,6 +2139,8 @@ export interface components {
             /** Format: int32 */
             balanceAfterApproval?: number;
             balanceSufficient?: boolean;
+            /** Format: int32 */
+            overlappingApprovedAbsences?: number;
             submittedAt?: string;
             decidedOnBehalf?: boolean;
             nominalApproverFirstName?: string;

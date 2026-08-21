@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { isolate } from '../../i18n/bidi'
 import type { PendingApprovalResponse } from '../../api/generated/types'
 import { WorkingDayExplainer } from '../../components/ui/WorkingDayExplainer'
 import { CheckIcon } from '../../components/ui/icons'
@@ -7,9 +8,18 @@ import { formatDateRange } from '../dashboard/leaveRequestFormatting'
 import { ApprovalProgress } from './ApprovalProgress'
 
 type ApprovalCoverage = {
-  isLoading: boolean
-  isPartial: boolean
-  overlappingStarts: number
+  /**
+   * Server-derived count of **colleagues away** over this request's window
+   * (`PendingApprovalResponse.overlappingApprovedAbsences`). The interval math is a
+   * read-model fact computed by the API — the SPA never recomputes it, and when the
+   * fact is absent the card falls back to the partial-coverage copy rather than
+   * inventing a number.
+   *
+   * The API counts distinct people, and excludes the requester, the viewing approver,
+   * and work-from-home leave types (a WFH colleague is present, not away). See
+   * `LeaveRequestRepository#countApprovedOverlapsByRequestId`.
+   */
+  overlappingAbsences: number | null | undefined
 }
 
 type ApprovalCardProps = {
@@ -21,6 +31,7 @@ type ApprovalCardProps = {
   headingRef?: (element: HTMLHeadingElement | null) => void
   isApproving?: boolean
   isDeclining?: boolean
+  isRecordingConcern?: boolean
   isStale?: boolean
 }
 
@@ -33,6 +44,7 @@ export function ApprovalCard({
   headingRef,
   isApproving = false,
   isDeclining = false,
+  isRecordingConcern = false,
   isStale = false,
 }: ApprovalCardProps) {
   const { t, i18n } = useTranslation(['approvals', 'common'])
@@ -55,19 +67,13 @@ export function ApprovalCard({
   )
   const workingDays = approval.workingDays ?? 0
   const note = approval.note?.trim()
-  const busy = isApproving || isDeclining
+  const busy = isApproving || isDeclining || isRecordingConcern
   const balanceInsufficient =
     approval.balanceCapped === true && approval.balanceSufficient === false
   const isOperationalLevel = (approval.approvalLevel ?? 1) === 1
   const approveDisabled = busy || isStale || (isOperationalLevel && (
     workingDays === 0 || balanceInsufficient
   ))
-  // Wrap standalone numbers in a Unicode isolate (FSI…PDI) so digits keep their
-  // reading order when interpolated into an RTL sentence (e.g. the "before → after"
-  // balance string in Arabic). Not applied to plural `count` values, which must stay
-  // numeric for i18next plural selection.
-  const bidiIsolate = (value: number): string => `\u2068${value}\u2069`
-
   let balanceText = t('approvals:balance.unavailable')
   if (approval.balanceCapped === false) {
     balanceText = t('approvals:balance.uncapped')
@@ -77,8 +83,8 @@ export function ApprovalCard({
     approval.balanceSufficient === false
   ) {
     balanceText = t('approvals:balance.insufficient', {
-      remaining: bidiIsolate(approval.balanceRemaining),
-      requested: bidiIsolate(workingDays),
+      remaining: isolate(approval.balanceRemaining),
+      requested: isolate(workingDays),
     })
   } else if (
     approval.balanceCapped === true &&
@@ -86,21 +92,25 @@ export function ApprovalCard({
     approval.balanceAfterApproval != null
   ) {
     balanceText = t('approvals:balance.consequence', {
-      before: bidiIsolate(approval.balanceRemaining),
-      after: bidiIsolate(approval.balanceAfterApproval),
+      before: isolate(approval.balanceRemaining),
+      after: isolate(approval.balanceAfterApproval),
     })
   }
 
-  let coverageText = t('approvals:coverage.loading')
-  if (!coverage.isLoading && coverage.isPartial) {
-    coverageText = t('approvals:coverage.partial', { group: workforceGroupName })
-  } else if (!coverage.isLoading && coverage.overlappingStarts > 0) {
+  const overlappingAbsences = coverage.overlappingAbsences
+  let coverageText: string
+  if (typeof overlappingAbsences !== 'number') {
+    // The server did not supply the coverage fact for this request — say so rather
+    // than guessing a number.
+    coverageText = t('approvals:coverage.partial', { group: isolate(workforceGroupName) })
+  } else if (overlappingAbsences > 0) {
     coverageText = t('approvals:coverage.overlap', {
-      count: coverage.overlappingStarts,
-      group: workforceGroupName,
+      // `count` stays numeric for plural selection; only the name is isolated.
+      count: overlappingAbsences,
+      group: isolate(workforceGroupName),
     })
-  } else if (!coverage.isLoading) {
-    coverageText = t('approvals:coverage.noOverlap', { group: workforceGroupName })
+  } else {
+    coverageText = t('approvals:coverage.noOverlap', { group: isolate(workforceGroupName) })
   }
 
   return (
@@ -121,6 +131,7 @@ export function ApprovalCard({
             data-testid={`approval-card-heading-${requestId}`}
             ref={headingRef}
             tabIndex={-1}
+            dir="auto"
           >
             {employeeName}
           </h3>
@@ -136,7 +147,7 @@ export function ApprovalCard({
         </div>
 
         <div className="approval-card-policy">
-          <span className="approval-group-pill">{workforceGroupName}</span>
+          <span className="approval-group-pill" dir="auto">{workforceGroupName}</span>
           <span className="approval-weekend-rule">{weekendRule}</span>
           {approval.nominalApproverFirstName ? (
             <>
@@ -145,7 +156,7 @@ export function ApprovalCard({
                 data-testid={`assigned-approver-pill-${requestId}`}
               >
                 {t('approvals:approver.assigned', {
-                  name: approval.nominalApproverFirstName,
+                  name: isolate(approval.nominalApproverFirstName),
                 })}
               </span>
               <p
@@ -153,7 +164,7 @@ export function ApprovalCard({
                 data-testid={`on-behalf-notice-${requestId}`}
               >
                 {t('approvals:approver.actingOnBehalf', {
-                  name: approval.nominalApproverFirstName,
+                  name: isolate(approval.nominalApproverFirstName),
                 })}
               </p>
             </>
@@ -214,13 +225,13 @@ export function ApprovalCard({
       {note ? (
         <blockquote className="approval-card-note">
           <span>{t('approvals:context.employeeNote')}</span>
-          <p>{note}</p>
+          <p dir="auto">{note}</p>
         </blockquote>
       ) : null}
 
       {isStale ? (
         <p className="approval-card-stale" role="status">
-          {t('approvals:stale.card', { name: employeeName })}
+          {t('approvals:stale.card', { name: isolate(employeeName) })}
         </p>
       ) : null}
 
@@ -250,6 +261,7 @@ export function ApprovalCard({
             data-testid={`concern-btn-${requestId}`}
             onClick={onConcern}
             disabled={busy || isStale}
+            data-busy={isRecordingConcern ? 'true' : undefined}
             aria-label={t('approvals:aria.concernRequest', { name: employeeName })}
           >
             {t('approvals:actions.concern')}
