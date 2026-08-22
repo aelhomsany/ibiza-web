@@ -306,7 +306,10 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
   it(
     '[P0] Given first-use progress saved, When Dashboard remounts, Then progress resumes from localStorage',
     async () => {
-      stubDashboardApis({ noHolidays: true })
+      // No holidays and no group assignments, so nothing but localStorage can complete a
+      // step — which is precisely what this test is about. Steps now complete on org
+      // evidence, so the default two-assigned-member stub would satisfy People on its own.
+      stubDashboardApis({ noHolidays: true, unassignedMembers: true })
       const key = `${FIRST_USE_STORAGE_PREFIX}${mockUsers.hrAdmin.organizationId}:${mockUsers.hrAdmin.id}`
       localStorage.setItem(
         key,
@@ -402,6 +405,109 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
         expect(apiClient.getRecentApprovalDecisions).toHaveBeenCalled()
       })
       expect(screen.queryByTestId('first-use-cue')).not.toBeInTheDocument()
+    },
+  )
+
+  // -------------------------------------------------------------------------------------
+  // Epic 11 retrospective action item 4 — first-use progress must be partial-failure-safe
+  // and derived from real setup evidence, not from "the admin clicked the link".
+  // -------------------------------------------------------------------------------------
+
+  it(
+    '[P0] Given one holiday endpoint fails, When an unstarted HR Admin opens Dashboard, Then the cue still shows',
+    async () => {
+      stubDashboardApis()
+      // Two groups; the second group's holiday lookup blows up. Previously Promise.all
+      // rejected the whole signals query, showCue fell back to `hasStarted` (false for a
+      // brand-new admin), and onboarding vanished for exactly the person who needed it.
+      vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue([
+        { id: 1, name: 'US', weekendDays: ['SATURDAY', 'SUNDAY'] },
+        { id: 2, name: 'Egypt', weekendDays: ['FRIDAY', 'SATURDAY'] },
+      ])
+      vi.spyOn(apiClient, 'getPublicHolidays').mockImplementation((groupId: number) =>
+        groupId === 1
+          ? Promise.resolve([])
+          : Promise.reject(new ApiError('Holiday lookup failed', 500)),
+      )
+      localStorage.removeItem(
+        `${FIRST_USE_STORAGE_PREFIX}${mockUsers.hrAdmin.organizationId}:${mockUsers.hrAdmin.id}`,
+      )
+
+      renderDashboard('HR_ADMIN')
+
+      expect(await screen.findByTestId('first-use-cue')).toBeInTheDocument()
+    },
+  )
+
+  it(
+    '[P0] Given every signal endpoint fails, When an unstarted HR Admin opens Dashboard, Then the cue still shows',
+    async () => {
+      stubDashboardApis()
+      const boom = () => Promise.reject(new ApiError('Signal unavailable', 503))
+      vi.spyOn(apiClient, 'getWorkforceGroups').mockImplementation(boom)
+      vi.spyOn(apiClient, 'getTeamMembers').mockImplementation(boom)
+      vi.spyOn(apiClient, 'getRecentApprovalDecisions').mockImplementation(boom)
+      localStorage.removeItem(
+        `${FIRST_USE_STORAGE_PREFIX}${mockUsers.hrAdmin.organizationId}:${mockUsers.hrAdmin.id}`,
+      )
+
+      renderDashboard('HR_ADMIN')
+
+      // Unknown must never read as "mature". Hiding onboarding from a new admin is the
+      // costly failure; showing a dismissible cue to an established org is not.
+      expect(await screen.findByTestId('first-use-cue')).toBeInTheDocument()
+    },
+  )
+
+  it(
+    '[P0] Given holidays already configured, When HR Admin opens Dashboard, Then Calendars reads complete without ever clicking it',
+    async () => {
+      // Honest progress: the step reflects the organization's real configuration state,
+      // not whether this particular admin happened to visit Settings.
+      stubDashboardApis({ unassignedMembers: true })
+      localStorage.removeItem(
+        `${FIRST_USE_STORAGE_PREFIX}${mockUsers.hrAdmin.organizationId}:${mockUsers.hrAdmin.id}`,
+      )
+
+      renderDashboard('HR_ADMIN')
+
+      const cue = await screen.findByTestId('first-use-cue')
+      await waitFor(() => {
+        expect(within(cue).getByTestId('first-use-step-1')).toHaveClass(
+          'first-use-step-complete',
+        )
+      })
+      // Calendars is done, so People is the live step — not step 1.
+      expect(within(cue).getByTestId('first-use-step-2')).toHaveAttribute(
+        'aria-current',
+        'step',
+      )
+      expect(within(cue).getByText(/2 of 3/i)).toBeInTheDocument()
+    },
+  )
+
+  it(
+    '[P0] Given nothing is configured, When HR Admin follows the Calendars link and returns, Then progress does not advance',
+    async () => {
+      // Navigating is not configuring. The old build recorded the step on click, so the cue
+      // claimed setup progress the organization had never actually made.
+      stubDashboardApis({ noHolidays: true, unassignedMembers: true })
+      const storageKey = `${FIRST_USE_STORAGE_PREFIX}${mockUsers.hrAdmin.organizationId}:${mockUsers.hrAdmin.id}`
+      localStorage.removeItem(storageKey)
+
+      const user = userEvent.setup()
+      renderDashboard('HR_ADMIN')
+
+      const cue = await screen.findByTestId('first-use-cue')
+      expect(within(cue).getByText(/1 of 3/i)).toBeInTheDocument()
+
+      await user.click(within(cue).getByTestId('first-use-cta'))
+
+      // The deep link still works…
+      expect(await screen.findByTestId('settings-page')).toBeInTheDocument()
+      // …but no completion was recorded for a step with no supporting evidence.
+      const stored = localStorage.getItem(storageKey)
+      expect(stored == null || JSON.parse(stored).steps.calendars === false).toBe(true)
     },
   )
 })

@@ -227,7 +227,7 @@
     "range": "Monday 14 September to Friday 18 September 2026",
     "datesLabel": "Dates in chronological order",
     "charged": "Charged",
-    "excluded": "Excluded",
+    "excluded": "Skipped",
     "days": [
       {
         "weekday": "Mon",

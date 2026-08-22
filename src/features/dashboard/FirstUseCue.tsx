@@ -32,26 +32,65 @@ type FirstUseCueProps = {
 
 const STEP_ORDER: FirstUseStep[] = ['calendars', 'people', 'preview']
 
-async function getFirstUseOrganizationSignals() {
-  const [groups, members, recentDecisions] = await Promise.all([
+/**
+ * Org signals for the first-use cue, resolved independently.
+ *
+ * Each field is `null` when its source call failed. A single failing endpoint must never
+ * decide whether a brand-new HR Admin sees onboarding at all: `Promise.all` used to reject
+ * the whole query if one group's holiday fetch errored, which suppressed the cue for exactly
+ * the person it exists for (Epic 11 retrospective action item 4).
+ */
+type FirstUseSignals = {
+  hasPublicHoliday: boolean | null
+  hasLeaveHistory: boolean | null
+  activeMemberCount: number | null
+  assignedActiveMemberCount: number | null
+}
+
+const valueOrNull = <T,>(result: PromiseSettledResult<T>): T | null =>
+  result.status === 'fulfilled' ? result.value : null
+
+async function getFirstUseOrganizationSignals(): Promise<FirstUseSignals> {
+  const [groupsResult, membersResult, decisionsResult] = await Promise.allSettled([
     getWorkforceGroups(),
     getTeamMembers(),
     getRecentApprovalDecisions(),
   ])
-  const holidayGroups = await Promise.all(
-    groups.map((group) => getPublicHolidays(group.id)),
-  )
-  const activeMembers = members.filter(
+
+  const groups = valueOrNull(groupsResult)
+  const members = valueOrNull(membersResult)
+  const recentDecisions = valueOrNull(decisionsResult)
+
+  let hasPublicHoliday: boolean | null = null
+  if (groups) {
+    const holidayResults = await Promise.allSettled(
+      groups.map((group) => getPublicHolidays(group.id)),
+    )
+    const resolved = holidayResults.filter((r) => r.status === 'fulfilled')
+    // "No holidays anywhere" is only trustworthy if every group answered. If some group
+    // failed we know a holiday exists (true) or we know nothing (null) — never a false
+    // "nothing configured", which would wrongly mark the org immature.
+    const anyHoliday = resolved.some(
+      (r) => (r as PromiseFulfilledResult<unknown[]>).value.length > 0,
+    )
+    hasPublicHoliday = anyHoliday
+      ? true
+      : resolved.length === holidayResults.length
+        ? false
+        : null
+  }
+
+  const activeMembers = members?.filter(
     (member) => member.status !== 'DEACTIVATED',
   )
 
   return {
-    hasPublicHoliday: holidayGroups.some((holidays) => holidays.length > 0),
-    hasLeaveHistory: recentDecisions.length > 0,
-    activeMemberCount: activeMembers.length,
-    assignedActiveMemberCount: activeMembers.filter(
-      (member) => member.workforceGroupId != null,
-    ).length,
+    hasPublicHoliday,
+    hasLeaveHistory: recentDecisions ? recentDecisions.length > 0 : null,
+    activeMemberCount: activeMembers ? activeMembers.length : null,
+    assignedActiveMemberCount: activeMembers
+      ? activeMembers.filter((member) => member.workforceGroupId != null).length
+      : null,
   }
 }
 
@@ -78,7 +117,6 @@ export function FirstUseCue({
   const [progress, setProgress] = useState<FirstUseProgress>(() =>
     loadFirstUseProgress(storageKey),
   )
-  const hasStarted = STEP_ORDER.some((step) => progress.steps[step])
 
   const signalsQuery = useQuery({
     queryKey: ['first-use-signals', user.organizationId],
@@ -86,15 +124,32 @@ export function FirstUseCue({
     enabled: user.role === 'HR_ADMIN' && storageKey !== null && !progress.dismissed,
     retry: false,
     staleTime: 5 * 60 * 1000,
+    // The admin leaves for Settings and comes back; the cue has to notice what they changed.
+    // Without this the 5-minute staleTime would keep reporting the pre-configuration state.
+    refetchOnMount: 'always',
   })
 
   if (user.role !== 'HR_ADMIN' || !storageKey || progress.dismissed) {
     return null
   }
 
-  const currentStepIndex = STEP_ORDER.findIndex(
-    (step) => !progress.steps[step],
-  )
+  // Step completion prefers authoritative setup evidence over "the user navigated there".
+  // Clicking through to Settings used to mark Calendars/People done even if nothing was
+  // configured, so the cue reported progress the organization had not actually made
+  // (Epic 11 retrospective action item 4). Local progress remains a floor: a step already
+  // recorded stays recorded even when its signal is temporarily unavailable.
+  const signals = signalsQuery.isSuccess ? signalsQuery.data : null
+  const effectiveSteps: Record<FirstUseStep, boolean> = {
+    calendars: progress.steps.calendars || signals?.hasPublicHoliday === true,
+    people:
+      progress.steps.people || (signals?.assignedActiveMemberCount ?? 0) >= 2,
+    // No server signal means "this admin opened the request preview" — org-wide leave
+    // history is somebody else's activity, not this person's onboarding. AC7 defines the
+    // action itself as the completion, so `preview` stays local.
+    preview: progress.steps.preview,
+  }
+
+  const currentStepIndex = STEP_ORDER.findIndex((step) => !effectiveSteps[step])
   if (currentStepIndex === -1) {
     return null
   }
@@ -105,14 +160,19 @@ export function FirstUseCue({
   let showCue = false
   if (signalsQuery.isSuccess) {
     const signals = signalsQuery.data
+    // Suppression requires POSITIVE evidence on every signal. An unknown (null) signal must
+    // not read as "mature" — hiding onboarding from a new admin is the costly error, while
+    // showing it to an established org is a dismissible annoyance.
     const matureOrganization =
-      signals.hasPublicHoliday &&
-      signals.hasLeaveHistory &&
-      signals.activeMemberCount >= 2 &&
-      signals.assignedActiveMemberCount >= 2
+      signals.hasPublicHoliday === true &&
+      signals.hasLeaveHistory === true &&
+      (signals.activeMemberCount ?? 0) >= 2 &&
+      (signals.assignedActiveMemberCount ?? 0) >= 2
     showCue = !matureOrganization
   } else if (signalsQuery.isError) {
-    showCue = hasStarted
+    // Every source failed. Show the cue rather than hide it — an unstarted admin still needs
+    // a way in, and a started admin keeps their place.
+    showCue = true
   }
 
   if (!showCue) {
@@ -121,8 +181,10 @@ export function FirstUseCue({
 
   const progressStorageKey = storageKey
   const currentStep = STEP_ORDER[currentStepIndex]
-  const completedCount = STEP_ORDER.filter((step) => progress.steps[step]).length
-  const displayStepNumber = Math.min(completedCount + 1, STEP_ORDER.length)
+  // Evidence can complete steps out of order (an org may have calendars configured but no
+  // group assignments), so the displayed number tracks the step actually being shown rather
+  // than a count of completions — otherwise the heading and the highlighted step disagree.
+  const displayStepNumber = currentStepIndex + 1
 
   function persist(next: FirstUseProgress) {
     setProgress(saveFirstUseProgress(progressStorageKey, next))
@@ -144,13 +206,18 @@ export function FirstUseCue({
   }
 
   function handleCurrentAction() {
-    // Fire the action before persisting: if opening the request modal throws,
-    // the step must not already be recorded as done. AC7 marks `preview` on
-    // opening the preview (not on submitting), so opening is the completion.
+    // Only `preview` completes on the action itself — AC7 defines opening the preview (not
+    // submitting) as the completion, and there is no server-side signal for "opened a form".
+    //
+    // `calendars` and `people` deliberately do NOT complete here. Following the link only
+    // means the admin looked at Settings; it is not evidence that a weekend pattern, holiday
+    // or group assignment was actually configured. Those steps flip when the org signals say
+    // so (see effectiveSteps), which is what Epic 11 retrospective action item 4 asked for:
+    // separate navigation progress from domain completion.
     if (currentStep === 'preview') {
       onStartRequest()
+      completeStep(currentStep)
     }
-    completeStep(currentStep)
   }
 
   const href = stepHref(currentStep)
@@ -189,7 +256,7 @@ export function FirstUseCue({
 
       <ol className="first-use-steps">
         {STEP_ORDER.map((step, index) => {
-          const complete = progress.steps[step]
+          const complete = effectiveSteps[step]
           const current = index === currentStepIndex
           const StepIcon =
             step === 'calendars'

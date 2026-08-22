@@ -75,7 +75,10 @@ test.describe(
         // Preferred Coastal draft path: toggle weekend into dirty state without immediate save.
         await page.getByRole('checkbox', { name: /Fri weekend day/i }).first().click()
 
-        await navigateInApp(page, '/my-leaves')
+        // A real in-app link click — NOT navigateInApp(). That helper calls
+        // history.pushState() directly, which React Router's useBlocker cannot intercept,
+        // so it exercises a path AC10 explicitly does not cover.
+        await page.getByTestId('nav-my-leaves').click()
 
         const modal = page.getByTestId('settings-unsaved-discard-modal')
         await expect(modal).toBeVisible()

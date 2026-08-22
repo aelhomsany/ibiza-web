@@ -14,7 +14,9 @@ test.describe('HR Settings page', { tag: [tags.smoke, tags.regression, tags.api]
     await loginViaUi(page, { email: 'jordan@company.com', password })
     await navigateInApp(page, '/settings')
 
-    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
+    // exact: Story 11.5's SettingsCategoryNav adds an sr-only "Settings categories" h2,
+    // so a substring match resolves to two headings and trips strict mode.
+    await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible()
     await expect(page.getByTestId('workforce-groups-weekends-card')).toBeVisible()
     await expect(page.getByRole('tab', { name: 'US' })).toBeVisible()
     await expect(page.getByRole('tab', { name: 'Egypt' })).toBeVisible()

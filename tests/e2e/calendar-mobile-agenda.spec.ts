@@ -61,18 +61,24 @@ test.describe(
         // DemoScenarioSeeder.EGYPT_GROUP, asserted by DemoDataResetIntegrationTest
         // #resetSeedsCurrentYearHolidaysNotificationsBalancesAndAuditHistory. A missing
         // option is a seed defect, so fail here instead of reporting a green skip.
-        await expect(filter.locator('option', { hasText: 'Egypt' })).toHaveCount(1)
+        const egyptOption = filter.locator('option', { hasText: 'Egypt' })
+        await expect(egyptOption).toHaveCount(1)
+        const egyptValue = await egyptOption.getAttribute('value')
+        expect(egyptValue).toBeTruthy()
 
         await filter.selectOption({ label: 'Egypt' })
-        await expect(filter).toHaveValue(/.+/)
+        await expect(filter).toHaveValue(egyptValue!)
 
+        // Assert the concrete selected value survives each toggle. (`toHaveDisplayValue`
+        // is not available in this project's expect setup — it threw a TypeError, so this
+        // P0 never actually asserted persistence.)
         await page.getByRole('button', { name: 'Agenda' }).click()
         await expect(page.getByTestId('calendar-agenda')).toBeVisible()
-        await expect(filter).toHaveDisplayValue(/Egypt/i)
+        await expect(filter).toHaveValue(egyptValue!)
 
         await page.getByRole('button', { name: 'Timeline' }).click()
         await expect(page.getByTestId('calendar-timeline')).toBeVisible()
-        await expect(filter).toHaveDisplayValue(/Egypt/i)
+        await expect(filter).toHaveValue(egyptValue!)
       },
     )
 
