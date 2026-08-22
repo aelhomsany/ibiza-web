@@ -21,7 +21,13 @@ test.describe('Authentication API guards', { tag: [tags.regression, tags.api] },
       data: {
         email: process.env.E2E_USER_EMAIL ?? 'alex@company.com',
         password: process.env.E2E_USER_PASSWORD ?? 'PilotDev123!',
-        timezone: 'America/New_York',
+        // Africa/Cairo matches how DemoScenarioSeeder seeds this account. Login persists the
+        // timezone it is given, so signing a seeded user in with a different one rewrote their
+        // row mid-suite — mutating curated demo data this spec does not own, and taking a write
+        // lock that deadlocked (MySQL 1213) against concurrent sign-ins by the same account,
+        // surfacing as 500s from /auth/login. Timezone capture itself stays covered
+        // authoritatively by AuthIntegrationTest#loginPersistsTimezoneAndReLoginOverwritesIt.
+        timezone: 'Africa/Cairo',
       },
     })
     expect(loginResponse.ok()).toBeTruthy()

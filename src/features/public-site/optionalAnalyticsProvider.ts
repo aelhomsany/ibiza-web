@@ -1,13 +1,14 @@
 import type { ApprovedPublicEvent } from './analyticsGateway'
 import {
   CONSENT_POLICY_VERSION,
+  clearStoredConsent,
   getStoredConsent,
   type StoredConsentPreference,
 } from './consent/publicConsent'
 
 export type AnalyticsEnvelope = ApprovedPublicEvent & {
   eventId: string
-  schemaVersion: '1'
+  schemaVersion: '1' | '2'
   sourceTimestamp: string
   deduplicationKey: string
   correlationId: string
@@ -37,8 +38,31 @@ export async function sendApprovedEvent({
     keepalive,
   })
   if (!response.ok) {
-    throw new Error('Optional analytics event was not accepted')
+    throw new AnalyticsRejectedError(response.status)
   }
+}
+
+/**
+ * Carries the refusal status. Without it a 403 — the server saying this receipt is not
+ * honoured — is indistinguishable from an offline blip, and the gateway retries forever
+ * while the UI keeps claiming analytics are being collected.
+ */
+export class AnalyticsRejectedError extends Error {
+  readonly status: number
+
+  constructor(status: number) {
+    super(`Optional analytics event was not accepted (${status})`)
+    this.name = 'AnalyticsRejectedError'
+    this.status = status
+  }
+}
+
+/**
+ * True only when the server refused the consent itself. A 400 means the payload was
+ * malformed — a client bug, not a withdrawn consent — and must not clear the preference.
+ */
+export function isConsentRejection(error: unknown): boolean {
+  return error instanceof AnalyticsRejectedError && error.status === 403
 }
 
 type LargestContentfulPaintEntry = PerformanceEntry & {
@@ -67,7 +91,7 @@ function isSameAcceptedConsent(
 }
 
 export function startConsentedPageView(
-  event: Extract<AnalyticsEnvelope, { eventName: 'public_page_viewed.v1' }>,
+  event: Extract<AnalyticsEnvelope, { eventName: 'public_page_viewed.v2' }>,
 ): void {
   const observers: PerformanceObserver[] = []
   let lcpMs: number | undefined
@@ -158,8 +182,10 @@ export function startConsentedPageView(
           : undefined,
       },
       true,
-    ).catch(() => {
-      // Field measurement remains optional and never disrupts navigation.
+    ).catch((error: unknown) => {
+      // Field measurement remains optional and never disrupts navigation — but a refusal
+      // of the consent itself is not a measurement failure, and must not be absorbed here.
+      if (isConsentRejection(error)) clearStoredConsent()
     })
   }
 

@@ -18,7 +18,10 @@ test.describe('Settings unified UI — Story 2.7', { tag: [tags.regression, tags
     await loginViaUi(page, { email: 'jordan@company.com', password })
     await navigateInApp(page, '/settings')
 
-    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
+    // exact: true — Story 11.5's settings information architecture added a visually hidden
+    // <h2>Settings categories</h2>, so the substring match now resolves to two headings and
+    // fails Playwright strict mode. The assertion still targets the page's own <h1>.
+    await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible()
     await expect(
       page.getByText('Company policy, team, and leave entitlements'),
     ).toBeVisible()

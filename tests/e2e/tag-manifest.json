@@ -121,7 +121,7 @@
       "tests": [
         "[P1] Employee sees recent requests table and out-today sidebar after login",
         "[P1] Pending row shows Waiting for approval hint",
-        "[P1] Out today shows teammate with WFH or Off badge"
+        "[P1] Out today matches the server and badges every teammate"
       ]
     },
     "demo-data-curated.spec.ts::Demo data curated — Story 10.12": {
@@ -253,7 +253,7 @@
         "@api"
       ],
       "tests": [
-        "[P0] Dashboard recent requests scroll inside the table wrapper at 375px",
+        "[P0] Dashboard recent requests use task cards without page overflow at 375px",
         "[P0] My Leaves history uses task cards without page overflow at 375px",
         "[P0] Approvals recent decisions expose the decision date at 375px"
       ]
@@ -363,7 +363,7 @@
         "@api"
       ],
       "tests": [
-        "[P0] HR blocked adding over-limit Free user sees warning toast and modal stays open"
+        "[P0] HR blocked adding over-limit Free user sees the limit and upgrade path, modal stays open"
       ]
     },
     "accessibility-completion.spec.ts::Accessibility completion — Story 10.10": {
@@ -454,18 +454,27 @@
     "paid-registration.spec.ts::Paid registration — Story 12.4": {
       "tags": [
         "@regression",
-        "@ui-only",
+        "@api",
         "@story-12-4"
       ],
       "tests": [
-        "[P0] Given a verified Starter registration, When Checkout and webhook succeed, Then one paid workspace is provisioned and handoff lands first-use without duplicate charge",
+        "[P0] Given a verified Starter registration, When Checkout and webhook succeed, Then one paid workspace is provisioned and handoff lands first-use without duplicate charge"
+      ]
+    },
+    "paid-registration.spec.ts::Paid registration recovery — Story 12.4": {
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-12-4"
+      ],
+      "tests": [
         "[P0] Given payment confirmed but provisioning failed, When recovery runs, Then no second Checkout is started and Creation Source stays SELF_SERVICE"
       ]
     },
     "billing-recovery.spec.ts::Billing remediation — Story 12.4": {
       "tags": [
         "@regression",
-        "@ui-only",
+        "@api",
         "@story-12-4"
       ],
       "tests": [
@@ -502,6 +511,16 @@
       ],
       "tests": [
         "[P0] real Platform Admin login lands in admin shell without org navigation"
+      ]
+    },
+    "guided-onboarding.spec.ts::Commercial Activation, API-backed — Story 12.5": {
+      "tags": [
+        "@regression",
+        "@api",
+        "@story-12-5"
+      ],
+      "tests": [
+        "[P0] Given the real onboarding endpoint, When an HR Admin opens onboarding, Then the rendered evidence is the server’s and the activation surface never contradicts itself"
       ]
     }
   },

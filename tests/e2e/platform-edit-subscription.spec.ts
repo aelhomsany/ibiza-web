@@ -21,10 +21,16 @@ test.describe('Platform edit subscription', { tag: [tags.regression, tags.api] }
     await expect(page).toHaveURL(/\/app-admin\/organizations/)
     await expect(page.getByText('Nile Harbor')).toBeVisible()
 
-    await page.getByRole('button', { name: 'Edit Subscription' }).first().click()
+    // Target the Nile Harbor row by name. `.first()` was the FIRST row of the table, which is
+    // only Nile Harbor when nothing else exists — platform-create-organization.spec.ts adds
+    // "Meridian Labs", which sorts ahead of it, so this opened the wrong Organization's modal.
+    // The closing assertions are scoped to the same row for the same reason: `getByText('Starter')`
+    // page-wide would have passed on any other Organization's Starter badge.
+    const nileHarborRow = page.getByRole('row').filter({ hasText: 'Nile Harbor' })
+    await nileHarborRow.getByRole('button', { name: /Edit Subscription/i }).click()
     await expect(page.getByTestId('edit-subscription-modal')).toBeVisible()
     await expect(
-      page.getByRole('heading', { name: /Edit Subscription — Nile Harbor/i }),
+      page.getByRole('heading', { name: /Edit Subscription — \u2068?Nile Harbor\u2069?/i }),
     ).toBeVisible()
 
     await page.getByTestId('edit-subscription-plan').selectOption('STARTER')
@@ -32,7 +38,7 @@ test.describe('Platform edit subscription', { tag: [tags.regression, tags.api] }
     await page.getByTestId('edit-subscription-submit').click()
 
     await expect(page.getByTestId('edit-subscription-modal')).toHaveCount(0)
-    await expect(page.getByText('Starter')).toBeVisible()
-    await expect(page.getByText(/\d+ \/ 50/)).toBeVisible()
+    await expect(nileHarborRow.getByText('Starter', { exact: true })).toBeVisible()
+    await expect(nileHarborRow.getByText(/\d+ \/ 50/)).toBeVisible()
   })
 })

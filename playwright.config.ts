@@ -21,6 +21,13 @@ export default defineConfig({
   reporter: [
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['junit', { outputFile: 'test-results/results.xml' }],
+    // Self-disabling unless E2E_REQUIRE_CONTRACTED is set, which the canonical API runner does.
+    // Without it a run in which every contracted P0 suite skipped still reports success.
+    //
+    // Also listed explicitly in the `test:e2e:ci` script, and that is the copy that counts: a CLI
+    // `--reporter=` REPLACES this array rather than adding to it, so the config entry alone left
+    // the guard silent in exactly the command it was written for.
+    ['./tests/support/contracted-execution-reporter.ts'],
     [process.env.CI ? 'line' : 'list'],
   ],
   use: {

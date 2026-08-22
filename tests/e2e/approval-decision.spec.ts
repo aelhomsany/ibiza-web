@@ -1,5 +1,8 @@
+import type { APIRequestContext } from '@playwright/test'
+
 import { test, expect } from '../support/fixtures'
-import { loginViaUi, navigateInApp } from '../support/helpers/auth'
+import { loginViaApi, loginViaUi, navigateInApp } from '../support/helpers/auth'
+import { apiRequest } from '../support/helpers/api-client'
 import { tags } from '../support/tags'
 
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
@@ -7,35 +10,98 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 /**
  * Story 3.7 — sparse E2E for approve happy path + decline reason guard (FR-13 / UX-DR18).
  * Runs in CI via the ibiza-web `e2e-with-api` job (`E2E_API_AVAILABLE=true`).
+ *
+ * The two decision tests each provision their OWN pending request and act on that one by id.
+ * They used to take `approve-btn-*`/`decline-btn-*` `.first()` from the curated demo seed and
+ * consume it, which permanently removed one of the two seeded pending requests for the rest of
+ * the run. Six other specs read that fixture — approval-inbox, approval-decisions-visibility
+ * (which asserts the badge reads exactly "2"), approval-decision-confidence, demo-data-curated,
+ * dashboard-recent-and-sidebar and responsive-tables — so whichever of them happened to run
+ * after these two failed, and which ones those were changed with worker count and ordering.
+ * Targeting a self-provisioned request also makes these assertions stricter: they now prove a
+ * specific known request left the inbox, not merely that some row did.
  */
+
+// Omar deliberately: he is one of Alex's direct reports but the demo seed gives him NO leave
+// requests and no spec asserts anything about him. Provisioning as Sarah instead put a second
+// "Sarah Chen" card in the approvals list (breaking approval-inbox's strict-mode locator) and
+// consumed her Annual Leave balance (breaking dashboard-balances' exact "17 left"). Picking the
+// unasserted report keeps these tests from perturbing anything another spec reads.
+const REQUESTER = { email: 'omar@company.com', password, timezone: 'Africa/Cairo' }
+
+/** Creates a PENDING request for one of Alex's direct reports and returns its id. */
+async function provisionPendingRequest(request: APIRequestContext, note: string): Promise<number> {
+  const { accessToken } = await loginViaApi(request, REQUESTER)
+
+  const leaveTypes = await apiRequest<Array<{ id: number; name: string }>>({
+    request,
+    method: 'GET',
+    path: '/api/v1/leave-types',
+    token: accessToken,
+  })
+  const annual = leaveTypes.find((type) => type.name === 'Annual Leave')
+  expect(annual, 'Annual Leave must exist in the seeded organization').toBeTruthy()
+
+  // Far enough ahead not to collide with the seeded requests, and pinned to a Monday so the
+  // range contains working days under both the US (Sat/Sun) and Egypt (Fri/Sat) weekends.
+  const start = new Date()
+  start.setUTCDate(start.getUTCDate() + 60)
+  while (start.getUTCDay() !== 1) {
+    start.setUTCDate(start.getUTCDate() + 1)
+  }
+  const end = new Date(start)
+  end.setUTCDate(end.getUTCDate() + 1)
+  const iso = (value: Date) => value.toISOString().slice(0, 10)
+
+  const created = await apiRequest<{ id: number }>({
+    request,
+    method: 'POST',
+    path: '/api/v1/leave-requests',
+    token: accessToken,
+    data: {
+      leaveTypeId: annual!.id,
+      dateFrom: iso(start),
+      dateTo: iso(end),
+      note,
+    },
+  })
+  return created.id
+}
+
 test.describe('Approval decision — Story 3.7', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot approval seed data',
   )
 
-  test('[P1] Manager approves a pending row and it disappears from the inbox', async ({ page }) => {
+  test('[P1] Manager approves a pending row and it disappears from the inbox', async ({
+    page,
+    request,
+  }) => {
+    const requestId = await provisionPendingRequest(request, 'E2E approve journey')
+
     await loginViaUi(page, { email: 'alex@company.com', password })
     await navigateInApp(page, '/approvals')
 
     await expect(page.getByTestId('approvals-page')).toBeVisible()
-    const firstApprove = page.getByTestId(/approve-btn-/).first()
-    await expect(firstApprove).toBeEnabled()
+    const approve = page.getByTestId(`approve-btn-${requestId}`)
+    await expect(approve).toBeEnabled()
 
-    const cardTestId = await firstApprove.evaluate(
-      (el) => el.getAttribute('data-testid')?.replace('approve-btn-', 'approval-card-') ?? '',
-    )
-
-    await firstApprove.click()
+    await approve.click()
     await expect(page.getByTestId('approvals-decision-feedback')).toContainText(/approved/i)
-    await expect(page.getByTestId(cardTestId)).toHaveCount(0)
+    await expect(page.getByTestId(`approval-card-${requestId}`)).toHaveCount(0)
   })
 
-  test('[P1] Decline confirm is blocked until a reason is entered', async ({ page }) => {
+  test('[P1] Decline confirm is blocked until a reason is entered', async ({ page, request }) => {
+    // Non-destructive: the modal is opened and abandoned, so this one could have kept using the
+    // seeded fixture. It provisions its own anyway, so all three tests in this file are
+    // independent of each other's ordering.
+    const requestId = await provisionPendingRequest(request, 'E2E decline guard')
+
     await loginViaUi(page, { email: 'alex@company.com', password })
     await navigateInApp(page, '/approvals')
 
-    await page.getByTestId(/decline-btn-/).first().click()
+    await page.getByTestId(`decline-btn-${requestId}`).click()
     await expect(page.getByTestId('decline-modal')).toBeVisible()
     await expect(page.getByTestId('decline-confirm-btn')).toBeDisabled()
 
@@ -43,21 +109,22 @@ test.describe('Approval decision — Story 3.7', { tag: [tags.regression, tags.a
     await expect(page.getByTestId('decline-confirm-btn')).toBeEnabled()
   })
 
-  test('[P1] Manager declines a pending row and it disappears from the inbox', async ({ page }) => {
+  test('[P1] Manager declines a pending row and it disappears from the inbox', async ({
+    page,
+    request,
+  }) => {
+    const requestId = await provisionPendingRequest(request, 'E2E decline journey')
+
     await loginViaUi(page, { email: 'alex@company.com', password })
     await navigateInApp(page, '/approvals')
 
-    const firstDecline = page.getByTestId(/decline-btn-/).first()
-    await expect(firstDecline).toBeEnabled()
+    const decline = page.getByTestId(`decline-btn-${requestId}`)
+    await expect(decline).toBeEnabled()
 
-    const cardTestId = await firstDecline.evaluate(
-      (el) => el.getAttribute('data-testid')?.replace('decline-btn-', 'approval-card-') ?? '',
-    )
-
-    await firstDecline.click()
+    await decline.click()
     await page.getByTestId('decline-reason-input').fill('Coverage gap that week')
     await page.getByTestId('decline-confirm-btn').click()
     await expect(page.getByTestId('approvals-decision-feedback')).toContainText(/declined/i)
-    await expect(page.getByTestId(cardTestId)).toHaveCount(0)
+    await expect(page.getByTestId(`approval-card-${requestId}`)).toHaveCount(0)
   })
 })

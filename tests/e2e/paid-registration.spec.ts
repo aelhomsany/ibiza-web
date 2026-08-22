@@ -1,6 +1,9 @@
 import { test, expect } from '../support/fixtures'
 import { tags } from '../support/tags'
-import type { BrowserContext } from '@playwright/test'
+import { apiRequest } from '../support/helpers/api-client'
+import { verificationLinkFor } from '../support/helpers/registration-mail'
+import { deliverStripeWebhook, postStripeWebhook, stripeEvent } from '../support/helpers/stripe-webhook'
+import type { APIRequestContext, BrowserContext, Page } from '@playwright/test'
 
 const publicBaseUrl = process.env.PUBLIC_BASE_URL ??
   (process.env.E2E_PUBLIC_ARTIFACT === 'true'
@@ -11,6 +14,14 @@ type RegistrationStatus =
   | 'VERIFICATION_PENDING' | 'VERIFIED' | 'CHECKOUT_PENDING' | 'PAYMENT_CONFIRMED'
   | 'PAID_PROVISIONING' | 'FREE_PROVISIONING' | 'ACTIVE' | 'EXPIRED'
   | 'ACTION_REQUIRED' | 'PROVISIONING_FAILED' | 'ABANDONED'
+
+type RegistrationState = {
+  registrationId: string
+  status: RegistrationStatus
+  checkoutSessionId: string | null
+  recoveryAction: string | null
+  selectedPlan: string
+}
 
 function registrationState(
   registrationId: string,
@@ -40,22 +51,27 @@ function registrationState(
  * Story 12.4 — sparse paid registration E2E (BILLING-VAL-107, 113, 124).
  *
  * Provider/business rules stay in API ATDD (`PaidRegistrationCheckoutAndProvisionAtddTest`,
- * `StripeWebhookIntegrationTest`, `BillingLifecycleRecoveryAtddTest`). This suite only covers the
- * cannot-proceed-visible UI contract: Confirming Payment never becomes success from browser
- * parameters, provisioning is legible as its own state, and paid-but-unprovisioned offers exactly
- * one non-duplicating recovery action.
+ * `StripeWebhookIntegrationTest`, `PlatformPaidRegistrationRecoveryAtddTest`). This suite only
+ * covers the cannot-proceed-visible UI contract: Confirming Payment never becomes success from
+ * browser parameters, provisioning is legible as its own state, and paid-but-unprovisioned offers
+ * exactly one non-duplicating recovery action.
  *
- * These are `@ui-only` because Ibiza's own registration reads are intercepted. That is not a
- * convenience: the authoritative states these assertions need (`PAID_PROVISIONING`, `ACTIVE`,
- * `PROVISIONING_FAILED`) can only be produced by a signed Stripe webhook, so no runner can seed
- * them. Everything below the interception — routing, hydration, components, copy, i18n — is the
- * real public artifact. They previously gated on `E2E_PAID_REGISTRATION`, which no script set, so
- * they never executed; they now run in `npm run test:e2e:public`.
+ * The two P0 journeys below are `@api` and stub nothing. They previously stubbed every Ibiza
+ * endpoint and justified it with "the authoritative states can only be produced by a signed Stripe
+ * webhook, so no runner can seed them" — which was false. A Stripe signature is HMAC-SHA256 over
+ * `"{unixSeconds}.{rawBody}"`; `tests/support/helpers/stripe-webhook.ts` mints one from the secret
+ * the canonical runner exports, and the API verifies it with the real Stripe library. Signature
+ * verification, the inbox, the worker, reconciliation, provisioning and handoff all execute.
  *
- * `first-use-cue` is deliberately not asserted here. It lives in the customer app
- * (`features/dashboard/FirstUseCue.tsx`) on a different artifact and host, so the public
- * registration context can never see it. It is covered by
- * `auth-first-use.spec.ts::Auth and first-use — Story 11.7`.
+ * Only outbound calls to Stripe are simulated (`SimulatedStripeGateway`, local profiles only),
+ * because a runner genuinely cannot create a hosted Checkout Session over the network. Payment
+ * authority still arrives solely by signed webhook — the browser return carries no authority, and
+ * the first assertion after the redirect proves it.
+ *
+ * `Creation Source stays SELF_SERVICE` is asserted at the API layer, where it is observable:
+ * `PlatformPaidRegistrationRecoveryAtddTest:72,79` and
+ * `PaidRegistrationCheckoutAndProvisionAtddTest:106,115`. No API exposes it to a browser, and
+ * inventing an endpoint so an E2E could read it would be the wrong layer.
  */
 test.describe(
   'Paid checkout return layout — Story 12.4',
@@ -109,47 +125,23 @@ test.describe(
 
 test.describe(
   'Paid registration — Story 12.4',
-  { tag: [tags.regression, tags.uiOnly, tags.story('12-4')] },
+  { tag: [tags.regression, tags.api, tags.story('12-4')] },
   () => {
     test.skip(
-      process.env.E2E_PUBLIC_ARTIFACT !== 'true',
-      'Run against the generated public artifact',
+      process.env.E2E_API_AVAILABLE !== 'true',
+      'Set E2E_API_AVAILABLE=true when ibiza-api is running with paid registration enabled',
     )
 
     test(
       '[P0] Given a verified Starter registration, When Checkout and webhook succeed, Then one paid workspace is provisioned and handoff lands first-use without duplicate charge',
       async ({ browser }) => {
-        const registrationId = 'reg-e2e-paid'
         const context = await browser.newContext({ baseURL: publicBaseUrl })
-        let checkoutStarts = 0
-        // Only a signed provider webhook can advance these states, so the test drives the same
-        // progression the reconciler would: pending -> provisioning -> active.
-        let status: RegistrationStatus = 'CHECKOUT_PENDING'
-        await routeRegistration(context, registrationId, {
-          state: () => registrationState(registrationId, status, { checkoutSessionId: 'cs_e2e' }),
-          onVerify: () => registrationState(registrationId, 'VERIFIED'),
-          onCheckout: () => {
-            checkoutStarts += 1
-            return {
-              checkoutUrl: `${publicBaseUrl}/register/checkout-return`
-                + `?outcome=success&session_id=cs_e2e&registrationId=${registrationId}`,
-              checkoutSessionId: 'cs_e2e',
-              status: 'CHECKOUT_PENDING',
-            }
-          },
-        })
-
         const page = await context.newPage()
-        await page.goto('/register?plan=STARTER&intendedCount=34&locale=en')
+        const stamp = Date.now()
+        const email = `priya+${stamp}@example.com`
 
-        // The route opens on the start form, so the commitment review is not on screen yet. The
-        // previous expectation asserted it here and could never have passed.
-        await expect(page.getByTestId('register-plan-summary')).toContainText(/starter/i)
-        await expect(page.getByTestId('register-intended-count')).toHaveValue('34')
-        await expect(page.getByTestId('paid-commitment-review')).toHaveCount(0)
+        const registrationId = await startAndVerifyStarterRegistration(page, context, email, stamp)
 
-        // Verification is the step that produces the commitment review.
-        await page.goto(`/register/verify?registrationId=${registrationId}&token=e2e-single-use`)
         const review = page.getByTestId('paid-commitment-review')
         await expect(review).toBeVisible()
         await expect(review).toContainText(/\$3|per active/i)
@@ -161,52 +153,112 @@ test.describe(
         await page.getByTestId('checkout-start').click()
         await expect(page.getByTestId('checkout-return-confirming')).toBeVisible()
         await expect(page.getByRole('heading', { level: 1 })).toContainText('Confirming Payment')
+
+        // The redirect carried `outcome=success`. Nothing on screen may believe it: no payment has
+        // been confirmed by any authority yet, and `provisioning-status` only appears once one has.
         await expect(page.getByText(/payment successful|workspace ready/i)).toHaveCount(0)
         await expect(page.getByTestId('provisioning-status')).toHaveCount(0)
 
-        status = 'PAID_PROVISIONING'
-        await expect(page.getByTestId('provisioning-status')).toContainText(
-          /creating your workspace/i,
-          { timeout: 30_000 },
-        )
+        const pending = await readRegistration(context.request, registrationId)
+        expect(pending.status).toBe('CHECKOUT_PENDING')
+        expect(pending.checkoutSessionId).toBeTruthy()
+        const checkoutSessionId = pending.checkoutSessionId as string
+
+        // A body altered after signing must be refused, or none of the above proves anything.
+        const forged = await postStripeWebhook({
+          request: context.request,
+          event: paidCheckoutEvent(registrationId, checkoutSessionId),
+          tamper: (body) => body.replace('"payment_status":"paid"', '"payment_status":"unpaid"'),
+        })
+        expect(forged.status).toBe(400)
+        expect((await readRegistration(context.request, registrationId)).status).toBe('CHECKOUT_PENDING')
+
+        // The authoritative confirmation. Sent twice: the second is the provider retry Stripe
+        // makes routinely, and it must converge rather than confirm a second payment.
+        const confirmation = paidCheckoutEvent(registrationId, checkoutSessionId)
+        await deliverStripeWebhook({ request: context.request, event: confirmation })
+        await deliverStripeWebhook({ request: context.request, event: confirmation })
+
+        // The page is polling; it moves on server state alone.
+        await expect(page.getByTestId('provisioning-status')).toBeVisible({ timeout: 30_000 })
         await expect(page.getByRole('heading', { level: 1 })).toContainText('Confirming Payment')
         await expect(page.getByText(/payment successful|workspace ready/i)).toHaveCount(0)
 
-        status = 'ACTIVE'
-        await expect(page.getByTestId('provisioning-status')).toContainText(
-          /workspace setup finished/i,
-          { timeout: 30_000 },
-        )
+        const confirmed = await readRegistration(context.request, registrationId)
+        expect(confirmed.status).toBe('PAYMENT_CONFIRMED')
+        // The replay did not mint a second session, so it cannot have charged twice.
+        expect(confirmed.checkoutSessionId).toBe(checkoutSessionId)
+
         await expect(page.getByTestId('recovery-next-action')).toHaveCount(1)
-
-        // Handoff lands the existing first-use path, not Story 12.5 onboarding chrome.
         await page.getByTestId('recovery-next-action').click()
-        await expect(page.getByTestId('handoff-status')).toBeVisible()
-        await expect(page.getByTestId('onboarding-stage-list')).toHaveCount(0)
 
-        expect(checkoutStarts).toBe(1)
+        // Completing the workspace is the one offered action — never a second Checkout.
+        await expect(page.getByTestId('provision-submit')).toBeVisible()
+        await expect(page.getByTestId('checkout-start')).toHaveCount(0)
+        await page.getByLabel(/full name/i).fill('Priya Raman')
+        await page.getByLabel(/password/i).fill(`PaidE2E${stamp}!`)
+        await page.getByTestId('provision-submit').click()
+
+        // The one-time handoff code is exchanged for a real customer session, evidenced by the
+        // authenticated shell naming the Organization just created — reachable no other way, since
+        // nobody has ever signed in to it. `handoff-status` is deliberately not asserted:
+        // `/login/handoff` exists only long enough to exchange the code and redirect, so observing
+        // it is a race that fails on a fast machine even though the handoff worked.
+        await expect(page.getByTestId('app-header')).toContainText(`Priya Agency ${stamp}`,
+          { timeout: 30_000 })
+
+        // BILLING-VAL-124 lands the administrator on "the existing HR first-use/Settings path
+        // *until 12.5*". Story 12.5 has shipped and guided onboarding is on by default, so the
+        // contracted destination today is the guided setup — and that is what the server's next
+        // safe action points at. The previous version of this test asserted the opposite
+        // (`onboarding-stage-list` absent) and never failed, because that test id exists nowhere
+        // in `src/`: it was a vacuous assertion encoding a pre-12.5 expectation.
+        await expect(page.getByTestId('onboarding-progress')).toBeVisible({ timeout: 30_000 })
+        // Whatever the destination, it must never claim money moved or work finished.
+        await expect(page.getByText(/payment successful|workspace ready/i)).toHaveCount(0)
+
+        expect((await readRegistration(context.request, registrationId)).status).toBe('ACTIVE')
         await context.close()
       },
+    )
+  },
+)
+
+test.describe(
+  'Paid registration recovery — Story 12.4',
+  { tag: [tags.regression, tags.api, tags.story('12-4')] },
+  () => {
+    test.skip(
+      process.env.E2E_API_AVAILABLE !== 'true',
+      'Set E2E_API_AVAILABLE=true when ibiza-api is running with paid registration enabled',
     )
 
     test(
       '[P0] Given payment confirmed but provisioning failed, When recovery runs, Then no second Checkout is started and Creation Source stays SELF_SERVICE',
       async ({ browser }) => {
-        const registrationId = 'reg-e2e-unprovisioned'
         const context = await browser.newContext({ baseURL: publicBaseUrl })
-        let checkoutStarts = 0
-        await routeRegistration(context, registrationId, {
-          state: () => registrationState(registrationId, 'PROVISIONING_FAILED', {
-            recoveryAction: 'RETRY_PROVISIONING',
-            checkoutSessionId: 'cs_e2e_unprovisioned',
-          }),
-          onCheckout: () => {
-            checkoutStarts += 1
-            return { checkoutUrl: '/', checkoutSessionId: 'cs_never', status: 'CHECKOUT_PENDING' }
-          },
+        const page = await context.newPage()
+        const stamp = Date.now()
+        const email = `unprovisioned+${stamp}@example.com`
+
+        const registrationId = await startAndVerifyStarterRegistration(page, context, email, stamp)
+        await page.getByTestId('checkout-start').click()
+        await expect(page.getByTestId('checkout-return-confirming')).toBeVisible()
+
+        const pending = await readRegistration(context.request, registrationId)
+        const checkoutSessionId = pending.checkoutSessionId as string
+        await deliverStripeWebhook({
+          request: context.request,
+          event: paidCheckoutEvent(registrationId, checkoutSessionId),
         })
 
-        const page = await context.newPage()
+        // Paid, and no workspace: exactly the state a failed provision leaves behind, reached
+        // without pretending a provisioning failure the server never had.
+        await expect
+          .poll(async () => (await readRegistration(context.request, registrationId)).status,
+            { timeout: 30_000 })
+          .toBe('PAYMENT_CONFIRMED')
+
         await page.goto(`/register/recovery?registrationId=${registrationId}`)
 
         await expect(page.getByTestId('paid-unprovisioned-recovery')).toBeVisible()
@@ -215,29 +267,78 @@ test.describe(
         await expect(page.getByTestId('checkout-start')).toHaveCount(0)
         await expect(page.getByText(/pay again|new checkout/i)).toHaveCount(0)
 
-        expect(checkoutStarts).toBe(0)
+        // Following it completes the workspace against the payment already taken; the Checkout
+        // session is never replaced, so no second charge can exist.
+        await page.getByTestId('recovery-next-action').click()
+        await expect(page.getByTestId('provision-submit')).toBeVisible()
+        await expect(page.getByTestId('checkout-start')).toHaveCount(0)
+
+        const afterRecovery = await readRegistration(context.request, registrationId)
+        expect(afterRecovery.checkoutSessionId).toBe(checkoutSessionId)
         await context.close()
       },
     )
   },
 )
 
-/** Serves the pre-tenant registration aggregate for one registration id. */
-async function routeRegistration(
-  context: BrowserContext,
+/**
+ * `checkout.session.completed` as Stripe sends it for a pre-tenant paid registration.
+ *
+ * Every identifier is derived from the registration, never from a timestamp. The event id is the
+ * inbox's uniqueness key, so it has to be stable across a deliberate replay *and* distinct between
+ * concurrent tests — two workers that started in the same millisecond once shared one, and the
+ * second registration's confirmation was silently swallowed as a duplicate of the first.
+ */
+function paidCheckoutEvent(registrationId: string, checkoutSessionId: string) {
+  return stripeEvent('checkout.session.completed', {
+    id: checkoutSessionId,
+    object: 'checkout.session',
+    // `confirmPaidRegistration` returns early unless the provider says the session was paid.
+    payment_status: 'paid',
+    customer: `cus_e2e_${registrationId}`,
+    subscription: `sub_e2e_${registrationId}`,
+    metadata: { registrationId },
+  }, { id: `evt_e2e_paid_${registrationId}` })
+}
+
+/**
+ * Reads the pre-tenant aggregate. Uses the browser context's request so the registration session
+ * cookie travels with it — the endpoint requires it, and the bare `request` fixture has its own jar.
+ */
+async function readRegistration(
+  request: APIRequestContext,
   registrationId: string,
-  handlers: {
-    state: () => unknown
-    onVerify?: () => unknown
-    onCheckout?: () => unknown
-  },
-): Promise<void> {
-  await context.route(`**/api/v1/registrations/${registrationId}**`, async (route) => {
-    const path = new URL(route.request().url()).pathname
-    const json = (body: unknown) =>
-      route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) })
-    if (path.endsWith('/verify')) return json(handlers.onVerify?.() ?? handlers.state())
-    if (path.endsWith('/checkout')) return json(handlers.onCheckout?.() ?? {})
-    return json(handlers.state())
+): Promise<RegistrationState> {
+  return apiRequest<RegistrationState>({
+    request, method: 'GET', path: `/api/v1/registrations/${registrationId}`,
   })
+}
+
+/**
+ * Start → verify, through the real form and the real single-use link out of the outbox. Leaves the
+ * page on the paid commitment review and returns the registration id.
+ */
+async function startAndVerifyStarterRegistration(
+  page: Page,
+  context: BrowserContext,
+  email: string,
+  stamp: number,
+): Promise<string> {
+  await page.goto('/register?plan=STARTER&intendedCount=34&locale=en')
+
+  // The route opens on the start form, so the commitment review is not on screen yet.
+  await expect(page.getByTestId('register-plan-summary')).toContainText(/starter/i)
+  await expect(page.getByTestId('register-intended-count')).toHaveValue('34')
+  await expect(page.getByTestId('paid-commitment-review')).toHaveCount(0)
+
+  await page.getByTestId('register-email').fill(email)
+  await page.getByTestId('register-org-name').fill(`Priya Agency ${stamp}`)
+  await page.getByTestId('register-submit').click()
+  await expect(page.getByTestId('verification-masked-email')).toBeVisible()
+
+  // Verification is the step that produces the commitment review.
+  const link = await verificationLinkFor(context.request, email)
+  await page.goto(`/register/verify?registrationId=${link.registrationId}&token=${link.token}`)
+  await expect(page.getByTestId('paid-commitment-review')).toBeVisible()
+  return link.registrationId
 }

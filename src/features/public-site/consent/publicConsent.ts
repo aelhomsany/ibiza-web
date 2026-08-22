@@ -71,6 +71,25 @@ export function persistConsent(preference: StoredConsentPreference): void {
   }
 }
 
+/**
+ * Drops the stored preference so the consent prompt reappears on the next render.
+ * Used when the server explicitly refuses a consented event: the receipt the visitor is
+ * carrying is no longer honoured, and continuing to display "Analytics accepted" while
+ * every event is refused is the one outcome the consent UI must never produce.
+ */
+export function clearStoredConsent(): void {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.removeItem(CONSENT_STORAGE_KEY)
+  } catch {
+    // Storage removal can fail in private modes; the notification below still resets the
+    // live UI, so the visitor is not left looking at a stale "accepted" state.
+  }
+  // Same channel the consent controls use, so in-flight measurement stops and the prompt
+  // returns without a reload. A null detail means "no preference on record".
+  window.dispatchEvent(new CustomEvent('ibiza:public-consent', { detail: null }))
+}
+
 export async function saveConsentReceipt(
   payload: ConsentReceiptRequest,
 ): Promise<ConsentReceiptResponse | null> {

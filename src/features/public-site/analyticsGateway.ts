@@ -1,6 +1,7 @@
 import { publicUuid } from '../../api/publicClient'
 import {
   CONSENT_POLICY_VERSION,
+  clearStoredConsent,
   getStoredConsent,
   type StoredConsentPreference,
 } from './consent/publicConsent'
@@ -8,7 +9,7 @@ import type { PublicLocale } from './PublicEvidence'
 
 export type ApprovedPublicEvent =
   | {
-      eventName: 'public_page_viewed.v1'
+      eventName: 'public_page_viewed.v2'
       dimensions: {
         route: string
         locale: PublicLocale
@@ -100,6 +101,22 @@ function safePreference(): StoredConsentPreference | null {
     : null
 }
 
+/**
+ * A refused event is not the same thing as an unreachable one. Transport failure stays
+ * silent by design — optional measurement must never block public content. But a 403 means
+ * the server does not honour this receipt, and swallowing that left the consent UI
+ * reporting "Analytics accepted" while every event was being dropped. Clearing the stored
+ * preference makes the existing prompt reappear rather than inventing a new surface.
+ */
+async function handleConsentRejection(error: unknown): Promise<void> {
+  const provider = await import('./optionalAnalyticsProvider')
+  if (!provider.isConsentRejection(error)) return
+  clearStoredConsent()
+  // Keys are prefixed with the subject, so a re-consent that mints a fresh subject would
+  // not collide anyway; this covers the case where the same subject is reissued.
+  emittedKeys.clear()
+}
+
 export async function emitApprovedPublicEvent(event: ApprovedPublicEvent): Promise<void> {
   const preference = safePreference()
   if (!preference) return
@@ -126,7 +143,7 @@ export async function emitApprovedPublicEvent(event: ApprovedPublicEvent): Promi
     await provider.sendApprovedEvent({
       ...event,
       eventId,
-      schemaVersion: '1',
+      schemaVersion: event.eventName.endsWith('.v2') ? '2' : '1',
       sourceTimestamp: new Date().toISOString(),
       // Stable across attempts and page loads. Salting this with eventId made it
       // unique per call, so the server's unique index and DuplicateKeyException
@@ -138,14 +155,15 @@ export async function emitApprovedPublicEvent(event: ApprovedPublicEvent): Promi
       pseudonymousSubject: subject,
       consentReceiptId: receiptId,
     })
-  } catch {
+  } catch (error) {
     // Optional measurement failure never blocks public content or navigation.
     emittedKeys.delete(memoryKey)
+    await handleConsentRejection(error)
   }
 }
 
 export async function startConsentedPageView(
-  event: Extract<ApprovedPublicEvent, { eventName: 'public_page_viewed.v1' }>,
+  event: Extract<ApprovedPublicEvent, { eventName: 'public_page_viewed.v2' }>,
 ): Promise<void> {
   const preference = safePreference()
   if (!preference?.subject || !preference.receiptId) return
@@ -165,7 +183,7 @@ export async function startConsentedPageView(
     provider.startConsentedPageView({
       ...event,
       eventId,
-      schemaVersion: '1',
+      schemaVersion: event.eventName.endsWith('.v2') ? '2' : '1',
       sourceTimestamp: new Date().toISOString(),
       // Stable across attempts — see emitApprovedPublicEvent.
       deduplicationKey: memoryKey,
@@ -174,7 +192,8 @@ export async function startConsentedPageView(
       pseudonymousSubject: preference.subject,
       consentReceiptId: preference.receiptId,
     })
-  } catch {
+  } catch (error) {
     emittedKeys.delete(memoryKey)
+    await handleConsentRejection(error)
   }
 }

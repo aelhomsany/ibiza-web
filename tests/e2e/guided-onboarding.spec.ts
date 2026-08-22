@@ -1,5 +1,7 @@
 import type { BrowserContext, Page } from '@playwright/test'
 import { test, expect } from '../support/fixtures'
+import { apiRequest } from '../support/helpers/api-client'
+import { loginViaApi, loginViaUi, navigateInApp } from '../support/helpers/auth'
 import { tags } from '../support/tags'
 
 type OnboardingState = {
@@ -221,6 +223,82 @@ test.describe(
         await page.reload()
         await expect(page.getByTestId('setup-return-notice')).toBeHidden()
         await context.close()
+      },
+    )
+  },
+)
+
+/**
+ * Story 12.5 ONBOARDING-VAL-014, API-backed.
+ *
+ * The UI-only describes above intentionally stub the API — they cover presentation, resume and
+ * layout. This describe exists because VAL-014 is a P0 row whose only evidence used to be a
+ * stubbed test titled "Given the real domain flow reconciles server-side": it intercepted
+ * `/api/v1/onboarding` and flipped a local boolean, so it asserted a server-side reconciliation
+ * it never performed. Nothing here is intercepted; every value rendered comes from the API.
+ *
+ * Causation of a *first* activation is proven at the API layer, by
+ * OnboardingWorkflowIntegrationTest#realInviteRequestApprovalAndReconciliationActivateExactlyOnceWithoutSensitivePayload
+ * — a browser cannot accept an invitation, because invitation tokens are hashed at rest and
+ * delivered by email. What this proves is the half only a browser can: that the onboarding
+ * surface renders the server's real evidence, and that the activation surface is self-consistent.
+ */
+test.describe(
+  'Commercial Activation, API-backed — Story 12.5',
+  { tag: [tags.regression, tags.api, tags.story('12-5')] },
+  () => {
+    test.skip(
+      process.env.E2E_API_AVAILABLE !== 'true',
+      'Set E2E_API_AVAILABLE=true when ibiza-api is running (scripts/run-e2e-with-api.sh)',
+    )
+
+    test(
+      '[P0] Given the real onboarding endpoint, When an HR Admin opens onboarding, Then the rendered evidence is the server’s and the activation surface never contradicts itself',
+      async ({ page, request }) => {
+        // Onboarding is HR-Admin-only (the shared pilot identity is a MANAGER and gets a 403),
+        // and the Organization must be guided-onboarding-eligible — the older demo orgs are
+        // correctly refused by the eligibility gate. DemoScenarioSeeder provisions Meridian Labs
+        // through OrganizationProvisioningCore for exactly this.
+        const hrAdmin = {
+          email: process.env.E2E_HR_ADMIN_EMAIL ?? 'morgan@meridian-labs.example',
+          password: process.env.E2E_USER_PASSWORD ?? 'PilotDev123!',
+        }
+        const session = await loginViaApi(request, hrAdmin)
+        const state = await apiRequest<{
+          activationStatus: 'NOT_ACTIVATED' | 'COMMERCIALLY_ACTIVATED'
+          nextSafeAction: { stage: string; action: string; href: string }
+          milestones: Record<string, boolean>
+          stages: { id: string }[]
+        }>({
+          request,
+          method: 'GET',
+          path: '/api/v1/onboarding',
+          token: session.accessToken,
+        })
+
+        // The contradiction this story fixes: an activated Organization must never be told to
+        // approve its first request again, whatever later happened to the qualifying request.
+        if (state.activationStatus === 'COMMERCIALLY_ACTIVATED') {
+          expect(state.nextSafeAction.action).not.toBe('APPROVE_FIRST_REQUEST')
+          expect(state.milestones.firstRequestApproved).toBe(true)
+        }
+        expect(state.stages).toHaveLength(5)
+
+        await loginViaUi(page, hrAdmin)
+        await navigateInApp(page, '/onboarding')
+
+        // Rendered from the same unstubbed response the assertions above were made against.
+        await expect(page.getByTestId('onboarding-page')).toBeVisible()
+        await expect(page.getByTestId('onboarding-progress')).toBeVisible()
+        await expect(page.getByTestId('activation-status')).toBeVisible()
+        // The strongest available tie between DOM and server: the rendered next action must be
+        // the destination the API returned, not a client-side guess. The only permitted addition
+        // is the bookmarkable return marker the setup-return notice rides on (ONBOARDING-VAL-030).
+        const serverHref = state.nextSafeAction.href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        await expect(page.getByTestId('onboarding-next-action')).toHaveAttribute(
+          'href',
+          new RegExp(`^${serverHref}(&from=onboarding)?$`),
+        )
       },
     )
   },

@@ -53,6 +53,44 @@ describe('analyticsGateway rollback switch — Story 12.2', () => {
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
+  // The dedup key is added before the send and released in the catch. Without the release
+  // a single offline blip would permanently suppress that event for the session — the
+  // gateway would believe it had already been emitted.
+  it('[P1] Given a transport failure, When the same event fires again, Then the released dedup key lets it retry and consent survives', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce(new Response(null, { status: 202 }))
+    vi.stubGlobal('fetch', fetchMock)
+    const gateway = await import('./analyticsGateway')
+    const event = {
+      eventName: 'pricing_plan_selected.v1',
+      dimensions: { route: '/pricing', locale: 'en', plan: 'GROWTH', interaction: 'cta' },
+    } as const
+
+    await gateway.emitApprovedPublicEvent(event)
+    await gateway.emitApprovedPublicEvent(event)
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    // A transport failure is not a refusal: the preference must be left intact.
+    expect(window.localStorage.getItem(CONSENT_STORAGE_KEY)).not.toBeNull()
+  })
+
+  it('[P1] Given the server refuses the receipt, When an event fires, Then stored consent is cleared', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(null, { status: 403 })),
+    )
+    const gateway = await import('./analyticsGateway')
+
+    await gateway.emitApprovedPublicEvent({
+      eventName: 'pricing_plan_selected.v1',
+      dimensions: { route: '/pricing', locale: 'en', plan: 'GROWTH', interaction: 'cta' },
+    })
+
+    expect(window.localStorage.getItem(CONSENT_STORAGE_KEY)).toBeNull()
+  })
+
   it('[P2] Given the switch is untouched and consent is accepted, When the same events fire, Then both are sent', async () => {
     const fetchMock = vi.fn(async () => new Response(null, { status: 202 }))
     vi.stubGlobal('fetch', fetchMock)

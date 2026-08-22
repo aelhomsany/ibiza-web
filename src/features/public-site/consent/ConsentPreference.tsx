@@ -50,6 +50,21 @@ export function ConsentPreference({
     }
   }, [])
 
+  // The stored preference can be dropped from outside this component when the server
+  // refuses the receipt it was carrying. Without this the visitor keeps reading
+  // "Analytics accepted" for the rest of the session while every event is refused.
+  useEffect(() => {
+    function onConsentChange(event: Event) {
+      const detail = (event as CustomEvent<StoredConsentPreference | null>).detail
+      if (detail) return
+      setPreference(null)
+      setExpanded(true)
+      setProviderUnavailable(false)
+    }
+    window.addEventListener('ibiza:public-consent', onConsentChange)
+    return () => window.removeEventListener('ibiza:public-consent', onConsentChange)
+  }, [])
+
   async function choose(analytics: 'ACCEPTED' | 'DECLINED') {
     setSaving(true)
     setProviderUnavailable(false)

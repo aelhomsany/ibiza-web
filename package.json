@@ -15,7 +15,7 @@
     "test": "vitest",
     "test:ci": "vitest run --reporter=dot",
     "test:e2e": "playwright test",
-    "test:e2e:ci": "playwright test --reporter=line",
+    "test:e2e:ci": "playwright test --reporter=line,./tests/support/contracted-execution-reporter.ts",
     "test:e2e:ui-only": "playwright test --grep @ui-only --reporter=line",
     "test:e2e:smoke": "playwright test --grep @smoke --reporter=line",
     "test:e2e:regression": "playwright test --grep @regression --reporter=line",

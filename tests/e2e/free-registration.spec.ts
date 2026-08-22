@@ -1,5 +1,14 @@
 import { test, expect } from '../support/fixtures'
+import { loginViaUi } from '../support/helpers/auth'
 import { tags } from '../support/tags'
+
+// The seeded Free Organization that sits exactly on the FREE(5) seat cap. Provided by
+// DemoScenarioSeeder.seedFreeLimitOrganization(), which seeds five active Users precisely
+// so this state is reachable deterministically rather than assembled by the test.
+const freeLimitHr = {
+  email: 'laila@saffron-studios.example',
+  password: process.env.E2E_USER_PASSWORD ?? 'PilotDev123!',
+}
 
 const publicBaseUrl = process.env.PUBLIC_BASE_URL ??
   (process.env.E2E_PUBLIC_ARTIFACT === 'true'
@@ -67,7 +76,13 @@ test.describe(
     test(
       '[P0] Given a Free org at five active Users, When HR adds User #6, Then the exact limit and upgrade path are visible and no member is created',
       async ({ page }) => {
-        // Customer-app Settings — assumes API-backed seed of a Free org already at five active Users.
+        // Customer-app Settings for the seeded Free Organization already at five active Users.
+        // This previously navigated straight to /settings with no session at all, on a comment
+        // that "assumes API-backed seed of a Free org already at five active Users" — no seeder
+        // created one, so the test timed out on add-member-btn and had never passed. Both halves
+        // are now real: sign in as that Organization's HR Admin, and DemoScenarioSeeder seeds it
+        // at the cap.
+        await loginViaUi(page, freeLimitHr)
         await page.goto('/settings?category=people')
         await page.getByTestId('add-member-btn').click()
         await page.getByLabel(/Full name/i).fill('Sixth User')

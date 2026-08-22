@@ -9,11 +9,17 @@
     "editSubscription": "Edit Subscription for {{name}}"
   },
   "create": {
+    "assistedHandoff": {
+      "hint": "Links this workspace to the sales conversation it came from. Only leads not already linked are listed.",
+      "none": "No handoff — direct provisioning",
+      "option": "{{company}} — {{contact}} ({{users}} users)"
+    },
     "creating": "Creating…",
     "errors": {
       "submit": "Unable to create organization"
     },
     "fields": {
+      "assistedHandoff": "Contact Sales handoff (optional)",
       "hrEmail": "Initial HR Admin email",
       "name": "Organization name",
       "plan": "Subscription plan",
@@ -42,7 +48,7 @@
   "loading": "Loading organizations…",
   "plans": {
     "free": "Free",
-    "freeWithLimit": "Free (3 users)",
+    "freeWithLimit": "Free (5 users)",
     "growth": "Growth",
     "growthWithLimit": "Growth (200 users)",
     "internal": "Internal",

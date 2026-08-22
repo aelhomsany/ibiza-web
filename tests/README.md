@@ -126,7 +126,8 @@ Artifacts: `test-results/` (JUnit + traces) and `playwright-report/` on failure.
 
 `tests/e2e/team-member-plan-limit.spec.ts` is an API-backed full-stack regression journey. It creates a unique Free
 organization through the platform API, signs a short-lived HR token with the same `JWT_SECRET` used
-by the E2E API process, seeds the org to three users, then verifies Settings shows the plan-limit
+by the E2E API process, seeds the org to five users (the FREE(5) cap), then verifies that adding
+a sixth makes Settings show the plan-limit
 warning toast and leaves the Add Member modal open.
 
 ## Knowledge Base References

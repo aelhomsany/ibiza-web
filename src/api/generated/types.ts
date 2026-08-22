@@ -887,8 +887,25 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read consent-aware aggregate funnel measures */
+        /** Read consent-aware aggregate funnel measures over a reporting window */
         get: operations["report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/contact-sales-leads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Contact Sales leads that can still be linked to a new organization */
+        get: operations["listLinkableContactSalesLeads"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1885,6 +1902,20 @@ export interface components {
             maskedAdministratorEmail?: string;
             /** Format: date-time */
             updatedAt?: string;
+        };
+        /** @description A Contact Sales lead that can still be linked to a new Organization */
+        ContactSalesLeadSummaryResponse: {
+            id?: string;
+            companyName?: string;
+            contactName?: string;
+            contactEmail?: string;
+            /** Format: int32 */
+            intendedActiveUserCount?: number;
+            country?: string;
+            status?: string;
+            followUpWithdrawn?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
         };
         PlatformAdminSummaryResponse: {
             /** Format: int64 */
@@ -3637,7 +3668,12 @@ export interface operations {
     };
     report: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Inclusive ISO-8601 window start; defaults to the retention horizon */
+                from?: string;
+                /** @description Exclusive ISO-8601 window end; defaults to now */
+                to?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -3653,6 +3689,26 @@ export interface operations {
                     "*/*": {
                         [key: string]: Record<string, never>;
                     };
+                };
+            };
+        };
+    };
+    listLinkableContactSalesLeads: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ContactSalesLeadSummaryResponse"][];
                 };
             };
         };
@@ -4110,6 +4166,8 @@ export interface operations {
         };
     };
 }
+
+
 // Ibiza keeps these schema aliases for feature code ergonomics, even though
 // openapi-typescript exposes schemas through components["schemas"].
 type RequiredSchema<K extends keyof components["schemas"]> = Required<components["schemas"][K]>;
@@ -4128,6 +4186,7 @@ export type CalendarMonthResponse = Omit<
     viewerWeekendDays: DayOfWeek[];
 };
 export type CheckoutSessionResponse = RequiredSchema<"CheckoutSessionResponse">;
+export type ContactSalesLeadSummaryResponse = RequiredSchema<"ContactSalesLeadSummaryResponse">;
 export type CreateCheckoutSessionRequest = components["schemas"]["CreateCheckoutSessionRequest"];
 export type CreateLeaveRequestRequest = components["schemas"]["CreateLeaveRequestRequest"];
 export type CreateOrganizationRequest = components["schemas"]["CreateOrganizationRequest"];

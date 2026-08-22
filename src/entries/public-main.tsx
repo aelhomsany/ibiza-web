@@ -107,7 +107,7 @@ function startConsentedAnalytics(preference?: StoredConsentPreference) {
   const params = new URLSearchParams(window.location.search)
   const route = resolved.route
   void startConsentedPageView({
-    eventName: 'public_page_viewed.v1',
+    eventName: 'public_page_viewed.v2',
     dimensions: {
       route,
       locale: resolved.locale,

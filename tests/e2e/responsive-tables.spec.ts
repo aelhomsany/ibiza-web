@@ -73,7 +73,7 @@ test.describe('Responsive tables — Story 10.3', { tag: [tags.regression, tags.
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot table data',
   )
 
-  test('[P0] Dashboard recent requests scroll inside the table wrapper at 375px', async ({
+  test('[P0] Dashboard recent requests use task cards without page overflow at 375px', async ({
     page,
   }) => {
     await loginViaUi(page, { email: 'sarah@company.com', password })
@@ -82,10 +82,15 @@ test.describe('Responsive tables — Story 10.3', { tag: [tags.regression, tags.
     const card = page.getByTestId('recent-requests-card')
     await expect(card).toBeVisible()
 
-    await expectTrailingColumnReachable({
-      wrapper: card.locator('.table-wrap'),
-      trailingCell: card.locator('tbody tr').first().locator('td').last(),
-    })
+    // Story 10.3 made this a horizontally scrollable table at mobile width; Story 11.2 replaced
+    // that with a task-card list, so `.recent-requests-table-view` is `display: none` under the
+    // 760px container query and `.table-wrap` cannot be visible here. The requirement is
+    // unchanged — recent requests stay usable at 375px with no page-level overflow — and this
+    // now asserts it against the design that actually ships, matching the My Leaves test below.
+    await expect(page.getByTestId('recent-requests-table-view')).toBeHidden()
+    const list = card.getByTestId('recent-request-card-list')
+    await expect(list).toBeVisible()
+    expect(await list.locator('.recent-request-card').count()).toBeGreaterThan(0)
     await expectPageDoesNotOverflow(page)
   })
 

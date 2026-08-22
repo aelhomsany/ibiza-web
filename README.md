@@ -94,11 +94,33 @@ they never replace paths in validation or trace artifacts.
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Dev server on :5173 |
-| `npm run build` | Production build to `dist/` |
+| `npm run build` | Production build to `dist/`. **Requires `VITE_PUBLIC_TURNSTILE_SITE_KEY`** — see [Build prerequisites](#build-prerequisites) |
 | `npm run test:e2e:ui-only` | Five browser-only Playwright tests without an API |
 | `npm run verify:e2e-tags` | Validate exact E2E manifest and tag invariants |
 | `npm run generate:api` | Regenerate OpenAPI types from running API (`http://localhost:8080/v3/api-docs`) |
 | `npm run lint` | ESLint |
+
+### Build prerequisites
+
+`npm run build` produces all three artifacts, and the public one fails closed without a
+Turnstile site key:
+
+```
+- VITE_PUBLIC_TURNSTILE_SITE_KEY is unset: the Turnstile widget would never render and every
+  Contact Sales submission would be rejected. Set it before building dist/public.
+```
+
+That gate is deliberate, not a defect — a public build that silently ships a dead widget would
+break every Contact Sales submission in production. Supply the key:
+
+```bash
+VITE_PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA npm run build
+```
+
+`1x00000000000000000000AA` is Cloudflare's documented always-passes **test** key. It is what
+`.github/workflows/ci.yml` exports workflow-wide, what `npm run test:e2e:public` passes inline,
+and what `.env.example` now carries — so copying `.env.example` to `.env` also makes a bare
+`npm run build` work. Real deployments must supply their own key.
 
 ### OpenAPI types
 

@@ -16,7 +16,13 @@ test.describe('Settings API — workforce groups and holidays', { tag: [tags.reg
       data: {
         email: hrEmail,
         password,
-        timezone: 'America/New_York',
+        // Africa/Cairo matches how DemoScenarioSeeder seeds this account. Login persists the
+        // timezone it is given, so signing a seeded user in with a different one rewrote their
+        // row mid-suite — mutating curated demo data this spec does not own, and taking a write
+        // lock that deadlocked (MySQL 1213) against concurrent sign-ins by the same account,
+        // surfacing as 500s from /auth/login. Timezone capture itself stays covered
+        // authoritatively by AuthIntegrationTest#loginPersistsTimezoneAndReLoginOverwritesIt.
+        timezone: 'Africa/Cairo',
       },
     })
     expect(loginResponse.ok()).toBeTruthy()
@@ -41,7 +47,7 @@ test.describe('Settings API — workforce groups and holidays', { tag: [tags.reg
       data: {
         email: hrEmail,
         password,
-        timezone: 'America/New_York',
+        timezone: 'Africa/Cairo',
       },
     })
     expect(loginResponse.ok()).toBeTruthy()

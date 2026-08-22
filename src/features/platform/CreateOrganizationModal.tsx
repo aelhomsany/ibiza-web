@@ -4,6 +4,7 @@ import type { CreateOrganizationRequest } from '../../api/generated/types'
 import { Modal } from '../../components/ui/Modal'
 import { CloseIcon } from '../../components/ui/icons'
 import { PlatformApiError } from '../platform-auth/platformApiClient'
+import { useContactSalesLeads } from './useContactSalesLeads'
 import { useCreateOrganization } from './useCreateOrganization'
 
 type Props = {
@@ -14,6 +15,8 @@ type Plan = CreateOrganizationRequest['plan']
 
 const plans: Plan[] = ['FREE', 'STARTER', 'GROWTH', 'INTERNAL']
 
+const NO_HANDOFF = ''
+
 export function CreateOrganizationModal({ onClose }: Props) {
   const { t } = useTranslation(['platform', 'common'])
   const createMutation = useCreateOrganization()
@@ -21,7 +24,12 @@ export function CreateOrganizationModal({ onClose }: Props) {
   const [primaryContact, setPrimaryContact] = useState('')
   const [initialHrAdminEmail, setInitialHrAdminEmail] = useState('')
   const [plan, setPlan] = useState<Plan>('STARTER')
+  const [assistedHandoffId, setAssistedHandoffId] = useState<string>(NO_HANDOFF)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  // A lead list that cannot be read is not a reason to block provisioning: the operator can
+  // always create an unassisted Organization, which is what this form did before the picker.
+  const { data: leads } = useContactSalesLeads()
+  const linkableLeads = leads ?? []
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -33,6 +41,9 @@ export function CreateOrganizationModal({ onClose }: Props) {
         primaryContact,
         initialHrAdminEmail,
         plan,
+        // Omitted rather than sent empty: the server treats a blank handoff id as "none", but an
+        // absent key says so without relying on that.
+        ...(assistedHandoffId === NO_HANDOFF ? {} : { assistedHandoffId }),
       },
       {
         onSuccess: () => {
@@ -115,6 +126,35 @@ export function CreateOrganizationModal({ onClose }: Props) {
               ))}
             </select>
           </div>
+
+          {linkableLeads.length > 0 ? (
+            <div className="form-group">
+              <label htmlFor="org-assisted-handoff">
+                {t('platform:create.fields.assistedHandoff')}
+              </label>
+              <select
+                id="org-assisted-handoff"
+                value={assistedHandoffId}
+                onChange={(event) => setAssistedHandoffId(event.target.value)}
+              >
+                <option value={NO_HANDOFF}>{t('platform:create.assistedHandoff.none')}</option>
+                {linkableLeads.map((lead) => (
+                  // Company and contact names are user data and are never translated. Without
+                  // dir="auto" an Arabic company name reorders the trailing "(N users)" clause.
+                  <option key={lead.id} value={lead.id} dir="auto">
+                    {t('platform:create.assistedHandoff.option', {
+                      company: lead.companyName,
+                      contact: lead.contactName,
+                      users: lead.intendedActiveUserCount,
+                    })}
+                  </option>
+                ))}
+              </select>
+              <p className="form-hint" dir="auto">
+                {t('platform:create.assistedHandoff.hint')}
+              </p>
+            </div>
+          ) : null}
 
           {errorMessage ? (
             <p className="form-error" role="alert">

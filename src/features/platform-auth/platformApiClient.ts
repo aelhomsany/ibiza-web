@@ -1,4 +1,5 @@
 import type {
+  ContactSalesLeadSummaryResponse,
   CreateOrganizationRequest,
   OrganizationSummaryResponse,
   UpdateSubscriptionRequest,
@@ -162,6 +163,14 @@ export async function getPlatformMe() {
 
 export async function getPlatformOrganizations(): Promise<OrganizationSummaryResponse[]> {
   return request('/api/v1/platform/organizations', { method: 'GET' })
+}
+
+/**
+ * Contact Sales leads the operator can still link. The server excludes leads already bound to an
+ * Organization, so this list is never an invitation to trigger the create endpoint's 409.
+ */
+export async function getPlatformContactSalesLeads(): Promise<ContactSalesLeadSummaryResponse[]> {
+  return request('/api/v1/platform/contact-sales-leads', { method: 'GET' })
 }
 
 export async function createPlatformOrganization(

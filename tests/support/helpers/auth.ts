@@ -26,8 +26,33 @@ export async function loginViaApi(
     data: {
       email: credentials.email,
       password: credentials.password,
-      timezone: credentials.timezone ?? 'America/New_York',
+      // Africa/Cairo is what DemoScenarioSeeder gives the seeded demo accounts, and login
+      // PERSISTS whatever timezone it is handed. A default that disagreed with the seed meant
+      // every API sign-in rewrote that user's row as a side effect — mutating curated data the
+      // caller did not intend to touch, and taking a row lock that deadlocked (MySQL 1213)
+      // against concurrent sign-ins by the same account, surfacing as 500s from /auth/login.
+      // Specs that are genuinely about timezone capture pass their own value; the behaviour
+      // itself stays covered by AuthIntegrationTest#loginPersistsTimezoneAndReLoginOverwritesIt.
+      timezone: credentials.timezone ?? 'Africa/Cairo',
     },
+  })
+}
+
+/**
+ * Platform Admin sign-in. Operators authenticate on their OWN realm: Story 12.1 separated the
+ * chains so that customer credentials cannot establish a Platform Admin session and vice versa,
+ * and `/api/v1/auth/login` answers 401 for an operator by design. Specs written before that split
+ * still called loginViaApi for riley@ibiza.app and read the 401 as a broken fixture.
+ */
+export async function loginPlatformViaApi(
+  request: APIRequestContext,
+  credentials: { email: string; password: string },
+): Promise<TokenResponse> {
+  return apiRequest<TokenResponse>({
+    request,
+    method: 'POST',
+    path: '/api/v1/platform-auth/login',
+    data: { email: credentials.email, password: credentials.password },
   })
 }
 

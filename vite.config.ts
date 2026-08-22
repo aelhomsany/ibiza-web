@@ -28,7 +28,8 @@ function entryBoundaryRouter(artifact: Artifact): Plugin {
           /\.[a-z0-9]+$/i.test(pathname)
 
         if (acceptsHtml && !isAssetOrApi) {
-          const publicPath = pathname.startsWith('/ar/') ? pathname.slice(3) : pathname
+          const isArabicPublic = pathname.startsWith('/ar/')
+          const publicPath = isArabicPublic ? pathname.slice(3) : pathname
           const isPublicRoute = [
             '/',
             '/product',
@@ -43,9 +44,29 @@ function entryBoundaryRouter(artifact: Artifact): Plugin {
             '/register/verify',
             '/register/recovery',
           ].includes(publicPath) || publicPath.startsWith('/register/')
+
+          // '/' is the one path two artifacts both claim, and on THIS origin it belongs to
+          // the customer app. That is what dist/app/deployment.json declares, what
+          // scripts/serve-spa-artifacts.mjs implements ("mirrors the production host rule
+          // the artifacts are built for"), and what getHomePath() returns after sign-in.
+          // The public site owns '/' on its OWN origin, which scripts/serve-public.mjs
+          // serves on port 4174 and where public-entry-boundaries.spec.ts asserts it.
+          //
+          // Resolving '/' here to the public document made this dev server the only
+          // topology in the project where it did not, so every full page load at '/' —
+          // including the post-sign-in redirect — rendered marketing copy instead of the
+          // app. That is why CI (npm run preview, correct topology) stayed green while the
+          // local runner (npm run dev) failed a block of @api specs on missing selectors.
+          //
+          // Every other public path stays multiplexed: those are unambiguous, and the
+          // pricing/contact-sales/registration specs reach them through this server.
+          // The Arabic prefix stays public throughout — the customer artifact serves no
+          // /ar/* route, so /ar/ is unambiguous in a way that bare '/' is not.
+          const claimedByCustomerArtifact = publicPath === '/' && !isArabicPublic
+
           request.url = pathname.startsWith('/app-admin')
             ? '/admin.html'
-            : isPublicRoute
+            : isPublicRoute && !claimedByCustomerArtifact
               ? '/public.html'
               : '/app.html'
         }

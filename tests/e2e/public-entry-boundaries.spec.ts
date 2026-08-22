@@ -301,7 +301,11 @@ test.describe(
           data: {
             email: customerCredentials.email,
             password: customerCredentials.password,
-            timezone: 'America/New_York',
+            // Africa/Cairo matches how this account is seeded. Login persists the timezone it is
+            // given, so a differing value rewrote the row on every call — toggling it against the
+            // browser sign-ins other specs make as the same user, and deadlocking (MySQL 1213) on
+            // that row. This test is about realm isolation, not timezone capture.
+            timezone: 'Africa/Cairo',
           },
         })
         expect(customerLogin.ok()).toBeTruthy()

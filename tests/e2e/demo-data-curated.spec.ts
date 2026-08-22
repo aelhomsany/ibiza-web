@@ -65,7 +65,12 @@ test.describe(
       await expect(page.getByText(CURATED_PRIMARY_ORG, { exact: true })).toBeVisible()
       const freeLimitRow = page.getByRole('row').filter({ hasText: FREE_LIMIT_ORG })
       await expect(freeLimitRow.getByText('Free', { exact: true })).toBeVisible()
-      await expect(freeLimitRow.getByText('3 / 3', { exact: true })).toBeVisible()
+      // 5 / 5, not 3 / 3: Story 12.3 raised the Free cap from FREE(3) to FREE(5) and
+      // DemoScenarioSeeder now seeds this Organization at the new cap. The assertion is
+      // deliberately still an exact at-capacity pair plus the AT LIMIT indicator — the point
+      // of this row is that the seeded Free org sits exactly on its limit, and asserting
+      // '3 / 5' instead would have kept the test passing while silently dropping that.
+      await expect(freeLimitRow.getByText('5 / 5', { exact: true })).toBeVisible()
       await expect(freeLimitRow.getByText('AT LIMIT', { exact: true })).toBeVisible()
       await expect(page.getByText(/E2E Nile/i)).toHaveCount(0)
     })
