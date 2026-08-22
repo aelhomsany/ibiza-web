@@ -17,6 +17,14 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      # `npm ci` enforces peer ranges strictly, unlike the `npm install` that produced the
+      # committed lockfile. openapi-typescript@7 still declares `typescript: ^5.x` while this
+      # project is on ~6.0.2, so plain `npm ci` failed ERESOLVE here before any job body ran —
+      # on every push from the initial commit until 2026-08-22, which means the two e2e jobs
+      # below (they need this one) had never executed at all. The `overrides` entry in
+      # package.json resolves that peer to our own typescript; openapi-typescript 7.13.0 was
+      # verified to generate correctly under 6.0.3. Removing the override breaks this step,
+      # not a test.
       - run: npm ci
       - run: npm run verify:i18n
       - run: npm run build
