@@ -1,88 +1,11 @@
-import type { BrowserContext, Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
 import { test, expect } from '../support/fixtures'
 import { apiRequest } from '../support/helpers/api-client'
 import { loginViaApi, loginViaUi, navigateInApp } from '../support/helpers/auth'
+// The onboarding payload and its auth/route mocks live in the shared helper so the Epic 12
+// accessibility checkpoints render the same page shape this suite asserts against.
+import { mockAuthenticatedOnboarding, onboardingResponse as response } from '../support/helpers/onboarding'
 import { tags } from '../support/tags'
-
-type OnboardingState = {
-  activationStatus: 'NOT_ACTIVATED' | 'COMMERCIALLY_ACTIVATED'
-  presentationEnabled?: boolean
-  analyticsConsent?: 'NECESSARY_ONLY'
-}
-
-const stages = [
-  { id: 'ORGANIZATION', label: 'Organization' },
-  { id: 'WORKING_CALENDARS', label: 'Working calendars' },
-  { id: 'PEOPLE_AND_INVITATIONS', label: 'People and invitations' },
-  { id: 'ENTITLEMENTS_AND_READINESS', label: 'Entitlements and readiness' },
-  { id: 'FIRST_LEAVE_CYCLE', label: 'First leave cycle' },
-]
-
-function response(overrides: Partial<OnboardingState> = {}) {
-  const activated = overrides.activationStatus === 'COMMERCIALLY_ACTIVATED'
-  return {
-    workflowVersion: '12.5-v1',
-    stages,
-    evidence: {
-      ORGANIZATION: { complete: true, summary: 'Organization details are ready', facts: {} },
-      WORKING_CALENDARS: { complete: false, summary: 'Review groups, weekends, and holidays', facts: {} },
-      PEOPLE_AND_INVITATIONS: { complete: false, summary: 'Invite and assign at least one teammate', facts: {} },
-      ENTITLEMENTS_AND_READINESS: { complete: true, summary: 'Leave entitlements are ready', facts: {} },
-      FIRST_LEAVE_CYCLE: { complete: activated, summary: 'Complete the first real leave cycle', facts: {} },
-    },
-    currentPresentationStep: 'PEOPLE_AND_INVITATIONS',
-    nextSafeAction: activated
-      ? { stage: 'FIRST_LEAVE_CYCLE', action: 'VIEW_WORKSPACE', href: '/' }
-      : { stage: 'WORKING_CALENDARS', action: 'OPEN_WORKING_CALENDARS', href: '/settings?category=working-calendars' },
-    version: 3,
-    activationStatus: 'NOT_ACTIVATED',
-    milestones: {
-      invitationAccepted: activated,
-      firstRequestSubmitted: activated,
-      firstRequestApproved: activated,
-      reconciled: activated,
-    },
-    workspaceCreated: true,
-    onboardingComplete: activated,
-    billingInOnboarding: false,
-    plan: 'FREE',
-    creationSource: 'SELF_SERVICE',
-    presentationEnabled: true,
-    fallbackRoute: '/settings?category=working-calendars',
-    ...overrides,
-  }
-}
-
-async function mockAuthenticatedOnboarding(
-  context: BrowserContext,
-  state: () => ReturnType<typeof response>,
-  locale: 'en' | 'ar' = 'en',
-) {
-  await context.route('**/api/v1/auth/refresh', (route) =>
-    route.fulfill({
-      contentType: 'application/json',
-      body: JSON.stringify({ accessToken: 'e2e-token', refreshToken: 'e2e-refresh', tokenType: 'Bearer', expiresIn: 900 }),
-    }),
-  )
-  await context.route('**/api/v1/auth/me', (route) =>
-    route.fulfill({
-      contentType: 'application/json',
-      body: JSON.stringify({
-        id: 42,
-        email: 'hr@example.test',
-        fullName: 'Onboarding HR',
-        role: 'HR_ADMIN',
-        organizationId: 7,
-        organizationName: 'Onboarding Workspace',
-        timezone: 'UTC',
-        preferredLanguage: locale,
-      }),
-    }),
-  )
-  await context.route('**/api/v1/onboarding', (route) =>
-    route.fulfill({ contentType: 'application/json', body: JSON.stringify(state()) }),
-  )
-}
 
 async function expectNoPageOverflow(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true)

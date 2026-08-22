@@ -522,6 +522,36 @@
       "tests": [
         "[P0] Given the real onboarding endpoint, When an HR Admin opens onboarding, Then the rendered evidence is the server’s and the activation surface never contradicts itself"
       ]
+    },
+    "accessibility-completion.spec.ts::Free registration accessibility checkpoints — Story 12.3": {
+      "tags": [
+        "@regression",
+        "@ui-only",
+        "@story-12-3"
+      ],
+      "tests": [
+        "[P0] Given a keyboard, zoom, reflow, reduced-motion or touch visitor, When the Free registration form renders, Then every accessibility checkpoint holds"
+      ]
+    },
+    "accessibility-completion.spec.ts::Paid Checkout return accessibility checkpoints — Story 12.4": {
+      "tags": [
+        "@regression",
+        "@ui-only",
+        "@story-12-4"
+      ],
+      "tests": [
+        "[P0] Given a keyboard, zoom, reflow, reduced-motion or touch visitor, When the paid Checkout-return recovery panel renders, Then every accessibility checkpoint holds"
+      ]
+    },
+    "accessibility-completion.spec.ts::Guided onboarding accessibility checkpoints — Story 12.5": {
+      "tags": [
+        "@regression",
+        "@ui-only",
+        "@story-12-5"
+      ],
+      "tests": [
+        "[P0] Given a keyboard, zoom, reflow, reduced-motion or touch visitor, When the guided onboarding page renders, Then every accessibility checkpoint holds"
+      ]
     }
   },
   "permanentlySkippedTests": [

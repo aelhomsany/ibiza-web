@@ -24,9 +24,9 @@ const storyTagPattern = /^@story-\d+-\d+$/
 const reservedTagTokenPattern = /@(smoke|regression|api|ui-only|a11y|keyboard|story-[^\s:]*)/
 const expectedTagCounts = new Map([
   ['@smoke', 7],
-  ['@regression', 93],
+  ['@regression', 96],
   ['@api', 74],
-  ['@ui-only', 19],
+  ['@ui-only', 22],
 ])
 const approvedSmokeIdentities = new Set([
   'approval-inbox.spec.ts::Approval inbox — Story 3.6::[P2] Manager sees direct-report pending row on Approvals page',
