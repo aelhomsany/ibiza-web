@@ -728,6 +728,24 @@ export interface paths {
         patch: operations["updateStatus"];
         trace?: never;
     };
+    "/api/v1/settings/operational-timezone": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read the organization's operational timezone */
+        get: operations["current"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the organization's operational timezone (HR Admin only) */
+        patch: operations["update_2"];
+        trace?: never;
+    };
     "/api/v1/public-holidays/{id}": {
         parameters: {
             query?: never;
@@ -743,7 +761,7 @@ export interface paths {
         options?: never;
         head?: never;
         /** Update a public holiday */
-        patch: operations["update_2"];
+        patch: operations["update_3"];
         trace?: never;
     };
     "/api/v1/platform/organizations/{organizationId}/subscription": {
@@ -812,7 +830,7 @@ export interface paths {
         options?: never;
         head?: never;
         /** Update a mutable workflow notification preference for the caller */
-        patch: operations["update_3"];
+        patch: operations["update_4"];
         trace?: never;
     };
     "/api/v1/users/me/profile-image/content": {
@@ -839,7 +857,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["current"];
+        get: operations["current_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1757,6 +1775,12 @@ export interface components {
             status?: string;
             /** Format: date-time */
             deactivatedAt?: string;
+        };
+        UpdateOperationalTimezoneRequest: {
+            timezone?: string;
+        };
+        OperationalTimezoneResponse: {
+            operationalTimezone?: string;
         };
         UpdatePublicHolidayRequest: {
             /** Format: date */
@@ -3416,6 +3440,50 @@ export interface operations {
             };
         };
     };
+    current: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["OperationalTimezoneResponse"];
+                };
+            };
+        };
+    };
+    update_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateOperationalTimezoneRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["OperationalTimezoneResponse"];
+                };
+            };
+        };
+    };
     delete_1: {
         parameters: {
             query?: never;
@@ -3436,7 +3504,7 @@ export interface operations {
             };
         };
     };
-    update_2: {
+    update_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -3554,7 +3622,7 @@ export interface operations {
             };
         };
     };
-    update_3: {
+    update_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -3598,7 +3666,7 @@ export interface operations {
             };
         };
     };
-    current: {
+    current_1: {
         parameters: {
             query?: never;
             header?: {
@@ -4264,6 +4332,8 @@ export type UpdateTeamMemberRequest = components["schemas"]["UpdateTeamMemberReq
 export type UpdateTeamMemberStatusRequest = components["schemas"]["UpdateTeamMemberStatusRequest"];
 export type UpdateUserPreferencesRequest = components["schemas"]["UpdateUserPreferencesRequest"];
 export type UpdateWeekendDaysRequest = components["schemas"]["UpdateWeekendDaysRequest"];
+export type OperationalTimezoneResponse = RequiredSchema<"OperationalTimezoneResponse">;
+export type UpdateOperationalTimezoneRequest = components["schemas"]["UpdateOperationalTimezoneRequest"];
 export type UserSummaryResponse = Omit<
     RequiredSchema<"UserSummaryResponse">,
     "organizationId" | "organizationName" | "timezone" | "workforceGroupName" | "preferredLanguage" | "profileImageUrl" | "canReviewApprovals"
