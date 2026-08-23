@@ -92,6 +92,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports/{definitionKey}/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Query one fixed schema-v1 report definition */
+        post: operations["query"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/registrations": {
         parameters: {
             query?: never;
@@ -1397,6 +1414,355 @@ export interface components {
             status?: string;
             activeSeat?: boolean;
         };
+        ReportQueryRequest: {
+            /** Format: int32 */
+            schemaVersion?: number;
+            timezone?: string;
+            /** Format: date */
+            from?: string;
+            /** Format: date */
+            to?: string;
+            /** Format: int64 */
+            workforceGroupId?: number;
+            /** Format: int64 */
+            leaveTypeId?: number;
+            status?: string;
+            exceptionCode?: string;
+            includeInactiveUsers?: boolean;
+            sort?: string;
+            direction?: string;
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+        };
+        ProblemDetail: {
+            /** Format: uri */
+            type?: string;
+            title?: string;
+            /** Format: int32 */
+            status?: number;
+            detail?: string;
+            /** Format: uri */
+            instance?: string;
+            properties?: {
+                [key: string]: Record<string, never>;
+            };
+        };
+        AppliedReportView: {
+            timezone?: string;
+            /** Format: date */
+            from?: string;
+            /** Format: date */
+            to?: string;
+            /** Format: date */
+            effectiveDate?: string;
+            /** Format: int64 */
+            workforceGroupId?: number;
+            /** Format: int64 */
+            leaveTypeId?: number;
+            status?: string;
+            exceptionCode?: string;
+            includeInactiveUsers?: boolean;
+            sort?: string;
+            direction?: string;
+        };
+        BalanceSnapshotRow: Omit<components["schemas"]["ReportRow"], "rowType"> & {
+            /** Format: int64 */
+            userId?: number;
+            userName?: string;
+            userStatus?: string;
+            /** Format: int64 */
+            workforceGroupId?: number;
+            workforceGroupName?: string;
+            /** Format: int64 */
+            leaveTypeId?: number;
+            leaveTypeName?: string;
+            /** Format: int32 */
+            leaveTypeDisplayOrder?: number;
+            presence?: string;
+            capped?: boolean;
+            /** Format: int32 */
+            allocation?: number;
+            /** Format: int32 */
+            approvedUsage?: number;
+            /** Format: int32 */
+            adjustments?: number;
+            /** Format: int32 */
+            remaining?: number;
+            exceptionCodes?: string[];
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            rowType: "BALANCE_SNAPSHOT";
+        };
+        BalanceSnapshotSummary: Omit<components["schemas"]["ReportSummary"], "summaryType"> & {
+            /** Format: int64 */
+            rowCount?: number;
+            /** Format: int64 */
+            userCount?: number;
+            /** Format: int64 */
+            leaveTypeCount?: number;
+            /** Format: int64 */
+            totalAllocation?: number;
+            /** Format: int64 */
+            totalApprovedUsage?: number;
+            /** Format: int64 */
+            totalAdjustments?: number;
+            /** Format: int64 */
+            totalRemaining?: number;
+            /** Format: int64 */
+            exceptionCount?: number;
+            /** Format: int64 */
+            uncappedRowCount?: number;
+            totalsByPresence?: {
+                [key: string]: components["schemas"]["PresenceTotals"];
+            };
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            summaryType: "BALANCE_SNAPSHOT";
+        };
+        ExceptionReportRow: Omit<components["schemas"]["ReportRow"], "rowType"> & {
+            code?: string;
+            subjectType?: string;
+            /** Format: int64 */
+            subjectId?: number;
+            subjectKey?: string;
+            subjectLabel?: string;
+            severity?: string;
+            /** Format: date-time */
+            detectedAsOf?: string;
+            facts?: {
+                [key: string]: Record<string, never>;
+            };
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            rowType: "EXCEPTION";
+        };
+        ExceptionReportSummary: Omit<components["schemas"]["ReportSummary"], "summaryType"> & {
+            /** Format: int64 */
+            rowCount?: number;
+            codeCounts?: {
+                [key: string]: number;
+            };
+            severityCounts?: {
+                [key: string]: number;
+            };
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            summaryType: "EXCEPTION";
+        };
+        LeaveUsageRow: Omit<components["schemas"]["ReportRow"], "rowType"> & {
+            /** Format: int64 */
+            userId?: number;
+            userName?: string;
+            userStatus?: string;
+            /** Format: int64 */
+            workforceGroupId?: number;
+            workforceGroupName?: string;
+            /** Format: int64 */
+            leaveTypeId?: number;
+            leaveTypeName?: string;
+            presence?: string;
+            capped?: boolean;
+            membershipBasis?: string;
+            /** Format: int64 */
+            requestCount?: number;
+            /** Format: int64 */
+            chargedDayCount?: number;
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            rowType: "LEAVE_USAGE";
+        };
+        LeaveUsageSummary: Omit<components["schemas"]["ReportSummary"], "summaryType"> & {
+            /** Format: int64 */
+            rowCount?: number;
+            /** Format: int64 */
+            requestCount?: number;
+            /** Format: int64 */
+            chargedDayCount?: number;
+            /** Format: int64 */
+            excludedReconstructedRequestCount?: number;
+            /** Format: int64 */
+            excludedUnknownRequestCount?: number;
+            requestCountsByPresence?: {
+                [key: string]: number;
+            };
+            chargedDayCountsByPresence?: {
+                [key: string]: number;
+            };
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            summaryType: "LEAVE_USAGE";
+        };
+        PendingAgingRow: Omit<components["schemas"]["ReportRow"], "rowType"> & {
+            /** Format: int64 */
+            requestId?: number;
+            /** Format: int64 */
+            userId?: number;
+            userName?: string;
+            /** Format: int64 */
+            workforceGroupId?: number;
+            workforceGroupName?: string;
+            /** Format: int64 */
+            leaveTypeId?: number;
+            leaveTypeName?: string;
+            /** Format: date */
+            dateFrom?: string;
+            /** Format: date */
+            dateTo?: string;
+            currentApprovalStageCode?: string;
+            /** Format: date-time */
+            submittedAt?: string;
+            /** Format: date-time */
+            activatedAt?: string;
+            /** Format: int64 */
+            ageDays?: number;
+            activationProvenance?: string;
+            bucket?: string;
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            rowType: "PENDING_AGING";
+        };
+        PendingAgingSummary: Omit<components["schemas"]["ReportSummary"], "summaryType"> & {
+            /** Format: int64 */
+            rowCount?: number;
+            /** Format: int64 */
+            oldestAgeDays?: number;
+            bucketCounts?: {
+                [key: string]: number;
+            };
+            provenanceCounts?: {
+                [key: string]: number;
+            };
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            summaryType: "PENDING_AGING";
+        };
+        PresenceTotals: {
+            /** Format: int64 */
+            rowCount?: number;
+            /** Format: int64 */
+            allocation?: number;
+            /** Format: int64 */
+            approvedUsage?: number;
+            /** Format: int64 */
+            remaining?: number;
+        };
+        ReportOrdering: {
+            field?: string;
+            direction?: string;
+        };
+        ReportProvenance: {
+            basis?: string;
+            incomplete?: boolean;
+            excludedCounts?: {
+                [key: string]: number;
+            };
+            uncertainty?: string;
+            adjustmentsBasis?: string;
+        };
+        ReportQueryResponse: {
+            viewKey?: string;
+            definitionKey?: string;
+            /** Format: int32 */
+            schemaVersion?: number;
+            appliedView?: components["schemas"]["AppliedReportView"];
+            displayTimezone?: string;
+            /** Format: date-time */
+            asOf?: string;
+            ordering?: components["schemas"]["ReportOrdering"][];
+            summary?: components["schemas"]["BalanceSnapshotSummary"] | components["schemas"]["LeaveUsageSummary"] | components["schemas"]["RequestDetailSummary"] | components["schemas"]["ExceptionReportSummary"] | components["schemas"]["PendingAgingSummary"];
+            rows?: (components["schemas"]["BalanceSnapshotRow"] | components["schemas"]["LeaveUsageRow"] | components["schemas"]["RequestDetailRow"] | components["schemas"]["ExceptionReportRow"] | components["schemas"]["PendingAgingRow"])[];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            total?: number;
+            provenance?: components["schemas"]["ReportProvenance"];
+        };
+        ReportRow: {
+            rowType: string;
+        };
+        ReportSummary: {
+            summaryType: string;
+        };
+        RequestDetailRow: Omit<components["schemas"]["ReportRow"], "rowType"> & {
+            /** Format: int64 */
+            requestId?: number;
+            /** Format: int64 */
+            userId?: number;
+            userName?: string;
+            userStatus?: string;
+            /** Format: int64 */
+            workforceGroupId?: number;
+            workforceGroupName?: string;
+            membershipBasis?: string;
+            /** Format: int64 */
+            leaveTypeId?: number;
+            leaveTypeName?: string;
+            presence?: string;
+            /** Format: date */
+            dateFrom?: string;
+            /** Format: date */
+            dateTo?: string;
+            /** Format: int32 */
+            storedDays?: number;
+            status?: string;
+            /** Format: date-time */
+            submittedAt?: string;
+            /** Format: date-time */
+            decidedAt?: string;
+            currentApprovalStageCode?: string;
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            rowType: "REQUEST_DETAIL";
+        };
+        RequestDetailSummary: Omit<components["schemas"]["ReportSummary"], "summaryType"> & {
+            /** Format: int64 */
+            rowCount?: number;
+            /** Format: int64 */
+            storedDayCount?: number;
+            statusCounts?: {
+                [key: string]: number;
+            };
+            storedDayCountsByStatus?: {
+                [key: string]: number;
+            };
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            summaryType: "REQUEST_DETAIL";
+        };
         StartRegistrationRequest: {
             selectedPlan?: string;
             /** Format: int32 */
@@ -2398,6 +2764,59 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["TeamMemberInvitationResponse"];
+                };
+            };
+        };
+    };
+    query: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                definitionKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportQueryRequest"];
+            };
+        };
+        responses: {
+            /** @description One page of the fixed report view */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportQueryResponse"];
+                };
+            };
+            /** @description Invalid, unsupported or oversized query */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not an HR administrator, or the reporting capability is unavailable for this organization */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
         };
@@ -4381,3 +4800,11 @@ export type UpdateNotificationPreferenceRequest = {
     mutedUntil?: string | null;
 };
 export type UpdateOnboardingPresentationRequest = components["schemas"]["UpdateOnboardingPresentationRequest"];
+
+export type ReportQueryRequest = components["schemas"]["ReportQueryRequest"];
+export type ReportQueryResponse = RequiredSchema<"ReportQueryResponse">;
+export type BalanceSnapshotRow = RequiredSchema<"BalanceSnapshotRow">;
+export type LeaveUsageRow = RequiredSchema<"LeaveUsageRow">;
+export type RequestDetailRow = RequiredSchema<"RequestDetailRow">;
+export type ExceptionReportRow = RequiredSchema<"ExceptionReportRow">;
+export type PendingAgingRow = RequiredSchema<"PendingAgingRow">;
