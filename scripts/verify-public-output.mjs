@@ -3,6 +3,14 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { extname, join, resolve } from 'node:path'
 
 const root = resolve(import.meta.dirname, '../dist/public')
+
+// Vite reads .env for the build itself, but this is a plain Node script, so `process.env` did not
+// see it — which made the fail-closed check below fire even for a developer who had done exactly
+// what .env.example tells them to do ("Copying this file to .env is enough to make a local build
+// work"). Load it here so the check reads the same environment the bundle was built with. Real
+// environment variables already set win, as they do in Vite.
+const dotenv = resolve(import.meta.dirname, '../.env')
+if (existsSync(dotenv)) process.loadEnvFile(dotenv)
 const routes = [
   '',
   'product',

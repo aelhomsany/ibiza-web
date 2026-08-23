@@ -11,6 +11,19 @@ import { CheckoutReturnPage } from '../billing/CheckoutReturnPage'
 
 const publicCtaEnabled = import.meta.env.VITE_PUBLIC_CTA_ENABLED !== 'false'
 
+/**
+ * Sign-in lives in the customer app, which is a different artifact on a different origin — the
+ * public site serves no /login route, so a relative href resolved against this origin and landed
+ * every "Customer Log In" on the public 404. Left empty the links stay relative, which is what a
+ * single-host deployment (and the multiplexed dev server) wants; point it at the app origin
+ * wherever the two are actually split.
+ */
+const appBaseUrl = (import.meta.env.VITE_PUBLIC_APP_BASE_URL ?? '').replace(/\/$/, '')
+
+function appUrl(path: string): string {
+  return `${appBaseUrl}${path}`
+}
+
 type PublicDictionary = typeof en
 
 type PublicPageProps = {
@@ -76,7 +89,7 @@ function PublicHeader({
           >
             {nav.language}
           </a>
-          <a className="btn btn-outline public-login" href="/login">
+          <a className="btn btn-outline public-login" href={appUrl('/login')}>
             {nav.login}
           </a>
           {publicCtaEnabled ? (
@@ -134,7 +147,7 @@ function HomePage({ copy, locale }: { copy: PublicDictionary; locale: PublicLoca
               <a className="btn btn-primary" href={localePath(locale, '/product')}>
                 {copy.actions.exploreProduct}
               </a>
-              <a className="btn btn-outline" href="/login">
+              <a className="btn btn-outline" href={appUrl('/login')}>
                 {copy.actions.customerLogin}
               </a>
             </div>

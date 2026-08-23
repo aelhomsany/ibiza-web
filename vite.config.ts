@@ -5,6 +5,21 @@ import { resolve } from 'node:path'
 
 type Artifact = 'customer' | 'public' | 'public-render' | 'admin'
 
+/**
+ * True for a top-level document request — what a browser sends when someone types a URL or
+ * follows a link — as opposed to the module, asset and API traffic Vite must serve untouched.
+ */
+function isDocumentRequest(pathname: string, accept: string | undefined): boolean {
+  const acceptsHtml = accept?.includes('text/html') ?? false
+  const isAssetOrApi =
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/@') ||
+    pathname.startsWith('/src/') ||
+    pathname.startsWith('/node_modules/') ||
+    /\.[a-z0-9]+$/i.test(pathname)
+  return acceptsHtml && !isAssetOrApi
+}
+
 function entryBoundaryRouter(artifact: Artifact): Plugin {
   return {
     name: 'ibiza-entry-boundary-router',
@@ -13,21 +28,33 @@ function entryBoundaryRouter(artifact: Artifact): Plugin {
       return html.replace("style-src 'self'", "style-src 'self' 'unsafe-inline'")
     },
     configureServer(server) {
+      // The public site is its own origin, and on that origin '/' is the marketing home.
+      // `input` names public.html, but that only applies to build: in serve mode Vite's SPA
+      // fallback hands every navigation the root index.html — the legacy src/main.tsx entry —
+      // so a public dev server rendered the customer app at '/' and at every marketing route.
+      // Serving the artifact's own document makes `npm run dev:public` the second origin the
+      // registration journey is actually built for, the one SelfServiceProvisioningService
+      // hands off *from*: the public site owns '/', '/pricing' and '/register' there, exactly
+      // as dist/public and scripts/serve-public.mjs do in production shape.
+      if (artifact === 'public') {
+        server.middlewares.use((request, _response, next) => {
+          const pathname = new URL(request.url ?? '/', 'http://localhost').pathname
+          if (isDocumentRequest(pathname, request.headers.accept)) {
+            request.url = '/public.html'
+          }
+          next()
+        })
+        return
+      }
+
       if (artifact !== 'customer') {
         return
       }
 
       server.middlewares.use((request, _response, next) => {
         const pathname = new URL(request.url ?? '/', 'http://localhost').pathname
-        const acceptsHtml = request.headers.accept?.includes('text/html') ?? false
-        const isAssetOrApi =
-          pathname.startsWith('/api/') ||
-          pathname.startsWith('/@') ||
-          pathname.startsWith('/src/') ||
-          pathname.startsWith('/node_modules/') ||
-          /\.[a-z0-9]+$/i.test(pathname)
 
-        if (acceptsHtml && !isAssetOrApi) {
+        if (isDocumentRequest(pathname, request.headers.accept)) {
           const isArabicPublic = pathname.startsWith('/ar/')
           const publicPath = isArabicPublic ? pathname.slice(3) : pathname
           const isPublicRoute = [
@@ -120,6 +147,12 @@ export default defineConfig(() => {
     build,
     server: {
       port: webPort,
+      // Fail rather than drift to the next free port. Everything about this app is pinned to its
+      // port: the API's CORS allowlist, the absolute verification/handoff URLs the server builds,
+      // and Playwright's baseURL. A dev server that quietly moves to 5174 still renders, but the
+      // API answers /auth/refresh with 403 "Origin is not allowed", so the session never restores
+      // and every route bounces to /login — which looks exactly like a broken login.
+      strictPort: true,
       proxy: {
         '/api': {
           target: apiProxyTarget,
@@ -129,6 +162,7 @@ export default defineConfig(() => {
     },
     preview: {
       port: webPort,
+      strictPort: true,
       proxy: {
         '/api': {
           target: apiProxyTarget,

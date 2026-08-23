@@ -188,6 +188,7 @@ writeFileSync(
       environmentAllowlist: [
         'VITE_API_URL',
         'VITE_PUBLIC_ANALYTICS_ENABLED',
+        'VITE_PUBLIC_APP_BASE_URL',
         'VITE_PUBLIC_CTA_ENABLED',
         'VITE_PUBLIC_TURNSTILE_SITE_KEY',
       ],
