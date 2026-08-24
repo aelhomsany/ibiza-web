@@ -50,7 +50,12 @@ import type {
   UpdateUserPreferencesRequest,
   RecordApprovalConcernRequest,
   ApprovalCapabilityResponse,
+  ReportQueryRequest,
+  ReportQueryResponse,
+  CreateReportExportRequest,
+  ReportExportResponse,
 } from './generated/types'
+import type { components } from './generated/types'
 import { clearAccessToken, getAccessToken, setAccessToken } from '../auth/tokenStorage'
 import { parseFieldViolations, type FieldViolationMap } from './fieldViolations'
 
@@ -65,6 +70,13 @@ export type OnboardingStageId =
   | 'PEOPLE_AND_INVITATIONS'
   | 'ENTITLEMENTS_AND_READINESS'
   | 'FIRST_LEAVE_CYCLE'
+
+export type ReportDefinitionKey =
+  | 'BALANCE_SNAPSHOT'
+  | 'LEAVE_USAGE'
+  | 'REQUEST_DETAIL'
+  | 'EXCEPTION'
+  | 'PENDING_AGING'
 
 // Optionality mirrors `components["schemas"]["OnboardingResponse"]` in api/generated/types.ts.
 // Declaring these as required here while the generated contract marks them optional meant
@@ -400,6 +412,69 @@ export async function deletePublicHoliday(id: number): Promise<void> {
 export async function getLeaveTypes(): Promise<LeaveTypeResponse[]> {
   return request<LeaveTypeResponse[]>('/api/v1/leave-types', {
     method: 'GET',
+  })
+}
+
+export type CapabilityAccess = components['schemas']['Access']
+
+/**
+ * Authoritative catalog gate for one plan capability.
+ *
+ * Resolves only when the capability is `AVAILABLE`; the server answers 403 otherwise,
+ * so callers that need a boolean must catch `ApiError` rather than read a flag.
+ */
+export async function getCapabilityAccess(
+  capability: string,
+): Promise<CapabilityAccess> {
+  return request<CapabilityAccess>(
+    `/api/v1/billing/capabilities/${capability}/access`,
+    { method: 'GET' },
+  )
+}
+
+export async function queryReport(
+  definitionKey: ReportDefinitionKey,
+  payload: ReportQueryRequest,
+): Promise<ReportQueryResponse> {
+  return request<ReportQueryResponse>(`/api/v1/reports/${definitionKey}/query`, {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function createReportExport(
+  definitionKey: ReportDefinitionKey,
+  payload: CreateReportExportRequest,
+): Promise<ReportExportResponse> {
+  return request<ReportExportResponse>(`/api/v1/reports/${definitionKey}/exports`, {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+/**
+ * Every export this user owns. The Report Center rehydrates from this after a re-query or page
+ * turn: without it a queued job became invisible while still holding the user's only concurrency
+ * slot, so every later export attempt returned 429 until the job expired a week later.
+ */
+export async function listReportExports(): Promise<ReportExportResponse[]> {
+  return request<ReportExportResponse[]>('/api/v1/reports/exports', { method: 'GET' })
+}
+
+export async function getReportExport(id: string): Promise<ReportExportResponse> {
+  return request<ReportExportResponse>(`/api/v1/reports/exports/${id}`, { method: 'GET' })
+}
+
+export async function retryReportExport(id: string): Promise<ReportExportResponse> {
+  return request<ReportExportResponse>(`/api/v1/reports/exports/${id}/retry`, {
+    method: 'POST',
+  })
+}
+
+export async function downloadReportExport(id: string): Promise<Blob> {
+  return request<Blob>(`/api/v1/reports/exports/${id}/download`, {
+    method: 'GET',
+    responseType: 'blob',
   })
 }
 
@@ -770,6 +845,13 @@ export const apiClient = {
   updatePublicHoliday,
   deletePublicHoliday,
   getLeaveTypes,
+  getCapabilityAccess,
+  queryReport,
+  createReportExport,
+  listReportExports,
+  getReportExport,
+  retryReportExport,
+  downloadReportExport,
   previewLeaveRequest,
   createLeaveRequest,
   getDashboardBalances,

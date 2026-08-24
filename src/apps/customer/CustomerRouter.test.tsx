@@ -123,6 +123,23 @@ describe('CustomerRoutes', () => {
     expect(screen.queryByTestId('admin-shell')).not.toBeInTheDocument()
   })
 
+  describe('report center route', () => {
+    it('[P0] renders the lazy Report Center at /reports for an HR admin', async () => {
+      renderCustomerRoutes(['/reports'], createMockAuthForRole('HR_ADMIN'))
+
+      expect(await screen.findByTestId('report-center-page')).toBeInTheDocument()
+      expect(screen.getByTestId('org-shell')).toBeInTheDocument()
+      expect(document.title).toBe('Reports — Ibiza')
+    })
+
+    it('[P0] redirects a manager away from the HR-only Report Center', async () => {
+      renderCustomerRoutes(['/reports'], createMockAuthForRole('MANAGER'))
+
+      expect(await screen.findByTestId('dashboard-page')).toBeInTheDocument()
+      expect(screen.queryByTestId('report-center-page')).not.toBeInTheDocument()
+    })
+  })
+
   describe('team calendar route', () => {
     beforeEach(() => {
       // Pin Date to the calendar fixture month so TeamCalendarPage bootstraps to the

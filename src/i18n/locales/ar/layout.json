@@ -1,5 +1,5 @@
 {
-  "nav": { "dashboard": "لوحة المعلومات", "myLeaves": "إجازاتي", "calendar": "التقويم", "approvals": "الموافقات", "settings": "الإعدادات", "organizations": "المؤسسات" },
+  "nav": { "dashboard": "لوحة المعلومات", "myLeaves": "إجازاتي", "calendar": "التقويم", "approvals": "الموافقات", "reports": "التقارير", "settings": "الإعدادات", "organizations": "المؤسسات" },
   "navigation": { "main": "التنقل الرئيسي", "pending": "{{label}}، {{count}} قيد الانتظار" },
   "skipToMain": "تخطَّ إلى المحتوى الرئيسي",
   "tableRegion": { "scrollHint": "استخدم مفتاحي السهم الأيسر والأيمن لتمرير هذا الجدول أفقيًا." },

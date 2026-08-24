@@ -13,6 +13,7 @@ const enabledNamespaces = [
   'dashboard',
   'leaves',
   'approvals',
+  'reports',
   'settings',
   'profile',
   'auth',

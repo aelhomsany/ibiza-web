@@ -290,4 +290,49 @@ describe('OrgShell', () => {
       expect(screen.getByTestId('user-menu-trigger').querySelector('img')).toBeInTheDocument()
     })
   })
+  /**
+   * The Reports nav item is gated on a live capability probe, but nothing tested that OrgShell
+   * actually supplies the probe result: rolePermissions.test.ts passes its own booleans, and no
+   * shell or E2E test looked for nav-reports at all. Dropping the argument would have shown every
+   * HR administrator a link straight to a denial banner.
+   */
+  describe('reports nav capability probe', () => {
+    it('shows Reports when the plan entitles the workspace', async () => {
+      vi.spyOn(apiClient, 'getCapabilityAccess').mockResolvedValue({
+        capability: 'ADVANCED_REPORTING',
+        status: 'AVAILABLE',
+        available: true,
+      })
+      renderOrgShell('HR_ADMIN')
+
+      expect(await screen.findByTestId('nav-reports')).toBeInTheDocument()
+    })
+
+    it('hides Reports when the gate denies and there is nothing to recover', async () => {
+      vi.spyOn(apiClient, 'getCapabilityAccess').mockRejectedValue(
+        new apiClient.ApiError(403, { title: 'Forbidden', detail: 'Not entitled' }),
+      )
+      vi.spyOn(apiClient, 'listReportExports').mockResolvedValue([])
+      renderOrgShell('HR_ADMIN')
+
+      await screen.findByTestId('nav-dashboard')
+      await waitFor(() => {
+        expect(screen.queryByTestId('nav-reports')).toBeNull()
+      })
+    })
+
+    it('keeps Reports reachable under restricted billing when exports remain', async () => {
+      // AC3: billing is restricted, so the capability gate denies - but exports created earlier
+      // are still collectable, and hiding the entry point made that unreachable.
+      vi.spyOn(apiClient, 'getCapabilityAccess').mockRejectedValue(
+        new apiClient.ApiError(403, { title: 'Forbidden', detail: 'Not entitled' }),
+      )
+      vi.spyOn(apiClient, 'listReportExports').mockResolvedValue([
+        { id: 'export-1', status: 'READY' } as never,
+      ])
+      renderOrgShell('HR_ADMIN')
+
+      expect(await screen.findByTestId('nav-reports')).toBeInTheDocument()
+    })
+  })
 })

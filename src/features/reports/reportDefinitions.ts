@@ -1,0 +1,206 @@
+import type { ReportDefinitionKey } from '../../api/client'
+
+export type ReportFilterKey =
+  | 'dateRange'
+  | 'workforceGroup'
+  | 'leaveType'
+  | 'status'
+  | 'exceptionCode'
+  | 'includeInactiveUsers'
+
+export type ReportColumn = {
+  key: string
+  labelKey: string
+}
+
+export type ReportSummaryField = {
+  key: string
+  labelKey: string
+}
+
+export type ReportDefinition = {
+  key: ReportDefinitionKey
+  labelKey: string
+  descriptionKey: string
+  filters: readonly ReportFilterKey[]
+  defaultSort: string
+  defaultDirection: 'ASC' | 'DESC'
+  sortFields: readonly string[]
+  columns: readonly ReportColumn[]
+  summaryFields: readonly ReportSummaryField[]
+}
+
+export const REPORT_DEFINITIONS: readonly ReportDefinition[] = [
+  {
+    key: 'BALANCE_SNAPSHOT',
+    labelKey: 'definitions.balanceSnapshot.label',
+    descriptionKey: 'definitions.balanceSnapshot.description',
+    filters: ['workforceGroup', 'leaveType', 'includeInactiveUsers'],
+    defaultSort: 'userName',
+    defaultDirection: 'ASC',
+    sortFields: ['userName', 'approvedUsage', 'remaining'],
+    columns: [
+      { key: 'userName', labelKey: 'columns.userName' },
+      { key: 'workforceGroupName', labelKey: 'columns.workforceGroup' },
+      { key: 'leaveTypeName', labelKey: 'columns.leaveType' },
+      { key: 'presence', labelKey: 'columns.presence' },
+      { key: 'allocation', labelKey: 'columns.allocation' },
+      { key: 'approvedUsage', labelKey: 'columns.approvedUsage' },
+      { key: 'adjustments', labelKey: 'columns.adjustments' },
+      { key: 'remaining', labelKey: 'columns.remaining' },
+      { key: 'exceptionCodes', labelKey: 'columns.exceptions' },
+    ],
+    summaryFields: [
+      { key: 'userCount', labelKey: 'summary.users' },
+      { key: 'totalAllocation', labelKey: 'summary.totalAllocation' },
+      { key: 'totalApprovedUsage', labelKey: 'summary.totalApprovedUsage' },
+      { key: 'totalRemaining', labelKey: 'summary.totalRemaining' },
+      { key: 'exceptionCount', labelKey: 'summary.exceptions' },
+      // Disclosure fields: the server sends these so a reader can tell "no allowance"
+      // from "zero allowance", and so WFH is never read as absence. Dropping them
+      // would present a partial total as a certain one.
+      { key: 'uncappedRowCount', labelKey: 'summary.uncappedRows' },
+      { key: 'totalsByPresence', labelKey: 'summary.totalsByPresence' },
+    ],
+  },
+  {
+    key: 'LEAVE_USAGE',
+    labelKey: 'definitions.leaveUsage.label',
+    descriptionKey: 'definitions.leaveUsage.description',
+    filters: ['dateRange', 'workforceGroup', 'leaveType', 'includeInactiveUsers'],
+    defaultSort: 'chargedDayCount',
+    defaultDirection: 'DESC',
+    sortFields: ['chargedDayCount', 'userName'],
+    columns: [
+      { key: 'userName', labelKey: 'columns.userName' },
+      { key: 'workforceGroupName', labelKey: 'columns.workforceGroup' },
+      { key: 'leaveTypeName', labelKey: 'columns.leaveType' },
+      { key: 'presence', labelKey: 'columns.presence' },
+      { key: 'membershipBasis', labelKey: 'columns.membershipBasis' },
+      { key: 'requestCount', labelKey: 'columns.requests' },
+      { key: 'chargedDayCount', labelKey: 'columns.chargedDays' },
+    ],
+    summaryFields: [
+      { key: 'requestCount', labelKey: 'summary.requests' },
+      { key: 'chargedDayCount', labelKey: 'summary.chargedDays' },
+      { key: 'excludedReconstructedRequestCount', labelKey: 'summary.excludedReconstructed' },
+      { key: 'excludedUnknownRequestCount', labelKey: 'summary.excludedUnknown' },
+      { key: 'requestCountsByPresence', labelKey: 'summary.requestsByPresence' },
+      { key: 'chargedDayCountsByPresence', labelKey: 'summary.chargedDaysByPresence' },
+    ],
+  },
+  {
+    key: 'REQUEST_DETAIL',
+    labelKey: 'definitions.requestDetail.label',
+    descriptionKey: 'definitions.requestDetail.description',
+    filters: [
+      'dateRange',
+      'workforceGroup',
+      'leaveType',
+      'status',
+      'includeInactiveUsers',
+    ],
+    defaultSort: 'dateFrom',
+    defaultDirection: 'DESC',
+    sortFields: ['dateFrom', 'status', 'userName'],
+    columns: [
+      { key: 'requestId', labelKey: 'columns.requestId' },
+      { key: 'userName', labelKey: 'columns.userName' },
+      { key: 'workforceGroupName', labelKey: 'columns.workforceGroup' },
+      { key: 'leaveTypeName', labelKey: 'columns.leaveType' },
+      { key: 'dateFrom', labelKey: 'columns.from' },
+      { key: 'dateTo', labelKey: 'columns.to' },
+      { key: 'storedDays', labelKey: 'columns.storedDays' },
+      { key: 'status', labelKey: 'columns.status' },
+      { key: 'submittedAt', labelKey: 'columns.submittedAt' },
+      { key: 'decidedAt', labelKey: 'columns.decidedAt' },
+      { key: 'currentApprovalStageCode', labelKey: 'columns.approvalStage' },
+    ],
+    summaryFields: [
+      { key: 'rowCount', labelKey: 'summary.requests' },
+      { key: 'storedDayCount', labelKey: 'summary.storedDays' },
+      { key: 'statusCounts', labelKey: 'summary.statusCounts' },
+      { key: 'storedDayCountsByStatus', labelKey: 'summary.storedDaysByStatus' },
+    ],
+  },
+  {
+    key: 'EXCEPTION',
+    labelKey: 'definitions.exception.label',
+    descriptionKey: 'definitions.exception.description',
+    filters: [
+      'workforceGroup',
+      'leaveType',
+      'exceptionCode',
+      'includeInactiveUsers',
+    ],
+    defaultSort: 'severity',
+    defaultDirection: 'ASC',
+    sortFields: ['severity', 'code'],
+    columns: [
+      { key: 'severity', labelKey: 'columns.severity' },
+      { key: 'code', labelKey: 'columns.code' },
+      { key: 'subjectLabel', labelKey: 'columns.subject' },
+      { key: 'subjectType', labelKey: 'columns.subjectType' },
+      { key: 'detectedAsOf', labelKey: 'columns.detectedAsOf' },
+      { key: 'facts', labelKey: 'columns.facts' },
+    ],
+    summaryFields: [
+      { key: 'rowCount', labelKey: 'summary.exceptions' },
+      { key: 'codeCounts', labelKey: 'summary.codeCounts' },
+      { key: 'severityCounts', labelKey: 'summary.severityCounts' },
+    ],
+  },
+  {
+    key: 'PENDING_AGING',
+    labelKey: 'definitions.pendingAging.label',
+    descriptionKey: 'definitions.pendingAging.description',
+    filters: ['workforceGroup', 'leaveType'],
+    defaultSort: 'ageDays',
+    defaultDirection: 'DESC',
+    sortFields: ['ageDays', 'submittedAt'],
+    columns: [
+      { key: 'requestId', labelKey: 'columns.requestId' },
+      { key: 'userName', labelKey: 'columns.userName' },
+      { key: 'workforceGroupName', labelKey: 'columns.workforceGroup' },
+      { key: 'leaveTypeName', labelKey: 'columns.leaveType' },
+      { key: 'dateFrom', labelKey: 'columns.from' },
+      { key: 'dateTo', labelKey: 'columns.to' },
+      { key: 'currentApprovalStageCode', labelKey: 'columns.approvalStage' },
+      { key: 'submittedAt', labelKey: 'columns.submittedAt' },
+      { key: 'activatedAt', labelKey: 'columns.activatedAt' },
+      { key: 'ageDays', labelKey: 'columns.ageDays' },
+      { key: 'activationProvenance', labelKey: 'columns.activationProvenance' },
+      { key: 'bucket', labelKey: 'columns.bucket' },
+    ],
+    summaryFields: [
+      { key: 'rowCount', labelKey: 'summary.requests' },
+      { key: 'oldestAgeDays', labelKey: 'summary.oldestAgeDays' },
+      { key: 'bucketCounts', labelKey: 'summary.bucketCounts' },
+      { key: 'provenanceCounts', labelKey: 'summary.provenanceCounts' },
+    ],
+  },
+] as const
+
+// Partial on purpose: ReportDefinitionKey is hand-declared in api/client.ts, so a key
+// can exist in the union with no entry here. Typing this as a total Record would make
+// every lookup type as present and throw on `.filters` at runtime instead.
+export const REPORT_DEFINITION_BY_KEY = Object.fromEntries(
+  REPORT_DEFINITIONS.map((definition) => [definition.key, definition]),
+) as Partial<Record<ReportDefinitionKey, ReportDefinition>>
+
+export const DEFAULT_REPORT_DEFINITION = REPORT_DEFINITIONS[0]
+
+/** Never returns undefined: an unknown key falls back to the first definition. */
+export function reportDefinitionFor(key: string | undefined): ReportDefinition {
+  if (!key) return DEFAULT_REPORT_DEFINITION
+  return REPORT_DEFINITION_BY_KEY[key as ReportDefinitionKey] ?? DEFAULT_REPORT_DEFINITION
+}
+
+export const REPORT_STATUS_OPTIONS = ['PENDING', 'APPROVED', 'DECLINED'] as const
+
+export const REPORT_EXCEPTION_OPTIONS = [
+  'NEGATIVE_REMAINING',
+  'CAPPED_TYPE_WITHOUT_ENTITLEMENT',
+  'USER_WITHOUT_WORKFORCE_GROUP',
+  'STALE_PENDING',
+] as const

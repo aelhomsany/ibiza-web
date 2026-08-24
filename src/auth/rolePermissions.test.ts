@@ -30,11 +30,27 @@ describe('rolePermissions', () => {
       expect(items.map((item) => item.label)).not.toContain('Settings')
     })
 
-    it('returns 5 items for HR_ADMIN including Settings', () => {
+    it('[P0] returns 6 items for HR_ADMIN including Reports and Settings', () => {
       const items = getOrgNavItems('HR_ADMIN')
-      expect(items).toHaveLength(5)
+      expect(items).toHaveLength(6)
       expect(items.map((item) => item.label)).toContain('Approvals')
+      expect(items.map((item) => item.label)).toContain('Reports')
       expect(items.map((item) => item.label)).toContain('Settings')
+    })
+
+    it('[P0] does not expose Reports navigation to employees or managers', () => {
+      expect(getOrgNavItems('EMPLOYEE').map((item) => item.label)).not.toContain('Reports')
+      expect(getOrgNavItems('MANAGER').map((item) => item.label)).not.toContain('Reports')
+    })
+
+    it('[P0] hides Reports navigation when the plan does not entitle reporting', () => {
+      // ADVANCED_REPORTING is COMING_SOON in the production catalog until Story 13.5;
+      // an un-gated nav item would send every HR admin to a denial banner.
+      const items = getOrgNavItems('HR_ADMIN', true, false)
+      expect(items.map((item) => item.label)).not.toContain('Reports')
+      expect(items.map((item) => item.label)).toContain('Settings')
+      expect(getOrgNavItems('HR_ADMIN', true, true).map((item) => item.label))
+        .toContain('Reports')
     })
 
     it('returns empty nav for PLATFORM_ADMIN', () => {
@@ -48,6 +64,7 @@ describe('rolePermissions', () => {
         'nav-my-leaves',
         'nav-calendar',
         'nav-approvals',
+        'nav-reports',
         'nav-settings',
       ])
     })
@@ -76,6 +93,12 @@ describe('rolePermissions', () => {
       expect(canAccessOrgRoute('MANAGER', '/settings')).toBe(false)
       expect(canAccessOrgRoute('HR_ADMIN', '/settings')).toBe(true)
       expect(canAccessOrgRoute('HR_ADMIN', '/settings/team')).toBe(true)
+    })
+
+    it('[P0] restricts reports to HR admin only', () => {
+      expect(canAccessOrgRoute('EMPLOYEE', '/reports')).toBe(false)
+      expect(canAccessOrgRoute('MANAGER', '/reports')).toBe(false)
+      expect(canAccessOrgRoute('HR_ADMIN', '/reports')).toBe(true)
     })
   })
 

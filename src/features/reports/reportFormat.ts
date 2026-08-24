@@ -1,0 +1,140 @@
+import type { i18n as I18nInstance, TFunction } from 'i18next'
+
+/**
+ * Presentation helpers for server-owned report values.
+ *
+ * Every function here is display-only. None of them aggregates, sums, re-derives, or
+ * reinterprets a value — the server owns all arithmetic (AD-4). They exist so that an
+ * enum code, an empty collection, or a nested fact map reaches the HR administrator as
+ * readable, localized text instead of `APPROVED`, an empty cell, or `[object Object]`.
+ */
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
+const ISO_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/
+const ENUM_CODE = /^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$/
+
+export type ReportFormatContext = {
+  t: TFunction
+  i18n: I18nInstance
+  /** IANA zone the server applied to this view; instants are rendered in it. */
+  timeZone?: string
+}
+
+/**
+ * Translate a server enum code, falling back to the raw code when no key exists.
+ *
+ * The fallback is deliberate: `parseMissingKeyHandler` returns an empty string for a
+ * missing key, so calling `t()` unguarded would erase an unrecognized code rather than
+ * show it. A code we have not localized yet is still evidence.
+ */
+export function formatEnum(context: ReportFormatContext, value: string): string {
+  if (!ENUM_CODE.test(value)) return value
+  const key = `reports:values.${value}`
+  return context.i18n.exists(key) ? context.t(key) : value
+}
+
+/** Render a plain `YYYY-MM-DD` without letting a timezone shift it a day. */
+export function formatDate(context: ReportFormatContext, value: string): string {
+  const parsed = new Date(`${value}T00:00:00Z`)
+  if (Number.isNaN(parsed.getTime())) return value
+  return new Intl.DateTimeFormat(context.i18n.language, {
+    dateStyle: 'medium',
+    timeZone: 'UTC',
+  }).format(parsed)
+}
+
+/**
+ * Render an instant in the report's applied timezone, not the viewer's.
+ *
+ * The page states one display timezone as authoritative evidence; formatting timestamps
+ * in the browser's zone would contradict it for anyone travelling or working remotely.
+ */
+export function formatInstant(context: ReportFormatContext, value: string): string {
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return context.t('reports:notAvailable')
+  try {
+    return new Intl.DateTimeFormat(context.i18n.language, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      timeZone: context.timeZone,
+    }).format(parsed)
+  } catch {
+    // An unknown zone id must not blank the evidence; fall back to the viewer's zone.
+    return new Intl.DateTimeFormat(context.i18n.language, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(parsed)
+  }
+}
+
+function isEmptyCollection(value: unknown): boolean {
+  if (Array.isArray(value)) return value.length === 0
+  if (value !== null && typeof value === 'object') {
+    return Object.keys(value as Record<string, unknown>).length === 0
+  }
+  return false
+}
+
+/**
+ * Flatten an array or record into readable text, recursing into nested objects.
+ *
+ * `ExceptionReportRow.facts` and `BalanceSnapshotSummary.totalsByPresence` both hold
+ * objects as values, so a single `String(entry)` pass renders `[object Object]`.
+ */
+export function formatCollection(context: ReportFormatContext, value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.map((entry) => formatValue(context, entry)).join(', ')
+  }
+  if (value !== null && typeof value === 'object') {
+    return Object.entries(value as Record<string, unknown>)
+      .map(([key, entry]) => {
+        const label = formatEnum(context, key)
+        const nested = formatValue(context, entry)
+        return `${label}: ${nested}`
+      })
+      .join(', ')
+  }
+  return String(value)
+}
+
+/**
+ * Format any value drawn from a report row, summary, or applied view.
+ *
+ * An empty array or record resolves to the "Not available" placeholder rather than an
+ * empty cell — a blank node is indistinguishable from a rendering failure, and it still
+ * satisfies `toBeVisible()`, so it hides regressions as well as evidence.
+ */
+export function formatValue(context: ReportFormatContext, value: unknown): string {
+  if (value == null || value === '') return context.t('reports:notAvailable')
+  if (typeof value === 'boolean') {
+    return value ? context.t('reports:values.yes') : context.t('reports:values.no')
+  }
+  if (typeof value === 'number') return String(value)
+  if (typeof value === 'string') {
+    if (ISO_INSTANT.test(value)) return formatInstant(context, value)
+    if (ISO_DATE.test(value)) return formatDate(context, value)
+    return formatEnum(context, value)
+  }
+  if (isEmptyCollection(value)) return context.t('reports:notAvailable')
+  return formatCollection(context, value)
+}
+
+/** Render the server's deterministic ordering, including its tie-breakers. */
+export function formatOrdering(
+  context: ReportFormatContext,
+  ordering: ReadonlyArray<{ field?: string; direction?: string }> | undefined,
+): string {
+  if (!ordering || ordering.length === 0) return context.t('reports:notAvailable')
+  return ordering
+    .map((entry) => {
+      const fieldKey = `reports:sort.${entry.field}`
+      const field = entry.field
+        ? context.i18n.exists(fieldKey)
+          ? context.t(fieldKey)
+          : entry.field
+        : context.t('reports:notAvailable')
+      const direction = entry.direction ? formatEnum(context, entry.direction) : ''
+      return direction ? `${field} (${direction})` : field
+    })
+    .join(' → ')
+}

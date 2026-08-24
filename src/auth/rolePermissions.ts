@@ -6,6 +6,7 @@ import {
   CheckCircleIcon,
   ClipboardListIcon,
   DashboardIcon,
+  ReportIcon,
   SettingsIcon,
 } from '../components/ui/icons'
 
@@ -47,6 +48,13 @@ const ORG_BASE: NavCatalogItem[] = [
     requiredRoles: ['MANAGER', 'HR_ADMIN'],
   },
   {
+    label: 'Reports',
+    path: '/reports',
+    icon: ReportIcon,
+    testId: 'nav-reports',
+    requiredRoles: ['HR_ADMIN'],
+  },
+  {
     label: 'Settings',
     path: '/settings',
     icon: SettingsIcon,
@@ -72,14 +80,22 @@ export function getForbiddenRedirect(role: UserRole): string {
 export function getOrgNavItems(
   role: UserRole,
   canReviewApprovals = role === 'MANAGER' || role === 'HR_ADMIN',
+  // ADVANCED_REPORTING is COMING_SOON in the production catalog until Story 13.5, so
+  // an un-gated Reports item would send every HR admin to a denial banner. Callers that
+  // know the plan pass the probe result; the default keeps role-only behavior.
+  canAccessReports = role === 'HR_ADMIN',
 ): NavItem[] {
   if (role === 'PLATFORM_ADMIN') {
     return []
   }
 
-  return ORG_NAV_ITEMS.filter((item) =>
-    item.path === '/approvals' ? canReviewApprovals : item.requiredRoles.includes(role),
-  ).map((item) => ({
+  return ORG_NAV_ITEMS.filter((item) => {
+    if (item.path === '/approvals') return canReviewApprovals
+    if (item.path === '/reports') {
+      return item.requiredRoles.includes(role) && canAccessReports
+    }
+    return item.requiredRoles.includes(role)
+  }).map((item) => ({
     label: item.label,
     path: item.path,
     icon: item.icon,
@@ -101,6 +117,10 @@ export function canAccessOrgRoute(
   }
 
   if (pathname === '/settings' || pathname.startsWith('/settings/')) {
+    return role === 'HR_ADMIN'
+  }
+
+  if (pathname === '/reports' || pathname.startsWith('/reports/')) {
     return role === 'HR_ADMIN'
   }
 

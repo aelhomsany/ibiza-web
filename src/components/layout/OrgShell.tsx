@@ -4,6 +4,7 @@ import { getOrgNavItems } from '../../auth/rolePermissions'
 import { useAuth } from '../../auth/useAuth'
 import { usePendingApprovalCount } from '../../features/approvals/usePendingApprovalCount'
 import { useApprovalCapability } from '../../features/approvals/useApprovalCapability'
+import { useReportingCapability } from '../../features/reports/useReportingCapability'
 import { NotificationBell } from '../../features/notifications/NotificationBell'
 import { ErrorBoundary } from '../ui/ErrorBoundary'
 import { AppHeader } from './AppHeader'
@@ -23,13 +24,20 @@ export function OrgShell() {
   const capability = useApprovalCapability()
   const canReviewApprovals = capability.data?.canReviewApprovals ?? user?.canReviewApprovals
     ?? (role === 'MANAGER' || role === 'HR_ADMIN')
+  const reportingCapability = useReportingCapability()
+  // Restricted-recovery counts as access: exports created before billing lapsed stay collectable,
+  // and hiding the nav made AC3's one sanctioned exception unreachable in the product.
+  const canAccessReports =
+    role === 'HR_ADMIN' &&
+    (reportingCapability.data?.available === true ||
+      reportingCapability.data?.recovery === true)
   const { data: pendingCountData } = usePendingApprovalCount()
   const pendingCount = pendingCountData?.count ?? 0
   const { navOpen, menuButtonRef, closeNav, toggleNav, onNavigate } =
     useMobileNavDrawer()
   const location = useLocation()
 
-  const navItems = getOrgNavItems(role, canReviewApprovals).map((item) => {
+  const navItems = getOrgNavItems(role, canReviewApprovals, canAccessReports).map((item) => {
     const sourceKey = item.testId?.replace('nav-', '') ?? ''
     const key = sourceKey === 'my-leaves' ? 'myLeaves' : sourceKey
     const label = i18n.exists(`layout:nav.${key}`) ? t(`nav.${key}`) : item.label

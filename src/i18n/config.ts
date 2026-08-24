@@ -16,6 +16,7 @@ import enPlatformAuth from './locales/en/platformAuth.json'
 import enPublic from './locales/en/public.json'
 import enBilling from './locales/en/billing.json'
 import enOnboarding from './locales/en/onboarding.json'
+import enReports from './locales/en/reports.json'
 import arCommon from './locales/ar/common.json'
 import arErrors from './locales/ar/errors.json'
 import arLayout from './locales/ar/layout.json'
@@ -31,6 +32,7 @@ import arPlatformAuth from './locales/ar/platformAuth.json'
 import arPublic from './locales/ar/public.json'
 import arBilling from './locales/ar/billing.json'
 import arOnboarding from './locales/ar/onboarding.json'
+import arReports from './locales/ar/reports.json'
 
 const initialLocale = getStoredPreferredLanguage()
 applyDocumentLanguage(initialLocale)
@@ -52,6 +54,7 @@ void i18n.use(initReactI18next).init({
       platformAuth: enPlatformAuth,
       profile: enProfile,
       public: enPublic,
+      reports: enReports,
       settings: enSettings,
     },
     ar: {
@@ -69,6 +72,7 @@ void i18n.use(initReactI18next).init({
       platformAuth: arPlatformAuth,
       profile: arProfile,
       public: arPublic,
+      reports: arReports,
       settings: arSettings,
     },
   },

@@ -58,6 +58,17 @@ export function DashboardIcon(props: IconProps) {
   )
 }
 
+export function ReportIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M3 3v18h18" />
+      <path d="M18 17V9" />
+      <path d="M13 17V5" />
+      <path d="M8 17v-3" />
+    </IconBase>
+  )
+}
+
 export function ClipboardListIcon(props: IconProps) {
   return (
     <IconBase {...props}>

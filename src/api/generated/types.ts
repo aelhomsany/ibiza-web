@@ -109,6 +109,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports/{definitionKey}/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["create_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/exports/{publicId}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/registrations": {
         parameters: {
             query?: never;
@@ -216,7 +248,7 @@ export interface paths {
         get: operations["list_2"];
         put?: never;
         /** Create a public holiday */
-        post: operations["create_2"];
+        post: operations["create_3"];
         delete?: never;
         options?: never;
         head?: never;
@@ -333,7 +365,7 @@ export interface paths {
         get: operations["listMyLeaveRequests"];
         put?: never;
         /** Submit a leave request for the authenticated user */
-        post: operations["create_3"];
+        post: operations["create_4"];
         delete?: never;
         options?: never;
         head?: never;
@@ -417,7 +449,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["create_4"];
+        post: operations["create_5"];
         delete?: never;
         options?: never;
         head?: never;
@@ -433,7 +465,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["create_5"];
+        post: operations["create_6"];
         delete?: never;
         options?: never;
         head?: never;
@@ -450,7 +482,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Retry failed calendar sync work */
-        post: operations["retry"];
+        post: operations["retry_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -668,7 +700,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["create_6"];
+        post: operations["create_7"];
         delete?: never;
         options?: never;
         head?: never;
@@ -867,6 +899,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_3"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/exports/{publicId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/exports/{publicId}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/registrations/{registrationId}": {
         parameters: {
             query?: never;
@@ -990,7 +1070,7 @@ export interface paths {
             cookie?: never;
         };
         /** List the caller's in-app notifications */
-        get: operations["list_3"];
+        get: operations["list_4"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1024,7 +1104,7 @@ export interface paths {
             cookie?: never;
         };
         /** List leave types for the current organization */
-        get: operations["list_4"];
+        get: operations["list_5"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1177,7 +1257,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get calendar sync connection status */
-        get: operations["status"];
+        get: operations["status_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1498,7 +1578,7 @@ export interface components {
              */
             rowType: "BALANCE_SNAPSHOT";
         };
-        BalanceSnapshotSummary: Omit<components["schemas"]["ReportSummary"], "summaryType"> & {
+        BalanceSnapshotSummary: Omit<WithRequired<components["schemas"]["ReportSummary"], "summaryType">, "summaryType"> & {
             /** Format: int64 */
             rowCount?: number;
             /** Format: int64 */
@@ -1547,7 +1627,7 @@ export interface components {
              */
             rowType: "EXCEPTION";
         };
-        ExceptionReportSummary: Omit<components["schemas"]["ReportSummary"], "summaryType"> & {
+        ExceptionReportSummary: Omit<WithRequired<components["schemas"]["ReportSummary"], "summaryType">, "summaryType"> & {
             /** Format: int64 */
             rowCount?: number;
             codeCounts?: {
@@ -1588,7 +1668,7 @@ export interface components {
              */
             rowType: "LEAVE_USAGE";
         };
-        LeaveUsageSummary: Omit<components["schemas"]["ReportSummary"], "summaryType"> & {
+        LeaveUsageSummary: Omit<WithRequired<components["schemas"]["ReportSummary"], "summaryType">, "summaryType"> & {
             /** Format: int64 */
             rowCount?: number;
             /** Format: int64 */
@@ -1644,7 +1724,7 @@ export interface components {
              */
             rowType: "PENDING_AGING";
         };
-        PendingAgingSummary: Omit<components["schemas"]["ReportSummary"], "summaryType"> & {
+        PendingAgingSummary: Omit<WithRequired<components["schemas"]["ReportSummary"], "summaryType">, "summaryType"> & {
             /** Format: int64 */
             rowCount?: number;
             /** Format: int64 */
@@ -1745,7 +1825,7 @@ export interface components {
              */
             rowType: "REQUEST_DETAIL";
         };
-        RequestDetailSummary: Omit<components["schemas"]["ReportSummary"], "summaryType"> & {
+        RequestDetailSummary: Omit<WithRequired<components["schemas"]["ReportSummary"], "summaryType">, "summaryType"> & {
             /** Format: int64 */
             rowCount?: number;
             /** Format: int64 */
@@ -1762,6 +1842,39 @@ export interface components {
              * @enum {string}
              */
             summaryType: "REQUEST_DETAIL";
+        };
+        CreateReportExportRequest: {
+            /** @enum {string} */
+            format: "CSV" | "XLSX";
+            query: components["schemas"]["ReportQueryRequest"];
+            idempotencyKey?: string;
+        };
+        ReportExportResponse: {
+            id?: string;
+            definitionKey?: string;
+            /** Format: int32 */
+            schemaVersion?: number;
+            /** @enum {string} */
+            format?: "CSV" | "XLSX";
+            status?: string;
+            viewKey?: string;
+            displayTimezone?: string;
+            /** Format: date-time */
+            asOf?: string;
+            appliedView?: components["schemas"]["AppliedReportView"];
+            ordering?: components["schemas"]["ReportOrdering"][];
+            summary?: components["schemas"]["BalanceSnapshotSummary"] | components["schemas"]["LeaveUsageSummary"] | components["schemas"]["RequestDetailSummary"] | components["schemas"]["ExceptionReportSummary"] | components["schemas"]["PendingAgingSummary"];
+            provenance?: components["schemas"]["ReportProvenance"];
+            /** Format: int64 */
+            rowCount?: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            expiresAt?: string;
+            fileName?: string;
+            failureReason?: string;
+            downloadAvailable?: boolean;
+            canRetry?: boolean;
         };
         StartRegistrationRequest: {
             selectedPlan?: string;
@@ -2821,6 +2934,54 @@ export interface operations {
             };
         };
     };
+    create_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                definitionKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateReportExportRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportExportResponse"];
+                };
+            };
+        };
+    };
+    retry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportExportResponse"];
+                };
+            };
+        };
+    };
     start: {
         parameters: {
             query?: never;
@@ -3013,7 +3174,7 @@ export interface operations {
             };
         };
     };
-    create_2: {
+    create_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -3213,7 +3374,7 @@ export interface operations {
             };
         };
     };
-    create_3: {
+    create_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -3341,7 +3502,7 @@ export interface operations {
             };
         };
     };
-    create_4: {
+    create_5: {
         parameters: {
             query?: never;
             header?: {
@@ -3367,7 +3528,7 @@ export interface operations {
             };
         };
     };
-    create_5: {
+    create_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -3391,7 +3552,7 @@ export interface operations {
             };
         };
     };
-    retry: {
+    retry_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -3689,7 +3850,7 @@ export interface operations {
             };
         };
     };
-    create_6: {
+    create_7: {
         parameters: {
             query?: never;
             header?: {
@@ -4085,6 +4246,70 @@ export interface operations {
             };
         };
     };
+    list_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportExportResponse"][];
+                };
+            };
+        };
+    };
+    status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportExportResponse"];
+                };
+            };
+        };
+    };
+    download: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
     current_1: {
         parameters: {
             query?: never;
@@ -4240,7 +4465,7 @@ export interface operations {
             };
         };
     };
-    list_3: {
+    list_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -4280,7 +4505,7 @@ export interface operations {
             };
         };
     };
-    list_4: {
+    list_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -4470,7 +4695,7 @@ export interface operations {
             };
         };
     };
-    status: {
+    status_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -4653,8 +4878,9 @@ export interface operations {
         };
     };
 }
-
-
+type WithRequired<T, K extends keyof T> = T & {
+    [P in K]-?: T[P];
+};
 // Ibiza keeps these schema aliases for feature code ergonomics, even though
 // openapi-typescript exposes schemas through components["schemas"].
 type RequiredSchema<K extends keyof components["schemas"]> = Required<components["schemas"][K]>;
@@ -4803,6 +5029,8 @@ export type UpdateOnboardingPresentationRequest = components["schemas"]["UpdateO
 
 export type ReportQueryRequest = components["schemas"]["ReportQueryRequest"];
 export type ReportQueryResponse = RequiredSchema<"ReportQueryResponse">;
+export type CreateReportExportRequest = components["schemas"]["CreateReportExportRequest"];
+export type ReportExportResponse = RequiredSchema<"ReportExportResponse">;
 export type BalanceSnapshotRow = RequiredSchema<"BalanceSnapshotRow">;
 export type LeaveUsageRow = RequiredSchema<"LeaveUsageRow">;
 export type RequestDetailRow = RequiredSchema<"RequestDetailRow">;
