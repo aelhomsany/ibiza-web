@@ -183,6 +183,61 @@ html[lang='ar'] .reports-eyebrow {
   font-variant-numeric: tabular-nums;
 }
 
+/*
+  A composite summary value (totalsByPresence, statusCounts) is a set of rows, not one number.
+  It kept the display-number `dd` styling above, so it rendered as a run-on string several times
+  the height of its neighbours and left the whole stat row ragged. Two columns and body-sm text
+  give it a shape instead: each key on its own line, numbers aligned, separators unambiguous.
+*/
+.reports-summary dl > div.reports-summary-composite {
+  grid-column: span 2;
+}
+
+.reports-summary dd.reports-summary-breakdown {
+  font-size: var(--font-body-sm-size);
+  font-weight: 400;
+  line-height: var(--font-body-sm-line-height);
+}
+
+.reports-summary-breakdown ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reports-summary-breakdown li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-sm);
+}
+
+.reports-breakdown-label {
+  min-width: 0;
+  color: var(--color-text-primary);
+  font-weight: var(--font-label-weight);
+}
+
+.reports-breakdown-parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-sm);
+  min-width: 0;
+}
+
+.reports-breakdown-part-label {
+  margin-inline-end: var(--space-xs);
+  color: var(--color-text-secondary);
+}
+
+.reports-breakdown-part-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-label-weight);
+}
+
 .reports-results-header {
   align-items: flex-start;
 }
@@ -312,6 +367,11 @@ html[lang='ar'] .reports-eyebrow {
 
   .reports-summary dl {
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  /* One track is possible down here, and `span 2` would add an implicit second one. */
+  .reports-summary dl > div.reports-summary-composite {
+    grid-column: auto;
   }
 
   .reports-filter-actions,

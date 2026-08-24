@@ -23,6 +23,7 @@ import { getBrowserTimezone } from '../../auth/timezone'
 import { DateField } from '../../components/DateField'
 import { HorizontalScrollRegion } from '../../components/ui/HorizontalScrollRegion'
 import { LoadingState } from '../../components/ui/LoadingState'
+import { PresenceBadge } from '../../components/ui/PresenceBadge'
 import { useToast } from '../../components/ui/useToast'
 import {
   DEFAULT_REPORT_DEFINITION,
@@ -35,7 +36,7 @@ import {
 } from './reportDefinitions'
 import {
   formatOrdering,
-  formatValue,
+  formatValue, summaryBreakdown,
   type ReportFormatContext,
 } from './reportFormat'
 import { useReportQuery } from './useReportQuery'
@@ -191,7 +192,16 @@ export function ReportCenterPage() {
   const [exportPolls, setExportPolls] = useState(0)
   const [exportJob, setExportJob] = useState<ReportExportResponse | null>(null)
   const [exportError, setExportError] = useState<string | null>(null)
-  const { mutateAsync: runReportQuery, isPending: isReportPending } = useReportQuery()
+  const { mutateAsync: runReportQuery } = useReportQuery()
+  /*
+    Owned here instead of read from the mutation's `isPending`. Under StrictMode the observer is
+    torn down and remounted while the bootstrap query is still in flight, and the remounted one
+    never sees the settle: the promise resolved, `setResponse` ran and the evidence rendered, yet
+    every filter stayed disabled behind a button stuck on "Applying...". The component already
+    sequences its own requests, so it owns this flag too rather than depending on observer
+    lifecycle.
+  */
+  const [isReportPending, setIsReportPending] = useState(false)
 
   const createExportMutation = useMutation({
     mutationFn: ({
@@ -295,6 +305,7 @@ export function ReportCenterPage() {
       setResponse(null)
       setRequestError(null)
       setDraftError(null)
+      setIsReportPending(true)
       try {
         const result = await runReportQuery(next)
         if (sequence !== requestSeq.current) return
@@ -315,6 +326,10 @@ export function ReportCenterPage() {
             ? error.problem.detail ?? tRef.current('reports:errors.queryFailed')
             : tRef.current('reports:errors.queryFailed')
         setRequestError(message)
+      } finally {
+        // Only the newest request clears it: a superseded one would re-enable the form while
+        // its replacement is still running.
+        if (sequence === requestSeq.current) setIsReportPending(false)
       }
     },
     [runReportQuery],
@@ -1028,12 +1043,59 @@ export function ReportCenterPage() {
             <section className="reports-summary" aria-labelledby="report-summary-title">
               <h2 id="report-summary-title">{t('reports:summary.title')}</h2>
               <dl>
-                {resultDefinition.summaryFields.map((field) => (
-                  <div key={field.key} data-testid={`report-summary-${field.key}`}>
-                    <dt>{t(field.labelKey)}</dt>
-                    <dd>{formatValue(format, summary[field.key])}</dd>
-                  </div>
-                ))}
+                {resultDefinition.summaryFields.map((field) => {
+                  // A composite value is a set of rows, not a display number. Rendering it
+                  // through the scalar `dd` turned it into one run-on headline-sized string.
+                  const breakdown = summaryBreakdown(format, summary[field.key])
+                  return (
+                    <div
+                      key={field.key}
+                      data-testid={`report-summary-${field.key}`}
+                      className={breakdown ? 'reports-summary-composite' : undefined}
+                    >
+                      <dt>{t(field.labelKey)}</dt>
+                      {breakdown ? (
+                        <dd className="reports-summary-breakdown">
+                          <ul>
+                            {breakdown.map((row) => (
+                              <li key={row.key}>
+                                <span className="reports-breakdown-label">
+                                  {row.presence ? (
+                                    <PresenceBadge
+                                      presence={row.presence}
+                                      label={row.label}
+                                    />
+                                  ) : (
+                                    row.label
+                                  )}
+                                </span>
+                                <span className="reports-breakdown-parts">
+                                  {row.parts.map((part) => (
+                                    <span
+                                      key={part.label || row.key}
+                                      className="reports-breakdown-part"
+                                    >
+                                      {part.label ? (
+                                        <span className="reports-breakdown-part-label">
+                                          {part.label}
+                                        </span>
+                                      ) : null}
+                                      <span className="reports-breakdown-part-value">
+                                        {part.value}
+                                      </span>
+                                    </span>
+                                  ))}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </dd>
+                      ) : (
+                        <dd>{formatValue(format, summary[field.key])}</dd>
+                      )}
+                    </div>
+                  )
+                })}
               </dl>
             </section>
           )}

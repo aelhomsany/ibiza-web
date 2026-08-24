@@ -1,3 +1,4 @@
+import { StrictMode } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -272,6 +273,30 @@ function renderPage() {
         </MemoryRouter>
       </ToastProvider>
     </QueryClientProvider>,
+  )
+}
+
+/**
+ * The same tree the browser actually renders. StrictMode mounts, tears down and remounts the
+ * effects that fire the bootstrap query, which `renderPage` does not exercise.
+ */
+function renderPageStrict() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  })
+
+  return render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <MemoryRouter>
+            <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+              <ReportCenterPage />
+            </AuthTestProvider>
+          </MemoryRouter>
+        </ToastProvider>
+      </QueryClientProvider>
+    </StrictMode>,
   )
 }
 
@@ -863,5 +888,94 @@ describe('ReportCenterPage', () => {
     await screen.findByTestId('report-export-status')
     // One concurrent export per user: a second create would be a certain 429.
     expect(screen.getByRole('button', { name: 'Create Export' })).toBeDisabled()
+  })
+
+  it('[P0] renders a nested summary map as labelled rows with the shared presence badge', async () => {
+    vi.spyOn(apiClient, 'queryReport').mockResolvedValue(
+      balanceResponse({
+        summary: {
+          summaryType: 'BALANCE_SNAPSHOT',
+          rowCount: 10,
+          userCount: 2,
+          totalAllocation: 300,
+          uncappedRowCount: 2,
+          totalsByPresence: {
+            WFH: { rowCount: 2, allocation: 60, approvedUsage: 0, remaining: 60 },
+            OFF: { rowCount: 8, allocation: 240, approvedUsage: 0, remaining: 240 },
+          },
+        },
+      } as Partial<ReportQueryResponse>),
+    )
+
+    renderPage()
+
+    const tile = await screen.findByTestId('report-summary-totalsByPresence')
+
+    // Each presence is its own row rather than one run-on line, so the separator between two
+    // presences can no longer read like the separators inside one.
+    expect(within(tile).getAllByRole('listitem')).toHaveLength(2)
+
+    // The badge carries the Report Center's own vocabulary: the results table prints
+    // "Working from home"/"Away", and two names for one concept on one screen is a defect.
+    expect(within(tile).getByText('Working from home')).toHaveClass('badge-wfh')
+    expect(within(tile).getByText('Away')).toHaveClass('badge-off')
+
+    // Nested keys are camelCase, so formatEnum rejected them and they reached the page raw.
+    expect(tile).toHaveTextContent('Rows')
+    expect(tile).toHaveTextContent('Allocation')
+    expect(tile).toHaveTextContent('Remaining')
+    expect(tile).not.toHaveTextContent('rowCount')
+    expect(tile).not.toHaveTextContent('approvedUsage')
+    expect(tile).not.toHaveTextContent('[object Object]')
+
+    // Composite tiles claim two tracks; scalars keep the single-track display number.
+    expect(tile).toHaveClass('reports-summary-composite')
+    expect(screen.getByTestId('report-summary-userCount')).not.toHaveClass(
+      'reports-summary-composite',
+    )
+    expect(
+      within(screen.getByTestId('report-summary-userCount')).queryByRole('list'),
+    ).not.toBeInTheDocument()
+  })
+
+  it('[P0] renders a flat summary map as labelled rows without inventing metric labels', async () => {
+    vi.spyOn(apiClient, 'queryReport').mockResolvedValue(
+      definitionFixtures.REQUEST_DETAIL.response,
+    )
+    const user = userEvent.setup()
+
+    renderPage()
+    await screen.findByTestId('report-row-0')
+    await user.selectOptions(screen.getByLabelText('Report definition'), 'REQUEST_DETAIL')
+    await user.type(screen.getByLabelText('From'), '2026-08-01')
+    await user.type(screen.getByLabelText('To'), '2026-08-24')
+    await user.click(screen.getByRole('button', { name: 'Apply Filters' }))
+
+    const tile = await screen.findByTestId('report-summary-statusCounts')
+    // A flat map's key already names its value, so no metric label is fabricated for it.
+    const [row] = within(tile).getAllByRole('listitem')
+    expect(row).toHaveTextContent('Approved')
+    expect(row).toHaveTextContent('1')
+    expect(tile).not.toHaveTextContent('APPROVED')
+  })
+
+  it('[P0] re-enables the scope filters once the bootstrap query settles under StrictMode', async () => {
+    vi.spyOn(apiClient, 'queryReport').mockResolvedValue(balanceResponse())
+
+    renderPageStrict()
+
+    // The evidence rendering proves the mutation resolved and `setResponse` ran.
+    await screen.findByTestId('report-row-0')
+
+    // Regression: pending was read straight off the mutation's `isPending`, and StrictMode's
+    // teardown/remount orphaned the observer from the settle. The request returned 200 and the
+    // rows rendered, yet the whole form stayed disabled behind a stuck "Applying…" button, with
+    // nothing in the console or the network panel to explain it.
+    await waitFor(() => {
+      expect(screen.queryByTestId('report-loading')).not.toBeInTheDocument()
+    })
+    expect(screen.getByRole('button', { name: 'Apply Filters' })).toBeEnabled()
+    expect(screen.getByLabelText('Workforce group')).toBeEnabled()
+    expect(screen.getByLabelText('Leave type')).toBeEnabled()
   })
 })

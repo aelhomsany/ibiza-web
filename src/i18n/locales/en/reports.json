@@ -146,7 +146,13 @@
     "totalsByPresence": "Totals by presence",
     "requestsByPresence": "Requests by presence",
     "chargedDaysByPresence": "Charged days by presence",
-    "storedDaysByStatus": "Stored days by status"
+    "storedDaysByStatus": "Stored days by status",
+    "metric": {
+      "rowCount": "Rows",
+      "allocation": "Allocation",
+      "approvedUsage": "Used",
+      "remaining": "Remaining"
+    }
   },
   "results": {
     "title": "Report results",

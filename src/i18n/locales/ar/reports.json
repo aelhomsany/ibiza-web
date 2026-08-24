@@ -146,7 +146,13 @@
     "totalsByPresence": "الإجماليات حسب الحضور",
     "requestsByPresence": "الطلبات حسب الحضور",
     "chargedDaysByPresence": "الأيام المحتسبة حسب الحضور",
-    "storedDaysByStatus": "الأيام المخزَّنة حسب الحالة"
+    "storedDaysByStatus": "الأيام المخزَّنة حسب الحالة",
+    "metric": {
+      "rowCount": "الصفوف",
+      "allocation": "المخصص",
+      "approvedUsage": "المستخدم",
+      "remaining": "المتبقي"
+    }
   },
   "results": {
     "title": "نتائج التقرير",

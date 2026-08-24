@@ -119,6 +119,65 @@ export function formatValue(context: ReportFormatContext, value: unknown): strin
   return formatCollection(context, value)
 }
 
+export type SummaryBreakdownPart = {
+  /** Empty for a flat map, where the row key already names the value. */
+  label: string
+  value: string
+}
+
+export type SummaryBreakdownRow = {
+  key: string
+  label: string
+  /** Set when the key is a presence code, so the caller can render the shared badge. */
+  presence: 'WFH' | 'OFF' | null
+  parts: SummaryBreakdownPart[]
+}
+
+/**
+ * Decompose a composite summary value into rows the caller can lay out, or `null` when the
+ * value is a scalar and belongs in the ordinary display-number slot.
+ *
+ * `formatCollection` flattens these to one string, which is right for a table cell but wrong
+ * for a summary tile: `totalsByPresence` arrived as a run-on line at headline size whose
+ * separators were ambiguous, because the comma between two presences read exactly like the
+ * commas inside one. Structure has to survive as far as the markup to be readable.
+ *
+ * Still display-only — no key is dropped, reordered by value, or summed (AD-4).
+ */
+export function summaryBreakdown(
+  context: ReportFormatContext,
+  value: unknown,
+): SummaryBreakdownRow[] | null {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return null
+  const entries = Object.entries(value as Record<string, unknown>)
+  // An empty map is "Not available", which is a scalar answer, not a breakdown of nothing.
+  if (entries.length === 0) return null
+  return entries.map(([key, entry]) => ({
+    key,
+    label: formatEnum(context, key),
+    presence: key === 'WFH' || key === 'OFF' ? key : null,
+    parts:
+      entry !== null && typeof entry === 'object' && !Array.isArray(entry)
+        ? Object.entries(entry as Record<string, unknown>).map(([metric, metricValue]) => ({
+            label: metricLabel(context, metric),
+            value: formatValue(context, metricValue),
+          }))
+        : [{ label: '', value: formatValue(context, entry) }],
+  }))
+}
+
+/**
+ * Label one metric inside a nested summary map.
+ *
+ * These keys are camelCase, so `formatEnum` rejects them and they reached the page raw —
+ * "rowCount: 2". Same fallback rule as everywhere else here: an unlabelled key is still
+ * evidence, so show it rather than let the missing-key handler blank it.
+ */
+function metricLabel(context: ReportFormatContext, metric: string): string {
+  const key = `reports:summary.metric.${metric}`
+  return context.i18n.exists(key) ? context.t(key) : metric
+}
+
 /** Render the server's deterministic ordering, including its tie-breakers. */
 export function formatOrdering(
   context: ReportFormatContext,
