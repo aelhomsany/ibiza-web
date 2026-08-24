@@ -270,6 +270,94 @@ html[lang='ar'] .approval-card-eyebrow {
   background: var(--color-surface-subtle);
 }
 
+.approval-decision-facts {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle);
+}
+
+.approval-decision-facts h4 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-card-title-size);
+  font-weight: var(--font-card-title-weight);
+  line-height: var(--font-card-title-line-height);
+}
+
+.approval-decision-facts-list {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-sm);
+  margin: 0;
+}
+
+.approval-decision-facts-list > div {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-card);
+}
+
+.approval-decision-facts-list dt,
+.approval-decision-facts-evidence strong,
+.approval-decision-facts-holidays > strong {
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-caption-line-height);
+}
+
+.approval-decision-facts-list dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-body-sm-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-body-sm-line-height);
+  overflow-wrap: anywhere;
+}
+
+.approval-decision-facts-evidence {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm) var(--space-lg);
+}
+
+.approval-decision-facts-evidence p,
+.approval-decision-facts-holidays p,
+.approval-decision-facts-holidays ul,
+.approval-decision-facts-uncertainty {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+  overflow-wrap: anywhere;
+}
+
+.approval-decision-facts-holidays {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.approval-decision-facts-holidays ul {
+  display: grid;
+  gap: var(--space-xs);
+  padding-inline-start: var(--space-lg);
+}
+
+.approval-decision-facts-uncertainty {
+  padding: var(--space-sm) var(--space-md);
+  border-inline-start: 2px solid var(--color-pending-fg);
+  background: var(--color-pending-bg);
+}
+
 .approval-card-coverage h4 {
   margin: 0;
   color: var(--color-text-primary);
@@ -647,6 +735,14 @@ html[lang='ar'] .approval-card-eyebrow {
 
   .approval-card-facts {
     gap: var(--space-sm);
+  }
+
+  .approval-decision-facts-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .approval-decision-facts-evidence {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .approval-actions {

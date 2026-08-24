@@ -2647,6 +2647,54 @@ export interface components {
             nominalApproverFirstName?: string;
             approvalEvidence?: components["schemas"]["ApprovalStepEvidenceResponse"][];
         };
+        AvailabilityDateRangeV1: {
+            /** Format: date */
+            from?: string;
+            /** Format: date */
+            to?: string;
+        };
+        AvailabilityScopeV1: {
+            /** Format: int64 */
+            workforceGroupId?: number;
+            workforceGroupName?: string;
+        };
+        DecisionFactsV1: {
+            schemaVersion?: string;
+            scope?: components["schemas"]["AvailabilityScopeV1"];
+            requestedRange?: components["schemas"]["AvailabilityDateRangeV1"];
+            evaluatedRange?: components["schemas"]["AvailabilityDateRangeV1"];
+            /** Format: int32 */
+            evaluatedWorkingDays?: number;
+            timezone?: string;
+            dateBasis?: string;
+            /** Format: date-time */
+            asOf?: string;
+            freshness?: string;
+            /** Format: int32 */
+            scheduledCount?: number;
+            /** Format: int32 */
+            approvedOffCount?: number;
+            /** Format: int32 */
+            pendingOffCount?: number;
+            /** Format: int32 */
+            wfhCount?: number;
+            /** Format: int32 */
+            availableCount?: number;
+            /** Format: int32 */
+            unknownCount?: number;
+            incomplete?: boolean;
+            suppressed?: boolean;
+            suppressionReason?: string;
+            uncertaintyCodes?: string[];
+            /** Format: int64 */
+            pendingAgeDays?: number;
+            activationProvenance?: string;
+            /** Format: int32 */
+            currentStage?: number;
+            /** Format: int32 */
+            totalStages?: number;
+            holidays?: components["schemas"]["RelevantHolidayV1"][];
+        };
         PendingApprovalResponse: {
             /** Format: int64 */
             requestId?: number;
@@ -2681,6 +2729,14 @@ export interface components {
             /** Format: int32 */
             approvalLevel?: number;
             approvalEvidence?: components["schemas"]["ApprovalStepEvidenceResponse"][];
+            decisionFacts?: components["schemas"]["DecisionFactsV1"];
+        };
+        RelevantHolidayV1: {
+            name?: string;
+            /** Format: date */
+            dateFrom?: string;
+            /** Format: date */
+            dateTo?: string;
         };
         PendingApprovalCountResponse: {
             /** Format: int64 */
@@ -4881,6 +4937,7 @@ export interface operations {
 type WithRequired<T, K extends keyof T> = T & {
     [P in K]-?: T[P];
 };
+
 // Ibiza keeps these schema aliases for feature code ergonomics, even though
 // openapi-typescript exposes schemas through components["schemas"].
 type RequiredSchema<K extends keyof components["schemas"]> = Required<components["schemas"][K]>;
@@ -4934,6 +4991,7 @@ export type PendingApprovalResponse = Omit<
     | "balanceSufficient"
     | "submittedAt"
     | "approvalEvidence"
+    | "decisionFacts"
 > & {
     weekendDays?: string[];
     balanceCapped?: boolean | null;
@@ -4942,6 +5000,7 @@ export type PendingApprovalResponse = Omit<
     balanceSufficient?: boolean | null;
     submittedAt?: string | null;
     approvalEvidence?: ApprovalStepEvidenceResponse[];
+    decisionFacts?: components["schemas"]["DecisionFactsV1"] | null;
 };
 export type PreviewLeaveRequestRequest = components["schemas"]["PreviewLeaveRequestRequest"];
 export type PreviewLeaveRequestResponse = RequiredSchema<"PreviewLeaveRequestResponse">;

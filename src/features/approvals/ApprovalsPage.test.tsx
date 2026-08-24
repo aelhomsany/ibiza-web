@@ -8,6 +8,34 @@ import type { PendingApprovalResponse, RecentApprovalDecisionResponse } from '..
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
 import { ToastProvider } from '../../components/ui/ToastProvider'
 import { ApprovalsPage } from './ApprovalsPage'
+import i18n from '../../i18n/config'
+import { applyDocumentLanguage } from '../../i18n/documentLanguage'
+
+const completeDecisionFacts = {
+  schemaVersion: '1',
+  scope: { workforceGroupId: 3, workforceGroupName: 'US' },
+  requestedRange: { from: '2026-06-15', to: '2026-06-17' },
+  evaluatedRange: { from: '2026-06-15', to: '2026-06-17' },
+  evaluatedWorkingDays: 3,
+  timezone: 'America/New_York',
+  dateBasis: 'ORGANIZATION_OPERATIONAL_TIMEZONE',
+  asOf: '2026-06-10T14:30:00Z',
+  freshness: 'LIVE_QUERY',
+  scheduledCount: 5,
+  approvedOffCount: 0,
+  pendingOffCount: 1,
+  wfhCount: 0,
+  availableCount: 5,
+  unknownCount: 0,
+  incomplete: false,
+  suppressed: false,
+  uncertaintyCodes: [],
+  pendingAgeDays: 4,
+  activationProvenance: 'SUBMISSION_CAPTURED',
+  currentStage: 1,
+  totalStages: 2,
+  holidays: [],
+}
 
 const mockPendingApprovals: PendingApprovalResponse[] = [
   {
@@ -79,8 +107,10 @@ describe('ApprovalsPage', () => {
     vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([])
   })
 
-  afterEach(() => {
+  afterEach(async () => {
     vi.restoreAllMocks()
+    await i18n.changeLanguage('en')
+    applyDocumentLanguage('en')
   })
 
   it('[P1] announces pending and recent loading states via role=status', async () => {
@@ -584,6 +614,143 @@ describe('ApprovalsPage', () => {
       '2 colleagues are away during this range.',
     )
     expect(region).not.toHaveTextContent('Some coverage facts are unavailable.')
+  })
+
+  it('[P0] renders labelled server decision facts with zero preserved as zero', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([
+      {
+        ...mockPendingApprovals[0],
+        decisionFacts: completeDecisionFacts,
+      } as PendingApprovalResponse,
+    ])
+
+    renderApprovalsPage('MANAGER')
+
+    const facts = await screen.findByTestId('approval-decision-facts-101')
+    expect(within(facts).getByText('5 scheduled')).toBeInTheDocument()
+    expect(within(facts).getByText('0 approved off')).toBeInTheDocument()
+    expect(within(facts).getByText('1 pending off')).toBeInTheDocument()
+    expect(within(facts).getByText('0 working from home')).toBeInTheDocument()
+    expect(within(facts).getByText('5 available')).toBeInTheDocument()
+    expect(facts).toHaveTextContent('No relevant holidays')
+    expect(facts).toHaveTextContent('Pending for 4 days')
+    expect(facts).toHaveTextContent('Stage 1 of 2')
+    expect(facts).toHaveTextContent('America/New_York')
+  })
+
+  it('[P0] renders unknown as unknown and leaves advisory facts outside decision guards', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([
+      {
+        ...mockPendingApprovals[0],
+        decisionFacts: {
+          ...completeDecisionFacts,
+          scheduledCount: null,
+          approvedOffCount: null,
+          pendingOffCount: null,
+          wfhCount: null,
+          availableCount: null,
+          evaluatedRange: null,
+          holidays: null,
+          unknownCount: 1,
+          incomplete: true,
+          uncertaintyCodes: ['WORKFORCE_GROUP_UNKNOWN'],
+        },
+      } as PendingApprovalResponse,
+    ])
+
+    renderApprovalsPage('MANAGER')
+
+    const facts = await screen.findByTestId('approval-decision-facts-101')
+    // Five counts, the evaluated range, and the holiday list: an unevaluated calendar must not
+    // report "No relevant holidays", which is a confident claim the server never made.
+    expect(within(facts).getAllByText('Unknown')).toHaveLength(7)
+    expect(facts).not.toHaveTextContent('No relevant holidays')
+    // Names the missing context rather than leading with a bare count.
+    expect(facts).toHaveTextContent(
+      'Some facts are incomplete — this person is not assigned to a Workforce Group',
+    )
+    expect(screen.getByTestId('approve-btn-101')).toBeEnabled()
+    expect(screen.getByTestId('decline-btn-101')).toBeEnabled()
+  })
+
+  it('[P0] does not label a card incomplete for approximate activation alone', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([
+      {
+        ...mockPendingApprovals[0],
+        decisionFacts: {
+          ...completeDecisionFacts,
+          activationProvenance: 'APPROXIMATE',
+          uncertaintyCodes: ['ACTIVATION_TIME_APPROXIMATE'],
+        },
+      } as PendingApprovalResponse,
+    ])
+
+    renderApprovalsPage('MANAGER')
+
+    const facts = await screen.findByTestId('approval-decision-facts-101')
+    expect(facts).toHaveTextContent('approximate activation time')
+    expect(facts).not.toHaveTextContent('Some facts are incomplete')
+  })
+
+  it('[P0] renders relevant holidays with their names and dates', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([
+      {
+        ...mockPendingApprovals[0],
+        decisionFacts: {
+          ...completeDecisionFacts,
+          holidays: [
+            { name: 'Independence Day', dateFrom: '2026-06-16', dateTo: '2026-06-16' },
+            { name: 'Founders Week', dateFrom: '2026-06-17', dateTo: '2026-06-18' },
+          ],
+        },
+      } as PendingApprovalResponse,
+    ])
+
+    renderApprovalsPage('MANAGER')
+
+    const facts = await screen.findByTestId('approval-decision-facts-101')
+    expect(within(facts).getByText('Independence Day')).toBeInTheDocument()
+    expect(within(facts).getByText('Founders Week')).toBeInTheDocument()
+    expect(facts).not.toHaveTextContent('No relevant holidays')
+  })
+
+  it('[P0] survives a snapshot timezone the browser cannot resolve', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([
+      {
+        ...mockPendingApprovals[0],
+        decisionFacts: { ...completeDecisionFacts, timezone: 'Not/AZone' },
+      } as PendingApprovalResponse,
+    ])
+
+    renderApprovalsPage('MANAGER')
+
+    // Intl.DateTimeFormat throws RangeError on an unknown zone; the card must drop the
+    // formatted instant rather than take the whole list down with it.
+    const facts = await screen.findByTestId('approval-decision-facts-101')
+    expect(facts).toHaveTextContent('Not/AZone')
+    expect(screen.getByTestId('approve-btn-101')).toBeEnabled()
+  })
+
+  it('[P0] renders the decision-facts contract in Arabic', async () => {
+    await i18n.changeLanguage('ar')
+    applyDocumentLanguage('ar')
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([
+      {
+        ...mockPendingApprovals[0],
+        decisionFacts: { ...completeDecisionFacts, pendingOffCount: 2 },
+      } as PendingApprovalResponse,
+    ])
+
+    renderApprovalsPage('MANAGER')
+
+    const facts = await screen.findByTestId('approval-decision-facts-101')
+    expect(document.documentElement).toHaveAttribute('dir', 'rtl')
+    expect(document.documentElement).toHaveAttribute('lang', 'ar')
+    expect(facts).toHaveTextContent('حقائق القرار')
+    expect(facts).toHaveTextContent('5 مجدولون')
+    expect(facts).toHaveTextContent('المرحلة 1 من 2')
+    // Arabic dual form — a bare {{count}} key would render the plural noun here.
+    expect(facts).toHaveTextContent('شخصان في غياب معلّق')
   })
 
   // APPROVAL-VAL-032/033 (P0): decline and concern in-flight state moved off the shared

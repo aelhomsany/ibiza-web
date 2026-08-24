@@ -18,6 +18,14 @@
     "tagline": "Team Leave Management"
   },
   "comingSoon": "Coming soon.",
+  "handoff": {
+    "title": "Signing you in",
+    "body": "Your workspace is ready. Completing the secure one-time handoff…",
+    "failedTitle": "This sign-in link cannot be used",
+    "failedBody": "The one-time handoff expired or was already used. Recover your registration for a safe new link.",
+    "recover": "Recover Registration"
+  },
+  "listSeparator": ", ",
   "loading": "Loading…",
   "notFound": {
     "subtitle": "The page you're looking for doesn't exist.",
@@ -41,13 +49,6 @@
     "hrAdmin": "HR Admin",
     "manager": "Manager",
     "platformAdmin": "Platform Admin"
-  },
-  "handoff": {
-    "title": "Signing you in",
-    "body": "Your workspace is ready. Completing the secure one-time handoff…",
-    "failedTitle": "This sign-in link cannot be used",
-    "failedBody": "The one-time handoff expired or was already used. Recover your registration for a safe new link.",
-    "recover": "Recover Registration"
   },
   "routes": {
     "acceptInvitation": "Accept invitation",

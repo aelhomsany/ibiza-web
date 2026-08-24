@@ -15,9 +15,13 @@ type ApprovalCoverage = {
    * fact is absent the card falls back to the partial-coverage copy rather than
    * inventing a number.
    *
-   * The API counts distinct people, and excludes the requester, the viewing approver,
-   * and work-from-home leave types (a WFH colleague is present, not away). See
-   * `LeaveRequestRepository#countApprovedOverlapsByRequestId`.
+   * Since Story 13.4 this is the `approvedOffCount` of the same decision-facts
+   * projection the card renders below: distinct people, scoped to the requester's
+   * Workforce Group, evaluated over working days only, excluding the requester, the
+   * viewing approver, and work-from-home leave types (a WFH colleague is present, not
+   * away). It stays on the response only so an API deployed ahead of the SPA keeps
+   * working; new code should read `approval.decisionFacts`. See
+   * `ApprovalDecisionFactsAdapter#forAuthorizedApprovalInbox`.
    */
   overlappingAbsences: number | null | undefined
 }
@@ -33,6 +37,39 @@ type ApprovalCardProps = {
   isDeclining?: boolean
   isRecordingConcern?: boolean
   isStale?: boolean
+}
+
+const COUNT_UNCERTAINTY_CODES = [
+  'WORKFORCE_GROUP_UNKNOWN',
+  'CALENDAR_UNKNOWN',
+  'NO_WORKING_DAYS_IN_RANGE',
+  'WINDOW_EXCEEDS_BOUND',
+  'TIMEZONE_UNRESOLVED',
+]
+
+/**
+ * `Intl.DateTimeFormat` throws `RangeError` on a `timeZone` it does not recognise, which during
+ * render takes down the entire approvals list rather than one field. The value is server-supplied
+ * and only validated on the write paths, so it is treated as untrusted here: an unusable snapshot
+ * is simply not shown.
+ */
+function formatSnapshotInstant(
+  asOf: string | null | undefined,
+  timezone: string | null | undefined,
+  language: string,
+): string | null {
+  if (!asOf) return null
+  const instant = new Date(asOf)
+  if (Number.isNaN(instant.getTime())) return null
+  try {
+    return new Intl.DateTimeFormat(language, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      timeZone: timezone || 'UTC',
+    }).format(instant)
+  } catch {
+    return null
+  }
 }
 
 export function ApprovalCard({
@@ -98,6 +135,18 @@ export function ApprovalCard({
   }
 
   const overlappingAbsences = coverage.overlappingAbsences
+  const decisionFacts = approval.decisionFacts
+  const factsAsOf = formatSnapshotInstant(
+    decisionFacts?.asOf,
+    decisionFacts?.timezone,
+    i18n.language,
+  )
+  // Codes that describe the counts. Activation-provenance codes are reported on the age line
+  // instead, so they never widen this sentence.
+  const incompleteReasons = (decisionFacts?.uncertaintyCodes ?? [])
+    .filter((code) => COUNT_UNCERTAINTY_CODES.includes(code))
+    .map((code) => t(`approvals:facts.reasons.${code}`, { defaultValue: '' }))
+    .filter((reason) => reason.length > 0)
   let coverageText: string
   if (typeof overlappingAbsences !== 'number') {
     // The server did not supply the coverage fact for this request — say so rather
@@ -207,20 +256,131 @@ export function ApprovalCard({
         detailsLabel={t('approvals:workingDays.details')}
       />
 
-      <section
-        className="approval-card-coverage"
-        aria-labelledby={`approval-coverage-title-${requestId}`}
-        data-testid={`approval-coverage-${requestId}`}
-      >
-        <p className="approval-card-eyebrow">{t('approvals:coverage.eyebrow')}</p>
-        <h4 id={`approval-coverage-title-${requestId}`}>
-          {t('approvals:coverage.title')}
-        </h4>
-        <p>{coverageText}</p>
-        <p className="approval-coverage-advisory">
-          {t('approvals:coverage.advisory')}
-        </p>
-      </section>
+      {decisionFacts ? (
+        <section
+          className="approval-decision-facts"
+          aria-labelledby={`approval-decision-facts-title-${requestId}`}
+          data-testid={`approval-decision-facts-${requestId}`}
+        >
+          <p className="approval-card-eyebrow">{t('approvals:facts.eyebrow')}</p>
+          <h4 id={`approval-decision-facts-title-${requestId}`}>
+            {t('approvals:facts.title')}
+          </h4>
+
+          <dl className="approval-decision-facts-list">
+            {([
+              ['scheduled', decisionFacts.scheduledCount],
+              ['approvedOff', decisionFacts.approvedOffCount],
+              ['pendingOff', decisionFacts.pendingOffCount],
+              ['wfh', decisionFacts.wfhCount],
+              ['available', decisionFacts.availableCount],
+            ] as const).map(([key, value]) => (
+              <div key={key}>
+                <dt>{t(`approvals:facts.labels.${key}`)}</dt>
+                <dd>
+                  {typeof value === 'number'
+                    ? t(`approvals:facts.values.${key}`, { count: value })
+                    : t('approvals:facts.unknown')}
+                </dd>
+              </div>
+            ))}
+          </dl>
+
+          <div className="approval-decision-facts-evidence">
+            <p>
+              <strong>{t('approvals:facts.evaluatedRangeLabel')}</strong>{' '}
+              {decisionFacts.evaluatedRange?.from && decisionFacts.evaluatedRange?.to
+                ? formatDateRange(
+                    decisionFacts.evaluatedRange.from,
+                    decisionFacts.evaluatedRange.to,
+                    i18n.language,
+                  )
+                : t('approvals:facts.unknown')}
+            </p>
+            <p>
+              <strong>{t('approvals:facts.stageLabel')}</strong>{' '}
+              {t('approvals:facts.stage', {
+                current: decisionFacts.currentStage,
+                total: decisionFacts.totalStages,
+              })}
+            </p>
+            <p>
+              <strong>{t('approvals:facts.ageLabel')}</strong>{' '}
+              {typeof decisionFacts.pendingAgeDays === 'number'
+                ? t('approvals:facts.age', { count: decisionFacts.pendingAgeDays })
+                : t('approvals:facts.unknown')}
+              {decisionFacts.activationProvenance === 'APPROXIMATE' ? (
+                <>
+                  {' · '}
+                  <bdi>{t('approvals:facts.approximate')}</bdi>
+                </>
+              ) : null}
+            </p>
+            <p>
+              <strong>{t('approvals:facts.snapshotLabel')}</strong>{' '}
+              <bdi>{decisionFacts.timezone || t('approvals:facts.unknown')}</bdi>
+              {factsAsOf ? (
+                <>
+                  {' · '}
+                  <bdi>{factsAsOf}</bdi>
+                </>
+              ) : null}
+            </p>
+          </div>
+
+          <div className="approval-decision-facts-holidays">
+            <strong>{t('approvals:facts.holidaysLabel')}</strong>
+            {!decisionFacts.holidays ? (
+              <p>{t('approvals:facts.unknown')}</p>
+            ) : decisionFacts.holidays.length ? (
+              <ul>
+                {decisionFacts.holidays.map((holiday, index) => (
+                  <li key={`${holiday.dateFrom}-${holiday.name}-${index}`}>
+                    <span dir="auto">{holiday.name}</span>{' · '}
+                    <bdi>{formatDateRange(
+                      holiday.dateFrom ?? '',
+                      holiday.dateTo ?? holiday.dateFrom ?? '',
+                      i18n.language,
+                    )}</bdi>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>{t('approvals:facts.noHolidays')}</p>
+            )}
+          </div>
+
+          {decisionFacts.incomplete ? (
+            <p className="approval-decision-facts-uncertainty">
+              {incompleteReasons.length
+                ? t('approvals:facts.incompleteWithReasons', {
+                    reasons: incompleteReasons.join(t('common:listSeparator')),
+                  })
+                : t('approvals:facts.incomplete', {
+                    count: decisionFacts.unknownCount ?? 0,
+                  })}
+            </p>
+          ) : null}
+          <p className="approval-coverage-advisory">
+            {t('approvals:coverage.advisory')}
+          </p>
+        </section>
+      ) : (
+        <section
+          className="approval-card-coverage"
+          aria-labelledby={`approval-coverage-title-${requestId}`}
+          data-testid={`approval-coverage-${requestId}`}
+        >
+          <p className="approval-card-eyebrow">{t('approvals:coverage.eyebrow')}</p>
+          <h4 id={`approval-coverage-title-${requestId}`}>
+            {t('approvals:coverage.title')}
+          </h4>
+          <p>{coverageText}</p>
+          <p className="approval-coverage-advisory">
+            {t('approvals:coverage.advisory')}
+          </p>
+        </section>
+      )}
 
       {note ? (
         <blockquote className="approval-card-note">
