@@ -189,6 +189,33 @@ export async function updatePlatformOrganizationSubscription(
   })
 }
 
+// Re-exported from the generated contract rather than restated here: the hand-written copies had
+// already drifted from it (required vs optional campaignCode, a narrowed state union), leaving one
+// endpoint with two different TypeScript definitions.
+import type {
+  ReportingPromotionRequest,
+  ReportingPromotionResponse,
+} from '../../api/generated/types'
+
+export type { ReportingPromotionRequest, ReportingPromotionResponse }
+
+export function grantPlatformReportingPromotion(
+  organizationId: number,
+  payload: ReportingPromotionRequest,
+): Promise<ReportingPromotionResponse> {
+  return request(`/api/v1/platform/organizations/${organizationId}/reporting-promotion`, {
+    method: 'PUT', body: payload,
+  })
+}
+
+export function revokePlatformReportingPromotion(
+  organizationId: number,
+): Promise<ReportingPromotionResponse> {
+  return request(`/api/v1/platform/organizations/${organizationId}/reporting-promotion`, {
+    method: 'DELETE',
+  })
+}
+
 export type RecoverablePaidRegistration = {
   registrationId: string
   status: 'PAYMENT_CONFIRMED' | 'PROVISIONING_FAILED'
@@ -217,6 +244,8 @@ export const platformApiClient = {
   getPlatformOrganizations,
   createPlatformOrganization,
   updatePlatformOrganizationSubscription,
+  grantPlatformReportingPromotion,
+  revokePlatformReportingPromotion,
   getRecoverablePaidRegistrations,
   recoverPaidRegistration,
 }

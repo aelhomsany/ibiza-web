@@ -102,6 +102,21 @@ describe('OrganizationsPage', () => {
     expect(screen.getAllByRole('button', { name: /edit subscription.*(nile harbor|nile tech)/i })).toHaveLength(2)
   })
 
+  it('[P1] labels a Starter reporting promotion with its campaign', async () => {
+    vi.mocked(apiClient.getPlatformOrganizations).mockResolvedValue([{
+      id: 12, name: 'Promoted Starter', primaryContact: 'Sales Owner',
+      initialHrAdminEmail: 'owner@example.test', plan: 'STARTER', userCount: 10,
+      userLimit: 50, status: 'ACTIVE', effectiveDate: '2026-08-01',
+      reportingPromotion: {
+        id: 4, campaignCode: 'Q4_SALES', startsAt: '2026-08-01T00:00:00Z',
+        endsAt: '2026-12-01T00:00:00Z', state: 'ACTIVE',
+      },
+    }])
+    renderOrganizationsPage()
+    expect(await screen.findByTestId('reporting-promotion-12')).toHaveTextContent('Active')
+    expect(screen.getByTestId('reporting-promotion-12')).toHaveTextContent('Q4_SALES')
+  })
+
   it('[P0] shows AT LIMIT only for limited-plan organizations at or above user limit', async () => {
     vi.mocked(apiClient.getPlatformOrganizations).mockResolvedValue([
       {

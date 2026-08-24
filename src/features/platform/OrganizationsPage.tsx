@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { OrganizationSummaryResponse } from '../../api/generated/types'
+import { isolate } from '../../i18n/bidi'
+import { promotionStateLabel } from './promotionState'
 import { PlusIcon } from '../../components/ui/icons'
 import { useToast } from '../../components/ui/useToast'
 import { CreateOrganizationModal } from './CreateOrganizationModal'
@@ -90,6 +92,7 @@ function OrganizationsTable({
             <th scope="col">{t('table.users')}</th>
             <th scope="col">{t('table.status')}</th>
             <th scope="col">{t('table.effective')}</th>
+            <th scope="col">{t('table.reporting')}</th>
             <th scope="col">{t('table.actions')}</th>
           </tr>
         </thead>
@@ -135,6 +138,18 @@ function OrganizationsTable({
                 </span>
               </td>
               <td>{organization.effectiveDate ?? '—'}</td>
+              <td>
+                {organization.reportingPromotion ? (
+                  <span data-testid={`reporting-promotion-${organization.id}`}>
+                    {organization.reportingPromotion.campaignCode
+                      ? t('promotion.current', {
+                        state: promotionStateLabel(t, organization.reportingPromotion.state),
+                        campaign: isolate(organization.reportingPromotion.campaignCode),
+                      })
+                      : promotionStateLabel(t, organization.reportingPromotion.state)}
+                  </span>
+                ) : t('promotion.none')}
+              </td>
               <td>
                 <button
                   type="button"

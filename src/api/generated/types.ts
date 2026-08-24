@@ -21,6 +21,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/platform/organizations/{organizationId}/reporting-promotion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Grant a time-bound Advanced Reporting promotion to a Starter Organization */
+        put: operations["grantReportingPromotion"];
+        post?: never;
+        /** Revoke the active Advanced Reporting promotion for an Organization */
+        delete: operations["revokeReportingPromotion"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workforce-groups": {
         parameters: {
             query?: never;
@@ -1414,6 +1432,25 @@ export interface components {
             name?: string;
             weekendDays?: string[];
         };
+        ReportingPromotionRequest: {
+            campaignCode: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+        };
+        ReportingPromotionResponse: {
+            /** Format: int64 */
+            id?: number;
+            campaignCode?: string;
+            /** Format: date-time */
+            startsAt?: string;
+            /** Format: date-time */
+            endsAt?: string;
+            /** Format: date-time */
+            revokedAt?: string;
+            state?: string;
+        };
         CreateWorkforceGroupRequest: {
             name?: string;
         };
@@ -2003,6 +2040,7 @@ export interface components {
             status?: "ACTIVE" | "SUSPENDED";
             /** Format: date */
             effectiveDate?: string;
+            reportingPromotion?: components["schemas"]["ReportingPromotionResponse"];
         };
         RefreshRequest: {
             refreshToken?: string;
@@ -2776,6 +2814,54 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["WorkforceGroupResponse"];
+                };
+            };
+        };
+    };
+    grantReportingPromotion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organizationId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportingPromotionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportingPromotionResponse"];
+                };
+            };
+        };
+    };
+    revokeReportingPromotion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organizationId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportingPromotionResponse"];
                 };
             };
         };
@@ -4979,7 +5065,11 @@ export type LoginRequest = components["schemas"]["LoginRequest"];
 export type MarkAllReadResponse = RequiredSchema<"MarkAllReadResponse">;
 export type NotificationResponse = RequiredSchema<"NotificationResponse">;
 export type OnboardingResponse = RequiredSchema<"OnboardingResponse">;
-export type OrganizationSummaryResponse = RequiredSchema<"OrganizationSummaryResponse">;
+export type ReportingPromotionRequest = components["schemas"]["ReportingPromotionRequest"];
+export type ReportingPromotionResponse = components["schemas"]["ReportingPromotionResponse"];
+export type OrganizationSummaryResponse = Omit<RequiredSchema<"OrganizationSummaryResponse">, "reportingPromotion"> & {
+    reportingPromotion?: components["schemas"]["ReportingPromotionResponse"] | null;
+};
 export type OutTodayResponse = RequiredSchema<"OutTodayResponse">;
 export type PendingApprovalCountResponse = RequiredSchema<"PendingApprovalCountResponse">;
 export type PendingApprovalResponse = Omit<
