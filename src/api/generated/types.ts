@@ -182,6 +182,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/leave-policies/drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create an effective-dated leave policy draft */
+        post: operations["createPolicyDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/{definitionKey}/query": {
         parameters: {
             query?: never;
@@ -903,6 +920,24 @@ export interface paths {
          * @description Full replacement of name, icon, colours and presence; defaultBalanceDays stays frozen.
          */
         patch: operations["updateLeaveType"];
+        trace?: never;
+    };
+    "/api/v1/settings/leave-policies/drafts/{publicId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read a policy draft and its current revision */
+        get: operations["getPolicyDraft"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Revise a policy draft using its expected revision */
+        patch: operations["updatePolicyDraft"];
         trace?: never;
     };
     "/api/v1/public-holidays/{id}": {
@@ -1656,6 +1691,38 @@ export interface components {
             /** @description Every leave type public ID in the organization, exactly once, in the desired order */
             publicIds: string[];
         };
+        CreatePolicyDraftRequest: {
+            leaveTypePublicId: string;
+            /** @enum {string} */
+            mode: "ANNUAL_ALLOWANCE" | "UNLIMITED";
+            /** Format: int32 */
+            allowanceDays?: number;
+            /** @enum {string} */
+            balancePeriod: "CALENDAR_YEAR";
+            /** @enum {string} */
+            scope: "ORGANIZATION" | "WORKFORCE_GROUP" | "USER";
+            subjectPublicId?: string;
+            /** Format: date */
+            effectiveFrom: string;
+        };
+        PolicyDraftResponse: {
+            policyPublicId?: string;
+            draftPublicId?: string;
+            leaveTypePublicId?: string;
+            /** @enum {string} */
+            mode?: "ANNUAL_ALLOWANCE" | "UNLIMITED";
+            /** Format: int32 */
+            allowanceDays?: number;
+            /** @enum {string} */
+            balancePeriod?: "CALENDAR_YEAR";
+            /** @enum {string} */
+            scope?: "ORGANIZATION" | "WORKFORCE_GROUP" | "USER";
+            subjectPublicId?: string;
+            /** Format: date */
+            effectiveFrom?: string;
+            /** Format: int64 */
+            revision?: number;
+        };
         ReportQueryRequest: {
             /** Format: int32 */
             schemaVersion?: number;
@@ -2263,6 +2330,15 @@ export interface components {
             /** Format: int64 */
             workforceGroupId?: number;
             workforceGroupName?: string;
+            policyVersionPublicId?: string;
+            policyAssignmentPublicId?: string;
+            /** @enum {string} */
+            allowanceMode?: "ANNUAL_ALLOWANCE" | "UNLIMITED";
+            /** Format: int32 */
+            allowanceDays?: number;
+            /** Format: int32 */
+            balanceYear?: number;
+            chargedDates?: string[];
         };
         ContactSalesRequest: {
             companyName?: string;
@@ -2434,6 +2510,21 @@ export interface components {
             borderColor: string;
             /** @enum {string} */
             presenceType: "WFH" | "OFF";
+        };
+        UpdatePolicyDraftRequest: {
+            /** Format: int64 */
+            expectedRevision: number;
+            /** @enum {string} */
+            mode: "ANNUAL_ALLOWANCE" | "UNLIMITED";
+            /** Format: int32 */
+            allowanceDays?: number;
+            /** @enum {string} */
+            balancePeriod: "CALENDAR_YEAR";
+            /** @enum {string} */
+            scope: "ORGANIZATION" | "WORKFORCE_GROUP" | "USER";
+            subjectPublicId?: string;
+            /** Format: date */
+            effectiveFrom: string;
         };
         UpdatePublicHolidayRequest: {
             /** Format: date */
@@ -3249,6 +3340,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["LeaveTypeResponse"][];
+                };
+            };
+        };
+    };
+    createPolicyDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePolicyDraftRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PolicyDraftResponse"];
                 };
             };
         };
@@ -4462,6 +4577,54 @@ export interface operations {
             };
         };
     };
+    getPolicyDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PolicyDraftResponse"];
+                };
+            };
+        };
+    };
+    updatePolicyDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePolicyDraftRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PolicyDraftResponse"];
+                };
+            };
+        };
+    };
     delete_1: {
         parameters: {
             query?: never;
@@ -5444,3 +5607,6 @@ export type PendingAgingRow = RequiredSchema<"PendingAgingRow">;
 export type CreateLeaveTypeRequest = components["schemas"]["CreateLeaveTypeRequest"];
 export type ReorderLeaveTypesRequest = components["schemas"]["ReorderLeaveTypesRequest"];
 export type UpdateLeaveTypeRequest = components["schemas"]["UpdateLeaveTypeRequest"];
+export type CreatePolicyDraftRequest = components["schemas"]["CreatePolicyDraftRequest"];
+export type UpdatePolicyDraftRequest = components["schemas"]["UpdatePolicyDraftRequest"];
+export type PolicyDraftResponse = RequiredSchema<"PolicyDraftResponse">;
