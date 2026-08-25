@@ -59,7 +59,11 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
     enabled: open && orgId != null,
   })
 
-  const previewQuery = useLeaveRequestPreview(debouncedFrom, debouncedTo)
+  const previewQuery = useLeaveRequestPreview(
+    debouncedFrom,
+    debouncedTo,
+    leaveTypeId === '' ? undefined : leaveTypeId,
+  )
 
   const clientDateInvalid =
     dateFrom !== '' && dateTo !== '' && dateTo < dateFrom

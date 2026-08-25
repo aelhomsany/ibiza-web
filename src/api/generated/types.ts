@@ -110,6 +110,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/leave-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List every leave type in the organization, including inactive ones */
+        get: operations["listManagedLeaveTypes"];
+        put?: never;
+        /** Create a leave type with a normalized, organization-unique name */
+        post: operations["createLeaveType"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/leave-types/{publicId}/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Return an inactive leave type to the active selector */
+        post: operations["reactivateLeaveType"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/leave-types/{publicId}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deactivate a leave type without removing it or its history */
+        post: operations["deactivateLeaveType"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/leave-types/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Atomically reorder the organization's leave types
+         * @description The request must contain every leave type public ID in the organization exactly once.
+         */
+        post: operations["reorderLeaveTypes"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/{definitionKey}/query": {
         parameters: {
             query?: never;
@@ -811,6 +883,26 @@ export interface paths {
         head?: never;
         /** Update the organization's operational timezone (HR Admin only) */
         patch: operations["update_2"];
+        trace?: never;
+    };
+    "/api/v1/settings/leave-types/{publicId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Replace the editable presentation of a leave type
+         * @description Full replacement of name, icon, colours and presence; defaultBalanceDays stays frozen.
+         */
+        patch: operations["updateLeaveType"];
         trace?: never;
     };
     "/api/v1/public-holidays/{id}": {
@@ -1531,6 +1623,39 @@ export interface components {
             status?: string;
             activeSeat?: boolean;
         };
+        CreateLeaveTypeRequest: {
+            name: string;
+            icon: string;
+            color: string;
+            backgroundColor: string;
+            borderColor: string;
+            /** @enum {string} */
+            presenceType: "WFH" | "OFF";
+        };
+        LeaveTypeResponse: {
+            /** Format: int64 */
+            id?: number;
+            publicId?: string;
+            name?: string;
+            icon?: string;
+            color?: string;
+            backgroundColor?: string;
+            borderColor?: string;
+            /** @enum {string} */
+            presenceType?: "WFH" | "OFF";
+            /**
+             * Format: int32
+             * @description Default balance in days; null means uncapped (Unpaid Leave).
+             */
+            defaultBalanceDays?: number | null;
+            /** Format: int32 */
+            displayOrder?: number;
+            active?: boolean;
+        };
+        ReorderLeaveTypesRequest: {
+            /** @description Every leave type public ID in the organization, exactly once, in the desired order */
+            publicIds: string[];
+        };
         ReportQueryRequest: {
             /** Format: int32 */
             schemaVersion?: number;
@@ -2121,6 +2246,8 @@ export interface components {
             note: string;
         };
         PreviewLeaveRequestRequest: {
+            /** Format: int64 */
+            leaveTypeId?: number;
             /** Format: date */
             dateFrom: string;
             /** Format: date */
@@ -2299,6 +2426,15 @@ export interface components {
         OperationalTimezoneResponse: {
             operationalTimezone?: string;
         };
+        UpdateLeaveTypeRequest: {
+            name: string;
+            icon: string;
+            color: string;
+            backgroundColor: string;
+            borderColor: string;
+            /** @enum {string} */
+            presenceType: "WFH" | "OFF";
+        };
         UpdatePublicHolidayRequest: {
             /** Format: date */
             dateFrom?: string;
@@ -2469,24 +2605,6 @@ export interface components {
         UnreadCountResponse: {
             /** Format: int64 */
             count?: number;
-        };
-        LeaveTypeResponse: {
-            /** Format: int64 */
-            id?: number;
-            name?: string;
-            icon?: string;
-            color?: string;
-            backgroundColor?: string;
-            borderColor?: string;
-            /** @enum {string} */
-            presenceType?: "WFH" | "OFF";
-            /**
-             * Format: int32
-             * @description Default balance in days; null means uncapped (Unpaid Leave).
-             */
-            defaultBalanceDays?: number | null;
-            /** Format: int32 */
-            displayOrder?: number;
         };
         RecentRequestResponse: {
             /** Format: int64 */
@@ -3019,6 +3137,118 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["TeamMemberInvitationResponse"];
+                };
+            };
+        };
+    };
+    listManagedLeaveTypes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LeaveTypeResponse"][];
+                };
+            };
+        };
+    };
+    createLeaveType: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateLeaveTypeRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LeaveTypeResponse"];
+                };
+            };
+        };
+    };
+    reactivateLeaveType: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LeaveTypeResponse"];
+                };
+            };
+        };
+    };
+    deactivateLeaveType: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LeaveTypeResponse"];
+                };
+            };
+        };
+    };
+    reorderLeaveTypes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderLeaveTypesRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LeaveTypeResponse"][];
                 };
             };
         };
@@ -4206,6 +4436,32 @@ export interface operations {
             };
         };
     };
+    updateLeaveType: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateLeaveTypeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LeaveTypeResponse"];
+                };
+            };
+        };
+    };
     delete_1: {
         parameters: {
             query?: never;
@@ -5185,3 +5441,6 @@ export type LeaveUsageRow = RequiredSchema<"LeaveUsageRow">;
 export type RequestDetailRow = RequiredSchema<"RequestDetailRow">;
 export type ExceptionReportRow = RequiredSchema<"ExceptionReportRow">;
 export type PendingAgingRow = RequiredSchema<"PendingAgingRow">;
+export type CreateLeaveTypeRequest = components["schemas"]["CreateLeaveTypeRequest"];
+export type ReorderLeaveTypesRequest = components["schemas"]["ReorderLeaveTypesRequest"];
+export type UpdateLeaveTypeRequest = components["schemas"]["UpdateLeaveTypeRequest"];
