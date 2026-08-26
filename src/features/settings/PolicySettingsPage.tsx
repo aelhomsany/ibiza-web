@@ -270,9 +270,11 @@ export function PolicySettingsPage() {
         setStaleDraft(code === "stale-policy-draft");
         setError(
           t(
-            code === "stale-policy-preview" || code === "stale-policy-draft"
-              ? "policy.errors.stale"
-              : "policy.errors.preview",
+            code === "capability-unavailable"
+              ? "policy.errors.capabilityUnavailable"
+              : code === "stale-policy-preview" || code === "stale-policy-draft"
+                ? "policy.errors.stale"
+                : "policy.errors.preview",
           ),
         );
         requestAnimationFrame(() => errorRef.current?.focus());
@@ -336,18 +338,21 @@ export function PolicySettingsPage() {
       const conflict = code === "policy-idempotency-conflict";
       const stale =
         code === "stale-policy-preview" || code === "stale-policy-draft";
-      if (stale || conflict) {
+      const capabilityUnavailable = code === "capability-unavailable";
+      if (stale || conflict || capabilityUnavailable) {
         setConfirmOpen(false);
         setPreview(null);
         idempotencyKeyRef.current = null;
       }
       setError(
         t(
-          conflict
-            ? "policy.errors.idempotencyConflict"
-            : stale
-              ? "policy.errors.stale"
-              : "policy.errors.publishRetry",
+          capabilityUnavailable
+            ? "policy.errors.capabilityUnavailable"
+            : conflict
+              ? "policy.errors.idempotencyConflict"
+              : stale
+                ? "policy.errors.stale"
+                : "policy.errors.publishRetry",
         ),
       );
       requestAnimationFrame(() => errorRef.current?.focus());

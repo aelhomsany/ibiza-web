@@ -469,4 +469,48 @@ describe("LeaveTypesCard", () => {
     expect(await screen.findByRole("button", { name: /resume draft/i })).toBeEnabled();
     expect(screen.getByRole("button", { name: /configure policy/i })).toBeEnabled();
   });
+
+  it("[P1] shows a distinct capability-unavailable message when the policy gate is off, not the generic draft error", async () => {
+    const user = userEvent.setup();
+    const onWarning = vi.fn();
+    const types = mockLeaveTypes.slice(0, 1).map((item) => ({
+      ...item,
+      publicId: "public-1",
+      presenceType: "OFF" as const,
+      active: true,
+    }));
+    vi.spyOn(apiClient, "getManagedLeaveTypes").mockResolvedValue(types);
+    vi.spyOn(apiClient, "getPolicySettingsOverview").mockResolvedValue({
+      leaveTypes: [
+        {
+          ...types[0],
+          leaveTypePublicId: "public-1",
+          policyPublicId: "policy-1",
+          latestDraft: null,
+        },
+      ],
+      users: [],
+      workforceGroups: [],
+    });
+    vi.spyOn(apiClient, "createPolicyDraft").mockRejectedValueOnce(
+      new apiClient.ApiError(403, {
+        type: "https://ibiza.app/errors/forbidden",
+        title: "Forbidden",
+        status: 403,
+        detail: "This capability is not available. Compare plans or contact Sales.",
+        code: "capability-unavailable",
+      }),
+    );
+    renderLeaveTypesCard(onWarning);
+
+    await user.click(
+      await screen.findByRole("button", { name: /configure policy/i }),
+    );
+
+    await waitFor(() =>
+      expect(onWarning).toHaveBeenCalledWith(
+        "Configurable policies are not yet available for this organization.",
+      ),
+    );
+  });
 });

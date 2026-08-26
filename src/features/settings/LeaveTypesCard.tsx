@@ -217,7 +217,12 @@ export function LeaveTypesCard({
       }),
     onSuccess: (draft) =>
       navigate(`/settings/leave-policies/${draft.draftPublicId}`),
-    onError: () => onWarning?.(t("leaveTypes.errors.draft")),
+    onError: (cause) =>
+      onWarning?.(
+        cause instanceof ApiError && cause.problem.code === "capability-unavailable"
+          ? t("policy.errors.capabilityUnavailable")
+          : t("leaveTypes.errors.draft"),
+      ),
   });
   const move = (index: number, offset: number) => {
     // Filter before mapping: dropping an id after the map would shorten the array and desynchronise

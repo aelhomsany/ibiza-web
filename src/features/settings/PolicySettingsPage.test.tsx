@@ -532,4 +532,32 @@ describe("PolicySettingsPage", () => {
       "true",
     );
   });
+
+  it("[P1] shows a distinct capability-unavailable message with no reload/retry CTA when the policy gate is off", async () => {
+    mockBase();
+    vi.spyOn(api, "previewPolicy").mockRejectedValueOnce(
+      new ApiError(403, {
+        type: "https://ibiza.app/errors/forbidden",
+        title: "Forbidden",
+        status: 403,
+        detail: "This capability is not available. Compare plans or contact Sales.",
+        code: "capability-unavailable",
+      }),
+    );
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(
+      await screen.findByRole("button", { name: /review impact/i }),
+    );
+
+    expect(
+      await screen.findByText(
+        /configurable policies are not yet available for this organization/i,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /reload latest draft/i }),
+    ).not.toBeInTheDocument();
+  });
 });

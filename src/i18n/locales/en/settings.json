@@ -350,6 +350,7 @@
       "conflicts_other": "{{count}} conflicts"
     },
     "errors": {
+      "capabilityUnavailable": "Configurable policies are not yet available for this organization.",
       "load": "Unable to load this policy draft.",
       "preview": "The preview could not be loaded. Your input is preserved; reload the preview and try again.",
       "stale": "The preview is stale. Your input is preserved; review the current impact again.",
