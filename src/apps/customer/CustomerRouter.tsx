@@ -55,6 +55,11 @@ const SettingsPage = lazy(() =>
     default: module.SettingsPage,
   })),
 )
+const PolicySettingsPage = lazy(() =>
+  import('../../features/settings/PolicySettingsPage').then((module) => ({
+    default: module.PolicySettingsPage,
+  })),
+)
 const ProfilePage = lazy(() =>
   import('../../features/profile/ProfilePage').then((module) => ({
     default: module.ProfilePage,
@@ -146,6 +151,10 @@ export function CustomerRoutes() {
               <Route
                 path="/settings"
                 element={titled('routes.settings', <SettingsPage />)}
+              />
+              <Route
+                path="/settings/leave-policies/:draftPublicId"
+                element={titled('routes.policySettings', <PolicySettingsPage />)}
               />
               <Route
                 path="/onboarding"

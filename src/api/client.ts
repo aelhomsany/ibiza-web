@@ -54,6 +54,16 @@ import type {
   ReportQueryResponse,
   CreateReportExportRequest,
   ReportExportResponse,
+  CreateLeaveTypeRequest,
+  UpdateLeaveTypeRequest,
+  CreatePolicyDraftRequest,
+  UpdatePolicyDraftRequest,
+  PolicyDraftResponse,
+  PublishPolicyRequest,
+  PolicyPreviewResponse,
+  PolicyPublicationResponse,
+  PolicyHistoryItem,
+  PolicySettingsOverviewResponse,
 } from './generated/types'
 import type { components } from './generated/types'
 import { clearAccessToken, getAccessToken, setAccessToken } from '../auth/tokenStorage'
@@ -414,6 +424,22 @@ export async function getLeaveTypes(): Promise<LeaveTypeResponse[]> {
     method: 'GET',
   })
 }
+
+export type PolicySettingsOverview = PolicySettingsOverviewResponse
+
+export const getManagedLeaveTypes = () => request<LeaveTypeResponse[]>('/api/v1/settings/leave-types', { method: 'GET' })
+export const createLeaveType = (payload: CreateLeaveTypeRequest) => request<LeaveTypeResponse>('/api/v1/settings/leave-types', { method: 'POST', body: payload })
+export const updateLeaveType = (publicId: string, payload: UpdateLeaveTypeRequest) => request<LeaveTypeResponse>(`/api/v1/settings/leave-types/${publicId}`, { method: 'PATCH', body: payload })
+export const deactivateLeaveType = (publicId: string) => request<LeaveTypeResponse>(`/api/v1/settings/leave-types/${publicId}/deactivate`, { method: 'POST' })
+export const reactivateLeaveType = (publicId: string) => request<LeaveTypeResponse>(`/api/v1/settings/leave-types/${publicId}/reactivate`, { method: 'POST' })
+export const reorderLeaveTypes = (publicIds: string[]) => request<LeaveTypeResponse[]>('/api/v1/settings/leave-types/reorder', { method: 'POST', body: { publicIds } })
+export const getPolicySettingsOverview = () => request<PolicySettingsOverview>('/api/v1/settings/leave-policies/overview', { method: 'GET' })
+export const createPolicyDraft = (payload: CreatePolicyDraftRequest) => request<PolicyDraftResponse>('/api/v1/settings/leave-policies/drafts', { method: 'POST', body: payload })
+export const getPolicyDraft = (publicId: string) => request<PolicyDraftResponse>(`/api/v1/settings/leave-policies/drafts/${publicId}`, { method: 'GET' })
+export const updatePolicyDraft = (publicId: string, payload: UpdatePolicyDraftRequest) => request<PolicyDraftResponse>(`/api/v1/settings/leave-policies/drafts/${publicId}`, { method: 'PATCH', body: payload })
+export const previewPolicy = (publicId: string) => request<PolicyPreviewResponse>(`/api/v1/settings/leave-policies/drafts/${publicId}/preview`, { method: 'POST' })
+export const publishPolicy = (publicId: string, idempotencyKey: string, payload: PublishPolicyRequest) => request<PolicyPublicationResponse>(`/api/v1/settings/leave-policies/drafts/${publicId}/publish`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: payload })
+export const getPolicyHistory = (policyPublicId: string) => request<PolicyHistoryItem[]>(`/api/v1/settings/leave-policies/${policyPublicId}/history`, { method: 'GET' })
 
 export type CapabilityAccess = components['schemas']['Access']
 
@@ -845,6 +871,19 @@ export const apiClient = {
   updatePublicHoliday,
   deletePublicHoliday,
   getLeaveTypes,
+  getManagedLeaveTypes,
+  createLeaveType,
+  updateLeaveType,
+  deactivateLeaveType,
+  reactivateLeaveType,
+  reorderLeaveTypes,
+  getPolicySettingsOverview,
+  createPolicyDraft,
+  getPolicyDraft,
+  updatePolicyDraft,
+  previewPolicy,
+  publishPolicy,
+  getPolicyHistory,
   getCapabilityAccess,
   queryReport,
   createReportExport,

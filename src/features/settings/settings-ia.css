@@ -107,6 +107,14 @@
   margin-block-start: 0;
 }
 
+.leave-type-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-inline-start: auto;
+  justify-content: flex-end;
+}
+
 .organization-settings-card {
   padding: var(--space-2xl);
 }
@@ -180,6 +188,15 @@
 }
 
 @media (max-width: 900px) {
+  .leave-type-row {
+    flex-wrap: wrap;
+  }
+
+  .leave-type-actions {
+    inline-size: 100%;
+    margin-inline-start: 0;
+    justify-content: flex-start;
+  }
   .settings-ia-layout {
     display: block;
   }

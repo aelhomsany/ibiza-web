@@ -179,6 +179,7 @@ export function SettingsPage() {
   const [workingCalendarsDirty, setWorkingCalendarsDirty] = useState(false)
   const [notificationsDirty, setNotificationsDirty] = useState(false)
   const [peopleDirty, setPeopleDirty] = useState(false)
+  const [leavePoliciesDirty, setLeavePoliciesDirty] = useState(false)
   const [discardSignal, setDiscardSignal] = useState(0)
   const [pendingTransition, setPendingTransition] =
     useState<PendingSettingsTransition | null>(null)
@@ -191,7 +192,7 @@ export function SettingsPage() {
   const categoryValue = searchParams.get('category')
   const activeCategory = categoryFromSearchParam(categoryValue)
   const requestedGroupId = groupFromSearchParam(searchParams.get('group'))
-  const isDirty = workingCalendarsDirty || notificationsDirty || peopleDirty
+  const isDirty = workingCalendarsDirty || notificationsDirty || peopleDirty || leavePoliciesDirty
 
   const showSuccessToast = useCallback(
     (message: string) => showToast(message, 'success'),
@@ -312,6 +313,7 @@ export function SettingsPage() {
     setWorkingCalendarsDirty(false)
     setNotificationsDirty(false)
     setPeopleDirty(false)
+    setLeavePoliciesDirty(false)
     setDiscardSignal((value) => value + 1)
   }, [])
 
@@ -395,7 +397,11 @@ export function SettingsPage() {
             )}
 
             {activeCategory === 'leave-policies' && (
-              <LeaveTypesCard onWarning={showWarningToast} />
+              <LeaveTypesCard
+                onDirtyChange={setLeavePoliciesDirty}
+                onWarning={showWarningToast}
+                onSuccess={showSuccessToast}
+              />
             )}
 
             {activeCategory === 'people' && (

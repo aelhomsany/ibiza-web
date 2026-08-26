@@ -181,10 +181,6 @@
   },
   "leaveTypes": {
     "defaultDays": "{{count}} days default",
-    "errors": {
-      "load": "Unable to load leave types.",
-      "loadToast": "Unable to load leave types"
-    },
     "loading": "Loading leave types…",
     "none": "No leave types configured yet.",
     "summary_few": "{{count}} configured leave types",
@@ -194,7 +190,176 @@
     "summary_two": "{{count}} configured leave types",
     "summary_zero": "No configured leave types",
     "title": "Leave Types",
-    "unlimited": "Unlimited / custom"
+    "unlimited": "Unlimited / custom",
+    "active": "Active",
+    "inactive": "Inactive",
+    "actions": {
+      "add": "Add Leave Type",
+      "up": "Move Up",
+      "down": "Move Down",
+      "edit": "Edit",
+      "save": "Save Changes",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate",
+      "configure": "Configure Policy",
+      "resume": "Resume Draft",
+      "cancel": "Cancel",
+      "close": "Close",
+      "create": "Create Leave Type",
+      "confirmDeactivate": "Confirm Deactivation",
+      "confirmReactivate": "Confirm Reactivation",
+      "retry": "Retry"
+    },
+    "aria": {
+      "moveUp": "Move Up: {{name}}",
+      "moveDown": "Move Down: {{name}}",
+      "edit": "Edit {{name}}",
+      "deactivate": "Deactivate {{name}}",
+      "reactivate": "Reactivate {{name}}",
+      "configure": "Configure Policy: {{name}}",
+      "resume": "Resume Draft: {{name}}"
+    },
+    "fields": {
+      "name": "Name",
+      "icon": "Icon",
+      "presence": "Presence",
+      "color": "Text color",
+      "backgroundColor": "Background color",
+      "borderColor": "Border color"
+    },
+    "presence": {
+      "off": "Off",
+      "wfh": "Work From Home"
+    },
+    "createTitle": "Add Leave Type",
+    "editTitle": "Edit {{name}}",
+    "deactivateTitle": "Deactivate {{name}}",
+    "reactivateTitle": "Reactivate {{name}}",
+    "statusCopy": "This changes future selection for {{name}}. Historical requests remain unchanged.",
+    "success": {
+      "created": "Leave type created",
+      "updated": "Leave type updated",
+      "deactivated": "{{name}} deactivated",
+      "reactivated": "{{name}} reactivated"
+    },
+    "errors": {
+      "load": "Unable to load leave types.",
+      "loadToast": "Unable to load leave types",
+      "create": "Unable to create leave type",
+      "update": "Unable to update leave type",
+      "status": "Unable to update leave type",
+      "reorder": "Unable to reorder leave types",
+      "draft": "Unable to open a policy draft",
+      "overview": "Unable to load current policy drafts. Policy actions are unavailable."
+    }
+  },
+  "policy": {
+    "title": "Policy Settings",
+    "subtitle": "Review authoritative impact before publishing one effective-dated policy.",
+    "loading": "Loading policy draft…",
+    "actions": {
+      "back": "Back to Leave Policies",
+      "review": "Review Impact",
+      "publish": "Publish Policy",
+      "confirm": "Confirm Publication",
+      "cancel": "Cancel",
+      "close": "Close",
+      "retry": "Retry",
+      "reloadLatest": "Reload Latest Draft"
+    },
+    "states": {
+      "draft": "Draft",
+      "published": "Published"
+    },
+    "editor": {
+      "title": "Policy Draft"
+    },
+    "fields": {
+      "mode": "Allowance mode",
+      "allowance": "Allowance days",
+      "scope": "Scope",
+      "subject": "Scope target",
+      "selectSubject": "Select a target",
+      "effectiveFrom": "Effective date"
+    },
+    "modes": {
+      "annual": "Annual allowance",
+      "unlimited": "Unlimited"
+    },
+    "scopes": {
+      "organization": "Organization",
+      "group": "Workforce Group",
+      "user": "User",
+      "unknownUser": "Selected user",
+      "unknownGroup": "Selected workforce group"
+    },
+    "review": {
+      "title": "Publication Review",
+      "empty": "Save and review the draft to load current impact evidence.",
+      "affected": "Affected people",
+      "people_zero": "No people",
+      "people_one": "{{count}} person",
+      "people_two": "{{count}} people",
+      "people_few": "{{count}} people",
+      "people_many": "{{count}} people",
+      "people_other": "{{count}} people",
+      "conflicts": "Conflicts",
+      "noConflicts": "No conflicts",
+      "balance": "{{used}} used, {{allowance}} proposed, {{remaining}} remaining",
+      "unknownMember": "Affected member",
+      "noImpacts": "No individual balances change in this scope.",
+      "balanceUnlimited": "{{used}} used, unlimited allowance"
+    },
+    "confirm": {
+      "title": "Confirm Policy Publication",
+      "summary_zero": "Publish for {{scope}} from {{date}}, affecting no people.",
+      "summary_one": "Publish for {{scope}} from {{date}}, affecting {{count}} person.",
+      "summary_two": "Publish for {{scope}} from {{date}}, affecting {{count}} people.",
+      "summary_few": "Publish for {{scope}} from {{date}}, affecting {{count}} people.",
+      "summary_many": "Publish for {{scope}} from {{date}}, affecting {{count}} people.",
+      "summary_other": "Publish for {{scope}} from {{date}}, affecting {{count}} people.",
+      "history": "I understand stored historical requests will not be recalculated."
+    },
+    "overview": {
+      "loading": "Loading policy targets…",
+      "error": "Unable to load current policy targets. Review is unavailable."
+    },
+    "conflicts": {
+      "allowanceBelowUsed": "{{name}} has already used more days than the proposed allowance.",
+      "noActiveMembers": "There are no active members in this scope.",
+      "unknown": "The policy has an impact conflict that must be reviewed."
+    },
+    "history": {
+      "title": "Version History",
+      "loading": "Loading version history…",
+      "empty": "No published versions yet.",
+      "error": "Unable to load version history.",
+      "version": "Version {{number}}",
+      "unknownPublisher": "Former or unavailable user",
+      "allowance_zero": "No allowance days",
+      "allowance_one": "{{count}} allowance day",
+      "allowance_two": "{{count}} allowance days",
+      "allowance_few": "{{count}} allowance days",
+      "allowance_many": "{{count}} allowance days",
+      "allowance_other": "{{count}} allowance days",
+      "conflicts_zero": "No conflicts",
+      "conflicts_one": "{{count}} conflict",
+      "conflicts_two": "{{count}} conflicts",
+      "conflicts_few": "{{count}} conflicts",
+      "conflicts_many": "{{count}} conflicts",
+      "conflicts_other": "{{count}} conflicts"
+    },
+    "errors": {
+      "load": "Unable to load this policy draft.",
+      "preview": "The preview could not be loaded. Your input is preserved; reload the preview and try again.",
+      "stale": "The preview is stale. Your input is preserved; review the current impact again.",
+      "validation": "Some policy fields need attention. Your input is preserved.",
+      "publishRetry": "Publication could not be confirmed. Retry using the same reviewed impact.",
+      "idempotencyConflict": "This publication was already submitted with different impact evidence. Your input is preserved; review the current impact again."
+    },
+    "success": {
+      "published": "Policy published"
+    }
   },
   "members": {
     "actions": {

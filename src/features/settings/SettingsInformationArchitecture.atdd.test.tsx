@@ -75,6 +75,8 @@ function mockSettingsApis() {
     },
   ])
   vi.spyOn(apiClient, 'getLeaveTypes').mockResolvedValue(mockLeaveTypes)
+  vi.spyOn(apiClient, 'getManagedLeaveTypes').mockResolvedValue(mockLeaveTypes)
+  vi.spyOn(apiClient, 'getPolicySettingsOverview').mockResolvedValue({ leaveTypes: [], users: [], workforceGroups: [] })
   vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(mockTeamMembers)
   vi.spyOn(apiClient, 'getCalendarSyncStatus').mockResolvedValue({
     provider: 'GOOGLE',

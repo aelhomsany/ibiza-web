@@ -1095,6 +1095,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/leave-policies/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read the HR policy workspace overview and active named targets */
+        get: operations["getPolicySettingsOverview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/exports": {
         parameters: {
             query?: never;
@@ -1643,6 +1660,7 @@ export interface components {
             organizationId?: number | null;
             organizationName?: string | null;
             timezone?: string | null;
+            organizationTimezone?: string | null;
             workforceGroupName?: string | null;
             profileImageUrl?: string | null;
             canReviewApprovals?: boolean;
@@ -2768,6 +2786,36 @@ export interface components {
             /** Format: date-time */
             publishedAt?: string;
             impactSummary?: components["schemas"]["ImpactSummary"];
+        };
+        DraftSummary: {
+            draftPublicId?: string;
+            /** Format: int64 */
+            revision?: number;
+        };
+        LeaveTypePolicySummary: {
+            leaveTypePublicId?: string;
+            name?: string;
+            icon?: string;
+            color?: string;
+            backgroundColor?: string;
+            borderColor?: string;
+            presenceType?: string;
+            /** Format: int32 */
+            defaultBalanceDays?: number;
+            /** Format: int32 */
+            displayOrder?: number;
+            active?: boolean;
+            policyPublicId?: string;
+            latestDraft?: components["schemas"]["DraftSummary"];
+        };
+        NamedTarget: {
+            publicId?: string;
+            name?: string;
+        };
+        PolicySettingsOverviewResponse: {
+            leaveTypes?: components["schemas"]["LeaveTypePolicySummary"][];
+            users?: components["schemas"]["NamedTarget"][];
+            workforceGroups?: components["schemas"]["NamedTarget"][];
         };
         PublicCapabilityResponse: {
             code?: string;
@@ -5028,6 +5076,26 @@ export interface operations {
             };
         };
     };
+    getPolicySettingsOverview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PolicySettingsOverviewResponse"];
+                };
+            };
+        };
+    };
     list_3: {
         parameters: {
             query?: never;
@@ -5770,11 +5838,12 @@ export type OperationalTimezoneResponse = RequiredSchema<"OperationalTimezoneRes
 export type UpdateOperationalTimezoneRequest = components["schemas"]["UpdateOperationalTimezoneRequest"];
 export type UserSummaryResponse = Omit<
     RequiredSchema<"UserSummaryResponse">,
-    "organizationId" | "organizationName" | "timezone" | "workforceGroupName" | "preferredLanguage" | "profileImageUrl" | "canReviewApprovals"
+    "organizationId" | "organizationName" | "timezone" | "organizationTimezone" | "workforceGroupName" | "preferredLanguage" | "profileImageUrl" | "canReviewApprovals"
 > & {
     organizationId?: number | null;
     organizationName?: string | null;
     timezone?: string | null;
+    organizationTimezone?: string | null;
     workforceGroupName?: string | null;
     preferredLanguage?: string | null;
     profileImageUrl?: string | null;
@@ -5835,3 +5904,4 @@ export type PublishPolicyRequest = components["schemas"]["PublishPolicyRequest"]
 export type PolicyPreviewResponse = RequiredSchema<"PolicyPreviewResponse">;
 export type PolicyPublicationResponse = RequiredSchema<"PolicyPublicationResponse">;
 export type PolicyHistoryItem = RequiredSchema<"PolicyHistoryItem">;
+export type PolicySettingsOverviewResponse = RequiredSchema<"PolicySettingsOverviewResponse">;
