@@ -199,6 +199,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/leave-policies/drafts/{draftPublicId}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish a preview-bound policy draft exactly once */
+        post: operations["publishPolicy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/leave-policies/drafts/{draftPublicId}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview authoritative policy publication impact */
+        post: operations["previewPolicyPublication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/{definitionKey}/query": {
         parameters: {
             query?: never;
@@ -1044,6 +1078,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/leave-policies/{policyPublicId}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read immutable policy publication history */
+        get: operations["getPolicyPublicationHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/exports": {
         parameters: {
             query?: never;
@@ -1722,6 +1773,69 @@ export interface components {
             effectiveFrom?: string;
             /** Format: int64 */
             revision?: number;
+            consumed?: boolean;
+        };
+        PublishPolicyRequest: {
+            /** Format: int64 */
+            expectedDraftRevision: number;
+            previewHash: string;
+            /** Format: int64 */
+            policyRevision: number;
+            /** Format: int64 */
+            workforceRevision: number;
+            /** Format: int64 */
+            entitlementRevision: number;
+        };
+        PolicyPublicationResponse: {
+            publicationPublicId?: string;
+            policyPublicId?: string;
+            versionPublicId?: string;
+            assignmentPublicId?: string;
+            /** Format: int32 */
+            versionNumber?: number;
+            /** Format: date-time */
+            publishedAt?: string;
+            /** Format: int32 */
+            affectedMemberCount?: number;
+            /** Format: int32 */
+            conflictCount?: number;
+        };
+        PolicyMemberImpact: {
+            memberPublicId?: string;
+            /** Format: int32 */
+            usedDays?: number;
+            /** Format: int32 */
+            proposedAllowance?: number;
+            /** Format: int32 */
+            projectedRemaining?: number;
+        };
+        PolicyPreviewResponse: {
+            draftPublicId?: string;
+            policyPublicId?: string;
+            /** Format: int64 */
+            draftRevision?: number;
+            /** Format: int64 */
+            policyRevision?: number;
+            /** Format: int64 */
+            workforceRevision?: number;
+            /** Format: int64 */
+            entitlementRevision?: number;
+            decisionHash?: string;
+            /** Format: date-time */
+            asOf?: string;
+            /** Format: int32 */
+            balanceYear?: number;
+            /** @enum {string} */
+            scope?: "ORGANIZATION" | "WORKFORCE_GROUP" | "USER";
+            subjectPublicId?: string;
+            /** Format: date */
+            effectiveFrom?: string;
+            /** Format: date */
+            previousEffectiveFrom?: string;
+            /** Format: int32 */
+            affectedMemberCount?: number;
+            impacts?: components["schemas"]["PolicyMemberImpact"][];
+            conflicts?: string[];
         };
         ReportQueryRequest: {
             /** Format: int32 */
@@ -2629,6 +2743,32 @@ export interface components {
             mutedUntil?: string;
             effectiveEnabledNow?: boolean;
         };
+        ImpactSummary: {
+            /** Format: int32 */
+            affectedMemberCount?: number;
+            /** Format: int32 */
+            conflictCount?: number;
+        };
+        PolicyHistoryItem: {
+            publicationPublicId?: string;
+            versionPublicId?: string;
+            assignmentPublicId?: string;
+            /** Format: int32 */
+            versionNumber?: number;
+            /** @enum {string} */
+            mode?: "ANNUAL_ALLOWANCE" | "UNLIMITED";
+            /** Format: int32 */
+            allowanceDays?: number;
+            /** @enum {string} */
+            scope?: "ORGANIZATION" | "WORKFORCE_GROUP" | "USER";
+            subjectPublicId?: string;
+            /** Format: date */
+            effectiveFrom?: string;
+            publishedByUserPublicId?: string;
+            /** Format: date-time */
+            publishedAt?: string;
+            impactSummary?: components["schemas"]["ImpactSummary"];
+        };
         PublicCapabilityResponse: {
             code?: string;
             label?: string;
@@ -3364,6 +3504,65 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PolicyDraftResponse"];
+                };
+            };
+        };
+    };
+    publishPolicy: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                draftPublicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishPolicyRequest"];
+            };
+        };
+        responses: {
+            /** @description Idempotent replay of a prior publication */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PolicyPublicationResponse"];
+                };
+            };
+            /** @description Published for the first time */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PolicyPublicationResponse"];
+                };
+            };
+        };
+    };
+    previewPolicyPublication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftPublicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PolicyPreviewResponse"];
                 };
             };
         };
@@ -4807,6 +5006,28 @@ export interface operations {
             };
         };
     };
+    getPolicyPublicationHistory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                policyPublicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PolicyHistoryItem"][];
+                };
+            };
+        };
+    };
     list_3: {
         parameters: {
             query?: never;
@@ -5610,3 +5831,7 @@ export type UpdateLeaveTypeRequest = components["schemas"]["UpdateLeaveTypeReque
 export type CreatePolicyDraftRequest = components["schemas"]["CreatePolicyDraftRequest"];
 export type UpdatePolicyDraftRequest = components["schemas"]["UpdatePolicyDraftRequest"];
 export type PolicyDraftResponse = RequiredSchema<"PolicyDraftResponse">;
+export type PublishPolicyRequest = components["schemas"]["PublishPolicyRequest"];
+export type PolicyPreviewResponse = RequiredSchema<"PolicyPreviewResponse">;
+export type PolicyPublicationResponse = RequiredSchema<"PolicyPublicationResponse">;
+export type PolicyHistoryItem = RequiredSchema<"PolicyHistoryItem">;
