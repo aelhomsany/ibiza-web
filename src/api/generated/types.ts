@@ -624,7 +624,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Commit an import job's dry run (not implemented until Story 15.2 registers a template handler) */
+        /** Atomically commit and reconcile a validated dry run */
         post: operations["commitImportJob"];
         delete?: never;
         options?: never;
@@ -1437,6 +1437,23 @@ export interface paths {
         };
         /** Read one import job's state */
         get: operations["getImportJob"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/{publicId}/rows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read privacy-bounded row validation results */
+        get: operations["getImportRowResults"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2558,7 +2575,7 @@ export interface components {
             chargedDates?: string[];
         };
         CreateImportJobRequest: {
-            /** @description Import template identifier, e.g. EMPLOYEES */
+            /** @description Fixed import template identifier: PEOPLE_AND_ASSIGNMENTS or ENTITLEMENTS_AND_OPENING_BALANCES */
             templateKey: string;
         };
         ImportJobResponse: {
@@ -2571,6 +2588,19 @@ export interface components {
             /** Format: int32 */
             rowCount?: number;
             headerColumns?: string[];
+            /** Format: int32 */
+            acceptedCount?: number;
+            /** Format: int32 */
+            rejectedCount?: number;
+            /** Format: int32 */
+            warningCount?: number;
+            /** Format: int32 */
+            committedCount?: number;
+            /** Format: int64 */
+            validationRevision?: number;
+            reconciliation?: {
+                [key: string]: number;
+            };
             failureReason?: string;
             /** Format: date-time */
             createdAt?: string;
@@ -3049,6 +3079,24 @@ export interface components {
             leaveRequestId?: number;
             onBehalf?: boolean;
             nominalApproverFirstName?: string;
+        };
+        ImportRowResultPage: {
+            items?: components["schemas"]["ImportRowResultResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            total?: number;
+        };
+        ImportRowResultResponse: {
+            /** Format: int32 */
+            rowIndex?: number;
+            /** Format: int32 */
+            sourceLine?: number;
+            status?: string;
+            errorCodes?: string[];
+            warnings?: string[];
         };
         UpcomingAbsenceResponse: {
             /** Format: int64 */
@@ -4413,7 +4461,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Source accepted; the job is DRY_RUN_READY */
+            /** @description Source accepted and validation queued; status is MAPPED or a later lifecycle state */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4471,6 +4519,15 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Commit queued as COMMITTING, or a later replay-safe lifecycle outcome */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ImportJobResponse"];
+                };
+            };
             /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
             403: {
                 headers: {
@@ -4489,8 +4546,8 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
-            /** @description Always, for now: no template handler is registered */
-            501: {
+            /** @description Rejected rows, dependency drift, seat capacity drift, an unsupported template, or a job not ready to commit */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5762,6 +5819,58 @@ export interface operations {
                 };
             };
             /** @description No such job for this organization (non-enumerating: identical for another tenant's job) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    getImportRowResults: {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A page of row status, error, and warning evidence; never raw cell content */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ImportRowResultPage"];
+                };
+            };
+            /** @description Page or size outside the permitted bounds */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description No such job for this organization */
             404: {
                 headers: {
                     [name: string]: unknown;
