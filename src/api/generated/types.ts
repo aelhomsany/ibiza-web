@@ -781,6 +781,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/balance-corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Append a MANUAL_CORRECTION ledger row for one tenant-scoped account */
+        post: operations["recordBalanceCorrection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/balance-corrections/{id}/compensate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Append an exact-inverse COMPENSATION row for one existing ledger entry */
+        post: operations["compensateBalanceCorrection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/reset-password": {
         parameters: {
             query?: never;
@@ -2670,6 +2704,55 @@ export interface components {
         };
         CheckoutSessionResponse: {
             checkoutUrl?: string;
+        };
+        RecordBalanceCorrectionRequest: {
+            userPublicId: string;
+            leaveTypePublicId: string;
+            /**
+             * Format: int32
+             * @description Signed whole-day adjustment; positive grants, negative deducts
+             */
+            deltaDays: number;
+            reason: string;
+            /**
+             * Format: date
+             * @description The balance year is derived from this date's year (Story 15.3 rule)
+             */
+            effectiveDate: string;
+            /** @description Best-effort email notification to the affected user; a delivery failure never blocks or rolls back the ledger write */
+            notifyUser?: boolean;
+        };
+        BalanceCorrectionResponse: {
+            /** Format: int64 */
+            id?: number;
+            kind?: string;
+            userPublicId?: string;
+            leaveTypePublicId?: string;
+            /** Format: int32 */
+            balanceYear?: number;
+            /** Format: int32 */
+            deltaDays?: number;
+            reason?: string;
+            /** Format: date */
+            effectiveDate?: string;
+            actorUserPublicId?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: int32 */
+            beforeRemainingDays?: number;
+            /** Format: int32 */
+            afterRemainingDays?: number;
+            /** Format: int64 */
+            compensationOfId?: number;
+            notificationRequested?: boolean;
+            notificationSent?: boolean;
+        };
+        CompensateBalanceCorrectionRequest: {
+            reason: string;
+            /** Format: date */
+            effectiveDate: string;
+            /** @description Best-effort email notification to the affected user; a delivery failure never blocks or rolls back the ledger write */
+            notifyUser?: boolean;
         };
         ResetPasswordRequest: {
             token?: string;
@@ -4786,6 +4869,119 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CheckoutSessionResponse"];
+                };
+            };
+        };
+    };
+    recordBalanceCorrection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordBalanceCorrectionRequest"];
+            };
+        };
+        responses: {
+            /** @description The correction was appended; before/after evidence in the response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BalanceCorrectionResponse"];
+                };
+            };
+            /** @description validation-failed: malformed request, an uncapped/unresolved policy, or a negative-result guard rejection */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not an HR administrator */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description No such user or leave type in this organization (non-enumerating) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    compensateBalanceCorrection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompensateBalanceCorrectionRequest"];
+            };
+        };
+        responses: {
+            /** @description The compensation was appended, linked via compensationOfId */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BalanceCorrectionResponse"];
+                };
+            };
+            /** @description validation-failed: malformed request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not an HR administrator */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description No such ledger entry in this organization (non-enumerating) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description This ledger entry is already compensated */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
         };
