@@ -17,6 +17,8 @@ import enPublic from './locales/en/public.json'
 import enBilling from './locales/en/billing.json'
 import enOnboarding from './locales/en/onboarding.json'
 import enReports from './locales/en/reports.json'
+import enImport from './locales/en/import.json'
+import enCorrections from './locales/en/corrections.json'
 import arCommon from './locales/ar/common.json'
 import arErrors from './locales/ar/errors.json'
 import arLayout from './locales/ar/layout.json'
@@ -33,6 +35,8 @@ import arPublic from './locales/ar/public.json'
 import arBilling from './locales/ar/billing.json'
 import arOnboarding from './locales/ar/onboarding.json'
 import arReports from './locales/ar/reports.json'
+import arImport from './locales/ar/import.json'
+import arCorrections from './locales/ar/corrections.json'
 
 const initialLocale = getStoredPreferredLanguage()
 applyDocumentLanguage(initialLocale)
@@ -45,8 +49,10 @@ void i18n.use(initReactI18next).init({
       auth: enAuth,
       calendar: enCalendar,
       common: enCommon,
+      corrections: enCorrections,
       dashboard: enDashboard,
       errors: enErrors,
+      import: enImport,
       layout: enLayout,
       leaves: enLeaves,
       onboarding: enOnboarding,
@@ -63,8 +69,10 @@ void i18n.use(initReactI18next).init({
       auth: arAuth,
       calendar: arCalendar,
       common: arCommon,
+      corrections: arCorrections,
       dashboard: arDashboard,
       errors: arErrors,
+      import: arImport,
       layout: arLayout,
       leaves: arLeaves,
       onboarding: arOnboarding,

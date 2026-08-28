@@ -85,6 +85,16 @@ const ReportCenterPage = lazy(() =>
     default: module.ReportCenterPage,
   })),
 )
+const ImportWizardPage = lazy(() =>
+  import('../../features/import/ImportWizardPage').then((module) => ({
+    default: module.ImportWizardPage,
+  })),
+)
+const CorrectionsPage = lazy(() =>
+  import('../../features/corrections/CorrectionsPage').then((module) => ({
+    default: module.CorrectionsPage,
+  })),
+)
 
 function RouteFallback() {
   const { t } = useTranslation('common')
@@ -147,6 +157,14 @@ export function CustomerRoutes() {
               <Route
                 path="/reports"
                 element={titled('routes.reports', <ReportCenterPage />)}
+              />
+              <Route
+                path="/import"
+                element={titled('routes.import', <ImportWizardPage />)}
+              />
+              <Route
+                path="/corrections"
+                element={titled('routes.corrections', <CorrectionsPage />)}
               />
               <Route
                 path="/settings"

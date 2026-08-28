@@ -6,6 +6,8 @@ import {
   CheckCircleIcon,
   ClipboardListIcon,
   DashboardIcon,
+  InboxIcon,
+  RefreshCwIcon,
   ReportIcon,
   SettingsIcon,
 } from '../components/ui/icons'
@@ -52,6 +54,22 @@ const ORG_BASE: NavCatalogItem[] = [
     path: '/reports',
     icon: ReportIcon,
     testId: 'nav-reports',
+    requiredRoles: ['HR_ADMIN'],
+  },
+  {
+    // Story 15.5: HR_ADMIN-gated like /settings, not capability-probed like /reports -- the
+    // Boundaries call for mirroring the /settings nav pattern exactly.
+    label: 'Data Import',
+    path: '/import',
+    icon: InboxIcon,
+    testId: 'nav-import',
+    requiredRoles: ['HR_ADMIN'],
+  },
+  {
+    label: 'Balance Corrections',
+    path: '/corrections',
+    icon: RefreshCwIcon,
+    testId: 'nav-corrections',
     requiredRoles: ['HR_ADMIN'],
   },
   {
@@ -121,6 +139,14 @@ export function canAccessOrgRoute(
   }
 
   if (pathname === '/reports' || pathname.startsWith('/reports/')) {
+    return role === 'HR_ADMIN'
+  }
+
+  if (pathname === '/import' || pathname.startsWith('/import/')) {
+    return role === 'HR_ADMIN'
+  }
+
+  if (pathname === '/corrections' || pathname.startsWith('/corrections/')) {
     return role === 'HR_ADMIN'
   }
 

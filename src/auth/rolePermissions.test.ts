@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -30,11 +33,13 @@ describe('rolePermissions', () => {
       expect(items.map((item) => item.label)).not.toContain('Settings')
     })
 
-    it('[P0] returns 6 items for HR_ADMIN including Reports and Settings', () => {
+    it('[P0] returns 8 items for HR_ADMIN including Reports, Data Import, Balance Corrections and Settings', () => {
       const items = getOrgNavItems('HR_ADMIN')
-      expect(items).toHaveLength(6)
+      expect(items).toHaveLength(8)
       expect(items.map((item) => item.label)).toContain('Approvals')
       expect(items.map((item) => item.label)).toContain('Reports')
+      expect(items.map((item) => item.label)).toContain('Data Import')
+      expect(items.map((item) => item.label)).toContain('Balance Corrections')
       expect(items.map((item) => item.label)).toContain('Settings')
     })
 
@@ -57,6 +62,29 @@ describe('rolePermissions', () => {
       expect(getOrgNavItems('PLATFORM_ADMIN')).toEqual([])
     })
 
+    // The `label` fields above are only the fallback `OrgShell` uses when a `layout:nav.<key>`
+    // key is missing — a missing key is what made the Arabic sidebar render English for
+    // /import and /corrections (UX-DR32). Every catalog item must have a translated label in
+    // both locales so that fallback is never reached.
+    it('[P0] every nav testId resolves to a layout:nav key in both locales', () => {
+      const layoutFor = (locale: 'en' | 'ar') =>
+        JSON.parse(
+          readFileSync(
+            resolve(dirname(fileURLToPath(import.meta.url)), `../i18n/locales/${locale}/layout.json`),
+            'utf8',
+          ),
+        ) as { nav: Record<string, string> }
+
+      const en = layoutFor('en')
+      const ar = layoutFor('ar')
+      for (const item of getOrgNavItems('HR_ADMIN')) {
+        const source = item.testId?.replace('nav-', '') ?? ''
+        const key = source === 'my-leaves' ? 'myLeaves' : source
+        expect(en.nav[key], `en layout:nav.${key}`).toBeTruthy()
+        expect(ar.nav[key], `ar layout:nav.${key}`).toBeTruthy()
+      }
+    })
+
     it('includes stable E2E testids on nav items', () => {
       const items = getOrgNavItems('HR_ADMIN')
       expect(items.map((item) => item.testId)).toEqual([
@@ -65,6 +93,8 @@ describe('rolePermissions', () => {
         'nav-calendar',
         'nav-approvals',
         'nav-reports',
+        'nav-import',
+        'nav-corrections',
         'nav-settings',
       ])
     })
@@ -99,6 +129,18 @@ describe('rolePermissions', () => {
       expect(canAccessOrgRoute('EMPLOYEE', '/reports')).toBe(false)
       expect(canAccessOrgRoute('MANAGER', '/reports')).toBe(false)
       expect(canAccessOrgRoute('HR_ADMIN', '/reports')).toBe(true)
+    })
+
+    it('[P0] restricts data import to HR admin only, mirroring /settings', () => {
+      expect(canAccessOrgRoute('EMPLOYEE', '/import')).toBe(false)
+      expect(canAccessOrgRoute('MANAGER', '/import')).toBe(false)
+      expect(canAccessOrgRoute('HR_ADMIN', '/import')).toBe(true)
+    })
+
+    it('[P0] restricts balance corrections to HR admin only, mirroring /settings', () => {
+      expect(canAccessOrgRoute('EMPLOYEE', '/corrections')).toBe(false)
+      expect(canAccessOrgRoute('MANAGER', '/corrections')).toBe(false)
+      expect(canAccessOrgRoute('HR_ADMIN', '/corrections')).toBe(true)
     })
   })
 

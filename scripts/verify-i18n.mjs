@@ -22,6 +22,8 @@ const enabledNamespaces = [
   'platform',
   'platformAuth',
   'public',
+  'import',
+  'corrections',
 ]
 const visibleStringAttributes = new Set(['alt', 'aria-label', 'placeholder', 'title'])
 const scanRoots = ['src/apps', 'src/auth', 'src/components', 'src/entries', 'src/features', 'src/routes']

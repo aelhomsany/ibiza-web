@@ -1,0 +1,88 @@
+{
+  "eyebrow": "Balance Corrections",
+  "title": "Balance Corrections",
+  "subtitle": "Record a manual adjustment to a person's leave balance, or compensate an existing entry.",
+  "form": {
+    "title": "Record a Correction",
+    "user": "Person",
+    "userPlaceholder": "Select a person",
+    "leaveType": "Leave Type",
+    "leaveTypePlaceholder": "Select a leave type",
+    "deltaDays": "Delta (days)",
+    "deltaHint": "Positive grants days, negative deducts days.",
+    "reason": "Reason",
+    "effectiveDate": "Effective Date",
+    "notifyUser": "Notify the affected person by email"
+  },
+  "actions": {
+    "review": "Review Correction",
+    "record": "Record Correction",
+    "recording": "Recording…",
+    "compensate": "Compensate",
+    "compensating": "Compensating…",
+    "confirmCompensate": "Confirm Compensation",
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "confirm": {
+    "title": "Confirm Correction",
+    "summary": "{{delta}} days to {{user}}'s {{leaveType}} balance, effective {{date}}.",
+    "reasonLabel": "Reason: {{reason}}",
+    "preview": {
+      "loading": "Calculating the resulting balance…",
+      "failed": "Could not calculate the resulting balance. Close this and try again — nothing has been recorded.",
+      "before": "Current remaining",
+      "delta": "Adjustment",
+      "after": "Resulting remaining"
+    }
+  },
+  "compensateConfirm": {
+    "title": "Confirm Compensation",
+    "body": "This appends an exact-inverse entry for this correction. It cannot be edited or removed afterward.",
+    "reason": "Reason",
+    "effectiveDate": "Effective Date",
+    "notifyUser": "Notify the affected person by email"
+  },
+  "result": {
+    "title": "Correction Recorded",
+    "before": "Before",
+    "after": "After"
+  },
+  "ledger": {
+    "title": "Correction Ledger",
+    "empty": "No corrections recorded yet.",
+    "columns": {
+      "user": "Person",
+      "leaveType": "Leave Type",
+      "kind": "Type",
+      "delta": "Delta",
+      "effectiveDate": "Effective Date",
+      "reason": "Reason",
+      "status": "Compensation"
+    },
+    "kind": {
+      "MANUAL_CORRECTION": "Manual Correction",
+      "COMPENSATION": "Compensation",
+      "OPENING_IMPORT": "Opening Import"
+    },
+    "compensated": "Compensated",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "status": "Page {{page}} of {{totalPages}}, {{total}} entries"
+    }
+  },
+  "errors": {
+    "referenceDataFailed": "Could not load people and leave types.",
+    "recordFailed": "Could not record the correction.",
+    "compensateFailed": "Could not compensate this entry. Nothing was recorded — try again.",
+    "listFailed": "Could not load the correction ledger.",
+    "validation": "Check the highlighted fields.",
+    "alreadyCompensated": "This entry was already compensated.",
+    "deltaInvalid": "Enter a whole number of days other than zero."
+  },
+  "capabilityUnavailable": {
+    "title": "Balance Corrections Not Available",
+    "body": "Balance corrections are not available for this organization yet. Contact support if you believe this is a mistake."
+  }
+}

@@ -588,7 +588,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List the tenant's import jobs, newest first */
+        get: operations["listImportJobs"];
         put?: never;
         /** Create an import job for one CSV template */
         post: operations["createImportJob"];
@@ -788,7 +789,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List the tenant's balance-correction ledger, newest first */
+        get: operations["listBalanceCorrections"];
         put?: never;
         /** Append a MANUAL_CORRECTION ledger row for one tenant-scoped account */
         post: operations["recordBalanceCorrection"];
@@ -809,6 +811,26 @@ export interface paths {
         put?: never;
         /** Append an exact-inverse COMPENSATION row for one existing ledger entry */
         post: operations["compensateBalanceCorrection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/balance-corrections/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Compute a correction's before/delta/after without writing anything
+         * @description Read-only. Writes no ledger row, takes no account lock, sends no notification. The before figure is derived by the same code path the subsequently recorded row uses, so the two agree (UX-DR72 / AC2).
+         */
+        post: operations["previewBalanceCorrection"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1496,6 +1518,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/imports/{publicId}/artifact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download the job's original CSV source, until its retention window purges it */
+        get: operations["downloadImportArtifact"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/upcoming": {
         parameters: {
             query?: never;
@@ -1639,6 +1678,23 @@ export interface paths {
             cookie?: never;
         };
         get: operations["capability"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/balance-corrections/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read one balance-correction ledger row */
+        get: operations["getBalanceCorrection"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2616,6 +2672,7 @@ export interface components {
             publicId?: string;
             templateKey?: string;
             status?: string;
+            workStatus?: string;
             fileName?: string;
             /** Format: int64 */
             byteSize?: number;
@@ -2636,6 +2693,7 @@ export interface components {
                 [key: string]: number;
             };
             failureReason?: string;
+            artifactAvailable?: boolean;
             /** Format: date-time */
             createdAt?: string;
             /** Format: date-time */
@@ -2753,6 +2811,32 @@ export interface components {
             effectiveDate: string;
             /** @description Best-effort email notification to the affected user; a delivery failure never blocks or rolls back the ledger write */
             notifyUser?: boolean;
+        };
+        PreviewBalanceCorrectionRequest: {
+            userPublicId: string;
+            leaveTypePublicId: string;
+            /**
+             * Format: int32
+             * @description Signed whole-day adjustment; positive grants, negative deducts
+             */
+            deltaDays: number;
+            /**
+             * Format: date
+             * @description The balance year is derived from this date's year (Story 15.3 rule)
+             */
+            effectiveDate: string;
+        };
+        BalanceCorrectionPreviewResponse: {
+            userPublicId?: string;
+            leaveTypePublicId?: string;
+            /** Format: int32 */
+            balanceYear?: number;
+            /** Format: int32 */
+            beforeRemainingDays?: number;
+            /** Format: int32 */
+            deltaDays?: number;
+            /** Format: int32 */
+            afterRemainingDays?: number;
         };
         ResetPasswordRequest: {
             token?: string;
@@ -3163,6 +3247,36 @@ export interface components {
             onBehalf?: boolean;
             nominalApproverFirstName?: string;
         };
+        ImportJobListPage: {
+            items?: components["schemas"]["ImportJobSummaryResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            total?: number;
+        };
+        ImportJobSummaryResponse: {
+            publicId?: string;
+            templateKey?: string;
+            status?: string;
+            workStatus?: string;
+            failureReason?: string;
+            fileName?: string;
+            /** Format: int32 */
+            rowCount?: number;
+            /** Format: int32 */
+            acceptedCount?: number;
+            /** Format: int32 */
+            rejectedCount?: number;
+            /** Format: int32 */
+            warningCount?: number;
+            artifactAvailable?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
         ImportRowResultPage: {
             items?: components["schemas"]["ImportRowResultResponse"][];
             /** Format: int32 */
@@ -3290,6 +3404,35 @@ export interface components {
             capability?: string;
             availability?: string;
             allowed?: boolean;
+        };
+        BalanceCorrectionListItemResponse: {
+            /** Format: int64 */
+            id?: number;
+            kind?: string;
+            userPublicId?: string;
+            leaveTypePublicId?: string;
+            /** Format: int32 */
+            balanceYear?: number;
+            /** Format: int32 */
+            deltaDays?: number;
+            reason?: string;
+            /** Format: date */
+            effectiveDate?: string;
+            actorUserPublicId?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: int64 */
+            compensationOfId?: number;
+            compensated?: boolean;
+        };
+        BalanceCorrectionListPage: {
+            items?: components["schemas"]["BalanceCorrectionListItemResponse"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            total?: number;
         };
         RecentApprovalDecisionResponse: {
             /** Format: int64 */
@@ -4472,6 +4615,48 @@ export interface operations {
             };
         };
     };
+    listImportJobs: {
+        parameters: {
+            query?: {
+                status?: string;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A page of import job summaries */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ImportJobListPage"];
+                };
+            };
+            /** @description Page/size outside the permitted bounds, or an unknown status filter */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
     createImportJob: {
         parameters: {
             query?: never;
@@ -4873,6 +5058,49 @@ export interface operations {
             };
         };
     };
+    listBalanceCorrections: {
+        parameters: {
+            query?: {
+                userPublicId?: string;
+                leaveTypePublicId?: string;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A page of ledger rows, each flagged whether it is already compensated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BalanceCorrectionListPage"];
+                };
+            };
+            /** @description validation-failed: page or size outside the permitted bounds */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not an HR administrator */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
     recordBalanceCorrection: {
         parameters: {
             query?: never;
@@ -4977,6 +5205,57 @@ export interface operations {
             };
             /** @description This ledger entry is already compensated */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    previewBalanceCorrection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreviewBalanceCorrectionRequest"];
+            };
+        };
+        responses: {
+            /** @description The before/delta/after the correction would produce */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BalanceCorrectionPreviewResponse"];
+                };
+            };
+            /** @description validation-failed: malformed request, or an uncapped/unresolved policy */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not an HR administrator, or BALANCE_CORRECTIONS is unavailable for this organization */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description No such user or leave type in this organization (non-enumerating) */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6077,6 +6356,55 @@ export interface operations {
             };
         };
     };
+    downloadImportArtifact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                publicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The original CSV bytes, as uploaded */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description No such job for this organization */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description The job's evidence has already been purged (retention expired) */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
     getUpcoming: {
         parameters: {
             query?: never;
@@ -6261,6 +6589,46 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Access"];
+                };
+            };
+        };
+    };
+    getBalanceCorrection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The ledger row, flagged whether it is already compensated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BalanceCorrectionListItemResponse"];
+                };
+            };
+            /** @description Not an HR administrator */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description No such ledger entry in this organization (non-enumerating) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
         };
@@ -6563,3 +6931,48 @@ export type PolicyPreviewResponse = RequiredSchema<"PolicyPreviewResponse">;
 export type PolicyPublicationResponse = RequiredSchema<"PolicyPublicationResponse">;
 export type PolicyHistoryItem = RequiredSchema<"PolicyHistoryItem">;
 export type PolicySettingsOverviewResponse = RequiredSchema<"PolicySettingsOverviewResponse">;
+export type CreateImportJobRequest = components["schemas"]["CreateImportJobRequest"];
+/**
+ * Story 15.5 D4 — `workStatus` (the worker's own lifecycle, whose `DEAD_LETTER` value is what
+ * distinguishes a retired job from an ordinary validation failure) and `failureReason` are added
+ * to the API DTOs alongside this change. They are declared here as an intersection until the
+ * OpenAPI document is regenerated; both stay optional so a server that has not shipped them yet
+ * still type-checks.
+ */
+type ImportJobDiagnostics = {
+    workStatus?: string;
+    failureReason?: string | null;
+};
+export type ImportJobResponse = Omit<RequiredSchema<"ImportJobResponse">, "failureReason"> &
+    ImportJobDiagnostics;
+export type ImportJobSummaryResponse = RequiredSchema<"ImportJobSummaryResponse"> &
+    ImportJobDiagnostics;
+export type ImportJobListPage = Omit<RequiredSchema<"ImportJobListPage">, "items"> & {
+    items: ImportJobSummaryResponse[];
+};
+export type ImportRowResultResponse = RequiredSchema<"ImportRowResultResponse">;
+export type ImportRowResultPage = RequiredSchema<"ImportRowResultPage">;
+export type RecordBalanceCorrectionRequest = components["schemas"]["RecordBalanceCorrectionRequest"];
+/**
+ * Story 15.5 D1 — `POST /api/v1/balance-corrections/preview` returns the server-computed
+ * before/delta/after triple the confirm modal shows before anything is written. Declared here
+ * until the OpenAPI document carries the route; the SPA never computes a balance itself.
+ */
+export type PreviewBalanceCorrectionRequest = {
+    userPublicId: string;
+    leaveTypePublicId: string;
+    deltaDays: number;
+    effectiveDate: string;
+};
+export type BalanceCorrectionPreviewResponse = {
+    userPublicId: string;
+    leaveTypePublicId: string;
+    balanceYear: number;
+    beforeRemainingDays: number;
+    deltaDays: number;
+    afterRemainingDays: number;
+};
+export type CompensateBalanceCorrectionRequest = components["schemas"]["CompensateBalanceCorrectionRequest"];
+export type BalanceCorrectionResponse = RequiredSchema<"BalanceCorrectionResponse">;
+export type BalanceCorrectionListItemResponse = RequiredSchema<"BalanceCorrectionListItemResponse">;
+export type BalanceCorrectionListPage = RequiredSchema<"BalanceCorrectionListPage">;

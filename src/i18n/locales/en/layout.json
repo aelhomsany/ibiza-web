@@ -1,5 +1,5 @@
 {
-  "nav": { "dashboard": "Dashboard", "myLeaves": "My Leaves", "calendar": "Calendar", "approvals": "Approvals", "reports": "Reports", "settings": "Settings", "organizations": "Organizations" },
+  "nav": { "dashboard": "Dashboard", "myLeaves": "My Leaves", "calendar": "Calendar", "approvals": "Approvals", "import": "Data Import", "corrections": "Balance Corrections", "reports": "Reports", "settings": "Settings", "organizations": "Organizations" },
   "navigation": { "main": "Main navigation", "pending": "{{label}}, {{count}} pending" },
   "skipToMain": "Skip to main content",
   "tableRegion": { "scrollHint": "Use the left and right arrow keys to scroll this table horizontally." },

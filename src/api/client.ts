@@ -64,6 +64,17 @@ import type {
   PolicyPublicationResponse,
   PolicyHistoryItem,
   PolicySettingsOverviewResponse,
+  CreateImportJobRequest,
+  ImportJobResponse,
+  ImportJobListPage,
+  ImportRowResultPage,
+  RecordBalanceCorrectionRequest,
+  PreviewBalanceCorrectionRequest,
+  BalanceCorrectionPreviewResponse,
+  BalanceCorrectionResponse,
+  CompensateBalanceCorrectionRequest,
+  BalanceCorrectionListPage,
+  BalanceCorrectionListItemResponse,
 } from './generated/types'
 import type { components } from './generated/types'
 import { clearAccessToken, getAccessToken, setAccessToken } from '../auth/tokenStorage'
@@ -440,6 +451,123 @@ export const updatePolicyDraft = (publicId: string, payload: UpdatePolicyDraftRe
 export const previewPolicy = (publicId: string) => request<PolicyPreviewResponse>(`/api/v1/settings/leave-policies/drafts/${publicId}/preview`, { method: 'POST' })
 export const publishPolicy = (publicId: string, idempotencyKey: string, payload: PublishPolicyRequest) => request<PolicyPublicationResponse>(`/api/v1/settings/leave-policies/drafts/${publicId}/publish`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: payload })
 export const getPolicyHistory = (policyPublicId: string) => request<PolicyHistoryItem[]>(`/api/v1/settings/leave-policies/${policyPublicId}/history`, { method: 'GET' })
+
+export type ImportTemplateKey = 'PEOPLE_AND_ASSIGNMENTS' | 'ENTITLEMENTS_AND_OPENING_BALANCES'
+
+export async function createImportJob(
+  idempotencyKey: string,
+  templateKey: ImportTemplateKey,
+): Promise<ImportJobResponse> {
+  const request_: CreateImportJobRequest = { templateKey }
+  return request<ImportJobResponse>('/api/v1/imports', {
+    method: 'POST',
+    headers: { 'Idempotency-Key': idempotencyKey },
+    body: request_,
+  })
+}
+
+export async function uploadImportSource(publicId: string, file: File): Promise<ImportJobResponse> {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request<ImportJobResponse>(`/api/v1/imports/${publicId}/upload`, {
+    method: 'POST',
+    body: formData,
+  })
+}
+
+export async function getImportJob(publicId: string): Promise<ImportJobResponse> {
+  return request<ImportJobResponse>(`/api/v1/imports/${publicId}`, { method: 'GET' })
+}
+
+/** Newest-first, optionally filtered by lifecycle status. Mirrors `listReportExports`'s shape. */
+export async function listImportJobs(
+  status?: string,
+  page = 0,
+  size = 20,
+): Promise<ImportJobListPage> {
+  const params = new URLSearchParams({ page: String(page), size: String(size) })
+  if (status) params.set('status', status)
+  return request<ImportJobListPage>(`/api/v1/imports?${params.toString()}`, { method: 'GET' })
+}
+
+export async function getImportRows(
+  publicId: string,
+  page = 0,
+  size = 100,
+): Promise<ImportRowResultPage> {
+  return request<ImportRowResultPage>(
+    `/api/v1/imports/${publicId}/rows?page=${page}&size=${size}`,
+    { method: 'GET' },
+  )
+}
+
+export async function commitImportJob(publicId: string): Promise<ImportJobResponse> {
+  return request<ImportJobResponse>(`/api/v1/imports/${publicId}/commit`, { method: 'POST' })
+}
+
+export async function cancelImportJob(publicId: string): Promise<ImportJobResponse> {
+  return request<ImportJobResponse>(`/api/v1/imports/${publicId}/cancel`, { method: 'POST' })
+}
+
+export async function downloadImportArtifact(publicId: string): Promise<Blob> {
+  return request<Blob>(`/api/v1/imports/${publicId}/artifact`, {
+    method: 'GET',
+    responseType: 'blob',
+  })
+}
+
+export async function recordBalanceCorrection(
+  payload: RecordBalanceCorrectionRequest,
+): Promise<BalanceCorrectionResponse> {
+  return request<BalanceCorrectionResponse>('/api/v1/balance-corrections', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+/**
+ * Server-computed before/delta/after for a correction that has not been written yet. The confirm
+ * modal shows this triple; the SPA must never derive a balance itself (server is authoritative).
+ */
+export async function previewBalanceCorrection(
+  payload: PreviewBalanceCorrectionRequest,
+): Promise<BalanceCorrectionPreviewResponse> {
+  return request<BalanceCorrectionPreviewResponse>('/api/v1/balance-corrections/preview', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function compensateBalanceCorrection(
+  id: number,
+  payload: CompensateBalanceCorrectionRequest,
+): Promise<BalanceCorrectionResponse> {
+  return request<BalanceCorrectionResponse>(`/api/v1/balance-corrections/${id}/compensate`, {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function listBalanceCorrections(
+  userPublicId?: string,
+  leaveTypePublicId?: string,
+  page = 0,
+  size = 50,
+): Promise<BalanceCorrectionListPage> {
+  const params = new URLSearchParams({ page: String(page), size: String(size) })
+  if (userPublicId) params.set('userPublicId', userPublicId)
+  if (leaveTypePublicId) params.set('leaveTypePublicId', leaveTypePublicId)
+  return request<BalanceCorrectionListPage>(
+    `/api/v1/balance-corrections?${params.toString()}`,
+    { method: 'GET' },
+  )
+}
+
+export async function getBalanceCorrection(id: number): Promise<BalanceCorrectionListItemResponse> {
+  return request<BalanceCorrectionListItemResponse>(`/api/v1/balance-corrections/${id}`, {
+    method: 'GET',
+  })
+}
 
 export type CapabilityAccess = components['schemas']['Access']
 
@@ -884,6 +1012,19 @@ export const apiClient = {
   previewPolicy,
   publishPolicy,
   getPolicyHistory,
+  createImportJob,
+  uploadImportSource,
+  getImportJob,
+  listImportJobs,
+  getImportRows,
+  commitImportJob,
+  cancelImportJob,
+  downloadImportArtifact,
+  recordBalanceCorrection,
+  previewBalanceCorrection,
+  compensateBalanceCorrection,
+  listBalanceCorrections,
+  getBalanceCorrection,
   getCapabilityAccess,
   queryReport,
   createReportExport,

@@ -1,0 +1,136 @@
+{
+  "eyebrow": "Data Import",
+  "title": "Import Data",
+  "subtitle": "Upload a CSV to add people or opening balances. Nothing is committed until you confirm.",
+  "templates": {
+    "label": "What are you importing?",
+    "PEOPLE_AND_ASSIGNMENTS": "People & Assignments",
+    "ENTITLEMENTS_AND_OPENING_BALANCES": "Entitlements & Opening Balances"
+  },
+  "actions": {
+    "start": "Start Import",
+    "starting": "Starting…",
+    "chooseFile": "Choose CSV file",
+    "upload": "Upload",
+    "uploading": "Uploading…",
+    "commit": "Commit Import",
+    "confirmCommit": "Confirm Commit",
+    "cancelImport": "Cancel Import",
+    "cancelling": "Cancelling…",
+    "downloadEvidence": "Download Source Evidence",
+    "startAnother": "Start Another Import",
+    "close": "Close",
+    "resume": "Resume",
+    "open": "Open"
+  },
+  "history": {
+    "title": "Recent Imports",
+    "empty": "No import jobs yet.",
+    "columns": {
+      "fileName": "File",
+      "template": "Template",
+      "status": "Status",
+      "counts": "Accepted / Rejected",
+      "updatedAt": "Updated",
+      "actions": "Actions"
+    }
+  },
+  "upload": {
+    "title": "Upload Source File",
+    "hint": "CSV, UTF-8, up to 10 MB and 2,000 rows.",
+    "noFile": "Choose a CSV file to upload.",
+    "tooLarge": "That file is larger than 10 MB. Split it and import the parts separately.",
+    "wrongType": "Choose a .csv file. Spreadsheets must be exported as CSV first."
+  },
+  "processing": {
+    "title": "Validating…",
+    "body": "The file is being validated. This page updates automatically."
+  },
+  "review": {
+    "title": "Row Review",
+    "summary": "{{accepted}} accepted, {{rejected}} rejected, {{warnings}} warnings",
+    "empty": "No row detail to review.",
+    "columns": {
+      "row": "Row",
+      "line": "Source Line",
+      "status": "Status",
+      "errors": "Errors",
+      "warnings": "Warnings"
+    },
+    "blockedByRejections": "This import has rejected rows and cannot be committed. Fix the source file and start a new import.",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "status": "Page {{page}} of {{totalPages}}, {{total}} rows"
+    }
+  },
+  "confirm": {
+    "title": "Confirm Commit",
+    "body": "This will permanently apply {{accepted}} accepted rows. This cannot be undone."
+  },
+  "committing": {
+    "title": "Committing…",
+    "body": "The import is being applied and reconciled. This page updates automatically."
+  },
+  "result": {
+    "title": "Import Complete",
+    "reconciledBody": "The import reached RECONCILED with {{committed}} rows committed.",
+    "failedBody": "The import could not be committed.",
+    "deadLetterBody": "This import was retired after repeated failures and will not be retried. Start a new import once the source file is corrected.",
+    "failureReason": "Reason: {{reason}}",
+    "evidenceUnavailable": "No source evidence is available to download for this import.",
+    "reconciliationKeys": {
+      "expectedRows": "Expected rows",
+      "committedRows": "Committed rows",
+      "effectRows": "Rows with effects",
+      "expectedUsers": "Expected people",
+      "actualUsers": "People created",
+      "expectedInvitations": "Expected invitations",
+      "actualInvitations": "Invitations created",
+      "expectedPolicyAssignments": "Expected policy assignments",
+      "actualPolicyAssignments": "Policy assignments created",
+      "actualLedgerEntries": "Ledger entries created",
+      "difference": "Difference"
+    }
+  },
+  "status": {
+    "UPLOADED": "Uploaded",
+    "MAPPED": "Mapped",
+    "VALIDATING": "Validating",
+    "DRY_RUN_READY": "Ready to Review",
+    "COMMITTING": "Committing",
+    "COMMITTED": "Committed",
+    "RECONCILING": "Reconciling",
+    "RECONCILED": "Reconciled",
+    "FAILED": "Failed",
+    "CANCELLED": "Cancelled",
+    "EXPIRED": "Expired",
+    "DEAD_LETTER": "Failed — Retired"
+  },
+  "rowStatus": {
+    "ACCEPTED": "Accepted",
+    "REJECTED": "Rejected",
+    "WARNING": "Warning"
+  },
+  "errors": {
+    "startFailed": "Could not start the import.",
+    "uploadFailed": "Could not upload the file.",
+    "statusFailed": "Could not read the import job's status.",
+    "rowsFailed": "Could not load row detail.",
+    "commitFailed": "Could not commit the import.",
+    "cancelFailed": "Could not cancel the import.",
+    "downloadFailed": "Could not download the source evidence.",
+    "evidenceExpired": "This evidence has expired and can no longer be downloaded.",
+    "historyFailed": "Could not load recent imports.",
+    "openFailed": "Could not open that import job."
+  },
+  "stalled": "This is taking longer than expected. Refresh the page or check back shortly.",
+  "capabilityUnavailable": {
+    "title": "Data Import Not Available",
+    "body": "Data import is not available for this organization yet. Contact support if you believe this is a mistake."
+  },
+  "activeJob": {
+    "body": "This organization already has an import in progress. Resume it or cancel it before starting a new one.",
+    "notFound": "The blocking import is no longer listed. Reload the page and try again."
+  }
+}
