@@ -1,40 +1,45 @@
 {
-  "categories": {
-    "ariaLabel": "Settings categories",
-    "items": {
-      "integrations": {
-        "label": "Integrations",
-        "subtitle": "Connect Ibiza to the tools your organization already uses.",
-        "title": "Integrations"
-      },
-      "leave-policies": {
-        "label": "Leave policies",
-        "subtitle": "Review configured leave types and their default annual entitlements.",
-        "title": "Leave policies"
-      },
-      "notifications": {
-        "label": "Notifications",
-        "subtitle": "Choose how leave workflow updates reach your organization.",
-        "title": "Notifications"
-      },
-      "organization": {
-        "label": "Organization",
-        "subtitle": "Review the organization identity and policy timezone used across Ibiza.",
-        "title": "Organization"
-      },
-      "people": {
-        "label": "People",
-        "subtitle": "Find members and manage roles, reporting lines, groups, and entitlements.",
-        "title": "People"
-      },
-      "working-calendars": {
-        "label": "Working calendars",
-        "subtitle": "Set each Workforce Group's weekends and public holidays, with impact visible before save.",
-        "title": "Working calendars"
-      }
+  "calendarPrivacy": {
+    "actions": {
+      "preview": "Preview changes",
+      "publish": "Publish",
+      "cancel": "Cancel"
     },
-    "scrollCue": "Scroll to see more categories",
-    "sectionLabel": "Settings section"
+    "capabilityUnavailable": "Calendar visibility is not available for this organization yet. Contact support if you believe this is a mistake.",
+    "currentVersion": "Version {{number}}, in effect since {{date}}",
+    "effectiveFrom": "Takes effect from",
+    "effectiveFromHint": "Visibility changes start on a future date in your organization's operational timezone. Published changes apply to every view, including past absences.",
+    "fields": {
+      "IDENTITY": "Who is away",
+      "LEAVE_TYPE": "Leave type",
+      "STATUS": "Request status",
+      "REASON": "Reason or decision note",
+      "REQUEST_CONTEXT": "Can open the request"
+    },
+    "fieldsHeading": "What they see",
+    "loadError": "Calendar visibility could not be loaded.",
+    "precedence": "When more than one applies, the highest on this list wins. Only that one applies — permissions are never combined.",
+    "presenceAlways": "Off or working from home is always shown.",
+    "previewError": "The preview could not be generated.",
+    "previewIntro": "Publishing on {{date}} will apply the following. Nothing is saved until you publish.",
+    "previewSentence": "Sees {{details}}, and whether they are off or working from home.",
+    "previewSentenceNothing": "Sees only whether they are off or working from home.",
+    "previewStale": "This preview is out of date — the matrix changed. Preview again to publish.",
+    "previewTitle": "What each viewer will see",
+    "publishError": "Calendar visibility could not be published.",
+    "published": "Calendar visibility published.",
+    "relationships": {
+      "SELF": "The person themselves",
+      "ACTIVE_OR_COMPLETED_APPROVER": "An assigned approver",
+      "HR_ADMIN": "HR administrators",
+      "DIRECT_REPORT_MANAGER": "Their direct manager",
+      "SAME_WORKFORCE_GROUP": "People in the same workforce group",
+      "ORGANIZATION_PEER": "Everyone else in the organization"
+    },
+    "relationshipsHeading": "Who is viewing",
+    "subtitle": "Choose exactly what each kind of viewer sees on the Team Calendar and dashboard. The server enforces this — hidden detail is never sent to the browser.",
+    "title": "Calendar visibility",
+    "usingDefaults": "Using the safe defaults. No version has been published yet."
   },
   "calendarSync": {
     "actions": {
@@ -66,6 +71,53 @@
     },
     "title": "Calendar Sync",
     "loading": "Loading calendar sync…"
+  },
+  "categories": {
+    "ariaLabel": "Settings categories",
+    "items": {
+      "calendar-privacy": {
+        "label": "Calendar visibility",
+        "subtitle": "Control which viewers see identity, leave type, status, and reason detail on the calendar and dashboard.",
+        "title": "Calendar visibility & privacy"
+      },
+      "integrations": {
+        "label": "Integrations",
+        "subtitle": "Connect Ibiza to the tools your organization already uses.",
+        "title": "Integrations"
+      },
+      "leave-policies": {
+        "label": "Leave policies",
+        "subtitle": "Review configured leave types and their default annual entitlements.",
+        "title": "Leave policies"
+      },
+      "notifications": {
+        "label": "Notifications",
+        "subtitle": "Choose how leave workflow updates reach your organization.",
+        "title": "Notifications"
+      },
+      "organization": {
+        "label": "Organization",
+        "subtitle": "Review the organization identity and policy timezone used across Ibiza.",
+        "title": "Organization"
+      },
+      "people": {
+        "label": "People",
+        "subtitle": "Find members and manage roles, reporting lines, groups, and entitlements.",
+        "title": "People"
+      },
+      "schedules-locations": {
+        "label": "Schedules & locations",
+        "subtitle": "Manage weekly working-day schedules and locations, and assign them to your organization, workforce groups, or individual people.",
+        "title": "Work schedules & locations"
+      },
+      "working-calendars": {
+        "label": "Working calendars",
+        "subtitle": "Set each Workforce Group's weekends and public holidays, with impact visible before save.",
+        "title": "Working calendars"
+      }
+    },
+    "scrollCue": "Scroll to see more categories",
+    "sectionLabel": "Settings section"
   },
   "days": {
     "FRIDAY": "Fri",
@@ -253,6 +305,141 @@
       "overview": "Unable to load current policy drafts. Policy actions are unavailable."
     }
   },
+  "memberModal": {
+    "approvals": {
+      "help": "Choose one required operational approver and up to two documentary reviewers. Level 1 puts approved leave on calendars immediately.",
+      "invalid": "Select Level 1 and use additional levels in order without gaps.",
+      "level": "Approval Level {{level}}",
+      "notUsed": "— Not used —",
+      "required": "Select at least one approver.",
+      "selectRequired": "— Select approver —",
+      "title": "Approval Chain"
+    },
+    "actions": {
+      "opening": "Opening…",
+      "upgrade": "Upgrade"
+    },
+    "errors": {
+      "add": "Failed to add member",
+      "groupRequired": "Workforce Group is required",
+      "planLimit": "Your organization is at its plan user limit",
+      "update": "Failed to update member"
+    },
+    "fields": {
+      "department": "Department",
+      "email": "Email",
+      "entitlements": "Annual entitlements (working days per year)",
+      "fullName": "Full name",
+      "none": "— None —",
+      "reportsTo": "Reports to",
+      "role": "Role",
+      "selectGroup": "— Select group —",
+      "workforceGroup": "Workforce Group"
+    },
+    "plans": {
+      "growth": "Growth",
+      "starter": "Starter"
+    },
+    "roles": {
+      "employee": "Employee",
+      "hrAdmin": "HR Admin",
+      "manager": "Manager"
+    },
+    "success": {
+      "added": "Invitation sent to {{name}}.",
+      "updated": "Team member updated."
+    },
+    "titleAdd": "Add Team Member",
+    "titleEdit": "Edit Team Member",
+    "upgrade": {
+      "checkoutUnavailable": "Self-serve checkout is unavailable. Use the manual path below.",
+      "manual": "Manual fallback: Contact Platform Admin to upgrade.",
+      "paidPlan": "Paid plan",
+      "title": "Upgrade Required"
+    }
+  },
+  "members": {
+    "actions": {
+      "add": "Add Member",
+      "confirmDeactivate": "Confirm Deactivation",
+      "confirmReactivate": "Confirm Reactivation",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate"
+    },
+    "aria": {
+      "deactivate": "Deactivate {{name}}",
+      "edit": "Edit {{name}}",
+      "reactivate": "Reactivate {{name}}"
+    },
+    "deactivateCopy": "{{name}} will lose access and stop counting toward the active seat limit. Historical records stay visible.",
+    "deactivateTitle": "Deactivate Team Member",
+    "errors": {
+      "load": "Unable to load team members.",
+      "status": "Unable to update team member status"
+    },
+    "none": "No team members yet.",
+    "reactivateCopy": "{{name}} will regain access if the active seat limit allows it.",
+    "reactivateTitle": "Reactivate Team Member",
+    "reportsTo": "Reports to {{name}}",
+    "search": {
+      "label": "Search team members",
+      "none": "No team members match this search.",
+      "placeholder": "Search name, email, role, or group",
+      "results": "Showing {{shown}} of {{total}} people"
+    },
+    "success": {
+      "deactivated": "{{name}} deactivated",
+      "reactivated": "{{name}} reactivated"
+    },
+    "title": "Team Members"
+  },
+  "notifications": {
+    "actions": {
+      "clearMute": "Clear Mute",
+      "mute": "Mute Email",
+      "save": "Save Preferences"
+    },
+    "badges": {
+      "optional": "Optional",
+      "required": "Required"
+    },
+    "email": "Email workflow notifications",
+    "errors": {
+      "load": "Unable to load notification preferences.",
+      "update": "Unable to update notification preferences"
+    },
+    "inApp": "In-app workflow notifications",
+    "inAppHelp": "Always on so leave workflow accountability stays visible in the app.",
+    "intro": "Tune how you receive leave workflow updates. Critical workflow notifications always stay on in at least one channel.",
+    "loading": "Loading notification preferences…",
+    "muteFor": "Mute email workflow for",
+    "presets": {
+      "day": "1 day",
+      "hour": "1 hour",
+      "week": "1 week"
+    },
+    "status": {
+      "muted": "Email workflow notifications are muted until {{date}}.",
+      "off": "Email workflow notifications are turned off.",
+      "on": "Email workflow notifications are on."
+    },
+    "success": {
+      "cleared": "Email mute cleared",
+      "muted": "Email notifications muted",
+      "saved": "Notification preferences saved"
+    },
+    "title": "Notification Preferences"
+  },
+  "organization": {
+    "fields": {
+      "name": "Organization name",
+      "timezone": "Policy timezone"
+    },
+    "helper": "Identity and shared context available to organization members.",
+    "notAvailable": "Not available",
+    "planNote": "Seat-limit and upgrade guidance appears when you add people, where it is relevant to the task.",
+    "unknown": "Organization"
+  },
   "policy": {
     "title": "Policy Settings",
     "subtitle": "Review authoritative impact before publishing one effective-dated policy.",
@@ -362,140 +549,101 @@
       "published": "Policy published"
     }
   },
-  "members": {
-    "actions": {
-      "add": "Add Member",
-      "confirmDeactivate": "Confirm Deactivation",
-      "confirmReactivate": "Confirm Reactivation",
-      "deactivate": "Deactivate",
-      "reactivate": "Reactivate"
-    },
-    "aria": {
-      "deactivate": "Deactivate {{name}}",
-      "edit": "Edit {{name}}",
-      "reactivate": "Reactivate {{name}}"
-    },
-    "deactivateCopy": "{{name}} will lose access and stop counting toward the active seat limit. Historical records stay visible.",
-    "deactivateTitle": "Deactivate Team Member",
-    "errors": {
-      "load": "Unable to load team members.",
-      "status": "Unable to update team member status"
-    },
-    "none": "No team members yet.",
-    "reactivateCopy": "{{name}} will regain access if the active seat limit allows it.",
-    "reactivateTitle": "Reactivate Team Member",
-    "reportsTo": "Reports to {{name}}",
-    "search": {
-      "label": "Search team members",
-      "none": "No team members match this search.",
-      "placeholder": "Search name, email, role, or group",
-      "results": "Showing {{shown}} of {{total}} people"
-    },
-    "success": {
-      "deactivated": "{{name}} deactivated",
-      "reactivated": "{{name}} reactivated"
-    },
-    "title": "Team Members"
-  },
-  "memberModal": {
-    "approvals": {
-      "help": "Choose one required operational approver and up to two documentary reviewers. Level 1 puts approved leave on calendars immediately.",
-      "invalid": "Select Level 1 and use additional levels in order without gaps.",
-      "level": "Approval Level {{level}}",
-      "notUsed": "— Not used —",
-      "required": "Select at least one approver.",
-      "selectRequired": "— Select approver —",
-      "title": "Approval Chain"
+  "schedules": {
+    "title": "Work schedules & locations",
+    "subtitle": "Manage weekly working-day schedules and locations, and assign them to your organization, workforce groups, or individual people.",
+    "sections": {
+      "schedules": "Work schedules",
+      "locations": "Locations",
+      "assignments": "Assignments"
     },
     "actions": {
-      "opening": "Opening…",
-      "upgrade": "Upgrade"
+      "newSchedule": "New schedule",
+      "newVersion": "New version",
+      "newLocation": "New location",
+      "newAssignment": "New assignment",
+      "newVersionFor": "New version of {{scheduleName}}"
     },
-    "errors": {
-      "add": "Failed to add member",
-      "groupRequired": "Workforce Group is required",
-      "planLimit": "Your organization is at its plan user limit",
-      "update": "Failed to update member"
+    "empty": {
+      "schedules": "No work schedules yet. Create one to define a weekly working-day pattern.",
+      "locations": "No locations yet. Create one to pair a timezone with a holiday source.",
+      "assignments": "No assignments yet. Assign a schedule and location to get started."
     },
-    "fields": {
-      "department": "Department",
-      "email": "Email",
-      "entitlements": "Annual entitlements (working days per year)",
-      "fullName": "Full name",
-      "none": "— None —",
-      "reportsTo": "Reports to",
-      "role": "Role",
-      "selectGroup": "— Select group —",
-      "workforceGroup": "Workforce Group"
+    "schedule": {
+      "modalTitle": "New work schedule",
+      "versionModalTitle": "New schedule version",
+      "name": "Schedule name",
+      "namePlaceholder": "e.g. Standard week",
+      "workingDays": "Working days",
+      "selectWorkingDays": "Select at least one working day",
+      "created": "Work schedule “{{name}}” created",
+      "versionCreated": "New schedule version created",
+      "errors": {
+        "create": "Could not create the work schedule. Try again.",
+        "createVersion": "Could not create the new version. Try again."
+      },
+      "versionSummary": "v{{versionNumber}}: {{days}}"
     },
-    "plans": {
-      "growth": "Growth",
-      "starter": "Starter"
+    "location": {
+      "modalTitle": "New location",
+      "name": "Location name",
+      "namePlaceholder": "e.g. Cairo office",
+      "timezone": "IANA timezone",
+      "timezonePlaceholder": "Africa/Cairo",
+      "holidaySource": "Holiday source",
+      "selectHolidaySource": "Select the workforce group whose public holidays apply",
+      "created": "Location “{{name}}” created",
+      "errors": {
+        "create": "Could not create the location. Try again.",
+        "incomplete": "Fill in a name, timezone, and holiday source before saving."
+      }
     },
-    "roles": {
-      "employee": "Employee",
-      "hrAdmin": "HR Admin",
-      "manager": "Manager"
+    "assignment": {
+      "modalTitle": "Assign schedule & location",
+      "scope": "Scope",
+      "subject": "Subject",
+      "selectSubject": "Select a subject",
+      "scheduleVersion": "Schedule version",
+      "versionOption": "{{scheduleName}} · v{{versionNumber}}",
+      "selectScheduleVersion": "Select a schedule version",
+      "location": "Location",
+      "selectLocation": "Select a location",
+      "effectiveFrom": "Effective from",
+      "previewTitle": "Impact",
+      "previewEmpty": "Preview the assignment to see who it affects before confirming.",
+      "previewing": "Previewing…",
+      "previewAffected_one": "{{count}} member affected",
+      "previewAffected_other": "{{count}} members affected",
+      "actions": {
+        "preview": "Preview",
+        "confirm": "Confirm assignment"
+      },
+      "created": "Assignment created",
+      "scopes": {
+        "organization": "Entire organization",
+        "group": "Workforce group",
+        "user": "Individual person"
+      },
+      "errors": {
+        "incomplete": "Select a scope, subject, schedule version, location, and effective date before previewing.",
+        "preview": "Could not preview the assignment. Try again.",
+        "commit": "Could not create the assignment. Try again.",
+        "capabilityUnavailable": "Work schedules and locations are not available for this organization yet, so this cannot be saved. Contact support if you believe this is a mistake.",
+        "conflict": "An assignment already exists for this scope, subject and effective date. Choose a different date or subject."
+      },
+      "effectiveFromValue": "Effective from {{date}}",
+      "previewShadowed_one": "{{count}} member keeps a more specific assignment and is not affected",
+      "previewShadowed_other": "{{count}} members keep a more specific assignment and are not affected",
+      "previewAffected_zero": "No members affected",
+      "previewAffected_two": "{{count}} members affected",
+      "previewAffected_few": "{{count}} members affected",
+      "previewAffected_many": "{{count}} members affected",
+      "previewShadowed_zero": "No members keep a more specific assignment",
+      "previewShadowed_two": "{{count}} members keep a more specific assignment and are not affected",
+      "previewShadowed_few": "{{count}} members keep a more specific assignment and are not affected",
+      "previewShadowed_many": "{{count}} members keep a more specific assignment and are not affected"
     },
-    "success": {
-      "added": "Invitation sent to {{name}}.",
-      "updated": "Team member updated."
-    },
-    "titleAdd": "Add Team Member",
-    "titleEdit": "Edit Team Member",
-    "upgrade": {
-      "checkoutUnavailable": "Self-serve checkout is unavailable. Use the manual path below.",
-      "manual": "Manual fallback: Contact Platform Admin to upgrade.",
-      "paidPlan": "Paid plan",
-      "title": "Upgrade Required"
-    }
-  },
-  "notifications": {
-    "actions": {
-      "clearMute": "Clear Mute",
-      "mute": "Mute Email",
-      "save": "Save Preferences"
-    },
-    "badges": {
-      "optional": "Optional",
-      "required": "Required"
-    },
-    "email": "Email workflow notifications",
-    "errors": {
-      "load": "Unable to load notification preferences.",
-      "update": "Unable to update notification preferences"
-    },
-    "inApp": "In-app workflow notifications",
-    "inAppHelp": "Always on so leave workflow accountability stays visible in the app.",
-    "intro": "Tune how you receive leave workflow updates. Critical workflow notifications always stay on in at least one channel.",
-    "loading": "Loading notification preferences…",
-    "muteFor": "Mute email workflow for",
-    "presets": {
-      "day": "1 day",
-      "hour": "1 hour",
-      "week": "1 week"
-    },
-    "status": {
-      "muted": "Email workflow notifications are muted until {{date}}.",
-      "off": "Email workflow notifications are turned off.",
-      "on": "Email workflow notifications are on."
-    },
-    "success": {
-      "cleared": "Email mute cleared",
-      "muted": "Email notifications muted",
-      "saved": "Notification preferences saved"
-    },
-    "title": "Notification Preferences"
-  },
-  "organization": {
-    "fields": {
-      "name": "Organization name",
-      "timezone": "Policy timezone"
-    },
-    "helper": "Identity and shared context available to organization members.",
-    "notAvailable": "Not available",
-    "planNote": "Seat-limit and upgrade guidance appears when you add people, where it is relevant to the task.",
-    "unknown": "Organization"
+    "capabilityUnavailable": "Work schedules and locations are not available for this organization yet. Contact support if you believe this is a mistake."
   },
   "subtitle": "Company policy, team, and leave entitlements",
   "title": "Settings",

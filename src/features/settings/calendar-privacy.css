@@ -1,0 +1,94 @@
+/* Story 16.2 — Calendar visibility & privacy panel.
+   The matrix reuses the shared .table-wrap / .dashboard-table chrome; everything here is the
+   part that is specific to a relationship x field grid of checkboxes. */
+
+.calendar-privacy-matrix-wrap {
+  margin-block: var(--space-lg);
+  border: 1px solid var(--color-border-light);
+}
+
+/* The shared table sets a 760px floor for text columns. Six narrow checkbox columns need far
+   less, so the matrix stays inside a phone viewport instead of forcing the wrap to scroll. */
+.calendar-privacy-matrix {
+  min-width: 34rem;
+}
+
+.calendar-privacy-matrix th[scope='colgroup'] {
+  text-align: center;
+}
+
+.calendar-privacy-matrix th[scope='row'] {
+  text-align: start;
+  white-space: normal;
+  min-width: 11rem;
+}
+
+.calendar-privacy-matrix td {
+  text-align: center;
+  padding-block: 0;
+}
+
+/* UX-DR75: the label is the 44px hit target, not the ~13px native box inside it. */
+.calendar-privacy-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.calendar-privacy-cell input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.calendar-privacy-cell input[type='checkbox']:disabled {
+  cursor: not-allowed;
+}
+
+.calendar-privacy-cell:focus-within {
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.calendar-privacy-publish-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+  margin-block: var(--space-lg);
+}
+
+.calendar-privacy-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.calendar-privacy-preview-list li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+}
+
+.calendar-privacy-preview-sentence {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* Single 900px breakpoint: the publish controls stack rather than wrap awkwardly. */
+@media (max-width: 900px) {
+  .calendar-privacy-publish-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

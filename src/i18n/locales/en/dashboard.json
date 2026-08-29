@@ -3,26 +3,6 @@
     "requestLeave": "Request Leave",
     "reviewNow": "Review Now"
   },
-  "balance": {
-    "allocationLabel": "{{remaining}} remaining from {{allocated}} allocated working days",
-    "daysUsed_zero": "0 working days used",
-    "daysUsed_one": "{{count}} working day used",
-    "daysUsed_two": "{{count}} working days used",
-    "daysUsed_few": "{{count}} working days used",
-    "daysUsed_many": "{{count}} working days used",
-    "daysUsed_other": "{{count}} working days used",
-    "left": "{{count}} left",
-    "overLimit": "{{count}} over limit",
-    "uncapped": "Uncapped leave",
-    "usageLabel": "{{used}} of {{allocated}} allocated working days used"
-  },
-  "balances": {
-    "empty": "No leave balances are assigned to you yet.",
-    "eyebrow": "Plan",
-    "loading": "Loading your leave balances…",
-    "summary": "Remaining, used, and allocated working days stay visible together.",
-    "title": "Your leave balances"
-  },
   "attention": {
     "approvedTitle": "Your latest request is approved",
     "declinedTitle": "A request needs your review",
@@ -49,6 +29,26 @@
     "upcomingTitle": "Your leave starts {{date}}",
     "viewRequests": "View My Leaves"
   },
+  "balance": {
+    "allocationLabel": "{{remaining}} remaining from {{allocated}} allocated working days",
+    "daysUsed_zero": "0 working days used",
+    "daysUsed_one": "{{count}} working day used",
+    "daysUsed_two": "{{count}} working days used",
+    "daysUsed_few": "{{count}} working days used",
+    "daysUsed_many": "{{count}} working days used",
+    "daysUsed_other": "{{count}} working days used",
+    "left": "{{count}} left",
+    "overLimit": "{{count}} over limit",
+    "uncapped": "Uncapped leave",
+    "usageLabel": "{{used}} of {{allocated}} allocated working days used"
+  },
+  "balances": {
+    "empty": "No leave balances are assigned to you yet.",
+    "eyebrow": "Plan",
+    "loading": "Loading your leave balances…",
+    "summary": "Remaining, used, and allocated working days stay visible together.",
+    "title": "Your leave balances"
+  },
   "coverage": {
     "eyebrow": "Monitor",
     "loading": "Updating team coverage…",
@@ -72,12 +72,6 @@
     "outToday": "Unable to load out today.",
     "recent": "Unable to load recent requests.",
     "upcoming": "Unable to load upcoming leaves."
-  },
-  "greeting": "{{time}}, {{name}}!",
-  "greetings": {
-    "afternoon": "Good afternoon",
-    "evening": "Good evening",
-    "morning": "Good morning"
   },
   "firstUse": {
     "dismiss": "Not Now",
@@ -109,6 +103,12 @@
     "summary": "Three short checks make the team's first leave calculation trustworthy.",
     "title": "Set up reliable working-day calculations"
   },
+  "greeting": "{{time}}, {{name}}!",
+  "greetings": {
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
+    "morning": "Good morning"
+  },
   "nameFallback": "there",
   "recent": {
     "empty": "Your first request and its working-day result will appear here.",
@@ -116,6 +116,10 @@
     "eyebrow": "Act and follow up",
     "loading": "Loading recent requests…",
     "title": "My Recent Requests"
+  },
+  "redacted": {
+    "leaveType": "Details hidden",
+    "person": "A teammate"
   },
   "request": {
     "actions": {
@@ -163,7 +167,6 @@
     "pending": "Waiting for approval"
   },
   "subtitle": "Plan time away, understand what counts, and see what needs action.",
-  "title": "Dashboard",
   "table": {
     "dates": "Dates",
     "days": "Days",
@@ -171,6 +174,7 @@
     "type": "Type",
     "working": "working"
   },
+  "title": "Dashboard",
   "valueProof": {
     "details": "How this is calculated",
     "educationEyebrow": "Working-day product guide",

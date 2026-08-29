@@ -1,60 +1,4 @@
 {
-  "title": "Team Calendar",
-  "subtitle": "Org-wide leave coverage and holidays",
-  "view": {
-    "label": "Calendar view",
-    "timeline": "Timeline",
-    "agenda": "Agenda"
-  },
-  "filter": {
-    "label": "Workforce Group",
-    "all": "All Groups",
-    "loadError": "Workforce Group options could not be loaded."
-  },
-  "today": "Today",
-  "navigation": {
-    "week": "Calendar week navigation",
-    "month": "Calendar month navigation",
-    "previous": "Previous",
-    "next": "Next",
-    "previousWeek": "Previous week",
-    "nextWeek": "Next week",
-    "previousMonth": "Previous month",
-    "nextMonth": "Next month"
-  },
-  "legend": {
-    "label": "Calendar legend",
-    "off": "Off",
-    "wfh": "WFH",
-    "holiday": "Holiday",
-    "leave": "Leave"
-  },
-  "loading": "Loading team calendar",
-  "loadError": "Unable to load the team calendar.",
-  "emptyMonth": "No approved leave scheduled this month.",
-  "timeline": {
-    "label": "Team calendar week",
-    "person": "Person",
-    "empty": "No team absences this week — full coverage.",
-    "bar_zero": "{{type}} · 0d",
-    "bar_one": "{{type}} · {{count}}d",
-    "bar_two": "{{type}} · {{count}}d",
-    "bar_few": "{{type}} · {{count}}d",
-    "bar_many": "{{type}} · {{count}}d",
-    "bar_other": "{{type}} · {{count}}d",
-    "barShort_zero": "0d",
-    "barShort_one": "{{count}}d",
-    "barShort_two": "{{count}}d",
-    "barShort_few": "{{count}}d",
-    "barShort_many": "{{count}}d",
-    "barShort_other": "{{count}}d",
-    "coverage_zero": "Coverage alert — no days this week with 2+ people away",
-    "coverage_one": "Coverage alert — {{count}} day this week with 2+ people away ({{days}})",
-    "coverage_two": "Coverage alert — {{count}} days this week with 2+ people away ({{days}})",
-    "coverage_few": "Coverage alert — {{count}} days this week with 2+ people away ({{days}})",
-    "coverage_many": "Coverage alert — {{count}} days this week with 2+ people away ({{days}})",
-    "coverage_other": "Coverage alert — {{count}} days this week with 2+ people away ({{days}})"
-  },
   "agenda": {
     "label": "Team calendar agenda",
     "weekStripLabel": "Choose a date in the week",
@@ -96,6 +40,31 @@
     "holidayCount_many": "{{count}} holidays",
     "holidayCount_other": "{{count}} holidays"
   },
+  "emptyMonth": "No approved leave scheduled this month.",
+  "filter": {
+    "label": "Workforce Group",
+    "all": "All Groups",
+    "loadError": "Workforce Group options could not be loaded."
+  },
+  "legend": {
+    "label": "Calendar legend",
+    "off": "Off",
+    "wfh": "WFH",
+    "holiday": "Holiday",
+    "leave": "Leave"
+  },
+  "loadError": "Unable to load the team calendar.",
+  "loading": "Loading team calendar",
+  "navigation": {
+    "week": "Calendar week navigation",
+    "month": "Calendar month navigation",
+    "previous": "Previous",
+    "next": "Next",
+    "previousWeek": "Previous week",
+    "nextWeek": "Next week",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month"
+  },
   "policy": {
     "summary": "Why days differ",
     "weekend": "{{group}} weekend: {{days}}. Weekend patterns can change which dates are charged.",
@@ -112,8 +81,44 @@
       "SUNDAY": "Sunday"
     }
   },
+  "redacted": {
+    "leaveType": "Details hidden",
+    "person": "A teammate",
+    "group": "A group"
+  },
   "request": {
     "open": "Open request context for {{name}}, {{type}}, {{presence}}, {{range}}",
     "info": "{{name}}, {{type}}, {{presence}}, {{range}}"
+  },
+  "subtitle": "Org-wide leave coverage and holidays",
+  "timeline": {
+    "label": "Team calendar week",
+    "person": "Person",
+    "empty": "No team absences this week — full coverage.",
+    "bar_zero": "{{type}} · 0d",
+    "bar_one": "{{type}} · {{count}}d",
+    "bar_two": "{{type}} · {{count}}d",
+    "bar_few": "{{type}} · {{count}}d",
+    "bar_many": "{{type}} · {{count}}d",
+    "bar_other": "{{type}} · {{count}}d",
+    "barShort_zero": "0d",
+    "barShort_one": "{{count}}d",
+    "barShort_two": "{{count}}d",
+    "barShort_few": "{{count}}d",
+    "barShort_many": "{{count}}d",
+    "barShort_other": "{{count}}d",
+    "coverage_zero": "Coverage alert — no days this week with 2+ people away",
+    "coverage_one": "Coverage alert — {{count}} day this week with 2+ people away ({{days}})",
+    "coverage_two": "Coverage alert — {{count}} days this week with 2+ people away ({{days}})",
+    "coverage_few": "Coverage alert — {{count}} days this week with 2+ people away ({{days}})",
+    "coverage_many": "Coverage alert — {{count}} days this week with 2+ people away ({{days}})",
+    "coverage_other": "Coverage alert — {{count}} days this week with 2+ people away ({{days}})"
+  },
+  "title": "Team Calendar",
+  "today": "Today",
+  "view": {
+    "label": "Calendar view",
+    "timeline": "Timeline",
+    "agenda": "Agenda"
   }
 }

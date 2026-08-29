@@ -3,26 +3,6 @@
     "requestLeave": "طلب إجازة",
     "reviewNow": "مراجعة الآن"
   },
-  "balance": {
-    "allocationLabel": "المتبقي {{remaining}} من أصل {{allocated}} يوم عمل مخصص",
-    "daysUsed_zero": "لم تُستخدم أيام عمل",
-    "daysUsed_one": "تم استخدام يوم عمل واحد",
-    "daysUsed_two": "تم استخدام يومي عمل",
-    "daysUsed_few": "تم استخدام {{count}} أيام عمل",
-    "daysUsed_many": "تم استخدام {{count}} يوم عمل",
-    "daysUsed_other": "أيام العمل المستخدمة: {{count}}",
-    "left": "المتبقي: {{count}}",
-    "overLimit": "تجاوز الحد بمقدار {{count}}",
-    "uncapped": "إجازة غير محدودة",
-    "usageLabel": "تم استخدام {{used}} من أصل {{allocated}} يوم عمل مخصص"
-  },
-  "balances": {
-    "empty": "لم تُخصّص لك أرصدة إجازات بعد.",
-    "eyebrow": "خطّط",
-    "loading": "جارٍ تحميل أرصدة إجازاتك…",
-    "summary": "تظهر أيام العمل المتبقية والمستخدمة والمخصصة معًا بوضوح.",
-    "title": "أرصدة إجازاتك"
-  },
   "attention": {
     "approvedTitle": "تمت الموافقة على طلبك الأخير",
     "declinedTitle": "هناك طلب يحتاج إلى مراجعتك",
@@ -49,6 +29,26 @@
     "upcomingTitle": "تبدأ إجازتك في {{date}}",
     "viewRequests": "عرض إجازاتي"
   },
+  "balance": {
+    "allocationLabel": "المتبقي {{remaining}} من أصل {{allocated}} يوم عمل مخصص",
+    "daysUsed_zero": "لم تُستخدم أيام عمل",
+    "daysUsed_one": "تم استخدام يوم عمل واحد",
+    "daysUsed_two": "تم استخدام يومي عمل",
+    "daysUsed_few": "تم استخدام {{count}} أيام عمل",
+    "daysUsed_many": "تم استخدام {{count}} يوم عمل",
+    "daysUsed_other": "أيام العمل المستخدمة: {{count}}",
+    "left": "المتبقي: {{count}}",
+    "overLimit": "تجاوز الحد بمقدار {{count}}",
+    "uncapped": "إجازة غير محدودة",
+    "usageLabel": "تم استخدام {{used}} من أصل {{allocated}} يوم عمل مخصص"
+  },
+  "balances": {
+    "empty": "لم تُخصّص لك أرصدة إجازات بعد.",
+    "eyebrow": "خطّط",
+    "loading": "جارٍ تحميل أرصدة إجازاتك…",
+    "summary": "تظهر أيام العمل المتبقية والمستخدمة والمخصصة معًا بوضوح.",
+    "title": "أرصدة إجازاتك"
+  },
   "coverage": {
     "eyebrow": "تابع",
     "loading": "جارٍ تحديث تغطية الفريق…",
@@ -72,12 +72,6 @@
     "outToday": "تعذر تحميل قائمة الغائبين اليوم.",
     "recent": "تعذر تحميل الطلبات الأخيرة.",
     "upcoming": "تعذر تحميل الإجازات القادمة."
-  },
-  "greeting": "{{time}}، {{name}}!",
-  "greetings": {
-    "afternoon": "مساء الخير",
-    "evening": "مساء الخير",
-    "morning": "صباح الخير"
   },
   "firstUse": {
     "dismiss": "ليس الآن",
@@ -109,6 +103,12 @@
     "summary": "ثلاث مراجعات قصيرة تجعل أول حساب لإجازات الفريق موثوقًا.",
     "title": "أعدّ حسابات موثوقة لأيام العمل"
   },
+  "greeting": "{{time}}، {{name}}!",
+  "greetings": {
+    "afternoon": "مساء الخير",
+    "evening": "مساء الخير",
+    "morning": "صباح الخير"
+  },
   "nameFallback": "بك",
   "recent": {
     "empty": "سيظهر طلبك الأول ونتيجة أيام العمل الخاصة به هنا.",
@@ -116,6 +116,10 @@
     "eyebrow": "اتخذ إجراءً وتابع",
     "loading": "جارٍ تحميل الطلبات الأخيرة…",
     "title": "طلباتي الأخيرة"
+  },
+  "redacted": {
+    "leaveType": "التفاصيل مخفية",
+    "person": "أحد الزملاء"
   },
   "request": {
     "actions": {
@@ -163,7 +167,6 @@
     "pending": "بانتظار الموافقة"
   },
   "subtitle": "خطّط لإجازتك، وافهم ما يُحتسب، واعرف ما يحتاج إلى إجراء.",
-  "title": "لوحة المعلومات",
   "table": {
     "dates": "التواريخ",
     "days": "الأيام",
@@ -171,6 +174,7 @@
     "type": "النوع",
     "working": "عمل"
   },
+  "title": "لوحة المعلومات",
   "valueProof": {
     "details": "كيف يتم هذا الحساب",
     "educationEyebrow": "دليل احتساب أيام العمل",

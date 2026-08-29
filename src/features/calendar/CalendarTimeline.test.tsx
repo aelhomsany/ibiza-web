@@ -23,6 +23,33 @@ function renderTimeline(
 }
 
 describe('CalendarTimeline', () => {
+  it('[P0] renders a privacy-redacted absence with no "undefined" anywhere (PRIV-UI-VAL-002)', () => {
+    // Timeline is the DEFAULT calendar view and it passes its own `title`/`accessibleName` into
+    // CalendarEventChip, which overrides the chip's own fallbacks. Under the D-14 defaults every
+    // same-group and organization peer gets these keys omitted, so this is the ordinary
+    // rendering path for a peer — not an edge case (code review 2026-08-29).
+    const redacted = { ...mockCalendarMonth.absences[0], requestId: 40, dateFrom: '2026-06-10', dateTo: '2026-06-11' }
+    delete (redacted as Record<string, unknown>).userFullName
+    delete (redacted as Record<string, unknown>).userInitials
+    delete (redacted as Record<string, unknown>).userWorkforceGroupName
+    delete (redacted as Record<string, unknown>).leaveTypeName
+    delete (redacted as Record<string, unknown>).canViewRequestContext
+
+    const { container } = renderTimeline({ ...mockCalendarMonth, absences: [redacted] })
+
+    expect(container.innerHTML).not.toContain('undefined')
+    const chip = screen.getByTestId('calendar-event-40')
+    expect(chip.getAttribute('title')).not.toContain('undefined')
+    expect(chip.getAttribute('aria-label')).not.toContain('undefined')
+    expect(chip.getAttribute('title')).toContain('A teammate')
+    expect(chip.getAttribute('title')).toContain('Details hidden')
+    // No drill-in link when the viewer may not open the request.
+    expect(chip.tagName).toBe('SPAN')
+    // The person rail falls back too, and a withheld group is "A group", never "A teammate".
+    expect(screen.getByText('A teammate')).toBeInTheDocument()
+    expect(screen.getByText('A group')).toBeInTheDocument()
+  })
+
   it('[P0] clamps multi-day bars at both visible week edges', () => {
     const calendar = {
       ...mockCalendarMonth,

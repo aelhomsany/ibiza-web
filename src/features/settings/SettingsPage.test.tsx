@@ -87,6 +87,9 @@ function mockSettingsApis() {
   vi.spyOn(apiClient, 'getLeaveTypes').mockResolvedValue(mockLeaveTypes)
   vi.spyOn(apiClient, 'getManagedLeaveTypes').mockResolvedValue(mockLeaveTypes)
   vi.spyOn(apiClient, 'getPolicySettingsOverview').mockResolvedValue({ leaveTypes: [], users: [], workforceGroups: [] })
+  vi.spyOn(apiClient, 'getWorkSchedules').mockResolvedValue([])
+  vi.spyOn(apiClient, 'getLocationContexts').mockResolvedValue([])
+  vi.spyOn(apiClient, 'listScheduleAssignments').mockResolvedValue([])
   vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(mockTeamMembers)
   vi.spyOn(apiClient, 'getCalendarSyncStatus').mockResolvedValue({
     provider: 'GOOGLE',
@@ -131,12 +134,13 @@ describe('SettingsPage', () => {
     vi.restoreAllMocks()
   })
 
-  it('[P0] renders six categories with Working calendars as the focused default', async () => {
+  it('[P0] renders eight categories with Working calendars as the focused default', async () => {
     renderSettingsPage()
 
     expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument()
     const nav = screen.getByTestId('settings-category-nav')
-    expect(within(nav).getAllByRole('tab')).toHaveLength(6)
+    // Story 16.2 added 'calendar-privacy' (7 -> 8).
+    expect(within(nav).getAllByRole('tab')).toHaveLength(8)
 
     await waitFor(() => {
       expect(screen.getByRole('tab', { name: 'US' })).toBeInTheDocument()

@@ -205,11 +205,15 @@ export function CalendarAgenda({
   ) => {
     const range = formatDateRange(absence.dateFrom, absence.dateTo, locale)
     const presence = t(absence.presence === 'WFH' ? 'legend.wfh' : 'legend.off')
+    // Story 16.2: both are privacy-projected; interpolating undefined would print "undefined"
+    // into a visible title and an aria-label.
+    const personLabel = absence.userFullName ?? t('redacted.person')
+    const leaveTypeLabel = absence.leaveTypeName ?? t('redacted.leaveType')
     const accessibleName = t(
-      absence.canViewRequestContext ? 'request.open' : 'request.info',
+      absence.canViewRequestContext === true ? 'request.open' : 'request.info',
       {
-        name: absence.userFullName,
-        type: absence.leaveTypeName,
+        name: personLabel,
+        type: leaveTypeLabel,
         presence,
         range,
       },
@@ -224,22 +228,25 @@ export function CalendarAgenda({
         absence={absence}
         className="calendar-agenda-card calendar-agenda-card--absence"
         testId={`calendar-event-${absence.requestId}`}
-        title={`${absence.userFullName} — ${absence.leaveTypeName} (${range})`}
+        title={`${personLabel} — ${leaveTypeLabel} (${range})`}
         accessibleName={accessibleName}
       >
-        <span className="calendar-agenda-avatar">{absence.userInitials}</span>
+        <span className="calendar-agenda-avatar">{absence.userInitials ?? '?'}</span>
         <span className="calendar-agenda-copy">
           <span className="calendar-agenda-card-title">
             {t('agenda.absenceTitle', {
-              name: absence.userFullName,
-              type: absence.leaveTypeName,
+              name: personLabel,
+              type: leaveTypeLabel,
             })}
           </span>
           <span className="calendar-agenda-card-subtitle">
             {t('agenda.absenceSummary', { range, days: workingDays })}
           </span>
           <span className="calendar-agenda-meta">
-            <span>{t('agenda.group', { name: isolate(absence.userWorkforceGroupName) })}</span>
+            <span>{t('agenda.group', {
+              // A withheld group is not "a teammate" — that fallback read as "A teammate group".
+              name: isolate(absence.userWorkforceGroupName ?? t('redacted.group')),
+            })}</span>
             {progress.total >= 1 && progress.position >= 1 ? (
               <span className="calendar-agenda-progress">
                 {t('agenda.dayProgress', progress)}
@@ -305,7 +312,11 @@ export function CalendarAgenda({
             !weekendDaySet.has(dayOfWeekForDate(section.date))
             && offPeople.size >= 2
           )
-          const stillAwayNames = section.carried.map((absence) => absence.userFullName)
+          // Story 16.2: identity is a projected field, so a carried-over absence may arrive
+          // without a name. Fall back to a localized label — never render "undefined".
+          const stillAwayNames = section.carried.map(
+            (absence) => absence.userFullName ?? t('redacted.person'),
+          )
 
           return (
             <section

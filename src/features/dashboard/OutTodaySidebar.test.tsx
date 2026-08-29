@@ -52,6 +52,37 @@ function renderSidebar(
 }
 
 describe('OutTodaySidebar — Story 3.2', () => {
+  it('[P1] renders a privacy-redacted row without leaking undefined (Story 16.2)', () => {
+    // Under the D-14 defaults SAME_WORKFORCE_GROUP and ORGANIZATION_PEER hold IDENTITY only, so
+    // an omitted leaveTypeName is the DEFAULT rendering for every peer, not an edge case. The
+    // fixtures above always carried these keys, so nothing observed the fallbacks (code review
+    // 2026-08-29). Keys are deleted, not nulled — the server omits them.
+    const outToday = [{ ...mockOutToday[0] }] as Record<string, unknown>[]
+    delete outToday[0].fullName
+    delete outToday[0].initials
+    delete outToday[0].leaveTypeName
+    delete outToday[0].leaveTypeIcon
+    const upcoming = [{ ...mockUpcoming[0] }] as Record<string, unknown>[]
+    delete upcoming[0].fullName
+    delete upcoming[0].leaveTypeIcon
+
+    const { container } = renderSidebar(
+      outToday as unknown as OutTodayResponse[],
+      upcoming as unknown as UpcomingAbsenceResponse[],
+    )
+
+    expect(container.innerHTML).not.toContain('undefined')
+    // The sub-line says detail is withheld rather than collapsing to a blank row.
+    expect(screen.getByText('Details hidden')).toBeInTheDocument()
+    expect(screen.getAllByText('A teammate')).toHaveLength(2)
+    expect(screen.getAllByText('?')).toHaveLength(2)
+    // A withheld icon drops its decorative span instead of rendering an empty one.
+    expect(container.querySelector('.upcoming-icon')).toBeNull()
+    // The assertions above pin the real English strings on purpose: i18next's
+    // parseMissingKeyHandler returns '' here, so a typo'd key renders blank and would still
+    // satisfy a presence-only check.
+  })
+
   it('[P1] renders WFH badge for Work From Home presence', () => {
     renderSidebar()
     expect(screen.getByText('WFH')).toBeInTheDocument()

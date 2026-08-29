@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import type { CalendarAbsenceResponse } from '../../api/generated/types'
 import { chipColorStyle } from '../../utils/entityColor'
@@ -25,6 +26,7 @@ export function CalendarEventChip({
   style,
   children,
 }: CalendarEventChipProps) {
+  const { t } = useTranslation('calendar')
   const isSingleDay = absence.dateFrom === absence.dateTo
   const resolvedTestId = testId ?? (
     isSingleDay || date == null
@@ -38,12 +40,18 @@ export function CalendarEventChip({
     ...style,
   } as CSSProperties
   const range = formatDateRange(absence.dateFrom, absence.dateTo)
-  const resolvedTitle = title ?? `${absence.userFullName} — ${absence.leaveTypeName} (${range})`
+  // Story 16.2: identity and Leave Type are privacy-projected and may be absent. Template
+  // literals happily interpolate `undefined` — TypeScript will not stop them — so every read
+  // goes through a localized fallback. A chip that says "undefined" is a redaction bug the
+  // user sees.
+  const personLabel = absence.userFullName ?? t('redacted.person')
+  const leaveTypeLabel = absence.leaveTypeName ?? t('redacted.leaveType')
+  const resolvedTitle = title ?? `${personLabel} — ${leaveTypeLabel} (${range})`
   const resolvedAccessibleName = accessibleName
-    ?? `${absence.userFullName}, ${absence.leaveTypeName}, ${range}`
-  const content = children ?? absence.userInitials
+    ?? `${personLabel}, ${leaveTypeLabel}, ${range}`
+  const content = children ?? absence.userInitials ?? '?'
 
-  if (absence.canViewRequestContext) {
+  if (absence.canViewRequestContext === true) {
     return (
       <Link
         className={`${resolvedClassName} cal-event--interactive`}

@@ -1,10 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
 import { SettingsCategoryNav } from './SettingsCategoryNav'
+import { SETTINGS_CATEGORIES } from './settingsCategories'
 import { WorkforceGroupsWeekendsCard } from './WorkforceGroupsWeekendsCard'
 
 function mockNarrowViewport() {
@@ -152,29 +153,41 @@ describe('SettingsCategoryNav containment ATDD — Story 11.5', () => {
   })
 
   test(
-    '[P0] all six categories stay reachable via scroll containment at the 390px-class breakpoint',
+    '[P0] every category stays reachable via scroll containment at the 390px-class breakpoint',
     async () => {
       mockNarrowViewport()
-      const user = userEvent.setup()
       const onSelect = vi.fn().mockReturnValue(true)
 
       render(<SettingsCategoryNav activeCategory="working-calendars" onSelect={onSelect} />)
 
       const nav = screen.getByTestId('settings-category-nav')
       expect(nav).toHaveAttribute('role', 'region')
-      // No categories dropped/truncated to fit the narrow strip.
-      expect(within(nav).getAllByRole('tab')).toHaveLength(6)
+      // No categories dropped/truncated to fit the narrow strip. Derived from the registry
+      // rather than a literal: the property under test is "every registered category is
+      // reachable", which a hardcoded count silently stops checking each time one is added.
+      expect(within(nav).getAllByRole('tab')).toHaveLength(SETTINGS_CATEGORIES.length)
 
-      const working = screen.getByTestId('settings-category-working-calendars')
-      working.focus()
-      expect(working).toHaveFocus()
+      // Walk the whole registry forward instead of asserting two hardcoded neighbours. The
+      // property is "every category is reachable by keyboard, in registration order" — spelling
+      // out specific pairs meant every story that inserted a category had to patch this test,
+      // and each patch quietly reduced what it still checked (Story 16.2).
+      const first = screen.getByTestId(`settings-category-${SETTINGS_CATEGORIES[0]}`)
+      first.focus()
+      expect(first).toHaveFocus()
 
-      // Narrow mode maps forward/backward to Left/Right (RTL-aware), not Up/Down.
-      await user.keyboard('{ArrowRight}')
-      await waitFor(() => {
-        expect(screen.getByTestId('settings-category-leave-policies')).toHaveFocus()
-      })
-      expect(onSelect).toHaveBeenLastCalledWith('leave-policies')
+      for (let index = 1; index < SETTINGS_CATEGORIES.length; index += 1) {
+        const previous = SETTINGS_CATEGORIES[index - 1]
+        const expected = SETTINGS_CATEGORIES[index]
+        // Dispatched at the freshly queried live button: selecting a category replaces the node
+        // userEvent would otherwise hold a stale reference to.
+        fireEvent.keyDown(screen.getByTestId(`settings-category-${previous}`), {
+          key: 'ArrowRight',
+        })
+        await waitFor(() => {
+          expect(screen.getByTestId(`settings-category-${expected}`)).toHaveFocus()
+        })
+        expect(onSelect).toHaveBeenLastCalledWith(expected)
+      }
     },
   )
 })

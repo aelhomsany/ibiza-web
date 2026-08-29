@@ -88,8 +88,20 @@ export function CalendarTimeline({
   const weekAbsences = calendar.absences.filter((absence) => (
     rangesOverlap(absence.dateFrom, absence.dateTo, weekStart, weekEnd)
   ))
+  // Story 16.2: identity is projected, so sort on the displayed label rather than assuming a
+  // name is present. Redacted rows collate together under the fallback label.
+  const displayName = (absence: { userFullName?: string }) =>
+    absence.userFullName ?? t('redacted.person')
+  // Story 16.2 / code review 2026-08-29: identity and Leave Type are privacy-projected and may
+  // be absent. Under the D-14 defaults they ARE absent for every same-group and organization
+  // peer, so these are the ordinary rendering path on the default calendar view, not an edge
+  // case. Template literals interpolate `undefined` happily and TypeScript will not stop them.
+  const leaveTypeLabel = (absence: { leaveTypeName?: string }) =>
+    absence.leaveTypeName ?? t('redacted.leaveType')
+  const groupLabel = (person: { userWorkforceGroupName?: string }) =>
+    person.userWorkforceGroupName ?? t('redacted.group')
   const people = uniqueBy(weekAbsences, (absence) => absence.userId)
-    .sort((first, second) => first.userFullName.localeCompare(second.userFullName, locale))
+    .sort((first, second) => displayName(first).localeCompare(displayName(second), locale))
   const todayIndex = weekDates.indexOf(calendar.today)
   const coverageDays = weekDates.filter((date) => {
     if (weekendDaySet.has(dayOfWeekForDate(date))) {
@@ -227,12 +239,12 @@ export function CalendarTimeline({
                       style={{ gridRow: `1 / span ${laneCount}` }}
                     >
                       <span className="calendar-person-avatar" style={colorStyle}>
-                        {person.userInitials}
+                        {person.userInitials ?? '?'}
                       </span>
                       <span className="calendar-person-copy">
-                        <span className="calendar-person-name" dir="auto">{person.userFullName}</span>
+                        <span className="calendar-person-name" dir="auto">{displayName(person)}</span>
                         <span className="calendar-person-group" dir="auto">
-                          {person.userWorkforceGroupName}
+                          {groupLabel(person)}
                         </span>
                       </span>
                     </span>
@@ -242,7 +254,7 @@ export function CalendarTimeline({
                       const range = formatDateRange(absence.dateFrom, absence.dateTo, locale)
                       const label = span >= 2
                         ? t('timeline.bar', {
-                            type: absence.leaveTypeName,
+                            type: leaveTypeLabel(absence),
                             count: absence.workingDays,
                           })
                         : t('timeline.barShort', { count: absence.workingDays })
@@ -252,8 +264,8 @@ export function CalendarTimeline({
                       const accessibleName = t(
                         absence.canViewRequestContext ? 'request.open' : 'request.info',
                         {
-                          name: absence.userFullName,
-                          type: absence.leaveTypeName,
+                          name: displayName(absence),
+                          type: leaveTypeLabel(absence),
                           presence,
                           range,
                         },
@@ -265,7 +277,7 @@ export function CalendarTimeline({
                           absence={absence}
                           className="calendar-timeline-bar"
                           testId={`calendar-event-${absence.requestId}`}
-                          title={`${absence.userFullName} — ${absence.leaveTypeName} (${range})`}
+                          title={`${displayName(absence)} — ${leaveTypeLabel(absence)} (${range})`}
                           accessibleName={accessibleName}
                           style={{
                             gridColumn: `${startIndex + 2} / span ${span}`,

@@ -121,12 +121,19 @@ export function OutTodaySidebar({
                     style={chipColorStyle(row.userId ?? 0) as CSSProperties}
                     aria-hidden="true"
                   >
-                    {row.initials}
+                    {row.initials ?? '?'}
                   </div>
                   <div className="person-details">
-                    <div className="person-name" dir="auto">{row.fullName}</div>
+                    {/* Story 16.2: identity and Leave Type are privacy-projected and may be
+                        absent. JSX drops `undefined` silently, which would leave a blank row
+                        and a stray separator rather than saying detail is withheld. */}
+                    <div className="person-name" dir="auto">
+                      {row.fullName ?? t('dashboard:redacted.person')}
+                    </div>
                     <div className="person-sub" dir="auto">
-                      {row.leaveTypeIcon} {row.leaveTypeName}
+                      {row.leaveTypeName
+                        ? `${row.leaveTypeIcon ?? ''} ${row.leaveTypeName}`.trim()
+                        : t('dashboard:redacted.leaveType')}
                     </div>
                   </div>
                   <PresenceBadge presence={row.presence} />
@@ -180,10 +187,12 @@ export function OutTodaySidebar({
                       .map((part) => part[0])
                       .join('')
                       .slice(0, 2)
-                      .toUpperCase()}
+                      .toUpperCase() ?? '?'}
                   </div>
                   <div className="person-details">
-                    <div className="person-name">{row.fullName}</div>
+                    <div className="person-name" dir="auto">
+                      {row.fullName ?? t('dashboard:redacted.person')}
+                    </div>
                     <div className="person-sub">
                       <bdi>
                         {formatDate(row.dateFrom ?? '', i18n.language)}
@@ -194,9 +203,13 @@ export function OutTodaySidebar({
                       })}
                     </div>
                   </div>
-                  <span className="upcoming-icon" aria-hidden="true">
-                    {row.leaveTypeIcon}
-                  </span>
+                  {/* Story 16.2: leaveTypeIcon is privacy-projected. Rendering it raw left an
+                      empty decorative span on every peer row; drop the element instead. */}
+                  {row.leaveTypeIcon ? (
+                    <span className="upcoming-icon" aria-hidden="true">
+                      {row.leaveTypeIcon}
+                    </span>
+                  ) : null}
                 </li>
               ))}
             </ul>

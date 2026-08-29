@@ -75,6 +75,19 @@ import type {
   CompensateBalanceCorrectionRequest,
   BalanceCorrectionListPage,
   BalanceCorrectionListItemResponse,
+  CreateWorkScheduleRequest,
+  UpdateWorkScheduleRequest,
+  CreateWorkScheduleVersionRequest,
+  WorkScheduleResponse,
+  WorkScheduleVersionResponse,
+  CreateLocationContextRequest,
+  LocationContextResponse,
+  ScheduleAssignmentRequest,
+  ScheduleAssignmentResponse,
+  ScheduleAssignmentPreviewResponse,
+  CalendarPrivacyVersionResponse,
+  CalendarPrivacyPreviewResponse,
+  PublishCalendarPrivacyRequest,
 } from './generated/types'
 import type { components } from './generated/types'
 import { clearAccessToken, getAccessToken, setAccessToken } from '../auth/tokenStorage'
@@ -451,6 +464,22 @@ export const updatePolicyDraft = (publicId: string, payload: UpdatePolicyDraftRe
 export const previewPolicy = (publicId: string) => request<PolicyPreviewResponse>(`/api/v1/settings/leave-policies/drafts/${publicId}/preview`, { method: 'POST' })
 export const publishPolicy = (publicId: string, idempotencyKey: string, payload: PublishPolicyRequest) => request<PolicyPublicationResponse>(`/api/v1/settings/leave-policies/drafts/${publicId}/publish`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: payload })
 export const getPolicyHistory = (policyPublicId: string) => request<PolicyHistoryItem[]>(`/api/v1/settings/leave-policies/${policyPublicId}/history`, { method: 'GET' })
+
+// Story 16.1: multiple work schedules and location context.
+export const getWorkSchedules = () => request<WorkScheduleResponse[]>('/api/v1/settings/schedules', { method: 'GET' })
+export const createWorkSchedule = (payload: CreateWorkScheduleRequest) => request<WorkScheduleResponse>('/api/v1/settings/schedules', { method: 'POST', body: payload })
+export const renameWorkSchedule = (schedulePublicId: string, payload: UpdateWorkScheduleRequest) => request<WorkScheduleResponse>(`/api/v1/settings/schedules/${schedulePublicId}`, { method: 'PATCH', body: payload })
+export const createWorkScheduleVersion = (schedulePublicId: string, payload: CreateWorkScheduleVersionRequest) => request<WorkScheduleVersionResponse>(`/api/v1/settings/schedules/${schedulePublicId}/versions`, { method: 'POST', body: payload })
+export const getLocationContexts = () => request<LocationContextResponse[]>('/api/v1/settings/locations', { method: 'GET' })
+export const createLocationContext = (payload: CreateLocationContextRequest) => request<LocationContextResponse>('/api/v1/settings/locations', { method: 'POST', body: payload })
+export const previewScheduleAssignment = (payload: ScheduleAssignmentRequest) => request<ScheduleAssignmentPreviewResponse>('/api/v1/settings/schedule-assignments/preview', { method: 'POST', body: payload })
+export const commitScheduleAssignment = (payload: ScheduleAssignmentRequest) => request<ScheduleAssignmentResponse>('/api/v1/settings/schedule-assignments', { method: 'POST', body: payload })
+export const listScheduleAssignments = () => request<ScheduleAssignmentResponse[]>('/api/v1/settings/schedule-assignments', { method: 'GET' })
+
+// Story 16.2 — calendar visibility configuration (HR only).
+export const getCalendarPrivacy = () => request<CalendarPrivacyVersionResponse>('/api/v1/settings/calendar-privacy', { method: 'GET' })
+export const previewCalendarPrivacy = (payload: PublishCalendarPrivacyRequest) => request<CalendarPrivacyPreviewResponse>('/api/v1/settings/calendar-privacy/preview', { method: 'POST', body: payload })
+export const publishCalendarPrivacy = (payload: PublishCalendarPrivacyRequest) => request<CalendarPrivacyVersionResponse>('/api/v1/settings/calendar-privacy', { method: 'POST', body: payload })
 
 export type ImportTemplateKey = 'PEOPLE_AND_ASSIGNMENTS' | 'ENTITLEMENTS_AND_OPENING_BALANCES'
 

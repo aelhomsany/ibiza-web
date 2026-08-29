@@ -77,6 +77,9 @@ function mockSettingsApis() {
   vi.spyOn(apiClient, 'getLeaveTypes').mockResolvedValue(mockLeaveTypes)
   vi.spyOn(apiClient, 'getManagedLeaveTypes').mockResolvedValue(mockLeaveTypes)
   vi.spyOn(apiClient, 'getPolicySettingsOverview').mockResolvedValue({ leaveTypes: [], users: [], workforceGroups: [] })
+  vi.spyOn(apiClient, 'getWorkSchedules').mockResolvedValue([])
+  vi.spyOn(apiClient, 'getLocationContexts').mockResolvedValue([])
+  vi.spyOn(apiClient, 'listScheduleAssignments').mockResolvedValue([])
   vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(mockTeamMembers)
   vi.spyOn(apiClient, 'getCalendarSyncStatus').mockResolvedValue({
     provider: 'GOOGLE',
@@ -369,14 +372,22 @@ describe('SettingsInformationArchitecture ATDD — Story 11.5', () => {
       working.focus()
       expect(working).toHaveFocus()
 
+      // Story 16.1 inserted 'schedules-locations' directly after
+      // 'working-calendars', so one step down now lands there first.
       await user.keyboard('{ArrowDown}')
       await waitFor(() => {
-        expect(screen.getByTestId('settings-category-leave-policies')).toHaveFocus()
+        expect(screen.getByTestId('settings-category-schedules-locations')).toHaveFocus()
       })
-      expect(screen.getByTestId('settings-category-leave-policies')).toHaveAttribute(
+      expect(screen.getByTestId('settings-category-schedules-locations')).toHaveAttribute(
         'aria-selected',
         'true',
       )
+
+      // Continuing to leave-policies is asserted by the sibling containment test
+      // (WorkforceGroupsWeekendsCard.containment.atdd.test.tsx), which drives the same rail
+      // directly. Chaining a second arrow step here does not move selection: this suite mounts the
+      // whole SettingsPage, whose requestCategory guard runs against state that has not settled
+      // between synchronous key events (code review 2026-08-28).
 
       await user.keyboard('{ArrowUp}')
       await waitFor(() => {

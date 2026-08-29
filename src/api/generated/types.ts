@@ -110,6 +110,94 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/schedules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Work Schedules and their versions */
+        get: operations["listWorkSchedules"];
+        put?: never;
+        /** Create a Work Schedule and its first version */
+        post: operations["createWorkSchedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/schedules/{schedulePublicId}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Append a new immutable Work Schedule version */
+        post: operations["createWorkScheduleVersion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/schedule-assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List current schedule/location assignments */
+        get: operations["listScheduleAssignments"];
+        put?: never;
+        /** Commit a schedule/location assignment */
+        post: operations["commitScheduleAssignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/schedule-assignments/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview a schedule/location assignment's affected members */
+        post: operations["previewScheduleAssignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/locations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Location Contexts */
+        get: operations["listLocationContexts"];
+        put?: never;
+        /** Create a Location Context */
+        post: operations["createLocationContext"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/settings/leave-types": {
         parameters: {
             query?: never;
@@ -227,6 +315,41 @@ export interface paths {
         put?: never;
         /** Preview authoritative policy publication impact */
         post: operations["previewPolicyPublication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/calendar-privacy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the calendar privacy version in force */
+        get: operations["getCalendarPrivacy"];
+        put?: never;
+        /** Publish a calendar privacy version */
+        post: operations["publishCalendarPrivacy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/calendar-privacy/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview what each viewer relationship would see */
+        post: operations["previewCalendarPrivacy"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1040,6 +1163,23 @@ export interface paths {
         head?: never;
         /** Update team member lifecycle status */
         patch: operations["updateStatus"];
+        trace?: never;
+    };
+    "/api/v1/settings/schedules/{schedulePublicId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Rename a Work Schedule */
+        patch: operations["renameWorkSchedule"];
         trace?: never;
     };
     "/api/v1/settings/operational-timezone": {
@@ -1919,6 +2059,79 @@ export interface components {
             status?: string;
             activeSeat?: boolean;
         };
+        CreateWorkScheduleRequest: {
+            name?: string;
+            workingDays?: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
+        };
+        WorkScheduleResponse: {
+            schedulePublicId?: string;
+            name?: string;
+            versions?: components["schemas"]["WorkScheduleVersionResponse"][];
+        };
+        WorkScheduleVersionResponse: {
+            versionPublicId?: string;
+            /** Format: int32 */
+            versionNumber?: number;
+            workingDays?: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
+        };
+        CreateWorkScheduleVersionRequest: {
+            workingDays?: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
+        };
+        ScheduleAssignmentRequest: {
+            /** @enum {string} */
+            scope: "ORGANIZATION" | "WORKFORCE_GROUP" | "USER";
+            subjectPublicId?: string;
+            scheduleVersionPublicId?: string;
+            locationPublicId?: string;
+            /** Format: date */
+            effectiveFrom: string;
+        };
+        ScheduleAssignmentResponse: {
+            assignmentPublicId?: string;
+            scheduleVersionPublicId?: string;
+            locationPublicId?: string;
+            /** @enum {string} */
+            scope?: "ORGANIZATION" | "WORKFORCE_GROUP" | "USER";
+            subjectPublicId?: string;
+            /** Format: date */
+            effectiveFrom?: string;
+            /** Format: int32 */
+            affectedMemberCount?: number;
+        };
+        ScheduleAssignmentMemberImpact: {
+            memberPublicId?: string;
+        };
+        ScheduleAssignmentPreviewResponse: {
+            /** @enum {string} */
+            scope?: "ORGANIZATION" | "WORKFORCE_GROUP" | "USER";
+            subjectPublicId?: string;
+            scheduleVersionPublicId?: string;
+            locationPublicId?: string;
+            /** Format: date */
+            effectiveFrom?: string;
+            /** Format: int32 */
+            affectedMemberCount?: number;
+            /** Format: int32 */
+            shadowedMemberCount?: number;
+            members?: components["schemas"]["ScheduleAssignmentMemberImpact"][];
+        };
+        CreateLocationContextRequest: {
+            name?: string;
+            code?: string;
+            country?: string;
+            region?: string;
+            ianaTimezone?: string;
+            holidayWorkforceGroupPublicId?: string;
+        };
+        LocationContextResponse: {
+            locationPublicId?: string;
+            name?: string;
+            code?: string;
+            country?: string;
+            region?: string;
+            ianaTimezone?: string;
+            holidayWorkforceGroupPublicId?: string;
+        };
         CreateLeaveTypeRequest: {
             name: string;
             icon: string;
@@ -2046,6 +2259,36 @@ export interface components {
             affectedMemberCount?: number;
             impacts?: components["schemas"]["PolicyMemberImpact"][];
             conflicts?: string[];
+        };
+        CalendarPrivacyRuleInput: {
+            /** @enum {string} */
+            viewerRelationship: "SELF" | "ACTIVE_OR_COMPLETED_APPROVER" | "HR_ADMIN" | "DIRECT_REPORT_MANAGER" | "SAME_WORKFORCE_GROUP" | "ORGANIZATION_PEER";
+            allowedFields: ("IDENTITY" | "LEAVE_TYPE" | "STATUS" | "REASON" | "REQUEST_CONTEXT")[];
+        };
+        PublishCalendarPrivacyRequest: {
+            /** Format: date */
+            effectiveFrom: string;
+            rules?: components["schemas"]["CalendarPrivacyRuleInput"][];
+        };
+        CalendarPrivacyRuleResponse: {
+            /** @enum {string} */
+            viewerRelationship?: "SELF" | "ACTIVE_OR_COMPLETED_APPROVER" | "HR_ADMIN" | "DIRECT_REPORT_MANAGER" | "SAME_WORKFORCE_GROUP" | "ORGANIZATION_PEER";
+            /** Format: int32 */
+            precedenceRank?: number;
+            allowedFields?: ("IDENTITY" | "LEAVE_TYPE" | "STATUS" | "REASON" | "REQUEST_CONTEXT")[];
+            summary?: string;
+        };
+        CalendarPrivacyVersionResponse: {
+            publicId?: string;
+            /** Format: int32 */
+            versionNumber?: number;
+            effectiveFrom?: string;
+            usingDefaults?: boolean;
+            rules?: components["schemas"]["CalendarPrivacyRuleResponse"][];
+        };
+        CalendarPrivacyPreviewResponse: {
+            effectiveFrom?: string;
+            rules?: components["schemas"]["CalendarPrivacyRuleResponse"][];
         };
         ReportQueryRequest: {
             /** Format: int32 */
@@ -2930,6 +3173,9 @@ export interface components {
             /** Format: date-time */
             deactivatedAt?: string;
         };
+        UpdateWorkScheduleRequest: {
+            name?: string;
+        };
         UpdateOperationalTimezoneRequest: {
             timezone?: string;
         };
@@ -3363,6 +3609,8 @@ export interface components {
             workingDays?: number;
             workingDates?: string[];
             canViewRequestContext?: boolean;
+            /** @enum {string} */
+            viewerRelationship?: "SELF" | "ACTIVE_OR_COMPLETED_APPROVER" | "HR_ADMIN" | "DIRECT_REPORT_MANAGER" | "SAME_WORKFORCE_GROUP" | "ORGANIZATION_PEER";
         };
         CalendarHolidayResponse: {
             /** Format: int64 */
@@ -3799,6 +4047,188 @@ export interface operations {
             };
         };
     };
+    listWorkSchedules: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WorkScheduleResponse"][];
+                };
+            };
+        };
+    };
+    createWorkSchedule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWorkScheduleRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WorkScheduleResponse"];
+                };
+            };
+        };
+    };
+    createWorkScheduleVersion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schedulePublicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWorkScheduleVersionRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WorkScheduleVersionResponse"];
+                };
+            };
+        };
+    };
+    listScheduleAssignments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ScheduleAssignmentResponse"][];
+                };
+            };
+        };
+    };
+    commitScheduleAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScheduleAssignmentRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ScheduleAssignmentResponse"];
+                };
+            };
+        };
+    };
+    previewScheduleAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScheduleAssignmentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ScheduleAssignmentPreviewResponse"];
+                };
+            };
+        };
+    };
+    listLocationContexts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LocationContextResponse"][];
+                };
+            };
+        };
+    };
+    createLocationContext: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateLocationContextRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LocationContextResponse"];
+                };
+            };
+        };
+    };
     listManagedLeaveTypes: {
         parameters: {
             query?: never;
@@ -3990,6 +4420,74 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PolicyPreviewResponse"];
+                };
+            };
+        };
+    };
+    getCalendarPrivacy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarPrivacyVersionResponse"];
+                };
+            };
+        };
+    };
+    publishCalendarPrivacy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishCalendarPrivacyRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarPrivacyVersionResponse"];
+                };
+            };
+        };
+    };
+    previewCalendarPrivacy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishCalendarPrivacyRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarPrivacyPreviewResponse"];
                 };
             };
         };
@@ -5599,6 +6097,32 @@ export interface operations {
             };
         };
     };
+    renameWorkSchedule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schedulePublicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateWorkScheduleRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WorkScheduleResponse"];
+                };
+            };
+        };
+    };
     current: {
         parameters: {
             query?: never;
@@ -6765,7 +7289,22 @@ type RequiredSchema<K extends keyof components["schemas"]> = Required<components
 export type ApprovalCapabilityResponse = RequiredSchema<"ApprovalCapabilityResponse">;
 export type ApprovalStepEvidenceResponse = RequiredSchema<"ApprovalStepEvidenceResponse">;
 export type BalanceCardResponse = RequiredSchema<"BalanceCardResponse">;
-export type CalendarAbsenceResponse = RequiredSchema<"CalendarAbsenceResponse">;
+// Story 16.2: privacy-redacted fields are ABSENT from the response, not blanked, so they must be
+// optional here. RequiredSchema<> would type them as always-present and let a component read
+// `absence.leaveTypeName` with no guard — the compile error is the point.
+export type CalendarAbsenceResponse = Omit<
+    RequiredSchema<"CalendarAbsenceResponse">,
+    "userFullName" | "userInitials" | "userWorkforceGroupName" | "leaveTypeId" | "leaveTypeName"
+    | "leaveTypeIcon" | "canViewRequestContext"
+> & {
+    userFullName?: string;
+    userInitials?: string;
+    userWorkforceGroupName?: string;
+    leaveTypeId?: number;
+    leaveTypeName?: string;
+    leaveTypeIcon?: string;
+    canViewRequestContext?: boolean;
+};
 export type CalendarHolidayResponse = RequiredSchema<"CalendarHolidayResponse">;
 export type CalendarMonthResponse = Omit<
     RequiredSchema<"CalendarMonthResponse">,
@@ -6804,7 +7343,36 @@ export type ReportingPromotionResponse = components["schemas"]["ReportingPromoti
 export type OrganizationSummaryResponse = Omit<RequiredSchema<"OrganizationSummaryResponse">, "reportingPromotion"> & {
     reportingPromotion?: components["schemas"]["ReportingPromotionResponse"] | null;
 };
-export type OutTodayResponse = RequiredSchema<"OutTodayResponse">;
+// Same redaction contract as the calendar: Out Today is an org-wide peer surface (Story 16.2).
+// Story 16.2 — calendar privacy configuration (HR-facing).
+export type PrivacyField = "IDENTITY" | "LEAVE_TYPE" | "STATUS" | "REASON" | "REQUEST_CONTEXT";
+export type ViewerRelationship = NonNullable<
+    components["schemas"]["CalendarPrivacyRuleResponse"]["viewerRelationship"]
+>;
+export type CalendarPrivacyRuleInput = RequiredSchema<"CalendarPrivacyRuleInput">;
+export type CalendarPrivacyRuleResponse = RequiredSchema<"CalendarPrivacyRuleResponse">;
+export type PublishCalendarPrivacyRequest = RequiredSchema<"PublishCalendarPrivacyRequest">;
+export type CalendarPrivacyPreviewResponse = Omit<
+    RequiredSchema<"CalendarPrivacyPreviewResponse">, "rules"
+> & { rules: CalendarPrivacyRuleResponse[] };
+// versionNumber/effectiveFrom are absent while the tenant is on the D-14 defaults.
+export type CalendarPrivacyVersionResponse = Omit<
+    RequiredSchema<"CalendarPrivacyVersionResponse">, "rules" | "versionNumber" | "effectiveFrom"
+> & {
+    rules: CalendarPrivacyRuleResponse[];
+    versionNumber?: number;
+    effectiveFrom?: string;
+};
+
+export type OutTodayResponse = Omit<
+    RequiredSchema<"OutTodayResponse">,
+    "fullName" | "initials" | "leaveTypeName" | "leaveTypeIcon"
+> & {
+    fullName?: string;
+    initials?: string;
+    leaveTypeName?: string;
+    leaveTypeIcon?: string;
+};
 export type PendingApprovalCountResponse = RequiredSchema<"PendingApprovalCountResponse">;
 export type PendingApprovalResponse = Omit<
     RequiredSchema<"PendingApprovalResponse">,
@@ -6853,7 +7421,13 @@ export type TeamMemberInvitationResponse = RequiredSchema<"TeamMemberInvitationR
 export type TeamMemberSummaryResponse = RequiredSchema<"TeamMemberSummaryResponse">;
 export type TokenResponse = RequiredSchema<"TokenResponse">;
 export type UnreadCountResponse = RequiredSchema<"UnreadCountResponse">;
-export type UpcomingAbsenceResponse = RequiredSchema<"UpcomingAbsenceResponse">;
+export type UpcomingAbsenceResponse = Omit<
+    RequiredSchema<"UpcomingAbsenceResponse">,
+    "fullName" | "leaveTypeIcon"
+> & {
+    fullName?: string;
+    leaveTypeIcon?: string;
+};
 export type UpdatePublicHolidayRequest = components["schemas"]["UpdatePublicHolidayRequest"];
 export type UpdateSubscriptionRequest = components["schemas"]["UpdateSubscriptionRequest"];
 export type UpdateTeamMemberRequest = components["schemas"]["UpdateTeamMemberRequest"];
@@ -6976,3 +7550,23 @@ export type CompensateBalanceCorrectionRequest = components["schemas"]["Compensa
 export type BalanceCorrectionResponse = RequiredSchema<"BalanceCorrectionResponse">;
 export type BalanceCorrectionListItemResponse = RequiredSchema<"BalanceCorrectionListItemResponse">;
 export type BalanceCorrectionListPage = RequiredSchema<"BalanceCorrectionListPage">;
+
+// Story 16.1: multiple work schedules and location context.
+export type CreateWorkScheduleRequest = components["schemas"]["CreateWorkScheduleRequest"];
+export type UpdateWorkScheduleRequest = components["schemas"]["UpdateWorkScheduleRequest"];
+export type CreateWorkScheduleVersionRequest = components["schemas"]["CreateWorkScheduleVersionRequest"];
+export type WorkScheduleVersionResponse = RequiredSchema<"WorkScheduleVersionResponse">;
+export type WorkScheduleResponse = Omit<RequiredSchema<"WorkScheduleResponse">, "versions"> & {
+    versions: WorkScheduleVersionResponse[];
+};
+export type CreateLocationContextRequest = components["schemas"]["CreateLocationContextRequest"];
+export type LocationContextResponse = RequiredSchema<"LocationContextResponse">;
+export type ScheduleAssignmentRequest = components["schemas"]["ScheduleAssignmentRequest"];
+export type ScheduleAssignmentResponse = RequiredSchema<"ScheduleAssignmentResponse">;
+export type ScheduleAssignmentMemberImpact = RequiredSchema<"ScheduleAssignmentMemberImpact">;
+export type ScheduleAssignmentPreviewResponse = Omit<
+    RequiredSchema<"ScheduleAssignmentPreviewResponse">,
+    "members"
+> & {
+    members: ScheduleAssignmentMemberImpact[];
+};

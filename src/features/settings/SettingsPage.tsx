@@ -20,6 +20,8 @@ import { CloseIcon } from '../../components/ui/icons'
 import { LeaveTypesCard } from './LeaveTypesCard'
 import { TeamMembersCard } from './TeamMembersCard'
 import { WorkforceGroupsWeekendsCard } from './WorkforceGroupsWeekendsCard'
+import { ScheduleLocationSettingsPage } from './ScheduleLocationSettingsPage'
+import { CalendarPrivacySettingsPage } from './CalendarPrivacySettingsPage'
 import { CalendarSyncSettings } from './CalendarSyncSettings'
 import { NotificationPreferencesSettings } from './NotificationPreferencesSettings'
 import { OrganizationSettingsCard } from './OrganizationSettingsCard'
@@ -391,6 +393,20 @@ export function SettingsPage() {
                     })
                   }
                 }}
+                onSuccess={showSuccessToast}
+                onWarning={showWarningToast}
+              />
+            )}
+
+            {activeCategory === 'schedules-locations' && (
+              <ScheduleLocationSettingsPage
+                onSuccess={showSuccessToast}
+                onWarning={showWarningToast}
+              />
+            )}
+
+            {activeCategory === 'calendar-privacy' && (
+              <CalendarPrivacySettingsPage
                 onSuccess={showSuccessToast}
                 onWarning={showWarningToast}
               />
