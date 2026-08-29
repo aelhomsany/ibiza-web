@@ -85,6 +85,9 @@ import type {
   ScheduleAssignmentRequest,
   ScheduleAssignmentResponse,
   ScheduleAssignmentPreviewResponse,
+  BulkScheduleAssignmentRequest,
+  BulkScheduleAssignmentResult,
+  BulkScheduleAssignmentPreviewResponse,
   CalendarPrivacyVersionResponse,
   CalendarPrivacyPreviewResponse,
   PublishCalendarPrivacyRequest,
@@ -475,6 +478,10 @@ export const createLocationContext = (payload: CreateLocationContextRequest) => 
 export const previewScheduleAssignment = (payload: ScheduleAssignmentRequest) => request<ScheduleAssignmentPreviewResponse>('/api/v1/settings/schedule-assignments/preview', { method: 'POST', body: payload })
 export const commitScheduleAssignment = (payload: ScheduleAssignmentRequest) => request<ScheduleAssignmentResponse>('/api/v1/settings/schedule-assignments', { method: 'POST', body: payload })
 export const listScheduleAssignments = () => request<ScheduleAssignmentResponse[]>('/api/v1/settings/schedule-assignments', { method: 'GET' })
+
+// Story 16.4 — bulk (USER-scope only) schedule/location assignment.
+export const previewBulkScheduleAssignment = (payload: BulkScheduleAssignmentRequest) => request<BulkScheduleAssignmentPreviewResponse>('/api/v1/settings/schedule-assignments/bulk/preview', { method: 'POST', body: payload })
+export const commitBulkScheduleAssignment = (idempotencyKey: string, payload: BulkScheduleAssignmentRequest) => request<BulkScheduleAssignmentResult>('/api/v1/settings/schedule-assignments/bulk', { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: payload })
 
 // Story 16.2 — calendar visibility configuration (HR only).
 export const getCalendarPrivacy = () => request<CalendarPrivacyVersionResponse>('/api/v1/settings/calendar-privacy', { method: 'GET' })

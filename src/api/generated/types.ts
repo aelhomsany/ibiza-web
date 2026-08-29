@@ -180,6 +180,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/schedule-assignments/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Commit a bulk schedule/location assignment */
+        post: operations["commitBulkScheduleAssignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/schedule-assignments/bulk/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview a bulk schedule/location assignment's affected members and conflicts */
+        post: operations["previewBulkScheduleAssignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/settings/locations": {
         parameters: {
             query?: never;
@@ -2114,6 +2148,38 @@ export interface components {
             /** Format: int32 */
             shadowedMemberCount?: number;
             members?: components["schemas"]["ScheduleAssignmentMemberImpact"][];
+        };
+        BulkScheduleAssignmentRequest: {
+            subjectIds?: string[];
+            scheduleVersionPublicId?: string;
+            locationPublicId?: string;
+            /** Format: date */
+            effectiveFrom: string;
+        };
+        BulkScheduleAssignmentResult: {
+            scheduleVersionPublicId?: string;
+            locationPublicId?: string;
+            /** Format: date */
+            effectiveFrom?: string;
+            /** Format: int32 */
+            subjectCount?: number;
+            /** Format: int32 */
+            affectedMemberCount?: number;
+        };
+        BulkScheduleAssignmentConflict: {
+            subjectId?: string;
+            reason?: string;
+        };
+        BulkScheduleAssignmentPreviewResponse: {
+            scheduleVersionPublicId?: string;
+            locationPublicId?: string;
+            /** Format: date */
+            effectiveFrom?: string;
+            /** Format: int32 */
+            subjectCount?: number;
+            /** Format: int32 */
+            affectedMemberCount?: number;
+            conflicts?: components["schemas"]["BulkScheduleAssignmentConflict"][];
         };
         CreateLocationContextRequest: {
             name?: string;
@@ -4184,6 +4250,65 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ScheduleAssignmentPreviewResponse"];
+                };
+            };
+        };
+    };
+    commitBulkScheduleAssignment: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkScheduleAssignmentRequest"];
+            };
+        };
+        responses: {
+            /** @description Idempotent replay of a prior commit */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BulkScheduleAssignmentResult"];
+                };
+            };
+            /** @description Committed for the first time */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BulkScheduleAssignmentResult"];
+                };
+            };
+        };
+    };
+    previewBulkScheduleAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkScheduleAssignmentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BulkScheduleAssignmentPreviewResponse"];
                 };
             };
         };
@@ -7284,7 +7409,6 @@ export interface operations {
 type WithRequired<T, K extends keyof T> = T & {
     [P in K]-?: T[P];
 };
-
 // Ibiza keeps these schema aliases for feature code ergonomics, even though
 // openapi-typescript exposes schemas through components["schemas"].
 type RequiredSchema<K extends keyof components["schemas"]> = Required<components["schemas"][K]>;
@@ -7572,4 +7696,15 @@ export type ScheduleAssignmentPreviewResponse = Omit<
     "members"
 > & {
     members: ScheduleAssignmentMemberImpact[];
+};
+
+// Story 16.4: bulk (USER-scope only) schedule/location assignment -- see spec-16-4.
+export type BulkScheduleAssignmentRequest = components["schemas"]["BulkScheduleAssignmentRequest"];
+export type BulkScheduleAssignmentResult = RequiredSchema<"BulkScheduleAssignmentResult">;
+export type BulkScheduleAssignmentConflict = RequiredSchema<"BulkScheduleAssignmentConflict">;
+export type BulkScheduleAssignmentPreviewResponse = Omit<
+    RequiredSchema<"BulkScheduleAssignmentPreviewResponse">,
+    "conflicts"
+> & {
+    conflicts: BulkScheduleAssignmentConflict[];
 };

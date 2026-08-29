@@ -643,6 +643,54 @@
       "previewShadowed_many": "{{count}} عضوًا يحتفظون بتعيين أكثر تحديدًا ولا يتأثرون",
       "previewShadowed_other": "{{count}} عضو يحتفظ بتعيين أكثر تحديدًا ولا يتأثر"
     },
+    "bulkAssignment": {
+      "modalTitle": "تعيين جدول وموقع لعدة أشخاص",
+      "subjects": "الأشخاص",
+      "selectedCount_zero": "لم يتم اختيار أي شخص",
+      "selectedCount_one": "تم اختيار شخص واحد",
+      "selectedCount_two": "تم اختيار شخصين",
+      "selectedCount_few": "تم اختيار {{count}} أشخاص",
+      "selectedCount_many": "تم اختيار {{count}} شخصًا",
+      "selectedCount_other": "تم اختيار {{count}} شخص",
+      "scheduleVersion": "إصدار الجدول",
+      "versionOption": "{{scheduleName}} · إصدار {{versionNumber}}",
+      "selectScheduleVersion": "اختر إصدار جدول",
+      "location": "الموقع",
+      "selectLocation": "اختر موقعًا",
+      "effectiveFrom": "ساري من",
+      "previewTitle": "الأثر",
+      "previewEmpty": "عاين الدفعة لمعرفة من سيتأثر بها قبل التأكيد.",
+      "previewing": "جارٍ المعاينة…",
+      "previewAffected_zero": "لن يتم تعيين أي عضو",
+      "previewAffected_one": "سيتم تعيين عضو واحد",
+      "previewAffected_two": "سيتم تعيين عضوين",
+      "previewAffected_few": "سيتم تعيين {{count}} أعضاء",
+      "previewAffected_many": "سيتم تعيين {{count}} عضوًا",
+      "previewAffected_other": "سيتم تعيين {{count}} عضو",
+      "actions": {
+        "preview": "معاينة",
+        "confirm": "تأكيد التعيين الجماعي"
+      },
+      "created_zero": "لم يتم إنشاء أي تعيين",
+      "created_one": "تم إنشاء تعيين لشخص واحد",
+      "created_two": "تم إنشاء تعيينات لشخصين",
+      "created_few": "تم إنشاء تعيينات لـ {{count}} أشخاص",
+      "created_many": "تم إنشاء تعيينات لـ {{count}} شخصًا",
+      "created_other": "تم إنشاء تعيينات لـ {{count}} شخص",
+      "conflictReasons": {
+        "SUBJECT_NOT_FOUND": "تعذّر العثور على {{name}} في هذه المؤسسة",
+        "ALREADY_ASSIGNED": "لدى {{name}} تعيين بالفعل لهذا التاريخ"
+      },
+      "errors": {
+        "incomplete": "اختر شخصًا واحدًا على الأقل وإصدار الجدول والموقع وتاريخ السريان قبل المعاينة.",
+        "overCap": "اختر 500 شخص أو أقل في الدفعة الواحدة.",
+        "preview": "تعذّرت معاينة الدفعة. حاول مرة أخرى.",
+        "commit": "تعذّر إنشاء التعيين الجماعي. حاول مرة أخرى.",
+        "capabilityUnavailable": "جداول العمل والمواقع غير متاحة لهذه المؤسسة حاليًا، لذا لا يمكن الحفظ. تواصل مع الدعم إذا كنت تعتقد أن هذا خطأ.",
+        "conflict": "لدى شخص أو أكثر في هذه الدفعة تعيين بالفعل لهذا التاريخ. راجع قائمة الأثر وحاول مرة أخرى.",
+        "idempotencyConflict": "تعذّر مطابقة هذا التأكيد مع الدفعة التي عاينتها. عاين مرة أخرى قبل التأكيد."
+      }
+    },
     "capabilityUnavailable": "جداول العمل والمواقع غير متاحة لهذه المؤسسة حاليًا. تواصل مع الدعم إذا كنت تعتقد أن هذا خطأ."
   },
   "subtitle": "سياسات الشركة والفريق واستحقاقات الإجازات",

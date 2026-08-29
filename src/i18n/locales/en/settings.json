@@ -643,6 +643,54 @@
       "previewShadowed_few": "{{count}} members keep a more specific assignment and are not affected",
       "previewShadowed_many": "{{count}} members keep a more specific assignment and are not affected"
     },
+    "bulkAssignment": {
+      "modalTitle": "Bulk assign schedule & location",
+      "subjects": "People",
+      "selectedCount_zero": "No people selected",
+      "selectedCount_one": "{{count}} person selected",
+      "selectedCount_two": "{{count}} people selected",
+      "selectedCount_few": "{{count}} people selected",
+      "selectedCount_many": "{{count}} people selected",
+      "selectedCount_other": "{{count}} people selected",
+      "scheduleVersion": "Schedule version",
+      "versionOption": "{{scheduleName}} · v{{versionNumber}}",
+      "selectScheduleVersion": "Select a schedule version",
+      "location": "Location",
+      "selectLocation": "Select a location",
+      "effectiveFrom": "Effective from",
+      "previewTitle": "Impact",
+      "previewEmpty": "Preview the batch to see who it affects before confirming.",
+      "previewing": "Previewing…",
+      "previewAffected_zero": "No members would be assigned",
+      "previewAffected_one": "{{count}} member would be assigned",
+      "previewAffected_two": "{{count}} members would be assigned",
+      "previewAffected_few": "{{count}} members would be assigned",
+      "previewAffected_many": "{{count}} members would be assigned",
+      "previewAffected_other": "{{count}} members would be assigned",
+      "actions": {
+        "preview": "Preview",
+        "confirm": "Confirm bulk assignment"
+      },
+      "created_zero": "No assignments created",
+      "created_one": "Assignment created for {{count}} person",
+      "created_two": "Assignments created for {{count}} people",
+      "created_few": "Assignments created for {{count}} people",
+      "created_many": "Assignments created for {{count}} people",
+      "created_other": "Assignments created for {{count}} people",
+      "conflictReasons": {
+        "SUBJECT_NOT_FOUND": "{{name}} could not be found in this organization",
+        "ALREADY_ASSIGNED": "{{name}} already has an assignment for this date"
+      },
+      "errors": {
+        "incomplete": "Select at least one person, a schedule version, a location, and an effective date before previewing.",
+        "overCap": "Select 500 people or fewer per batch.",
+        "preview": "Could not preview the batch. Try again.",
+        "commit": "Could not create the batch assignment. Try again.",
+        "capabilityUnavailable": "Work schedules and locations are not available for this organization yet, so this cannot be saved. Contact support if you believe this is a mistake.",
+        "conflict": "One or more people in this batch already have an assignment for this date. Review the impact list and try again.",
+        "idempotencyConflict": "This confirmation could not be matched to the batch you previewed. Preview again before confirming."
+      }
+    },
     "capabilityUnavailable": "Work schedules and locations are not available for this organization yet. Contact support if you believe this is a mistake."
   },
   "subtitle": "Company policy, team, and leave entitlements",
