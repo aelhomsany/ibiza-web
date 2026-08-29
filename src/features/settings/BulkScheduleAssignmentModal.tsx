@@ -289,10 +289,13 @@ export function BulkScheduleAssignmentModal({
             {preview.conflicts.length > 0 && (
               <ul data-testid="bulk-assignment-conflicts">
                 {preview.conflicts.map((conflict) => (
-                  <li key={conflict.subjectId} dir="auto">
+                  <li key={conflict.subjectId}>
+                    {/* The member name is user data interpolated into translated copy, so it needs
+                        isolation, exactly like versionOption's scheduleName above. `defaultValue`
+                        was dropped: i18n's parseMissingKeyHandler returns '' and wins over it, so
+                        it never rendered anything (code review 2026-08-30). */}
                     {t('settings:schedules.bulkAssignment.conflictReasons.' + conflict.reason, {
-                      defaultValue: conflict.reason,
-                      name: memberName(conflict.subjectId),
+                      name: isolate(memberName(conflict.subjectId)),
                     })}
                   </li>
                 ))}

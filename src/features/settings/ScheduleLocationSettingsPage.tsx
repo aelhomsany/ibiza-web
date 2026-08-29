@@ -20,6 +20,7 @@ import { Modal } from '../../components/ui/Modal'
 import { PlusIcon, CloseIcon, CalendarIcon } from '../../components/ui/icons'
 import { WEEKEND_DAYS_DISPLAY } from './weekendDays'
 import { ScheduleAssignmentModal, type ScheduleVersionOption } from './ScheduleAssignmentModal'
+import { BulkScheduleAssignmentModal } from './BulkScheduleAssignmentModal'
 import './team-members.css'
 // .weekend-chips/.weekend-chip and .settings-list-body live in these two files. They currently
 // resolve only because SettingsPage happens to load them first; importing them here keeps the
@@ -138,6 +139,7 @@ export function ScheduleLocationSettingsPage({
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
   const [locationModalOpen, setLocationModalOpen] = useState(false)
   const [assignmentModalOpen, setAssignmentModalOpen] = useState(false)
+  const [bulkAssignmentModalOpen, setBulkAssignmentModalOpen] = useState(false)
   const [versionTargetSchedulePublicId, setVersionTargetSchedulePublicId] = useState<string | null>(null)
 
   function invalidateAfterWrite() {
@@ -271,6 +273,22 @@ export function ScheduleLocationSettingsPage({
           >
             <PlusIcon size={16} /> {t('settings:schedules.actions.newAssignment')}
           </button>
+          {/* Story 16.4: bulk (USER-scope only) assignment. Same preconditions as the single
+              assignment above, plus at least one person to assign. */}
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            data-testid="new-bulk-schedule-assignment"
+            disabled={
+              capabilityUnavailable ||
+              versionOptions.length === 0 ||
+              locations.length === 0 ||
+              users.length === 0
+            }
+            onClick={() => setBulkAssignmentModalOpen(true)}
+          >
+            <PlusIcon size={16} /> {t('settings:schedules.actions.bulkAssignment')}
+          </button>
         </div>
         {assignments.length === 0 ? (
           <div className="dashboard-empty-state" data-testid="schedule-assignment-empty-state" role="status">
@@ -345,6 +363,20 @@ export function ScheduleLocationSettingsPage({
           workforceGroups={workforceGroups}
           users={users}
           onClose={() => setAssignmentModalOpen(false)}
+          onSuccess={(message) => {
+            invalidateAfterWrite()
+            onSuccess(message)
+          }}
+          onWarning={onWarning}
+        />
+      )}
+
+      {bulkAssignmentModalOpen && (
+        <BulkScheduleAssignmentModal
+          versionOptions={versionOptions}
+          locations={locations}
+          users={users}
+          onClose={() => setBulkAssignmentModalOpen(false)}
           onSuccess={(message) => {
             invalidateAfterWrite()
             onSuccess(message)

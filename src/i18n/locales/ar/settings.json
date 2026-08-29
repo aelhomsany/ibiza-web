@@ -562,6 +562,7 @@
       "newVersion": "إصدار جديد",
       "newLocation": "موقع جديد",
       "newAssignment": "تعيين جديد",
+      "bulkAssignment": "تعيين جماعي",
       "newVersionFor": "إصدار جديد من {{scheduleName}}"
     },
     "empty": {
@@ -679,7 +680,8 @@
       "created_other": "تم إنشاء تعيينات لـ {{count}} شخص",
       "conflictReasons": {
         "SUBJECT_NOT_FOUND": "تعذّر العثور على {{name}} في هذه المؤسسة",
-        "ALREADY_ASSIGNED": "لدى {{name}} تعيين بالفعل لهذا التاريخ"
+        "ALREADY_ASSIGNED": "لدى {{name}} تعيين بالفعل لهذا التاريخ",
+        "DUPLICATE_IN_BATCH": "تم اختيار {{name}} أكثر من مرة في هذه الدفعة"
       },
       "errors": {
         "incomplete": "اختر شخصًا واحدًا على الأقل وإصدار الجدول والموقع وتاريخ السريان قبل المعاينة.",

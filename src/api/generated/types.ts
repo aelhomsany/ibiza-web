@@ -2150,7 +2150,7 @@ export interface components {
             members?: components["schemas"]["ScheduleAssignmentMemberImpact"][];
         };
         BulkScheduleAssignmentRequest: {
-            subjectIds?: string[];
+            subjectIds: string[];
             scheduleVersionPublicId?: string;
             locationPublicId?: string;
             /** Format: date */
@@ -7409,6 +7409,7 @@ export interface operations {
 type WithRequired<T, K extends keyof T> = T & {
     [P in K]-?: T[P];
 };
+
 // Ibiza keeps these schema aliases for feature code ergonomics, even though
 // openapi-typescript exposes schemas through components["schemas"].
 type RequiredSchema<K extends keyof components["schemas"]> = Required<components["schemas"][K]>;

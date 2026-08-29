@@ -562,6 +562,7 @@
       "newVersion": "New version",
       "newLocation": "New location",
       "newAssignment": "New assignment",
+      "bulkAssignment": "Bulk assign",
       "newVersionFor": "New version of {{scheduleName}}"
     },
     "empty": {
@@ -679,7 +680,8 @@
       "created_other": "Assignments created for {{count}} people",
       "conflictReasons": {
         "SUBJECT_NOT_FOUND": "{{name}} could not be found in this organization",
-        "ALREADY_ASSIGNED": "{{name}} already has an assignment for this date"
+        "ALREADY_ASSIGNED": "{{name}} already has an assignment for this date",
+        "DUPLICATE_IN_BATCH": "{{name}} is selected more than once in this batch"
       },
       "errors": {
         "incomplete": "Select at least one person, a schedule version, a location, and an effective date before previewing.",

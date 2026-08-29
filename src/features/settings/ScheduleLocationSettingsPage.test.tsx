@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
@@ -56,7 +57,12 @@ const assignments: ScheduleAssignmentResponse[] = [
   },
 ]
 
-const overview = { leaveTypes: [], users: [], workforceGroups: [{ publicId: 'group-1', name: 'Egypt' }] }
+const overview = {
+  leaveTypes: [],
+  // At least one person: the bulk assignment action is disabled with nobody to assign.
+  users: [{ publicId: 'user-1', name: 'Jane Doe' }],
+  workforceGroups: [{ publicId: 'group-1', name: 'Egypt' }],
+}
 
 function mockLists(options: { empty?: boolean } = {}) {
   vi.spyOn(apiClient, 'getWorkSchedules').mockResolvedValue(options.empty ? [] : schedules)
@@ -165,5 +171,31 @@ describe('ScheduleLocationSettingsPage', () => {
     })
     expect(screen.getByTestId('new-location-context')).toBeDisabled()
     expect(screen.getByTestId('new-schedule-assignment')).toBeDisabled()
+    expect(screen.getByTestId('new-bulk-schedule-assignment')).toBeDisabled()
+  })
+
+  /**
+   * Added by code review 2026-08-30. Story 16.4's entire web half shipped unreachable: the bulk
+   * modal was built, translated and unit-tested, but nothing rendered it -- no button anywhere in
+   * the app opened it. A modal test cannot catch that, because it mounts the modal directly. This
+   * asserts the route the AC actually describes, from the page the admin is standing on.
+   */
+  it('opens the bulk assignment modal from the assignments header', async () => {
+    const user = userEvent.setup()
+    mockLists()
+
+    renderPage()
+
+    const bulkButton = await screen.findByTestId('new-bulk-schedule-assignment')
+    await waitFor(() => {
+      expect(bulkButton).toBeEnabled()
+    })
+    expect(screen.queryByTestId('bulk-schedule-assignment-modal')).not.toBeInTheDocument()
+
+    await user.click(bulkButton)
+
+    expect(await screen.findByTestId('bulk-schedule-assignment-modal')).toBeInTheDocument()
+    // The roster comes from the overview query, not from a second fetch of its own.
+    expect(screen.getByTestId('bulk-assignment-subjects-list')).toHaveTextContent('Jane Doe')
   })
 })
