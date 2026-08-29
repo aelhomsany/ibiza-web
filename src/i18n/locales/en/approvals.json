@@ -102,6 +102,7 @@
     "reasons": {
       "WORKFORCE_GROUP_UNKNOWN": "this person is not assigned to a Workforce Group",
       "CALENDAR_UNKNOWN": "this Workforce Group has no weekend days configured",
+      "SCHEDULE_UNKNOWN": "some teammates' work schedules could not be resolved",
       "NO_WORKING_DAYS_IN_RANGE": "the requested range contains no working days",
       "WINDOW_EXCEEDS_BOUND": "the requested range is longer than we evaluate",
       "TIMEZONE_UNRESOLVED": "the Organization timezone could not be read"

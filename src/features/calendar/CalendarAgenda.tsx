@@ -307,7 +307,13 @@ export function CalendarAgenda({
               .filter((absence) => absence.presence === 'OFF')
               .map((absence) => absence.userId),
           )
-          const availableCount = Math.max(0, calendar.audienceMemberCount - offPeople.size)
+          // Story 16.3: the server already scopes this to active, in-audience members --
+          // never re-derive it from offPeople (which is unscoped and drives the separate
+          // coverage-watch/"still away" narrative below).
+          // No `?? 0`: the field is optional in the contract, and a missing entry means the
+          // count was never computed for this day. Defaulting to zero would render "0 of 8
+          // available" -- the most alarming possible reading -- as if it were a fact.
+          const availableCount = calendar.availableCountByDate?.[section.date]
           const isCoverageWatch = (
             !weekendDaySet.has(dayOfWeekForDate(section.date))
             && offPeople.size >= 2
@@ -337,7 +343,7 @@ export function CalendarAgenda({
                     className="calendar-agenda-availability"
                     data-testid={`calendar-availability-${section.date}`}
                   >
-                    {calendar.audienceMemberCount > 0
+                    {calendar.audienceMemberCount > 0 && availableCount != null
                       ? t('agenda.availability', {
                           available: availableCount,
                           total: calendar.audienceMemberCount,

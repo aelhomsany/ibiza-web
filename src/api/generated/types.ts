@@ -3636,6 +3636,9 @@ export interface components {
             audienceMemberCount?: number;
             absences?: components["schemas"]["CalendarAbsenceResponse"][];
             holidays?: components["schemas"]["CalendarHolidayResponse"][];
+            availableCountByDate?: {
+                [key: string]: number;
+            };
         };
         CalendarSyncStatusResponse: {
             provider?: string;

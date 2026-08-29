@@ -83,6 +83,43 @@ describe('CalendarAgenda', () => {
       'Nothing on this day — full coverage.',
     )
   })
+
+  it('[P1] renders the server-scoped available count, not a re-derived one', () => {
+    // Sarah Chen's OFF absence overlaps June 11, so a naive client re-derivation would compute
+    // audienceMemberCount(8) - offPeople.size(1) = 7. The server-provided availableCountByDate
+    // is deliberately set to disagree (5) here -- proving the component renders that value
+    // verbatim instead of recomputing it from audienceMemberCount and the absences list.
+    const calendar: CalendarMonthResponse = {
+      ...mockCalendarMonth,
+      availableCountByDate: {
+        ...mockCalendarMonth.availableCountByDate,
+        '2026-06-11': 5,
+      },
+    }
+    render(<AgendaHarness calendar={calendar} />)
+
+    const availability = screen.getByTestId('calendar-availability-2026-06-11')
+    expect(availability).toHaveTextContent('5 of 8 available')
+    expect(availability).not.toHaveTextContent('7 of 8 available')
+  })
+
+  // AVAIL-UI-VAL-003 (P0): availableCountByDate is optional in the contract, so a day can arrive
+  // with no entry. That means "never computed", not "nobody is available" -- defaulting the gap to
+  // zero renders "0 of 8 available", the most alarming possible reading, as though the server had
+  // asserted it.
+  it('[P0] says the count is unavailable rather than rendering a missing day as zero', () => {
+    const withoutTheDay = { ...mockCalendarMonth.availableCountByDate }
+    delete withoutTheDay['2026-06-11']
+    const calendar: CalendarMonthResponse = {
+      ...mockCalendarMonth,
+      availableCountByDate: withoutTheDay,
+    }
+    render(<AgendaHarness calendar={calendar} />)
+
+    const availability = screen.getByTestId('calendar-availability-2026-06-11')
+    expect(availability).not.toHaveTextContent('0 of 8 available')
+    expect(availability).toHaveTextContent('Availability count unavailable')
+  })
 })
 
 /**

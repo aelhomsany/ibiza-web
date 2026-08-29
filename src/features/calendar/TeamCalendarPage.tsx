@@ -51,7 +51,11 @@ function combinedErrorMessage(errors: unknown[], fallback: string): string {
   return errors.length === 1 ? errorMessage(errors[0], fallback) : fallback
 }
 
-function mergeCalendarMonths(
+// Exported for direct unit test: the union below has no rendered surface today (only
+// `CalendarAgenda` reads `availableCountByDate`, and Agenda fetches a single month), so a
+// page-level test cannot observe it. Testing the function directly is what keeps the day-keyed
+// union honest for the first cross-month consumer.
+export function mergeCalendarMonths(
   responses: CalendarMonthResponse[],
   preferredMonth: string,
 ): CalendarMonthResponse {
@@ -69,6 +73,12 @@ function mergeCalendarMonths(
       responses.flatMap((response) => response.holidays),
       (holiday) => holiday.holidayId,
     ),
+    // Date-keyed like absences and holidays, so it has to be unioned like them. Taking it from
+    // `primary` alone left the secondary month's days with no entry at all, which any consumer
+    // reading a cross-month week would have seen as missing data (Story 16.3 review).
+    availableCountByDate: responses.some((response) => response.availableCountByDate != null)
+      ? Object.assign({}, ...responses.map((response) => response.availableCountByDate ?? {}))
+      : undefined,
   }
 }
 

@@ -102,6 +102,7 @@
     "reasons": {
       "WORKFORCE_GROUP_UNKNOWN": "هذا الشخص غير مُسنَد إلى مجموعة عمل",
       "CALENDAR_UNKNOWN": "لم تُضبط أيام عطلة نهاية الأسبوع لمجموعة العمل هذه",
+      "SCHEDULE_UNKNOWN": "تعذّر تحديد جداول عمل بعض الزملاء",
       "NO_WORKING_DAYS_IN_RANGE": "النطاق المطلوب لا يحتوي على أيام عمل",
       "WINDOW_EXCEEDS_BOUND": "النطاق المطلوب أطول من المدى الذي نقيّمه",
       "TIMEZONE_UNRESOLVED": "تعذّرت قراءة المنطقة الزمنية للمؤسسة"

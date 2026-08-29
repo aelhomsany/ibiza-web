@@ -673,6 +673,37 @@ describe('ApprovalsPage', () => {
     expect(screen.getByTestId('decline-btn-101')).toBeEnabled()
   })
 
+  // AVAIL-UI-VAL-002 (P0): SCHEDULE_UNKNOWN is the code the server now sends when it could not
+  // resolve the requester's own schedule. Rendering it needs BOTH halves of the fix: membership in
+  // COUNT_UNCERTAINTY_CODES and a real locale string. A code missing either one falls through
+  // `defaultValue: ''` and is filtered out, so the card would claim "incomplete" and then name no
+  // reason at all -- the failure mode is silence, which no other assertion here would catch.
+  it('[P0] names an unresolved schedule as the reason a card is incomplete', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([
+      {
+        ...mockPendingApprovals[0],
+        decisionFacts: {
+          ...completeDecisionFacts,
+          scheduledCount: null,
+          approvedOffCount: null,
+          pendingOffCount: null,
+          wfhCount: null,
+          availableCount: null,
+          unknownCount: 1,
+          incomplete: true,
+          uncertaintyCodes: ['SCHEDULE_UNKNOWN'],
+        },
+      } as PendingApprovalResponse,
+    ])
+
+    renderApprovalsPage('MANAGER')
+
+    const facts = await screen.findByTestId('approval-decision-facts-101')
+    expect(facts).toHaveTextContent(
+      "Some facts are incomplete — some teammates' work schedules could not be resolved",
+    )
+  })
+
   it('[P0] does not label a card incomplete for approximate activation alone', async () => {
     vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([
       {

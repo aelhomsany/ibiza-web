@@ -1,5 +1,16 @@
 import type { CalendarMonthResponse } from '../../api/generated/types'
 
+// Story 16.3: the server now sends the final, privacy- and status-scoped available count for
+// every day of the month -- components must render this directly rather than re-deriving it
+// from audienceMemberCount and the absences list. Mirrors the fixture's own absences: Sarah
+// Chen (OFF, June 10-12) is the only entry that drops availableCount below audienceMemberCount;
+// Omar Hassan's WFH day does not reduce it.
+const availableCountByDate: Record<string, number> = {}
+for (let day = 1; day <= 30; day += 1) {
+  const date = `2026-06-${String(day).padStart(2, '0')}`
+  availableCountByDate[date] = day >= 10 && day <= 12 ? 7 : 8
+}
+
 export const mockCalendarMonth: CalendarMonthResponse = {
   month: '2026-06',
   monthStart: '2026-06-01',
@@ -68,4 +79,5 @@ export const mockCalendarMonth: CalendarMonthResponse = {
       dateTo: '2026-06-22',
     },
   ],
+  availableCountByDate,
 }
