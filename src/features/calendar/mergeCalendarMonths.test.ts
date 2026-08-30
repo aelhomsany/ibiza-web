@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { mergeCalendarMonths } from './TeamCalendarPage'
+import { mergeCalendarMonths } from './mergeCalendarMonths'
 import { mockCalendarMonth } from './calendarTestFixtures'
 
 import type { CalendarMonthResponse } from '../../api/generated/types'

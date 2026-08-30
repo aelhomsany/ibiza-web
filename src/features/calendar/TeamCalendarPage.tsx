@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { ApiError, getWorkforceGroups } from '../../api/client'
-import type { CalendarMonthResponse, DayOfWeek } from '../../api/generated/types'
+import type { DayOfWeek } from '../../api/generated/types'
 import { useAuth } from '../../auth/useAuth'
 import { LoadingState } from '../../components/ui/LoadingState'
 import { CalendarAgenda } from './CalendarAgenda'
@@ -17,9 +17,9 @@ import {
   formatYearMonthLabel,
   monthsForWeek,
   startOfWeek,
-  uniqueBy,
   yearMonthFromDate,
 } from './calendarMonthUtils'
+import { mergeCalendarMonths } from './mergeCalendarMonths'
 import { useCalendarMonths } from './useCalendarMonth'
 import './calendar.css'
 
@@ -49,37 +49,6 @@ function errorMessage(error: unknown, fallback: string): string {
 // generic loading-error copy instead.
 function combinedErrorMessage(errors: unknown[], fallback: string): string {
   return errors.length === 1 ? errorMessage(errors[0], fallback) : fallback
-}
-
-// Exported for direct unit test: the union below has no rendered surface today (only
-// `CalendarAgenda` reads `availableCountByDate`, and Agenda fetches a single month), so a
-// page-level test cannot observe it. Testing the function directly is what keeps the day-keyed
-// union honest for the first cross-month consumer.
-export function mergeCalendarMonths(
-  responses: CalendarMonthResponse[],
-  preferredMonth: string,
-): CalendarMonthResponse {
-  const primary = responses.find((response) => response.month === preferredMonth) ?? responses[0]
-  if (!primary) {
-    throw new Error('Calendar month data is required.')
-  }
-  return {
-    ...primary,
-    absences: uniqueBy(
-      responses.flatMap((response) => response.absences),
-      (absence) => absence.requestId,
-    ),
-    holidays: uniqueBy(
-      responses.flatMap((response) => response.holidays),
-      (holiday) => holiday.holidayId,
-    ),
-    // Date-keyed like absences and holidays, so it has to be unioned like them. Taking it from
-    // `primary` alone left the secondary month's days with no entry at all, which any consumer
-    // reading a cross-month week would have seen as missing data (Story 16.3 review).
-    availableCountByDate: responses.some((response) => response.availableCountByDate != null)
-      ? Object.assign({}, ...responses.map((response) => response.availableCountByDate ?? {}))
-      : undefined,
-  }
 }
 
 export function TeamCalendarPage() {
