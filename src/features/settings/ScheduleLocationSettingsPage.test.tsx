@@ -139,8 +139,9 @@ describe('ScheduleLocationSettingsPage', () => {
   })
 
   /**
-   * `DISTRIBUTED_OPERATIONS` carries no plan-catalog entry through Stories 16.1-16.4, so this is
-   * the state every organization is in today. Without the branch, the page rendered the ordinary
+   * `DISTRIBUTED_OPERATIONS` gained a plan-catalog row in Story 16.5, but it stays `COMING_SOON`
+   * until an operator flips the release gate, so this is still the state every organization is in
+   * today. Without the branch, the page rendered the ordinary
    * "nothing configured yet, create one" empty state with working create buttons whose requests
    * could only ever fail — which is exactly what the capability-unavailable code exists to prevent.
    */

@@ -125,8 +125,8 @@ export function ScheduleLocationSettingsPage({
     [schedulesQuery.data],
   )
 
-  // DISTRIBUTED_OPERATIONS carries no plan-catalog entry through Stories 16.1-16.4, so every
-  // mutation here is denied for every plan today. Without this the page rendered "nothing
+  // DISTRIBUTED_OPERATIONS stays COMING_SOON on every plan until Story 16.5's release gate is
+  // flipped, so every mutation here is denied for every plan today. Without this the page rendered "nothing
   // configured yet, create one" with buttons that could only ever fail (code review 2026-08-28).
   const [capabilityUnavailable, setCapabilityUnavailable] = useState(false)
   useEffect(() => {

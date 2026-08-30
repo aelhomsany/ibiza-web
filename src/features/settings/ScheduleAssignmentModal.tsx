@@ -61,8 +61,8 @@ export function ScheduleAssignmentModal({
   const [preview, setPreview] = useState<ScheduleAssignmentPreviewResponse | null>(null)
   const [previewing, setPreviewing] = useState(false)
   const [committing, setCommitting] = useState(false)
-  // DISTRIBUTED_OPERATIONS is denied for every plan through Stories 16.1-16.4, so this is the
-  // response an HR admin actually gets today. It is not retryable, and the generic "Try again"
+  // DISTRIBUTED_OPERATIONS stays COMING_SOON on every plan until Story 16.5's release gate is
+  // flipped, so a denial is the response an HR admin actually gets today. It is not retryable, and the generic "Try again"
   // copy invited a doomed retry (code review 2026-08-28).
   const [capabilityUnavailable, setCapabilityUnavailable] = useState(false)
 
