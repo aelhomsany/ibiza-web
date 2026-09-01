@@ -255,17 +255,37 @@ for (const surface of surfaces) {
     surface.suite,
     { tag: [tags.regression, tags.uiOnly, tags.story(surface.story)] },
     () => {
-      // The customer app is not served by the public-artifact preview, so the onboarding page
-      // has nothing to render against there. The two public surfaces run in both topologies.
+      // Each surface runs only in the topology that serves it, and neither topology serves both.
+      // The customer app is absent from the public-artifact preview; the public pages are absent
+      // from the SPA preview, because `npm run preview` (scripts/serve-spa-artifacts.mjs) serves
+      // dist/app and dist/admin only.
+      //
+      // The second guard was missing, and the gap was invisible locally: `npm run dev` is a plain
+      // Vite server that resolves both entries on one port, so /register rendered. Under CI the
+      // config switches to `npm run preview`, publicBaseUrl falls back to BASE_URL (there is no
+      // PUBLIC_BASE_URL and E2E_PUBLIC_ARTIFACT is unset), and the two public surfaces navigated
+      // to an origin with no such route -- 4 failures the first time these jobs ever executed.
+      // This mirrors the guard paid-registration.spec.ts and public-entry-boundaries.spec.ts
+      // already carry, which is why their @ui-only tests skip rather than fail in that job.
       test.skip(
         surface.story === '12-5' && process.env.E2E_PUBLIC_ARTIFACT === 'true',
         'The guided onboarding page belongs to the customer app, not the public artifact',
       )
+      test.skip(
+        surface.story !== '12-5' && process.env.E2E_PUBLIC_ARTIFACT !== 'true',
+        'The public registration surfaces are served only by the public artifact; run npm run test:e2e:public',
+      )
 
       test(
         `[P0] Given a keyboard, zoom, reflow, reduced-motion or touch visitor, When ${surface.what} renders, Then every accessibility checkpoint holds`,
-        async ({ browser }) => {
+        async ({ browser, browserName }) => {
           const contextOptions = surface.baseURL ? { baseURL: surface.baseURL } : {}
+
+          // WebKit on macOS only tabs between form fields unless Full Keyboard Access is on, a
+          // system setting Playwright cannot reach; Option+Tab is the sequence that walks links
+          // and buttons there. Same convention as public-entry-boundaries.spec.ts. Pressing plain
+          // Tab under webkit would fail on Safari's default, not on anything this page ships.
+          const advanceFocus = browserName === 'webkit' ? 'Alt+Tab' : 'Tab'
 
           // Keyboard-only reach and a visible focus indicator.
           const keyboardContext = await browser.newContext(contextOptions)
@@ -276,12 +296,12 @@ for (const surface of surfaces) {
 
           let reached = false
           for (let stop = 0; stop < 40 && !reached; stop += 1) {
-            await keyboardPage.keyboard.press('Tab')
+            await keyboardPage.keyboard.press(advanceFocus)
             reached = await primary.evaluate((element) => element === document.activeElement)
           }
           expect(
             reached,
-            `${surface.what}: ${surface.primaryAction} was not reachable by Tab within 40 stops`,
+            `${surface.what}: ${surface.primaryAction} was not reachable by ${advanceFocus} within 40 stops`,
           ).toBe(true)
 
           // global.css draws :focus-visible as a box-shadow ring with `outline: none`, so an

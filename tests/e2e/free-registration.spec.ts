@@ -105,6 +105,15 @@ test.describe(
   'Verified Free registration layout — Story 12.3',
   { tag: [tags.regression, tags.uiOnly, tags.story('12-3')] },
   () => {
+    // /register lives in dist/public, which `npm run preview` does not serve -- it publishes
+    // dist/app and dist/admin only. Without this guard the test navigated to the SPA origin and
+    // failed on a missing anchor in CI, while passing locally where `npm run dev` resolves both
+    // entries on one port. Same guard as public-entry-boundaries.spec.ts.
+    test.skip(
+      process.env.E2E_PUBLIC_ARTIFACT !== 'true',
+      'The public /register page is served only by the public artifact; run npm run test:e2e:public',
+    )
+
     test(
       '[P0] Given /register at EN and AR viewports, When the page renders, Then there is no horizontal overflow and Free stays card-free',
       async ({ browser }) => {

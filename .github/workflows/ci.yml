@@ -49,8 +49,12 @@ jobs:
           node-version: '22.13.0'
           cache: npm
       - run: npm ci
+      # webkit as well as chromium: `npm run test:e2e:public` below sets E2E_PUBLIC_ARTIFACT=true,
+      # and playwright.config.ts switches to a chromium+webkit project matrix under that flag. With
+      # chromium alone the public step cannot launch webkit at all. This never surfaced because the
+      # job it lives in had never run -- `npm ci` failed ahead of it on every push until 2026-09-01.
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium webkit
       - name: Build web app for preview
         run: npm run build
 

@@ -59,6 +59,13 @@ test.describe(
   'Pricing plan routing — Story 12.2',
   { tag: [tags.regression, tags.uiOnly, tags.story('12-2')] },
   () => {
+    // Pricing is a public-site route, so it is absent from the SPA artifact preview that CI's
+    // ui-only job serves. Same guard as public-entry-boundaries.spec.ts.
+    test.skip(
+      process.env.E2E_PUBLIC_ARTIFACT !== 'true',
+      'The public Pricing page is served only by the public artifact; run npm run test:e2e:public',
+    )
+
     test(
       '[P0] Given intended-user counts at band boundaries, When Pricing renders recommendations, Then Free/Starter/Growth/Contact Sales routes are exact',
       async ({ browser, browserName }) => {
