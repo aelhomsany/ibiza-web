@@ -170,7 +170,14 @@ describe('report export wire contract', () => {
     await listReportExports()
     await getReportExport('export-1')
     await retryReportExport('export-1')
-    await expect(downloadReportExport('export-1')).resolves.toBeInstanceOf(Blob)
+    // Assert the payload, not `toBeInstanceOf(Blob)`: `Response.blob()` resolves a Blob built by
+    // the fetch implementation, whose constructor is not the test environment's global `Blob` on
+    // the node version CI runs -- the instanceof check passed only on a newer local node, outside
+    // the `>=22.12.0 <23` this package declares. Type and content are what callers depend on and
+    // hold in either realm.
+    const downloaded = await downloadReportExport('export-1')
+    expect(downloaded.type).toBe('text/csv')
+    expect(await downloaded.text()).toBe('userName\r\nJordan Lee\r\n')
 
     expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
       '/api/v1/reports/BALANCE_SNAPSHOT/exports',
