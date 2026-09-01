@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { CalendarAgenda } from './CalendarAgenda'
@@ -126,6 +128,38 @@ describe('calendar user colors ATDD — Story 10.5', () => {
     expect(avatar?.style.getPropertyValue('--chip-bg')).toBe(
       bar.style.getPropertyValue('--chip-bg'),
     )
+  })
+
+  it('[P0] the person hash color still PAINTS on the bar after the presence recolor', () => {
+    // The fill and border now encode the kind of day (Off / WFH), so the inline `--chip-bg`
+    // asserted above would be true and invisible if nothing consumed it. The stripe is what
+    // keeps that assertion honest — if it goes, identity leaves the timeline bars entirely
+    // and only the avatar carries the person's color.
+    const calendarCss = readFileSync(join(__dirname, 'calendar.css'), 'utf-8')
+
+    expect(calendarCss).toMatch(
+      /\.calendar-timeline-bar::before\s*\{[^}]*background:\s*var\(--chip-bg/,
+    )
+    expect(calendarCss).toMatch(
+      /\.calendar-timeline-bar\.cal-event--off\s*\{[^}]*border-color:\s*var\(--color-presence-off\)/,
+    )
+    expect(calendarCss).toMatch(
+      /\.calendar-timeline-bar\.cal-event--wfh\s*\{[^}]*border-color:\s*var\(--color-presence-wfh\)/,
+    )
+    // Off and WFH must not resolve to the same fill — that was the defect being fixed.
+    expect(calendarCss).not.toMatch(
+      /\.calendar-timeline-bar\.cal-event--off\s*\{[^}]*background:\s*var\(--color-presence-wfh-tint\)/,
+    )
+
+    const tokensCss = readFileSync(join(__dirname, '../../styles/tokens.css'), 'utf-8')
+    for (const token of [
+      '--color-presence-off',
+      '--color-presence-off-tint',
+      '--color-presence-wfh',
+      '--color-presence-wfh-tint',
+    ]) {
+      expect(tokensCss).toMatch(new RegExp(`${token}:\\s*#[0-9A-Fa-f]{3,8};`))
+    }
   })
 
   it('[P0] agenda cards and mini-month markers share the same userId hash color', () => {

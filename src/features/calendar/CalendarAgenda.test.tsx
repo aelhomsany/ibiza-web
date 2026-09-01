@@ -134,3 +134,43 @@ describe('CalendarAgenda accessibility ATDD — Story 10.10', () => {
     expect(screen.getByText('Omar Hassan — Work From Home')).toBeInTheDocument()
   })
 })
+
+/**
+ * The scope flag (2026-09-01). "This month" was a muted uppercase label that read as a section
+ * caption, so nothing on screen settled whether the list was filtered — and the mini-month's
+ * today pill looked like a selection. The badge now states the scope and changes shape with it.
+ */
+describe('CalendarAgenda scope flag', () => {
+  it('[P1] opens flagged as the whole month, with nothing selected', () => {
+    render(<AgendaHarness />)
+
+    const scope = screen.getByTestId('calendar-agenda-scope')
+    expect(scope).toHaveTextContent('All days this month')
+    expect(scope).toHaveClass('calendar-agenda-heading--month')
+    expect(scope).not.toHaveClass('calendar-agenda-heading--day')
+    // No "Show all" while nothing is filtered — the escape hatch belongs to the filtered state.
+    expect(screen.queryByRole('button', { name: 'Show all' })).not.toBeInTheDocument()
+    // Both of the month's people are listed, which is what "all days" has to mean.
+    expect(screen.getByText('Sarah Chen — Annual Leave')).toBeInTheDocument()
+    expect(screen.getByText('Omar Hassan — Work From Home')).toBeInTheDocument()
+  })
+
+  it('[P1] flips the flag to one day when a day is picked, and back on Show all', async () => {
+    const user = userEvent.setup()
+    render(<AgendaHarness />)
+
+    await user.click(screen.getByRole('button', { name: /June 11, 1 absence/i }))
+
+    const scope = screen.getByTestId('calendar-agenda-scope')
+    expect(scope).toHaveTextContent('One day only')
+    expect(scope).toHaveClass('calendar-agenda-heading--day')
+    expect(scope).not.toHaveClass('calendar-agenda-heading--month')
+
+    await user.click(screen.getByRole('button', { name: 'Show all' }))
+
+    expect(screen.getByTestId('calendar-agenda-scope')).toHaveTextContent('All days this month')
+    expect(screen.getByTestId('calendar-agenda-scope')).toHaveClass(
+      'calendar-agenda-heading--month',
+    )
+  })
+})

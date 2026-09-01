@@ -11,6 +11,8 @@ import { CalendarLegend } from './CalendarLegend'
 import { CalendarNav } from './CalendarNav'
 import { CalendarOutTodayStrip } from './CalendarOutTodayStrip'
 import { CalendarTimeline, type PendingOwnAbsence } from './CalendarTimeline'
+import type { CalendarKind } from './calendarKinds'
+import { nextActiveKind } from './calendarKinds'
 import {
   addDays,
   addMonths,
@@ -66,6 +68,9 @@ export function TeamCalendarPage() {
   // not silently set the Agenda's single-day filter (only an explicit Agenda
   // selection writes `selectedDate`).
   const [timelineFocusDate, setTimelineFocusDate] = useState<string | null>(null)
+  // Which legend chip is lit. Lives here rather than in the timeline because the legend sits
+  // outside the view switch — the state has to outlive a single CalendarTimeline render.
+  const [activeKind, setActiveKind] = useState<CalendarKind | null>(null)
   const initializedFromServerToday = useRef(false)
   const lastServerToday = useRef<string | null>(null)
   const month = yearMonthFromDate(anchorDate)
@@ -201,6 +206,11 @@ export function TeamCalendarPage() {
     } else if (selectedDate != null) {
       setAnchorDate(selectedDate)
     }
+    // Agenda has no filterable bars, so its legend is a plain key. Dropping the selection on
+    // the way out keeps a filter from surviving invisibly and greeting the reader on return.
+    if (nextView !== 'timeline') {
+      setActiveKind(null)
+    }
     setView(nextView)
   }
 
@@ -312,7 +322,15 @@ export function TeamCalendarPage() {
 
       <CalendarOutTodayStrip />
 
-      <CalendarLegend showPendingOwn={pendingOwnAbsences.length > 0} />
+      <CalendarLegend
+        showPendingOwn={pendingOwnAbsences.length > 0}
+        activeKind={activeKind}
+        onToggleKind={
+          view === 'timeline'
+            ? (kind) => setActiveKind((current) => nextActiveKind(current, kind))
+            : undefined
+        }
+      />
 
       {workforceGroupsQuery.isError ? (
         <p className="calendar-filter-error" role="status">
@@ -385,6 +403,8 @@ export function TeamCalendarPage() {
               locale={locale}
               focusedDate={timelineFocusDate}
               onFocusedDateChange={setTimelineFocusDate}
+              activeKind={activeKind}
+              onClearKindFilter={() => setActiveKind(null)}
             />
           ) : (
             <CalendarAgenda

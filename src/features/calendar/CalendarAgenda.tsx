@@ -7,7 +7,7 @@ import type {
   CalendarMonthResponse,
   DayOfWeek,
 } from '../../api/generated/types'
-import { AlertDiamondIcon, SunIcon } from '../../components/ui/icons'
+import { AlertDiamondIcon, CalendarIcon, SunIcon } from '../../components/ui/icons'
 import { CalendarEventChip } from './CalendarEventChip'
 import { CalendarMonthGrid } from './CalendarMonthGrid'
 import { CalendarWeekStrip } from './CalendarWeekStrip'
@@ -285,7 +285,13 @@ export function CalendarAgenda({
         />
 
         <div className="calendar-agenda-heading-row">
-          <h2 className="calendar-agenda-heading">
+          <h2
+            className={`calendar-agenda-heading calendar-agenda-heading--${
+              selectedDate == null ? 'month' : 'day'
+            }`}
+            data-testid="calendar-agenda-scope"
+          >
+            <CalendarIcon size={14} />
             {selectedDate == null
               ? t('agenda.thisMonth')
               : t('agenda.selectedDay')}

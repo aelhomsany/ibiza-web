@@ -9,6 +9,8 @@ import type {
 import { AlertDiamondIcon } from '../../components/ui/icons'
 import { chipColorStyle } from '../../utils/entityColor'
 import { CalendarEventChip } from './CalendarEventChip'
+import type { CalendarKind } from './calendarKinds'
+import { isKindVisible, kindOfAbsence } from './calendarKinds'
 import {
   absencesForDate,
   buildWeekDates,
@@ -39,6 +41,9 @@ type CalendarTimelineProps = {
   locale: string
   focusedDate?: string | null
   onFocusedDateChange?: (date: string) => void
+  /** The one legend chip that is lit, or `null` while the timeline shows every kind. */
+  activeKind?: CalendarKind | null
+  onClearKindFilter?: () => void
 }
 
 type PositionedAbsence = {
@@ -87,6 +92,8 @@ export function CalendarTimeline({
   locale,
   focusedDate = null,
   onFocusedDateChange,
+  activeKind = null,
+  onClearKindFilter,
 }: CalendarTimelineProps) {
   const { t, i18n } = useTranslation('calendar')
   const [announcedDate, setAnnouncedDate] = useState('')
@@ -103,12 +110,20 @@ export function CalendarTimeline({
   const weekPendingOwn = pendingOwnAbsences.filter((absence) => (
     rangesOverlap(absence.dateFrom, absence.dateTo, weekStart, weekEnd)
   ))
-  // Approved bars plus the viewer's own pending overlay. Coverage below stays
-  // on `weekAbsences` alone — an unapproved request must not raise the alert.
+  // Approved bars plus the viewer's own pending overlay, minus whatever the legend filter
+  // switched off. Coverage below stays on the UNFILTERED `weekAbsences`: an unapproved request
+  // must not raise the alert, and a reader who has narrowed the view to WFH must not be told
+  // the week is covered. The alert is a fact about the week, not about the current filter.
   const weekDisplayAbsences: TimelineAbsence[] = [
     ...weekAbsences,
     ...weekPendingOwn,
-  ]
+  ].filter((absence) => isKindVisible(kindOfAbsence(absence), activeKind))
+  const showHolidays = isKindVisible('HOLIDAY', activeKind)
+  const holidayIndexes = showHolidays
+    ? weekDates.reduce<number[]>((indexes, date, index) => (
+        holidaysForDate(date, calendar.holidays).length > 0 ? [...indexes, index] : indexes
+      ), [])
+    : []
   // Story 16.2: identity is projected, so sort on the displayed label rather than assuming a
   // name is present. Redacted rows collate together under the fallback label.
   const displayName = (absence: { userFullName?: string }) =>
@@ -182,6 +197,15 @@ export function CalendarTimeline({
       <div className="cal-scroll" data-testid="calendar-scroll-wrap">
         <div className="calendar-timeline-card calendar-glass-card">
           <div className="calendar-timeline-grid calendar-timeline-header">
+            {holidayIndexes.map((index) => (
+              <span
+                key={`holiday-header-${index}`}
+                className="calendar-holiday-column calendar-holiday-column--header"
+                style={{ gridColumn: index + 2 }}
+                data-testid={`calendar-holiday-column-${weekDates[index]}`}
+                aria-hidden="true"
+              />
+            ))}
             {todayIndex >= 0 ? (
               <span
                 className="calendar-today-column calendar-today-column--header"
@@ -191,7 +215,7 @@ export function CalendarTimeline({
             ) : null}
             <span className="calendar-timeline-person-heading">{t('timeline.person')}</span>
             {weekDates.map((date, index) => {
-              const holidays = holidaysForDate(date, calendar.holidays)
+              const holidays = showHolidays ? holidaysForDate(date, calendar.holidays) : []
               const isToday = date === calendar.today
               const calendarDay = dayOfWeekForDate(date)
               const className = [
@@ -245,6 +269,17 @@ export function CalendarTimeline({
                     data-testid={`calendar-person-${person.userId}`}
                     style={{ gridTemplateRows: `repeat(${laneCount}, 32px)` }}
                   >
+                    {holidayIndexes.map((index) => (
+                      <span
+                        key={`holiday-${index}`}
+                        className="calendar-holiday-column"
+                        style={{
+                          gridColumn: index + 2,
+                          gridRow: `1 / span ${laneCount}`,
+                        }}
+                        aria-hidden="true"
+                      />
+                    ))}
                     {todayIndex >= 0 ? (
                       <span
                         className="calendar-today-column"
@@ -321,6 +356,26 @@ export function CalendarTimeline({
                   </div>
                 )
               })}
+            </div>
+          ) : activeKind != null ? (
+            /* The week may be full of absences and still show nothing: the reader narrowed the
+               view. Saying "full coverage" here would be a lie, so the filtered case gets its
+               own message and a way back out. */
+            <div
+              className="calendar-timeline-empty calendar-timeline-empty--filtered"
+              role="status"
+              data-testid="calendar-timeline-empty-filtered"
+            >
+              <span>{t('timeline.emptyFiltered')}</span>
+              {onClearKindFilter ? (
+                <button
+                  type="button"
+                  className="btn btn-secondary calendar-timeline-clear-filter"
+                  onClick={onClearKindFilter}
+                >
+                  {t('timeline.clearFilter')}
+                </button>
+              ) : null}
             </div>
           ) : (
             <div className="calendar-timeline-empty" role="status">

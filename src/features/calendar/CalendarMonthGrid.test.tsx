@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import type { ComponentProps } from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -73,6 +75,51 @@ describe('CalendarMonthGrid', () => {
 
     const clearDay = screen.getByRole('button', { name: 'June 13, no absences' })
     expect(clearDay.querySelector('.calendar-mini-absence-dot')).not.toBeInTheDocument()
+  })
+
+  it('[P0] does not present today as a selection while nothing is selected', () => {
+    // The Agenda list shows the WHOLE month until a day is picked, but today used to render as
+    // a filled dark pill -- the same shape `.selected` uses -- so the first open of Agenda read
+    // as "filtered to today" while listing every day. Today is `aria-current`, never pressed.
+    renderGrid({ selectedDate: null })
+
+    const today = screen.getByTestId(`calendar-day-${mockCalendarMonth.today}`)
+    expect(today).toHaveAttribute('aria-current', 'date')
+    expect(today).toHaveAttribute('aria-pressed', 'false')
+    expect(today).toHaveClass('today')
+    expect(today).not.toHaveClass('selected')
+
+    const pressed = screen
+      .getAllByRole('button')
+      .filter((day) => day.getAttribute('aria-pressed') === 'true')
+    expect(pressed).toEqual([])
+  })
+
+  it('[P0] keeps today and selected visually distinct shapes', () => {
+    // aria alone does not fix what the eye reads. Today is a ring; selected is a fill plus its
+    // own halo. If these ever collapse back to two filled pills, the confusion returns.
+    const calendarCss = readFileSync(join(__dirname, 'calendar.css'), 'utf-8')
+    const todayRule = /\.calendar-mini-day\.today\s*\{([^}]*)\}/.exec(calendarCss)?.[1] ?? ''
+    const selectedRule =
+      /\.calendar-mini-day\.selected,[^{]*\{([^}]*)\}/.exec(calendarCss)?.[1] ?? ''
+
+    expect(todayRule).not.toBe('')
+    expect(todayRule).not.toMatch(/background:/)
+    expect(todayRule).toMatch(/box-shadow:\s*var\(--shadow-calendar-today\)/)
+    expect(selectedRule).toMatch(/background:\s*var\(--color-primary-hover\)/)
+
+    // The token the ring comes from has to be an INSET ring, not another outer glow behind a
+    // fill -- with no background on `.today`, an outer-only shadow would leave today unmarked.
+    const tokensCss = readFileSync(join(__dirname, '../../styles/tokens.css'), 'utf-8')
+    expect(tokensCss).toMatch(/--shadow-calendar-today:\s*inset\b/)
+  })
+
+  it('[P0] a selected today still reads as selected', () => {
+    renderGrid({ selectedDate: mockCalendarMonth.today })
+
+    const today = screen.getByTestId(`calendar-day-${mockCalendarMonth.today}`)
+    expect(today).toHaveClass('today', 'selected')
+    expect(today).toHaveAttribute('aria-pressed', 'true')
   })
 })
 

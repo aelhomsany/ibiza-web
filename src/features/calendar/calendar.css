@@ -256,6 +256,47 @@ html[lang='ar'] .calendar-out-today-title {
   backdrop-filter: blur(8px);
 }
 
+/* On the Timeline the legend is also the filter: each chip switches the view to that one kind
+   and switches back when pressed again. In Agenda it stays a plain key (rendered as spans),
+   which is why the interactive skin is its own class rather than styling on `.cal-legend-item`. */
+.cal-legend-item--button {
+  cursor: pointer;
+  font-family: inherit;
+  /* Matches the 44px floor the other calendar controls hold (`.calendar-timeline-day`,
+     the policy disclosure summary). */
+  min-height: var(--min-touch-target);
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.cal-legend-item--button:hover {
+  border-color: var(--color-teal);
+  color: var(--color-teal);
+}
+
+.cal-legend-item--button:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus-ring);
+}
+
+@media (forced-colors: active) {
+  .cal-legend-item--button:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+}
+
+.cal-legend-item--button.is-active {
+  background: var(--color-teal);
+  border-color: var(--color-teal);
+  color: var(--color-mist);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cal-legend-item--button {
+    transition: none;
+  }
+}
+
 .cal-legend-presence {
   align-items: center;
   background: var(--color-teal);
@@ -271,8 +312,19 @@ html[lang='ar'] .calendar-out-today-title {
   padding-inline: var(--space-xs);
 }
 
+/* The legend is the key to the timeline, so its swatches carry the same presence hues the
+   bars do — a key painted in a colour the chart never uses is not a key. */
+.cal-legend-presence--off {
+  background: var(--color-presence-off-tint);
+  border-color: var(--color-presence-off);
+  color: var(--color-presence-off);
+}
+
 .cal-legend-presence--wfh {
+  background: var(--color-presence-wfh-tint);
+  border-color: var(--color-presence-wfh);
   border-style: dashed;
+  color: var(--color-presence-wfh);
 }
 
 .cal-legend-presence--pending {
@@ -437,6 +489,23 @@ html[lang='ar'] .calendar-timeline-person-heading {
   border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
+/* Holiday earns a column tint, not just amber text in the header: it is one of the three
+   kinds the legend names, and it was the only one with no colour on the timeline itself.
+   Rendered before the today column so today's darker wash layers over it on a day that is
+   both. */
+.calendar-holiday-column {
+  align-self: stretch;
+  background: color-mix(in srgb, var(--color-holiday-highlight) 40%, transparent);
+  grid-row: 1;
+  pointer-events: none;
+  position: relative;
+  z-index: 0;
+}
+
+.calendar-holiday-column--header {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
 .calendar-timeline-rows {
   display: flex;
   flex-direction: column;
@@ -516,6 +585,8 @@ html[lang='ar'] .calendar-timeline-person-heading {
   margin-inline: 1px;
   overflow: hidden;
   padding-inline: var(--space-sm);
+  /* Room for the 4px person stripe below, so a short bar's label never sits on it. */
+  padding-inline-start: calc(var(--space-sm) + 4px);
   position: relative;
   text-decoration: none;
   text-overflow: ellipsis;
@@ -523,12 +594,33 @@ html[lang='ar'] .calendar-timeline-person-heading {
   z-index: 1;
 }
 
-.calendar-timeline-bar.cal-event--wfh {
-  border-style: dashed;
+/* Off, WFH and Holiday are three different KINDS of day, so each owns a hue (2026-09-01).
+   They used to share the person's hash colour and differ only by border style, which is
+   invisible at a glance on a 24px pill. Every ink is ≥5:1 on its own tint. */
+.calendar-timeline-bar.cal-event--off {
+  background: var(--color-presence-off-tint);
+  border-color: var(--color-presence-off);
+  border-style: solid;
+  color: var(--color-presence-off);
 }
 
-.calendar-timeline-bar.cal-event--off {
-  border-style: solid;
+.calendar-timeline-bar.cal-event--wfh {
+  background: var(--color-presence-wfh-tint);
+  border-color: var(--color-presence-wfh);
+  border-style: dashed;
+  color: var(--color-presence-wfh);
+}
+
+/* Whose bar it is, now that the fill says what kind of day it is instead: the same hash
+   colour as that person's avatar two columns to the left, so identity survives the recolour
+   rather than being asserted only by an inline custom property nothing paints. */
+.calendar-timeline-bar::before {
+  background: var(--chip-bg, var(--color-teal));
+  content: '';
+  inset-block: 0;
+  inset-inline-start: 0;
+  position: absolute;
+  width: 4px;
 }
 
 /* Viewer's own pending request (Dashboard merge, 2026-09-01), synthesized
@@ -578,6 +670,15 @@ html[lang='ar'] .calendar-timeline-person-heading {
 
 .calendar-timeline-empty {
   text-align: center;
+}
+
+/* The filtered case carries a way out, so the block becomes a small centred stack. */
+.calendar-timeline-empty--filtered {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  justify-content: center;
 }
 
 .calendar-coverage-alert {
@@ -669,14 +770,18 @@ html[lang='ar'] .calendar-timeline-person-heading {
   font-weight: 700;
 }
 
+/* Today marks WHERE YOU ARE; selected marks WHAT YOU PICKED. Both used to be filled pills
+   separated only by shade, so opening Agenda with nothing selected — the whole month listed —
+   still showed today as a solid dark circle and read as a one-day filter. Today is now a ring,
+   and it deliberately sets no background or colour so a holiday keeps its amber and a weekend
+   keeps its muted ink underneath. */
 .calendar-mini-day.today {
-  background: var(--color-teal);
   box-shadow: var(--shadow-calendar-today);
-  color: var(--color-mist);
   font-weight: 800;
 }
 
-.calendar-mini-day.selected {
+.calendar-mini-day.selected,
+.calendar-mini-day.today.selected {
   background: var(--color-primary-hover);
   box-shadow: var(--shadow-calendar-selected);
   color: var(--color-mist);
@@ -694,7 +799,7 @@ html[lang='ar'] .calendar-timeline-person-heading {
   width: 4px;
 }
 
-.calendar-mini-day.today .calendar-mini-absence-dot,
+/* Only the filled state needs the dot inverted — today is a ring over the card now. */
 .calendar-mini-day.selected .calendar-mini-absence-dot {
   background: var(--color-mist);
 }
@@ -803,12 +908,36 @@ html[lang='ar'] .calendar-timeline-person-heading {
   justify-content: space-between;
 }
 
+/* The scope flag. This was a plain muted label, easy to read straight past — so the list could
+   be showing every day of the month while the mini-month appeared to have one day picked, and
+   nothing on screen settled which. It is now a badge that states the scope outright, and its
+   two variants are shaped differently: outlined for the whole month, filled for one day. */
 .calendar-agenda-heading {
-  color: var(--color-muted);
+  align-items: center;
+  border-radius: var(--radius-full);
+  display: inline-flex;
   font-size: 12px;
   font-weight: 800;
+  gap: var(--space-sm);
   letter-spacing: 0.08em;
+  padding: var(--space-xs) var(--space-md);
   text-transform: uppercase;
+}
+
+.calendar-agenda-heading svg {
+  flex: 0 0 auto;
+}
+
+.calendar-agenda-heading--month {
+  background: color-mix(in srgb, var(--color-teal) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-teal) 30%, transparent);
+  color: var(--color-teal);
+}
+
+.calendar-agenda-heading--day {
+  background: var(--color-teal);
+  border: 1px solid var(--color-teal);
+  color: var(--color-mist);
 }
 
 /* Arabic is cursive: letterspacing pulls apart glyphs that are meant to join. */

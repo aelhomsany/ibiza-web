@@ -1,14 +1,17 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { createInstance } from 'i18next'
 import { MemoryRouter } from 'react-router-dom'
 import type { CalendarMonthResponse } from '../../api/generated/types'
 import arCalendar from '../../i18n/locales/ar/calendar.json'
 import { CalendarTimeline } from './CalendarTimeline'
+import type { CalendarKind } from './calendarKinds'
 import { mockCalendarMonth } from './calendarTestFixtures'
 
 function renderTimeline(
   calendar: CalendarMonthResponse = mockCalendarMonth,
   weekStart = '2026-06-07',
+  filter: { activeKind?: CalendarKind | null, onClearKindFilter?: () => void } = {},
 ) {
   return render(
     <MemoryRouter>
@@ -17,9 +20,48 @@ function renderTimeline(
         weekStart={weekStart}
         weekendDays={calendar.viewerWeekendDays}
         locale="en-US"
+        activeKind={filter.activeKind ?? null}
+        onClearKindFilter={filter.onClearKindFilter}
       />
     </MemoryRouter>,
   )
+}
+
+/**
+ * One week (Jun 7–13) holding all three kinds at once: Sarah Chen off Jun 10–12, Omar Hassan
+ * working from home on the 11th, Mike Davis off on the 11th (so the coverage alert fires), and
+ * a holiday on the 9th.
+ */
+function weekWithEveryKind(): CalendarMonthResponse {
+  return {
+    ...mockCalendarMonth,
+    absences: [
+      mockCalendarMonth.absences[0],
+      { ...mockCalendarMonth.absences[1], dateFrom: '2026-06-11', dateTo: '2026-06-11' },
+      {
+        ...mockCalendarMonth.absences[0],
+        requestId: 13,
+        userId: 4,
+        userFullName: 'Mike Davis',
+        userInitials: 'MD',
+        dateFrom: '2026-06-11',
+        dateTo: '2026-06-11',
+        workingDays: 1,
+        workingDates: ['2026-06-11'],
+      },
+    ],
+    holidays: [
+      ...mockCalendarMonth.holidays,
+      {
+        holidayId: 9,
+        workforceGroupId: 1,
+        workforceGroupName: 'US',
+        name: 'Spring Break',
+        dateFrom: '2026-06-09',
+        dateTo: '2026-06-09',
+      },
+    ],
+  }
 }
 
 describe('CalendarTimeline', () => {
@@ -241,5 +283,58 @@ describe('CalendarTimeline', () => {
     expect(screen.getByRole('status')).toHaveTextContent(
       'No team absences this week — full coverage.',
     )
+  })
+
+  it('[P1] shows every kind until a legend chip is pressed', () => {
+    renderTimeline(weekWithEveryKind())
+
+    expect(screen.getByTestId('calendar-event-10')).toBeInTheDocument()
+    expect(screen.getByTestId('calendar-event-11')).toBeInTheDocument()
+    expect(screen.getByTestId('calendar-event-13')).toBeInTheDocument()
+    expect(screen.getByTestId('calendar-holiday-column-2026-06-09')).toBeInTheDocument()
+  })
+
+  it('[P1] filtering to Off drops the WFH bar and the holiday tint', () => {
+    renderTimeline(weekWithEveryKind(), '2026-06-07', { activeKind: 'OFF' })
+
+    expect(screen.getByTestId('calendar-event-10')).toBeInTheDocument()
+    expect(screen.getByTestId('calendar-event-13')).toBeInTheDocument()
+    expect(screen.queryByTestId('calendar-event-11')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('calendar-holiday-column-2026-06-09')).not.toBeInTheDocument()
+    // The person rail follows the bars: nobody keeps a row with nothing on it.
+    expect(screen.queryByTestId('calendar-person-3')).not.toBeInTheDocument()
+  })
+
+  it('[P1] keeps the coverage alert speaking for the whole week while a filter is on', () => {
+    // Coverage is a fact about the week, not about the current filter. Narrowing to WFH hides
+    // both Off bars, and telling the reader the week is covered would be a lie.
+    renderTimeline(weekWithEveryKind(), '2026-06-07', { activeKind: 'WFH' })
+
+    expect(screen.getByTestId('calendar-event-11')).toBeInTheDocument()
+    expect(screen.queryByTestId('calendar-event-10')).not.toBeInTheDocument()
+    expect(screen.getByTestId('calendar-coverage-alert')).toHaveTextContent(
+      'Coverage alert — 1 day this week with 2+ people away (Thu 11)',
+    )
+  })
+
+  it('[P1] filtering to Holiday keeps the day tint and offers a way back', async () => {
+    const user = userEvent.setup()
+    const onClearKindFilter = vi.fn()
+    renderTimeline(weekWithEveryKind(), '2026-06-07', {
+      activeKind: 'HOLIDAY',
+      onClearKindFilter,
+    })
+
+    expect(screen.getByTestId('calendar-holiday-column-2026-06-09')).toBeInTheDocument()
+    expect(screen.queryByTestId('calendar-event-10')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('calendar-event-11')).not.toBeInTheDocument()
+
+    const empty = screen.getByTestId('calendar-timeline-empty-filtered')
+    expect(empty).toHaveTextContent('Nothing on this week matches that filter.')
+    // Never the "full coverage" copy: the week is full of absences, they are just filtered out.
+    expect(empty).not.toHaveTextContent('full coverage')
+
+    await user.click(screen.getByRole('button', { name: 'Show all' }))
+    expect(onClearKindFilter).toHaveBeenCalledTimes(1)
   })
 })

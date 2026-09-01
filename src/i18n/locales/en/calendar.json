@@ -3,8 +3,8 @@
     "label": "Team calendar agenda",
     "weekStripLabel": "Choose a date in the week",
     "weekDayLabel": "{{date}}, {{absenceCount}} away, {{holidayCount}} holidays",
-    "thisMonth": "This month",
-    "selectedDay": "Selected day",
+    "thisMonth": "All days this month",
+    "selectedDay": "One day only",
     "showAll": "Show all",
     "workingDays_zero": "No working days",
     "workingDays_one": "{{count}} working day",
@@ -47,6 +47,7 @@
     "loadError": "Workforce Group options could not be loaded."
   },
   "legend": {
+    "filterLabel": "Filter the timeline by day type",
     "label": "Calendar legend",
     "off": "Off",
     "wfh": "WFH",
@@ -94,6 +95,8 @@
   },
   "subtitle": "Org-wide leave coverage and holidays",
   "timeline": {
+    "clearFilter": "Show all",
+    "emptyFiltered": "Nothing on this week matches that filter.",
     "label": "Team calendar week",
     "person": "Person",
     "empty": "No team absences this week — full coverage.",

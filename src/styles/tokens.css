@@ -113,6 +113,18 @@
   --color-holiday-strong: #B45309;
   --color-holiday-ink: #854D0E;
 
+  /* Timeline presence hues. Off, Work From Home and Holiday are three different KINDS of day,
+     so each owns a hue. They used to share the person's colour and differ only by border
+     style, which is invisible at a glance on a 24px pill. Holiday keeps the amber pair above;
+     these two complete the set. The tints carry the hue at a saturation that reads against the
+     white card (>=1.35:1) rather than washing out to it; each ink is >=4.9:1 on its own tint
+     (WCAG AA for the 12px bold bar label). Colour is never the only cue — Off stays solid-
+     bordered and WFH stays dashed. */
+  --color-presence-off: #0B5C64;
+  --color-presence-off-tint: #BFE3E6;
+  --color-presence-wfh: #4B4FA6;
+  --color-presence-wfh-tint: #D3D5F5;
+
   /* Specialized calendar transparency remains token-owned until Story 11.6. */
   --color-calendar-glass: rgba(255, 255, 255, 0.55);
   --color-calendar-glass-strong: rgba(255, 255, 255, 0.65);
@@ -225,7 +237,9 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --shadow-calendar-control: 0 6px 18px rgba(10, 60, 73, 0.08);
   --shadow-calendar-item: 0 6px 18px rgba(10, 60, 73, 0.06);
-  --shadow-calendar-today: 0 0 0 3px rgba(10, 60, 73, 0.15);
+  /* Today is a RING, selected is a HALO around a fill. They used to be two filled pills that
+     differed only in shade, so on a month with nothing picked, today read as the picked day. */
+  --shadow-calendar-today: inset 0 0 0 2px var(--color-teal);
   --shadow-calendar-selected: 0 0 0 3px rgba(12, 89, 97, 0.3);
 
   /* Shared dual focus ring: 2px inner + 4px outer on every surface. */

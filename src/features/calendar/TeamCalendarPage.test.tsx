@@ -391,7 +391,7 @@ describe('TeamCalendarPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Show all' }))
     expect(selectedDay).toHaveAttribute('aria-pressed', 'false')
-    expect(screen.getByRole('heading', { name: 'This month' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'All days this month' })).toBeInTheDocument()
   })
 
   it('[P1] Today restores the current period and clears Agenda day selection', async () => {
@@ -408,7 +408,7 @@ describe('TeamCalendarPage', () => {
     await user.click(screen.getByRole('button', { name: 'Today' }))
 
     expect(await screen.findByTestId('calendar-mini-month')).toHaveTextContent('June 2026')
-    expect(screen.getByRole('heading', { name: 'This month' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'All days this month' })).toBeInTheDocument()
   })
 
   it('[P1] surfaces API problem details without rendering a success view', async () => {
@@ -704,5 +704,124 @@ describe('TeamCalendarPage landing additions — Dashboard merge (2026-09-01)', 
     renderTeamCalendarPage()
 
     expect(await screen.findByTestId('calendar-coverage-alert')).toBeInTheDocument()
+  })
+})
+
+/**
+ * The legend doubles as the Timeline's filter (2026-09-01): each chip narrows the week to that
+ * one kind, and pressing the lit chip clears back to everything.
+ */
+describe('TeamCalendarPage legend filter', () => {
+  const offOn = (requestId: number, userId: number, date: string) => ({
+    ...mockCalendarMonth.absences[0],
+    requestId,
+    userId,
+    userFullName: `Colleague ${userId}`,
+    userInitials: `C${userId}`,
+    dateFrom: date,
+    dateTo: date,
+    workingDays: 1,
+    workingDates: [date],
+  })
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-06-15T12:00:00Z') })
+    vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue(workforceGroups)
+    vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue([])
+    // Week of Jun 14–20: Omar Hassan WFH on the 15th (fixture) plus one Off day on the 17th,
+    // and Founders Day on the 18th–19th — one of every kind in the opening week.
+    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue({
+      ...mockCalendarMonth,
+      absences: [mockCalendarMonth.absences[1], offOn(90, 4, '2026-06-17')],
+    })
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.restoreAllMocks()
+  })
+
+  it('[P1] narrows the timeline to one kind and clears on a second press', async () => {
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    await screen.findByTestId('calendar-event-11')
+    expect(screen.getByTestId('calendar-event-90')).toBeInTheDocument()
+
+    await user.click(screen.getByTestId('cal-legend-off'))
+
+    expect(screen.getByTestId('cal-legend-off')).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByTestId('calendar-event-90')).toBeInTheDocument()
+    expect(screen.queryByTestId('calendar-event-11')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('calendar-holiday-column-2026-06-18')).not.toBeInTheDocument()
+
+    await user.click(screen.getByTestId('cal-legend-off'))
+
+    expect(screen.getByTestId('cal-legend-off')).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByTestId('calendar-event-11')).toBeInTheDocument()
+    expect(screen.getByTestId('calendar-holiday-column-2026-06-18')).toBeInTheDocument()
+  })
+
+  it('[P1] swaps the selection rather than adding to it', async () => {
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    await screen.findByTestId('calendar-event-11')
+    await user.click(screen.getByTestId('cal-legend-off'))
+    await user.click(screen.getByTestId('cal-legend-wfh'))
+
+    expect(screen.getByTestId('cal-legend-off')).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByTestId('cal-legend-wfh')).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByTestId('calendar-event-11')).toBeInTheDocument()
+    expect(screen.queryByTestId('calendar-event-90')).not.toBeInTheDocument()
+  })
+
+  it('[P1] offers a way back when a filter empties the week', async () => {
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    await screen.findByTestId('calendar-event-11')
+    await user.click(screen.getByTestId('cal-legend-holiday'))
+
+    expect(screen.getByTestId('calendar-timeline-empty-filtered')).toBeInTheDocument()
+    // The holiday tint is what the reader asked to see, so it survives its own filter.
+    expect(screen.getByTestId('calendar-holiday-column-2026-06-18')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Show all' }))
+
+    expect(screen.queryByTestId('calendar-timeline-empty-filtered')).not.toBeInTheDocument()
+    expect(screen.getByTestId('calendar-event-11')).toBeInTheDocument()
+    expect(screen.getByTestId('cal-legend-holiday')).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('[P1] drops the filter and the buttons when Agenda takes over', async () => {
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    await screen.findByTestId('calendar-event-11')
+    await user.click(screen.getByTestId('cal-legend-off'))
+    await user.click(screen.getByRole('button', { name: 'Agenda' }))
+
+    // Agenda has no filterable bars, so its legend goes back to being a plain key.
+    await screen.findByTestId('calendar-agenda')
+    expect(screen.getByTestId('cal-legend-off').tagName).toBe('SPAN')
+    // Scoped by testid, not by label: the Agenda's mini-month carries its own
+    // "Calendar legend" landmark, so the page has two by that name in this view.
+    expect(screen.getByTestId('cal-legend-off').closest('.cal-legend')).toHaveAttribute(
+      'aria-label',
+      'Calendar legend',
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Timeline' }))
+
+    // Returning to Timeline must not greet the reader with an invisible filter still on.
+    await screen.findByTestId('calendar-event-11')
+    expect(screen.getByTestId('cal-legend-off')).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByTestId('calendar-event-90')).toBeInTheDocument()
   })
 })
