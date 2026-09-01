@@ -135,7 +135,7 @@ type Surface = {
 const checkoutReturnState = {
   registrationId: 'reg-a11y',
   status: 'ACTION_REQUIRED',
-  selectedPlan: 'STARTER',
+  selectedPlan: 'GROWTH',
   intendedCount: 12,
   maskedEmail: 'p****@example.com',
   organizationName: 'Priya Agency',
@@ -161,7 +161,7 @@ const surfaces: Surface[] = [
     suite: 'Paid Checkout return accessibility checkpoints — Story 12.4',
     what: 'the paid Checkout-return recovery panel',
     baseURL: publicBaseUrl,
-    path: '/register/checkout-return?registrationId=reg-a11y&outcome=success&plan=STARTER',
+    path: '/register/checkout-return?registrationId=reg-a11y&outcome=success&plan=GROWTH',
     prepare: async (context) => {
       await context.route('**/api/v1/registrations/reg-a11y', (route) =>
         route.fulfill({

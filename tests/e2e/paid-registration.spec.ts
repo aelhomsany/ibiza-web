@@ -31,7 +31,7 @@ function registrationState(
   return {
     registrationId,
     status,
-    selectedPlan: 'STARTER',
+    selectedPlan: 'GROWTH',
     intendedCount: 34,
     maskedEmail: 'p****@example.com',
     organizationName: 'Priya Agency',
@@ -103,7 +103,7 @@ test.describe(
             )
             const page = await context.newPage()
             const path = locale === 'ar' ? '/ar/register/checkout-return' : '/register/checkout-return'
-            await page.goto(`${path}?registrationId=reg-layout&outcome=success&plan=STARTER`)
+            await page.goto(`${path}?registrationId=reg-layout&outcome=success&plan=GROWTH`)
 
             await expect(page.getByTestId('checkout-return-confirming')).toBeVisible()
             await expect(page.getByRole('heading', { level: 1 })).toContainText(
@@ -133,18 +133,18 @@ test.describe(
     )
 
     test(
-      '[P0] Given a verified Starter registration, When Checkout and webhook succeed, Then one paid workspace is provisioned and handoff lands first-use without duplicate charge',
+      '[P0] Given a verified Growth registration, When Checkout and webhook succeed, Then one paid workspace is provisioned and handoff lands first-use without duplicate charge',
       async ({ browser }) => {
         const context = await browser.newContext({ baseURL: publicBaseUrl })
         const page = await context.newPage()
         const stamp = Date.now()
         const email = `priya+${stamp}@example.com`
 
-        const registrationId = await startAndVerifyStarterRegistration(page, context, email, stamp)
+        const registrationId = await startAndVerifyGrowthRegistration(page, context, email, stamp)
 
         const review = page.getByTestId('paid-commitment-review')
         await expect(review).toBeVisible()
-        await expect(review).toContainText(/\$3|per active/i)
+        await expect(review).toContainText(/\$1|per active/i)
         await expect(review).toContainText(/renew/i)
         await expect(review).toContainText(/cancel/i)
         await expect(review).toContainText(/downgrade/i)
@@ -241,7 +241,7 @@ test.describe(
         const stamp = Date.now()
         const email = `unprovisioned+${stamp}@example.com`
 
-        const registrationId = await startAndVerifyStarterRegistration(page, context, email, stamp)
+        const registrationId = await startAndVerifyGrowthRegistration(page, context, email, stamp)
         await page.getByTestId('checkout-start').click()
         await expect(page.getByTestId('checkout-return-confirming')).toBeVisible()
 
@@ -318,16 +318,16 @@ async function readRegistration(
  * Start → verify, through the real form and the real single-use link out of the outbox. Leaves the
  * page on the paid commitment review and returns the registration id.
  */
-async function startAndVerifyStarterRegistration(
+async function startAndVerifyGrowthRegistration(
   page: Page,
   context: BrowserContext,
   email: string,
   stamp: number,
 ): Promise<string> {
-  await page.goto('/register?plan=STARTER&intendedCount=34&locale=en')
+  await page.goto('/register?plan=GROWTH&intendedCount=34&locale=en')
 
   // The route opens on the start form, so the commitment review is not on screen yet.
-  await expect(page.getByTestId('register-plan-summary')).toContainText(/starter/i)
+  await expect(page.getByTestId('register-plan-summary')).toContainText(/growth/i)
   await expect(page.getByTestId('register-intended-count')).toHaveValue('34')
   await expect(page.getByTestId('paid-commitment-review')).toHaveCount(0)
 

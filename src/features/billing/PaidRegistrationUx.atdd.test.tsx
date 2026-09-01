@@ -9,7 +9,7 @@ vi.mock('../public-site/analyticsGateway', () => ({
 }))
 
 const paid: publicClient.RegistrationState = {
-  registrationId: 'reg-paid-124', status: 'VERIFIED', selectedPlan: 'STARTER', intendedCount: 34,
+  registrationId: 'reg-paid-124', status: 'VERIFIED', selectedPlan: 'GROWTH', intendedCount: 34,
   maskedEmail: 'p****@example.com', organizationName: 'Priya Agency', locale: 'en', country: 'US',
   timezone: 'America/New_York', safeReturnPath: '/', resendAvailableInSeconds: 0,
   workspaceCreated: false, recoveryAction: null, checkoutSessionId: null,
@@ -27,7 +27,7 @@ describe('Paid registration UX — Story 12.4', () => {
     render(<RegistrationFlow locale="en" route="/register/verify" />)
 
     const review = await screen.findByTestId('paid-commitment-review')
-    expect(review).toHaveTextContent(/STARTER.*\$3 per active user monthly.*34 active users/i)
+    expect(review).toHaveTextContent(/GROWTH.*\$1 per active user monthly.*34 active users/i)
     expect(review).toHaveTextContent(/recurring billing.*active users/i)
     expect(review).toHaveTextContent(/renews monthly/i)
     expect(review).toHaveTextContent(/cancel.*paid period/i)
@@ -40,7 +40,7 @@ describe('Paid registration UX — Story 12.4', () => {
       ...paid, status: 'CHECKOUT_PENDING', recoveryAction: 'WAIT_FOR_PAYMENT', checkoutSessionId: 'cs_123',
     })
     sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
-    window.history.replaceState({}, '', '/register/checkout-return?outcome=success&plan=STARTER')
+    window.history.replaceState({}, '', '/register/checkout-return?outcome=success&plan=GROWTH')
     render(<CheckoutReturnPage locale="en" />)
 
     expect(screen.getByTestId('checkout-return-confirming')).toHaveTextContent('Confirming Payment')
@@ -54,7 +54,7 @@ describe('Paid registration UX — Story 12.4', () => {
       ...paid, status: 'PROVISIONING_FAILED', recoveryAction: 'RETRY_PROVISIONING', checkoutSessionId: 'cs_123',
     })
     sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
-    window.history.replaceState({}, '', '/register/checkout-return?outcome=success&plan=STARTER')
+    window.history.replaceState({}, '', '/register/checkout-return?outcome=success&plan=GROWTH')
     render(<CheckoutReturnPage locale="en" />)
 
     expect(await screen.findByTestId('recovery-next-action')).toHaveTextContent('Complete Workspace Setup')
@@ -67,7 +67,7 @@ describe('Paid registration UX — Story 12.4', () => {
       ...paid, status: 'PAID_PROVISIONING', recoveryAction: null, checkoutSessionId: 'cs_123',
     })
     sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
-    window.history.replaceState({}, '', '/register/checkout-return?outcome=success&plan=STARTER')
+    window.history.replaceState({}, '', '/register/checkout-return?outcome=success&plan=GROWTH')
     render(<CheckoutReturnPage locale="en" />)
 
     const provisioning = await screen.findByTestId('provisioning-status')
@@ -95,7 +95,7 @@ describe('Paid registration UX — Story 12.4', () => {
       ...paid, status: 'ABANDONED', recoveryAction: 'RESUME_CHECKOUT', checkoutSessionId: 'cs_123',
     })
     sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
-    window.history.replaceState({}, '', '/register/checkout-return?outcome=cancelled&plan=STARTER')
+    window.history.replaceState({}, '', '/register/checkout-return?outcome=cancelled&plan=GROWTH')
 
     // ABANDONED is terminal, so the two-second poll must not be rescheduled. The previous
     // assertion waited 60 ms of real time against a 2 000 ms interval, so it passed whether or
@@ -122,7 +122,7 @@ describe('Paid registration UX — Story 12.4', () => {
       ...paid, status: 'CHECKOUT_PENDING', recoveryAction: 'WAIT_FOR_PAYMENT', checkoutSessionId: 'cs_123',
     })
     sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
-    window.history.replaceState({}, '', '/register/checkout-return?outcome=success&plan=STARTER')
+    window.history.replaceState({}, '', '/register/checkout-return?outcome=success&plan=GROWTH')
 
     vi.useFakeTimers()
     try {
@@ -143,7 +143,7 @@ describe('Paid registration UX — Story 12.4', () => {
       ...paid, status: 'ABANDONED', recoveryAction: 'RESUME_CHECKOUT', checkoutSessionId: 'cs_123',
     })
     sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
-    window.history.replaceState({}, '', '/register/checkout-return?outcome=cancelled&plan=STARTER')
+    window.history.replaceState({}, '', '/register/checkout-return?outcome=cancelled&plan=GROWTH')
     render(<CheckoutReturnPage locale="en" />)
 
     await screen.findByTestId('recovery-next-action')
@@ -157,7 +157,7 @@ describe('Paid registration UX — Story 12.4', () => {
       ...paid, status: 'EXPIRED', recoveryAction: null, checkoutSessionId: null,
     })
     sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
-    window.history.replaceState({}, '', '/register/checkout-return?outcome=cancelled&plan=STARTER')
+    window.history.replaceState({}, '', '/register/checkout-return?outcome=cancelled&plan=GROWTH')
     render(<CheckoutReturnPage locale="en" />)
 
     const action = await screen.findByTestId('recovery-next-action')

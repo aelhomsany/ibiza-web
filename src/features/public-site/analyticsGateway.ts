@@ -31,7 +31,7 @@ export type ApprovedPublicEvent =
       dimensions: {
         route: '/pricing'
         locale: PublicLocale
-        plan: 'FREE' | 'STARTER' | 'GROWTH' | 'CONTACT_SALES'
+        plan: 'FREE' | 'GROWTH' | 'CONTACT_SALES'
         interaction: 'cta'
       }
     }
@@ -48,7 +48,7 @@ export type ApprovedPublicEvent =
       dimensions: {
         route: '/register'
         locale: PublicLocale
-        plan: 'FREE' | 'STARTER' | 'GROWTH'
+        plan: 'FREE' | 'GROWTH'
         formVersion: '1'
       }
     }
@@ -57,7 +57,7 @@ export type ApprovedPublicEvent =
       dimensions: {
         route: '/register/checkout-return'
         locale: PublicLocale
-        plan: 'STARTER' | 'GROWTH'
+        plan: 'GROWTH'
         interaction: 'success' | 'cancelled' | 'unknown'
         formVersion: '1'
       }
@@ -67,7 +67,7 @@ export type ApprovedPublicEvent =
       dimensions: {
         route: string
         locale: PublicLocale
-        plan: 'STARTER' | 'GROWTH' | 'CONTACT_SALES'
+        plan: 'GROWTH' | 'CONTACT_SALES'
         interaction: string
       }
     }

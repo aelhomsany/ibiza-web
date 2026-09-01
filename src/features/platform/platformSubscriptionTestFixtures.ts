@@ -13,14 +13,14 @@ export const mockAcmeForEditSubscription: OrganizationSummaryResponse = {
 }
 
 export const validUpdateSubscriptionRequest: UpdateSubscriptionRequest = {
-  plan: 'STARTER',
+  plan: 'GROWTH',
   billingStatus: 'MANUAL_ACTIVE',
   effectiveDate: '2026-06-27',
 }
 
 export const mockUpdatedAcmeSubscription: OrganizationSummaryResponse = {
   ...mockAcmeForEditSubscription,
-  plan: 'STARTER',
-  userLimit: 50,
+  plan: 'GROWTH',
+  userLimit: 200,
   effectiveDate: '2026-06-27',
 }

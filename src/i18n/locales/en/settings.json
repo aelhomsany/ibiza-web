@@ -368,7 +368,7 @@
     },
     "actions": {
       "opening": "Opening…",
-      "upgrade": "Upgrade"
+      "upgradeTo": "Upgrade to {{plan}}"
     },
     "errors": {
       "add": "Failed to add member",
@@ -391,8 +391,7 @@
       "noGroupsHint": "Every team member belongs to a workforce group, which sets their weekend days and public holidays. Create one before you add people."
     },
     "plans": {
-      "growth": "Growth",
-      "starter": "Starter"
+      "growth": "Growth"
     },
     "roles": {
       "employee": "Employee",
@@ -408,7 +407,6 @@
     "upgrade": {
       "checkoutUnavailable": "Self-serve checkout is unavailable. Use the manual path below.",
       "manual": "Manual fallback: Contact Platform Admin to upgrade.",
-      "paidPlan": "Paid plan",
       "title": "Upgrade Required"
     }
   },

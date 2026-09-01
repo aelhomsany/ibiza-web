@@ -30,7 +30,7 @@ type OnboardingPageProps = {
  */
 function activationStages(state: OnboardingState) {
   const activated = state.activationStatus === 'COMMERCIALLY_ACTIVATED'
-  const paid = state.plan === 'STARTER' || state.plan === 'GROWTH'
+  const paid = state.plan === 'GROWTH'
   // Paid plan is not the same fact as paid invoice. The server sends `billingInOnboarding` for
   // exactly the recovery states (PENDING_PAYMENT, PAST_DUE_GRACE, RESTRICTED), so reading plan
   // alone told an Organization that had not paid, in the first person, that it had.

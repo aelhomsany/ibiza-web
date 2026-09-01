@@ -411,7 +411,7 @@
         "@story-12-2"
       ],
       "tests": [
-        "[P0] Given intended-user counts at band boundaries, When Pricing renders recommendations, Then Free/Starter/Growth/Contact Sales routes are exact"
+        "[P0] Given intended-user counts at band boundaries, When Pricing renders recommendations, Then Free/Growth/Contact Sales routes are exact"
       ]
     },
     "contact-sales.spec.ts::Contact Sales handoff \u2014 Story 12.2": {
@@ -463,7 +463,7 @@
         "@story-12-4"
       ],
       "tests": [
-        "[P0] Given a verified Starter registration, When Checkout and webhook succeed, Then one paid workspace is provisioned and handoff lands first-use without duplicate charge"
+        "[P0] Given a verified Growth registration, When Checkout and webhook succeed, Then one paid workspace is provisioned and handoff lands first-use without duplicate charge"
       ]
     },
     "paid-registration.spec.ts::Paid registration recovery \u2014 Story 12.4": {

@@ -102,21 +102,6 @@ describe('OrganizationsPage', () => {
     expect(screen.getAllByRole('button', { name: /edit subscription.*(nile harbor|nile tech)/i })).toHaveLength(2)
   })
 
-  it('[P1] labels a Starter reporting promotion with its campaign', async () => {
-    vi.mocked(apiClient.getPlatformOrganizations).mockResolvedValue([{
-      id: 12, name: 'Promoted Starter', primaryContact: 'Sales Owner',
-      initialHrAdminEmail: 'owner@example.test', plan: 'STARTER', userCount: 10,
-      userLimit: 50, status: 'ACTIVE', effectiveDate: '2026-08-01',
-      reportingPromotion: {
-        id: 4, campaignCode: 'Q4_SALES', startsAt: '2026-08-01T00:00:00Z',
-        endsAt: '2026-12-01T00:00:00Z', state: 'ACTIVE',
-      },
-    }])
-    renderOrganizationsPage()
-    expect(await screen.findByTestId('reporting-promotion-12')).toHaveTextContent('Active')
-    expect(screen.getByTestId('reporting-promotion-12')).toHaveTextContent('Q4_SALES')
-  })
-
   it('[P0] shows AT LIMIT only for limited-plan organizations at or above user limit', async () => {
     vi.mocked(apiClient.getPlatformOrganizations).mockResolvedValue([
       {
@@ -132,12 +117,12 @@ describe('OrganizationsPage', () => {
       },
       {
         id: 2,
-        name: 'Starter Below Limit',
+        name: 'Growth Below Limit',
         primaryContact: 'Fatima Hassan',
-        initialHrAdminEmail: 'fatima@starter.example',
-        plan: 'STARTER',
-        userCount: 49,
-        userLimit: 50,
+        initialHrAdminEmail: 'fatima@growth.example',
+        plan: 'GROWTH',
+        userCount: 199,
+        userLimit: 200,
         status: 'ACTIVE',
         effectiveDate: '2026-07-04',
       },
@@ -182,9 +167,9 @@ describe('OrganizationsPage', () => {
     expect(within(freeAtLimitRow).getByText('3 / 3')).toBeInTheDocument()
     expect(within(freeAtLimitRow).getByText('AT LIMIT')).toBeInTheDocument()
 
-    const starterBelowLimitRow = screen.getByRole('row', { name: /starter below limit/i })
-    expect(within(starterBelowLimitRow).getByText('49 / 50')).toBeInTheDocument()
-    expect(within(starterBelowLimitRow).queryByText('AT LIMIT')).not.toBeInTheDocument()
+    const growthBelowLimitRow = screen.getByRole('row', { name: /growth below limit/i })
+    expect(within(growthBelowLimitRow).getByText('199 / 200')).toBeInTheDocument()
+    expect(within(growthBelowLimitRow).queryByText('AT LIMIT')).not.toBeInTheDocument()
 
     const growthAtLimitRow = screen.getByRole('row', { name: /growth at limit/i })
     expect(within(growthAtLimitRow).getByText('200 / 200')).toBeInTheDocument()

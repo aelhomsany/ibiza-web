@@ -214,7 +214,7 @@ describe('TeamMemberModal — add mode', () => {
 
     const alert = await screen.findByRole('alert')
     expect(alert).toHaveTextContent(detail)
-    expect(screen.getByRole('button', { name: 'Upgrade' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Upgrade to Growth' })).toBeInTheDocument()
     expect(screen.getByText(/Contact Platform Admin to upgrade/i)).toBeInTheDocument()
     expect(onWarning).not.toHaveBeenCalled()
     expect(onSuccess).not.toHaveBeenCalled()
@@ -245,7 +245,7 @@ describe('TeamMemberModal — add mode', () => {
     await waitFor(() => {
       expect(onWarning).toHaveBeenCalledWith(detail)
     })
-    expect(screen.queryByRole('button', { name: 'Upgrade' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Upgrade to Growth' })).not.toBeInTheDocument()
   })
 
   it('calls checkout and redirects when upgrade CTA succeeds', async () => {
@@ -272,10 +272,10 @@ describe('TeamMemberModal — add mode', () => {
     await user.type(screen.getByLabelText(/Department/i), 'Ops')
     await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
     await user.click(screen.getByRole('button', { name: /Save/i }))
-    await user.click(await screen.findByRole('button', { name: 'Upgrade' }))
+    await user.click(await screen.findByRole('button', { name: 'Upgrade to Growth' }))
 
     await waitFor(() => {
-      expect(checkoutSpy).toHaveBeenCalledWith({ plan: 'STARTER' })
+      expect(checkoutSpy).toHaveBeenCalledWith({ plan: 'GROWTH' })
       expect(redirectToExternalUrl).toHaveBeenCalledWith('https://checkout.stripe.test/session')
     })
   })
@@ -310,7 +310,7 @@ describe('TeamMemberModal — add mode', () => {
     await user.type(screen.getByLabelText(/Department/i), 'Ops')
     await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
     await user.click(screen.getByRole('button', { name: /Save/i }))
-    await user.click(await screen.findByRole('button', { name: 'Upgrade' }))
+    await user.click(await screen.findByRole('button', { name: 'Upgrade to Growth' }))
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent(

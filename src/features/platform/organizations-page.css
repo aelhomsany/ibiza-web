@@ -135,11 +135,6 @@
   color: var(--color-muted);
 }
 
-.plan-starter {
-  background: var(--color-teal-tint);
-  color: var(--color-teal);
-}
-
 .plan-growth {
   background: var(--color-mint-tint);
   color: var(--color-teal);

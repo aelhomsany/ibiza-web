@@ -36,7 +36,7 @@ export function PlanAndBillingPage() {
     }
   }
 
-  async function downgrade(targetPlan: 'FREE' | 'STARTER') {
+  async function downgrade(targetPlan: 'FREE') {
     if (working) return
     setWorking(true)
     try {
@@ -50,7 +50,7 @@ export function PlanAndBillingPage() {
     }
   }
 
-  async function trackUpgrade(plan: 'STARTER' | 'GROWTH' | 'CONTACT_SALES', interaction: string) {
+  async function trackUpgrade(plan: 'GROWTH' | 'CONTACT_SALES', interaction: string) {
     await emitApprovedPublicEvent({
       eventName: 'upgrade_prompt_selected.v1',
       dimensions: { route: '/settings/billing', locale: i18n.language === 'ar' ? 'ar' : 'en', plan, interaction },
@@ -93,9 +93,9 @@ export function PlanAndBillingPage() {
             <h2 id="billing-actions-title" className="card-title">{t('manage.title')}</h2>
             <p>{t('manage.body')}</p>
             <div className="billing-action-row">
-              {subscription.plan === 'GROWTH' ? <button className="btn btn-outline" disabled={working} onClick={() => void downgrade('STARTER')}>{t('actions.starter')}</button> : null}
-              {subscription.plan === 'STARTER' || subscription.plan === 'GROWTH' ? <button className="btn btn-outline" disabled={working} onClick={() => void downgrade('FREE')}>{t('actions.free')}</button> : null}
-              {subscription.plan === 'FREE' ? <a className="btn btn-primary" href="/pricing?intendedCount=6" onClick={() => void trackUpgrade('STARTER', 'billing_page')}>{t('actions.compare')}</a> : null}
+              {/* Free is the only downgrade target now that Growth is the only paid plan. */}
+              {subscription.plan === 'GROWTH' ? <button className="btn btn-outline" disabled={working} onClick={() => void downgrade('FREE')}>{t('actions.free')}</button> : null}
+              {subscription.plan === 'FREE' ? <a className="btn btn-primary" href="/pricing?intendedCount=6" onClick={() => void trackUpgrade('GROWTH', 'billing_page')}>{t('actions.compare')}</a> : null}
               <a className="btn btn-outline" href="/contact-sales" onClick={() => void trackUpgrade('CONTACT_SALES', 'billing_page')}>{t('actions.sales')}</a>
             </div>
           </section>

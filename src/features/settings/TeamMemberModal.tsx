@@ -42,7 +42,11 @@ type Props = {
 }
 
 type UserRole = 'EMPLOYEE' | 'MANAGER' | 'HR_ADMIN'
-type UpgradePlan = Extract<CreateCheckoutSessionRequest['plan'], 'STARTER' | 'GROWTH'>
+
+// Growth is the only paid plan, so the prompt names its destination instead of
+// asking the admin to pick one. The name is a proper noun and stays untranslated,
+// matching the public catalog, which renders "Growth" in Arabic too.
+const UPGRADE_PLAN: CreateCheckoutSessionRequest['plan'] = 'GROWTH'
 
 type LeaveTypeOption = {
   id: number
@@ -112,7 +116,6 @@ export function TeamMemberModal({
     detail: string
     checkoutUnavailable: boolean
   } | null>(null)
-  const [upgradePlan, setUpgradePlan] = useState<UpgradePlan>('STARTER')
   const upgradePromptRef = useRef<HTMLDivElement>(null)
 
   const groups = groupsQuery.data ?? []
@@ -336,7 +339,7 @@ export function TeamMemberModal({
   }
 
   function handleUpgrade() {
-    checkoutMutation.mutate({ plan: upgradePlan })
+    checkoutMutation.mutate({ plan: UPGRADE_PLAN })
   }
 
   const isPending = createMutation.isPending || updateMutation.isPending
@@ -640,15 +643,6 @@ export function TeamMemberModal({
                 <p>{t('settings:memberModal.upgrade.manual')}</p>
               </div>
               <div className="upgrade-prompt-actions">
-                <label htmlFor="upgrade-plan">{t('settings:memberModal.upgrade.paidPlan')}</label>
-                <select
-                  id="upgrade-plan"
-                  value={upgradePlan}
-                  onChange={(event) => setUpgradePlan(event.target.value as UpgradePlan)}
-                >
-                  <option value="STARTER">{t('settings:memberModal.plans.starter')}</option>
-                  <option value="GROWTH">{t('settings:memberModal.plans.growth')}</option>
-                </select>
                 <button
                   type="button"
                   className="btn btn-primary"
@@ -659,7 +653,9 @@ export function TeamMemberModal({
                 >
                   {checkoutMutation.isPending
                     ? t('settings:memberModal.actions.opening')
-                    : t('settings:memberModal.actions.upgrade')}
+                    : t('settings:memberModal.actions.upgradeTo', {
+                      plan: t('settings:memberModal.plans.growth'),
+                    })}
                 </button>
               </div>
             </div>

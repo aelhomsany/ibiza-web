@@ -1,4 +1,4 @@
-export type PublicPlanCode = 'FREE' | 'STARTER' | 'GROWTH' | 'CONTACT_SALES'
+export type PublicPlanCode = 'FREE' | 'GROWTH' | 'CONTACT_SALES'
 
 export type PublicCapability = {
   code: string
@@ -54,7 +54,7 @@ export type RegistrationState = {
 	status: 'VERIFICATION_PENDING' | 'VERIFIED' | 'CHECKOUT_PENDING' | 'PAYMENT_CONFIRMED'
 		| 'PAID_PROVISIONING' | 'FREE_PROVISIONING' | 'ACTIVE' | 'EXPIRED'
 		| 'ACTION_REQUIRED' | 'PROVISIONING_FAILED' | 'ABANDONED'
-	selectedPlan: 'FREE' | 'STARTER' | 'GROWTH'
+	selectedPlan: 'FREE' | 'GROWTH'
   intendedCount: number
   maskedEmail: string
   organizationName: string
@@ -70,7 +70,7 @@ export type RegistrationState = {
 }
 
 export type StartRegistrationPayload = {
-	selectedPlan: 'FREE' | 'STARTER' | 'GROWTH'
+	selectedPlan: 'FREE' | 'GROWTH'
   intendedCount: number
   administratorEmail: string
   organizationName: string
@@ -95,7 +95,7 @@ export type ProvisionRegistrationPayload = {
 export type ProvisionRegistrationResult = {
   organizationId: number
   creationSource: 'SELF_SERVICE'
-	plan: 'FREE' | 'STARTER' | 'GROWTH'
+	plan: 'FREE' | 'GROWTH'
   handoffCode: string
   handoffPath: string
   recovered: boolean
@@ -257,7 +257,7 @@ export type RegistrationCheckoutResult = {
 
 export function startRegistrationCheckout(
 	registrationId: string,
-	selectedPlan: 'STARTER' | 'GROWTH',
+	selectedPlan: 'GROWTH',
 	declaredQuantity: number,
 	turnstileToken: string,
 	idempotencyKey = publicUuid(),

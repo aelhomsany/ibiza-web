@@ -13,7 +13,7 @@ type Props = {
 
 type Plan = CreateOrganizationRequest['plan']
 
-const plans: Plan[] = ['FREE', 'STARTER', 'GROWTH', 'INTERNAL']
+const plans: Plan[] = ['FREE', 'GROWTH', 'INTERNAL']
 
 const NO_HANDOFF = ''
 
@@ -23,7 +23,7 @@ export function CreateOrganizationModal({ onClose }: Props) {
   const [name, setName] = useState('')
   const [primaryContact, setPrimaryContact] = useState('')
   const [initialHrAdminEmail, setInitialHrAdminEmail] = useState('')
-  const [plan, setPlan] = useState<Plan>('STARTER')
+  const [plan, setPlan] = useState<Plan>('GROWTH')
   const [assistedHandoffId, setAssistedHandoffId] = useState<string>(NO_HANDOFF)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   // A lead list that cannot be read is not a reason to block provisioning: the operator can

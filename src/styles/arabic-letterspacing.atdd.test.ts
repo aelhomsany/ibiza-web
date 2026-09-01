@@ -31,8 +31,8 @@ const srcRoot = join(repoRoot, 'src')
  */
 const deliberatelyUnguarded: Record<string, string> = {
   '.billing-plan-badge':
-    'Renders {subscription.plan} raw with no t() — an untranslated Latin enum (FREE | STARTER | ' +
-    'GROWTH | INTERNAL). The tracking is intended Latin tracking, and a language-scoped reset ' +
+    'Renders {subscription.plan} raw with no t() — an untranslated Latin enum (FREE | GROWTH | ' +
+    'INTERNAL). The tracking is intended Latin tracking, and a language-scoped reset ' +
     'would strip it from Latin glyphs.',
   '.balance-value':
     'Its visible content is aria-hidden digits ("17/20"); the prose beside it sits in an .sr-only ' +

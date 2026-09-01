@@ -52,38 +52,7 @@
     "growth": "النمو",
     "growthWithLimit": "النمو (200 مستخدم)",
     "internal": "الداخلية",
-    "internalWithLimit": "الداخلية (غير محدودة)",
-    "starter": "المبتدئة",
-    "starterWithLimit": "المبتدئة (50 مستخدمًا)"
-  },
-  "promotion": {
-    "title": "حملة التقارير المتقدمة",
-    "none": "لا توجد حملة",
-    "endHint": "ينتهي الوصول عند بداية هذا التاريخ بالتوقيت العالمي.",
-    "fields": {
-      "campaign": "رمز الحملة",
-      "start": "تبدأ",
-      "end": "تنتهي"
-    },
-    "actions": {
-      "grant": "منح الحملة",
-      "revoke": "إلغاء الحملة",
-      "confirmRevoke": "تأكيد الإلغاء"
-    },
-    "states": {
-      "scheduled": "مجدولة",
-      "active": "نشطة",
-      "expired": "منتهية",
-      "revoked": "ملغاة",
-      "unknown": "غير معروفة"
-    },
-    "errors": {
-      "submit": "تعذر منح حملة التقارير",
-      "revoke": "تعذر إلغاء حملة التقارير",
-      "incomplete": "أدخل رمز الحملة وكلا التاريخين",
-      "range": "يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء"
-    },
-    "current": "{{state}} · {{campaign}}"
+    "internalWithLimit": "الداخلية (غير محدودة)"
   },
   "recovery": {
     "action": "استرداد التجهيز",
@@ -121,7 +90,6 @@
     "effective": "السريان",
     "organization": "المؤسسة",
     "plan": "الخطة",
-    "reporting": "التقارير المتقدمة",
     "status": "الحالة",
     "users": "المستخدمون"
   },

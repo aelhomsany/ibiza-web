@@ -21,12 +21,7 @@ export type PricingRecommendationProps = {
   initialIntendedCount?: number
 }
 
-const PUBLIC_PLAN_CODES = new Set<PublicPlanCode>([
-  'FREE',
-  'STARTER',
-  'GROWTH',
-  'CONTACT_SALES',
-])
+const PUBLIC_PLAN_CODES = new Set<PublicPlanCode>(['FREE', 'GROWTH', 'CONTACT_SALES'])
 
 function localePath(locale: 'en' | 'ar', route: string): string {
   return locale === 'ar' ? `/ar${route}` : route
@@ -192,7 +187,6 @@ export function PricingRecommendation({
             const testId = `plan-card-${plan.code.toLowerCase().replace('_', '-')}`
             const ctaTestId = {
               FREE: 'cta-start-free',
-              STARTER: 'cta-choose-starter',
               GROWTH: 'cta-choose-growth',
               CONTACT_SALES: 'cta-contact-sales',
             }[plan.code]

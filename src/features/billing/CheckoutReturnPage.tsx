@@ -41,7 +41,8 @@ export function CheckoutReturnPage({ locale }: Props) {
   const query = typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search)
   const registrationId = query.get('registrationId')
     ?? (typeof sessionStorage === 'undefined' ? null : sessionStorage.getItem('ibiza.registrationId'))
-  const plan = query.get('plan') === 'GROWTH' ? 'GROWTH' : 'STARTER'
+  // Checkout only ever runs for the one paid plan, so the parameter is confirmation, not a choice.
+  const plan = 'GROWTH'
   const outcome = query.get('outcome') === 'cancelled'
     ? 'cancelled'
     : query.get('outcome') === 'success' ? 'success' : 'unknown'

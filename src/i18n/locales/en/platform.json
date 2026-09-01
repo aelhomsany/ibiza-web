@@ -52,38 +52,7 @@
     "growth": "Growth",
     "growthWithLimit": "Growth (200 users)",
     "internal": "Internal",
-    "internalWithLimit": "Internal (unlimited)",
-    "starter": "Starter",
-    "starterWithLimit": "Starter (50 users)"
-  },
-  "promotion": {
-    "title": "Advanced Reporting Promotion",
-    "none": "No promotion",
-    "endHint": "Access ends at the start of this date (UTC).",
-    "fields": {
-      "campaign": "Campaign code",
-      "start": "Starts",
-      "end": "Ends"
-    },
-    "actions": {
-      "grant": "Grant Promotion",
-      "revoke": "Revoke Promotion",
-      "confirmRevoke": "Confirm Revoke"
-    },
-    "states": {
-      "scheduled": "Scheduled",
-      "active": "Active",
-      "expired": "Expired",
-      "revoked": "Revoked",
-      "unknown": "Unknown"
-    },
-    "errors": {
-      "submit": "Unable to grant reporting promotion",
-      "revoke": "Unable to revoke reporting promotion",
-      "incomplete": "Enter a campaign code and both dates",
-      "range": "The end date must be after the start date"
-    },
-    "current": "{{state}} · {{campaign}}"
+    "internalWithLimit": "Internal (unlimited)"
   },
   "recovery": {
     "action": "Recover Provisioning",
@@ -121,7 +90,6 @@
     "effective": "Effective",
     "organization": "Organization",
     "plan": "Plan",
-    "reporting": "Advanced reporting",
     "status": "Status",
     "users": "Users"
   },

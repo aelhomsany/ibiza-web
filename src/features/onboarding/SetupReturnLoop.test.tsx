@@ -330,7 +330,7 @@ describe('First leave cycle framing', () => {
     render(
       <MemoryRouter>
         <OnboardingPage
-          state={onboardingState({ plan: 'STARTER', billingInOnboarding: true })}
+          state={onboardingState({ plan: 'GROWTH', billingInOnboarding: true })}
         />
       </MemoryRouter>,
     )
@@ -345,7 +345,7 @@ describe('First leave cycle framing', () => {
     render(
       <MemoryRouter>
         <OnboardingPage
-          state={onboardingState({ plan: 'STARTER', billingInOnboarding: false })}
+          state={onboardingState({ plan: 'GROWTH', billingInOnboarding: false })}
         />
       </MemoryRouter>,
     )
@@ -358,7 +358,7 @@ describe('First leave cycle framing', () => {
   it('keeps all six milestones distinct for the funnel, each with a readable name', () => {
     render(
       <MemoryRouter>
-        <OnboardingPage state={onboardingState({ plan: 'STARTER' })} />
+        <OnboardingPage state={onboardingState({ plan: 'GROWTH' })} />
       </MemoryRouter>,
     )
 

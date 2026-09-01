@@ -7,7 +7,7 @@ const publicBaseUrl = process.env.PUBLIC_BASE_URL ??
     : process.env.BASE_URL ?? 'http://localhost:5173')
 
 function catalog(count: number) {
-  const recommendedPlan = count <= 5 ? 'FREE' : count <= 50 ? 'STARTER' : count <= 200 ? 'GROWTH' : 'CONTACT_SALES'
+  const recommendedPlan = count <= 5 ? 'FREE' : count <= 200 ? 'GROWTH' : 'CONTACT_SALES'
   const plan = (
     code: string,
     minimumActiveUsers: number,
@@ -42,8 +42,7 @@ function catalog(count: number) {
     registrationEnabled: false,
     plans: [
       plan('FREE', 1, 5, '1-5 active Users', 0, '$0 forever', false, 'Start Free'),
-      plan('STARTER', 6, 50, '6-50 active Users', 300, '$3 per active User / month', true, 'Choose Starter'),
-      plan('GROWTH', 51, 200, '51-200 active Users', 600, '$6 per active User / month', true, 'Choose Growth'),
+      plan('GROWTH', 1, 200, '1-200 active Users', 100, '$1 per active User / month', true, 'Choose Growth'),
       plan('CONTACT_SALES', 201, null, 'More than 200 active Users or complex needs', null, 'Assisted plan', false, 'Contact Sales'),
     ],
   }
@@ -67,7 +66,7 @@ test.describe(
     )
 
     test(
-      '[P0] Given intended-user counts at band boundaries, When Pricing renders recommendations, Then Free/Starter/Growth/Contact Sales routes are exact',
+      '[P0] Given intended-user counts at band boundaries, When Pricing renders recommendations, Then Free/Growth/Contact Sales routes are exact',
       async ({ browser, browserName }) => {
         const context = await browser.newContext({ baseURL: publicBaseUrl })
         await context.route('**/api/v1/public/plans**', async (route) => {
@@ -78,10 +77,9 @@ test.describe(
         await pricingPage.goto('/pricing')
 
         const cases: Array<{ count: string; plan: string; cta: string }> = [
+          { count: '1', plan: 'plan-card-free', cta: 'cta-start-free' },
           { count: '5', plan: 'plan-card-free', cta: 'cta-start-free' },
-          { count: '6', plan: 'plan-card-starter', cta: 'cta-choose-starter' },
-          { count: '50', plan: 'plan-card-starter', cta: 'cta-choose-starter' },
-          { count: '51', plan: 'plan-card-growth', cta: 'cta-choose-growth' },
+          { count: '6', plan: 'plan-card-growth', cta: 'cta-choose-growth' },
           { count: '200', plan: 'plan-card-growth', cta: 'cta-choose-growth' },
           { count: '201', plan: 'plan-card-contact-sales', cta: 'cta-contact-sales' },
         ]
@@ -97,7 +95,7 @@ test.describe(
         await pricingPage.getByTestId('pricing-intended-count').fill('50')
         const fallback = pricingPage.getByTestId('pricing-availability-fallback')
         await expect(fallback).toBeVisible()
-        await expect(fallback).toHaveAttribute('data-plan', /STARTER/i)
+        await expect(fallback).toHaveAttribute('data-plan', /GROWTH/i)
         await expect(fallback).toHaveAttribute('data-intended-count', '50')
         await expect(fallback).toHaveAttribute('data-locale', 'en')
         await expect(pricingPage.locator('body')).not.toContainText('INTERNAL')
@@ -109,7 +107,7 @@ test.describe(
           // macOS WebKit follows Safari's Option+Tab convention for links/buttons.
           await pricingPage.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab')
           const focused = await pricingPage.evaluate(() => document.activeElement?.getAttribute('data-testid'))
-          if (focused === 'cta-choose-starter') {
+          if (focused === 'cta-choose-growth') {
             reachedCta = true
             break
           }
@@ -128,7 +126,7 @@ test.describe(
         }
 
         await pricingPage.emulateMedia({ reducedMotion: 'reduce' })
-        const transitionDuration = await pricingPage.getByTestId('cta-choose-starter')
+        const transitionDuration = await pricingPage.getByTestId('cta-choose-growth')
           .evaluate((element) => getComputedStyle(element).transitionDuration)
         expect(parseFloat(transitionDuration || '0')).toBeLessThanOrEqual(0.01)
 

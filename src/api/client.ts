@@ -971,14 +971,14 @@ export async function createCheckoutSession(
 }
 
 export type BillingSubscription = {
-  plan: 'FREE' | 'STARTER' | 'GROWTH' | 'INTERNAL'
+  plan: 'FREE' | 'GROWTH' | 'INTERNAL'
   billingStatus: 'PENDING_PAYMENT' | 'ACTIVE' | 'PAST_DUE_GRACE' | 'RESTRICTED'
     | 'CANCEL_AT_PERIOD_END' | 'CANCELED' | 'MANUAL_ACTIVE' | 'MANUAL_SUSPENDED'
   activeSeats: number
   pendingInvitations: number
   billableQuantity: number
   seatLimit: number
-  pendingPlan: 'FREE' | 'STARTER' | 'GROWTH' | null
+  pendingPlan: 'FREE' | 'GROWTH' | null
   graceEndsAt: string | null
   currentPeriodEnd: string | null
   cancelAtPeriodEnd: boolean
@@ -993,7 +993,7 @@ export function createBillingPortalSession(): Promise<{ portalUrl: string }> {
 }
 
 export function scheduleBillingDowngrade(
-  targetPlan: 'FREE' | 'STARTER',
+  targetPlan: 'FREE',
 ): Promise<BillingSubscription> {
   return request<BillingSubscription>('/api/v1/billing/schedule-downgrade', {
     method: 'POST',

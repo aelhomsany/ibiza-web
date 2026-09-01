@@ -10,12 +10,12 @@ vi.mock('../../auth/useAuth', () => ({
 }))
 
 const subscription: client.BillingSubscription = {
-  plan: 'STARTER',
+  plan: 'GROWTH',
   billingStatus: 'PAST_DUE_GRACE',
   activeSeats: 14,
   pendingInvitations: 3,
   billableQuantity: 14,
-  seatLimit: 50,
+  seatLimit: 200,
   pendingPlan: null,
   currentPeriodEnd: '2026-08-31T00:00:00Z',
   graceEndsAt: '2026-08-08T00:00:00Z',
@@ -91,9 +91,9 @@ describe('Plan and billing recovery surfaces — Story 12.4', () => {
 
     render(<ToastProvider><PlanAndBillingPage /></ToastProvider>)
 
-    // 14 active + 3 pending = 17 reserved, against a 50-seat limit.
+    // 14 active + 3 pending = 17 reserved, against a 200-seat limit.
     expect(await screen.findByTestId('billing-reserved')).toHaveTextContent('17')
-    expect(screen.getByTestId('billing-headroom')).toHaveTextContent('33')
+    expect(screen.getByTestId('billing-headroom')).toHaveTextContent('183')
   })
 
   it('[BILLING-VAL-115] clamps headroom at zero rather than reporting a negative count', async () => {
@@ -101,14 +101,14 @@ describe('Plan and billing recovery surfaces — Story 12.4', () => {
     // or a limit lowered on the provider's side. "-3 seats left" is not a thing to show anyone.
     vi.spyOn(client, 'getBillingSubscription').mockResolvedValue({
       ...subscription,
-      activeSeats: 50,
+      activeSeats: 200,
       pendingInvitations: 3,
-      seatLimit: 50,
+      seatLimit: 200,
     })
 
     render(<ToastProvider><PlanAndBillingPage /></ToastProvider>)
 
-    expect(await screen.findByTestId('billing-reserved')).toHaveTextContent('53')
+    expect(await screen.findByTestId('billing-reserved')).toHaveTextContent('203')
     expect(screen.getByTestId('billing-headroom')).toHaveTextContent('0')
   })
 })

@@ -77,7 +77,7 @@ export function RegistrationFlow({ locale, route }: Props) {
   const provisionKey = useRef<string | null>(null)
 	const recoveryKey = useRef<string | null>(null)
 	const checkoutKey = useRef<string | null>(null)
-	const [selectedPlan, setSelectedPlan] = useState<'FREE' | 'STARTER' | 'GROWTH'>('FREE')
+	const [selectedPlan, setSelectedPlan] = useState<'FREE' | 'GROWTH'>('FREE')
 	const [intendedCount, setIntendedCount] = useState(1)
 	const [planResolved, setPlanResolved] = useState(route !== '/register')
 
@@ -109,11 +109,12 @@ export function RegistrationFlow({ locale, route }: Props) {
   useEffect(() => {
     if (route !== '/register') return
 	const queryPlan = new URLSearchParams(window.location.search).get('plan')
-	const plan = queryPlan === 'STARTER' || queryPlan === 'GROWTH' ? queryPlan : 'FREE'
+	// Growth is the only paid plan. A stale ?plan=STARTER link — a bookmark, an old
+	// email — falls through to Free rather than erroring on a retired code.
+	const plan = queryPlan === 'GROWTH' ? queryPlan : 'FREE'
 	setSelectedPlan(plan)
     const count = Number(new URLSearchParams(window.location.search).get('intendedCount'))
-		const [minimum, maximum] = plan === 'FREE' ? [1, 5]
-			: plan === 'STARTER' ? [6, 50] : [51, 200]
+		const [minimum, maximum] = plan === 'FREE' ? [1, 5] : [1, 200]
 		setIntendedCount(Number.isInteger(count)
 			? Math.min(maximum, Math.max(minimum, count)) : minimum)
 		setPlanResolved(true)
@@ -353,7 +354,8 @@ export function RegistrationFlow({ locale, route }: Props) {
 			? copy.planSummary
 			: interpolate(copy.paid.planSummary, {
 				plan: state?.selectedPlan ?? selectedPlan,
-				price: (state?.selectedPlan ?? selectedPlan) === 'STARTER' ? 3 : 6,
+				// Deferred: this belongs in the catalog response the pricing page already reads.
+				price: 1,
 			})}
       {' · '}
       <span data-testid="register-plan-quantity">
@@ -378,7 +380,7 @@ export function RegistrationFlow({ locale, route }: Props) {
           <form onSubmit={(event) => void start(event)}>
 			<p className="public-lede">{selectedPlan === 'FREE' ? copy.intro : copy.paid.intro}</p>
             {planSummary('register-plan-summary')}
-			<label>{copy.count}<input data-testid="register-intended-count" name="intendedCount" type="number" min={selectedPlan === 'FREE' ? 1 : selectedPlan === 'STARTER' ? 6 : 51} max={selectedPlan === 'FREE' ? 5 : selectedPlan === 'STARTER' ? 50 : 200} value={intendedCount} onChange={(event) => setIntendedCount(Number(event.target.value))} required /></label>
+			<label>{copy.count}<input data-testid="register-intended-count" name="intendedCount" type="number" min={1} max={selectedPlan === 'FREE' ? 5 : 200} value={intendedCount} onChange={(event) => setIntendedCount(Number(event.target.value))} required /></label>
             <label>{copy.email}<input data-testid="register-email" name="administratorEmail" type="email" dir="ltr" autoComplete="email" required /></label>
             <label>{copy.organization}<input data-testid="register-org-name" name="organizationName" autoComplete="organization" maxLength={160} required /></label>
             <label>{copy.country}<input name="country" dir="ltr" defaultValue="EG" pattern="[A-Za-z]{2}" maxLength={2} required /></label>

@@ -21,24 +21,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/platform/organizations/{organizationId}/reporting-promotion": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Grant a time-bound Advanced Reporting promotion to a Starter Organization */
-        put: operations["grantReportingPromotion"];
-        post?: never;
-        /** Revoke the active Advanced Reporting promotion for an Organization */
-        delete: operations["revokeReportingPromotion"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/workforce-groups": {
         parameters: {
             query?: never;
@@ -2010,25 +1992,6 @@ export interface components {
             name?: string;
             weekendDays?: string[];
         };
-        ReportingPromotionRequest: {
-            campaignCode: string;
-            /** Format: date-time */
-            startsAt: string;
-            /** Format: date-time */
-            endsAt: string;
-        };
-        ReportingPromotionResponse: {
-            /** Format: int64 */
-            id?: number;
-            campaignCode?: string;
-            /** Format: date-time */
-            startsAt?: string;
-            /** Format: date-time */
-            endsAt?: string;
-            /** Format: date-time */
-            revokedAt?: string;
-            state?: string;
-        };
         CreateWorkforceGroupRequest: {
             name?: string;
         };
@@ -2812,7 +2775,7 @@ export interface components {
         };
         RegistrationCheckoutRequest: {
             /** @enum {string} */
-            selectedPlan: "FREE" | "STARTER" | "GROWTH" | "INTERNAL";
+            selectedPlan: "FREE" | "GROWTH" | "INTERNAL";
             /** Format: int32 */
             declaredQuantity: number;
             turnstileToken?: string;
@@ -2861,7 +2824,7 @@ export interface components {
             primaryContact?: string;
             initialHrAdminEmail?: string;
             /** @enum {string} */
-            plan: "FREE" | "STARTER" | "GROWTH" | "INTERNAL";
+            plan: "FREE" | "GROWTH" | "INTERNAL";
             /** @enum {string} */
             status?: "ACTIVE" | "SUSPENDED";
             assistedHandoffId?: string;
@@ -2873,7 +2836,7 @@ export interface components {
             primaryContact?: string;
             initialHrAdminEmail?: string;
             /** @enum {string} */
-            plan?: "FREE" | "STARTER" | "GROWTH" | "INTERNAL";
+            plan?: "FREE" | "GROWTH" | "INTERNAL";
             /** Format: int64 */
             userCount?: number;
             /** Format: int32 */
@@ -2882,7 +2845,6 @@ export interface components {
             status?: "ACTIVE" | "SUSPENDED";
             /** Format: date */
             effectiveDate?: string;
-            reportingPromotion?: components["schemas"]["ReportingPromotionResponse"];
         };
         RefreshRequest: {
             refreshToken?: string;
@@ -3059,7 +3021,7 @@ export interface components {
         };
         ScheduleDowngradeRequest: {
             /** @enum {string} */
-            targetPlan: "FREE" | "STARTER" | "GROWTH" | "INTERNAL";
+            targetPlan: "FREE" | "GROWTH" | "INTERNAL";
         };
         BillingSubscriptionResponse: {
             plan?: string;
@@ -3084,7 +3046,7 @@ export interface components {
         };
         CreateCheckoutSessionRequest: {
             /** @enum {string} */
-            plan: "FREE" | "STARTER" | "GROWTH" | "INTERNAL";
+            plan: "FREE" | "GROWTH" | "INTERNAL";
         };
         CheckoutSessionResponse: {
             checkoutUrl?: string;
@@ -3298,7 +3260,7 @@ export interface components {
         };
         UpdateSubscriptionRequest: {
             /** @enum {string} */
-            plan: "FREE" | "STARTER" | "GROWTH" | "INTERNAL";
+            plan: "FREE" | "GROWTH" | "INTERNAL";
             /** @enum {string} */
             billingStatus: "MANUAL_ACTIVE" | "MANUAL_SUSPENDED";
             /** Format: date */
@@ -3932,54 +3894,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["WorkforceGroupResponse"];
-                };
-            };
-        };
-    };
-    grantReportingPromotion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                organizationId: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReportingPromotionRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ReportingPromotionResponse"];
-                };
-            };
-        };
-    };
-    revokeReportingPromotion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                organizationId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ReportingPromotionResponse"];
                 };
             };
         };
@@ -7445,7 +7359,6 @@ export interface operations {
 type WithRequired<T, K extends keyof T> = T & {
     [P in K]-?: T[P];
 };
-
 // Ibiza keeps these schema aliases for feature code ergonomics, even though
 // openapi-typescript exposes schemas through components["schemas"].
 type RequiredSchema<K extends keyof components["schemas"]> = Required<components["schemas"][K]>;
@@ -7502,11 +7415,7 @@ export type LoginRequest = components["schemas"]["LoginRequest"];
 export type MarkAllReadResponse = RequiredSchema<"MarkAllReadResponse">;
 export type NotificationResponse = RequiredSchema<"NotificationResponse">;
 export type OnboardingResponse = RequiredSchema<"OnboardingResponse">;
-export type ReportingPromotionRequest = components["schemas"]["ReportingPromotionRequest"];
-export type ReportingPromotionResponse = components["schemas"]["ReportingPromotionResponse"];
-export type OrganizationSummaryResponse = Omit<RequiredSchema<"OrganizationSummaryResponse">, "reportingPromotion"> & {
-    reportingPromotion?: components["schemas"]["ReportingPromotionResponse"] | null;
-};
+export type OrganizationSummaryResponse = RequiredSchema<"OrganizationSummaryResponse">;
 // Same redaction contract as the calendar: Out Today is an org-wide peer surface (Story 16.2).
 // Story 16.2 — calendar privacy configuration (HR-facing).
 export type PrivacyField = "IDENTITY" | "LEAVE_TYPE" | "STATUS" | "REASON" | "REQUEST_CONTEXT";

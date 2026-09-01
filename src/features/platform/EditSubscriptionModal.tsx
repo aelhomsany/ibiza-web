@@ -7,8 +7,6 @@ import { Modal } from '../../components/ui/Modal'
 import { CloseIcon } from '../../components/ui/icons'
 import { PlatformApiError } from '../platform-auth/platformApiClient'
 import { useUpdateSubscription } from './useUpdateSubscription'
-import { useGrantReportingPromotion, useRevokeReportingPromotion } from './useReportingPromotion'
-import { promotionStateLabel } from './promotionState'
 
 type Props = {
   organization: OrganizationSummaryResponse
@@ -19,29 +17,19 @@ type Props = {
 type Plan = UpdateSubscriptionRequest['plan']
 type BillingStatus = UpdateSubscriptionRequest['billingStatus']
 
-const plans: Plan[] = ['FREE', 'STARTER', 'GROWTH', 'INTERNAL']
+const plans: Plan[] = ['FREE', 'GROWTH', 'INTERNAL']
 
 const billingStatuses: BillingStatus[] = ['MANUAL_ACTIVE', 'MANUAL_SUSPENDED']
 
 export function EditSubscriptionModal({ organization, onClose, onSuccess }: Props) {
-  const { t, i18n } = useTranslation(['platform', 'common'])
+  const { t } = useTranslation(['platform', 'common'])
   const updateMutation = useUpdateSubscription()
-  const grantPromotion = useGrantReportingPromotion()
-  const revokePromotion = useRevokeReportingPromotion()
   const [plan, setPlan] = useState<Plan>(organization.plan ?? 'FREE')
   const [billingStatus, setBillingStatus] = useState<BillingStatus>(
     organization.status === 'SUSPENDED' ? 'MANUAL_SUSPENDED' : 'MANUAL_ACTIVE',
   )
   const [effectiveDate, setEffectiveDate] = useState(organization.effectiveDate ?? '')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  // Deliberately not prefilled from the current promotion. The only submit path is grant, which
-  // rejects any window overlapping a non-revoked row - including the row the prefill came from -
-  // so prefilled fields could only ever produce a 400. The active grant is shown read-only instead.
-  const [campaignCode, setCampaignCode] = useState('')
-  const [promotionStart, setPromotionStart] = useState('')
-  const [promotionEnd, setPromotionEnd] = useState('')
-  const [promotionError, setPromotionError] = useState<string | null>(null)
-  const [confirmingRevoke, setConfirmingRevoke] = useState(false)
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -75,63 +63,6 @@ export function EditSubscriptionModal({ organization, onClose, onSuccess }: Prop
         },
       },
     )
-  }
-
-  function handlePromotionSubmit(event: React.FormEvent) {
-    event.preventDefault()
-    setPromotionError(null)
-    if (!organization.id) return
-    const code = campaignCode.trim().toUpperCase()
-    // The form no longer carries noValidate, so `required` and `pattern` fire natively. These
-    // checks cover what markup cannot express: a window whose end does not follow its start.
-    if (!code || !promotionStart || !promotionEnd) {
-      setPromotionError(t('platform:promotion.errors.incomplete'))
-      return
-    }
-    if (promotionEnd <= promotionStart) {
-      setPromotionError(t('platform:promotion.errors.range'))
-      return
-    }
-    grantPromotion.mutate({
-      organizationId: organization.id,
-      payload: {
-        campaignCode: code,
-        startsAt: `${promotionStart}T00:00:00Z`,
-        endsAt: `${promotionEnd}T00:00:00Z`,
-      },
-    }, {
-      onSuccess: () => {
-        setCampaignCode('')
-        setPromotionStart('')
-        setPromotionEnd('')
-        onSuccess?.()
-      },
-      // The server's problem detail is written in English. Surfacing it verbatim would put an
-      // untranslated sentence into the Arabic UI, so it is only shown in an English session.
-      onError: (error) => setPromotionError(
-        error instanceof PlatformApiError && i18n.language.startsWith('en')
-          ? error.problem.detail ?? t('platform:promotion.errors.submit')
-          : t('platform:promotion.errors.submit')),
-    })
-  }
-
-  function handlePromotionRevoke() {
-    setPromotionError(null)
-    if (!organization.id) return
-    if (!confirmingRevoke) {
-      setConfirmingRevoke(true)
-      return
-    }
-    revokePromotion.mutate(organization.id, {
-      onSuccess: () => {
-        setConfirmingRevoke(false)
-        onSuccess?.()
-      },
-      onError: () => {
-        setConfirmingRevoke(false)
-        setPromotionError(t('platform:promotion.errors.revoke'))
-      },
-    })
   }
 
   return (
@@ -217,55 +148,6 @@ export function EditSubscriptionModal({ organization, onClose, onSuccess }: Prop
             </button>
           </div>
         </form>
-
-        {organization.plan === 'STARTER' ? (
-          <form onSubmit={handlePromotionSubmit} aria-labelledby="reporting-promotion-title">
-            <h3 id="reporting-promotion-title">{t('platform:promotion.title')}</h3>
-            {organization.reportingPromotion ? (
-              <p className="body-text" data-testid="reporting-promotion-state">
-                {t('platform:promotion.current', {
-                  state: promotionStateLabel(t, organization.reportingPromotion.state),
-                  campaign: isolate(organization.reportingPromotion.campaignCode),
-                })}
-              </p>
-            ) : null}
-            <div className="form-group">
-              <label htmlFor="reporting-campaign-code">{t('platform:promotion.fields.campaign')}</label>
-              <input id="reporting-campaign-code" value={campaignCode}
-                onChange={(event) => setCampaignCode(event.target.value)} required pattern="[A-Z0-9][A-Z0-9_-]{1,63}" />
-            </div>
-            <div className="form-group">
-              <label htmlFor="reporting-promotion-start">{t('platform:promotion.fields.start')}</label>
-              <DateField id="reporting-promotion-start" value={promotionStart} onChange={setPromotionStart} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="reporting-promotion-end">{t('platform:promotion.fields.end')}</label>
-              <DateField id="reporting-promotion-end" value={promotionEnd} onChange={setPromotionEnd} required />
-              <p className="field-hint">{t('platform:promotion.endHint')}</p>
-            </div>
-            {promotionError ? (
-              <p className="form-error" role="alert" data-testid="reporting-promotion-error">
-                {promotionError}
-              </p>
-            ) : null}
-            <div className="modal-actions">
-              {organization.reportingPromotion
-                && ['ACTIVE', 'SCHEDULED'].includes(organization.reportingPromotion.state ?? '') ? (
-                <button type="button" className="btn btn-danger" onClick={handlePromotionRevoke}
-                  data-testid="reporting-promotion-revoke"
-                  disabled={revokePromotion.isPending}>
-                  {confirmingRevoke
-                    ? t('platform:promotion.actions.confirmRevoke')
-                    : t('platform:promotion.actions.revoke')}
-                </button>
-              ) : null}
-              <button type="submit" className="btn btn-admin" data-testid="reporting-promotion-grant"
-                disabled={grantPromotion.isPending}>
-                {t('platform:promotion.actions.grant')}
-              </button>
-            </div>
-          </form>
-        ) : null}
     </Modal>
   )
 }
