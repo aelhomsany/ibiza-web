@@ -15,7 +15,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.12.0'
+          # 22.13.0, not 22.12.0: eslint 9 and its ten @eslint/* packages declare
+          # `^20.19.0 || ^22.13.0 || >=24`, so 22.12.0 fails `npm ci` with EBADENGINE before any
+          # job body runs. 22.13.0 is the lowest release that satisfies every dependency in the
+          # lockfile, and it still satisfies package.json's own `engines: >=22.12.0 <23`.
+          node-version: '22.13.0'
           cache: npm
       # `npm ci` enforces peer ranges strictly, unlike the `npm install` that produced the
       # committed lockfile. openapi-typescript@7 still declares `typescript: ^5.x` while this
@@ -38,7 +42,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.12.0'
+          # 22.13.0, not 22.12.0: eslint 9 and its ten @eslint/* packages declare
+          # `^20.19.0 || ^22.13.0 || >=24`, so 22.12.0 fails `npm ci` with EBADENGINE before any
+          # job body runs. 22.13.0 is the lowest release that satisfies every dependency in the
+          # lockfile, and it still satisfies package.json's own `engines: >=22.12.0 <23`.
+          node-version: '22.13.0'
           cache: npm
       - run: npm ci
       - name: Install Playwright browsers
@@ -110,7 +118,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.12.0'
+          # 22.13.0, not 22.12.0: eslint 9 and its ten @eslint/* packages declare
+          # `^20.19.0 || ^22.13.0 || >=24`, so 22.12.0 fails `npm ci` with EBADENGINE before any
+          # job body runs. 22.13.0 is the lowest release that satisfies every dependency in the
+          # lockfile, and it still satisfies package.json's own `engines: >=22.12.0 <23`.
+          node-version: '22.13.0'
           cache: npm
           cache-dependency-path: ibiza-web/package-lock.json
 
