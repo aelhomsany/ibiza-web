@@ -1,0 +1,148 @@
+/* --- Panel chrome ------------------------------------------------------------- */
+
+/* The parts a "filter something, then read the result" screen is built from: an eyebrow
+   over the page title, a grid of controls, the action bar under them, the results card,
+   and the pager beneath it.
+
+   These began as `.reports-*` rules in the Reports feature stylesheet. Balance Corrections
+   is the same screen shape and reached for the same eight class names -- but a feature
+   stylesheet may not be imported across a feature boundary
+   (shared-ui-boundaries.atdd.test.ts), so it used the names without ever loading the rules.
+   On a cold load of /corrections the filter grid fell back to `display: block` (226.9px ->
+   453.5px tall), the notify checkbox to `display: inline` (44px -> 20px, under the 44px
+   touch-target floor), and the pager lost its padding and top rule. Nothing was wrong with
+   the class names; they were owned by the wrong file.
+
+   So they are shared, loaded globally from both entries, and named for what they are rather
+   than for the first feature that wanted them. Report-specific measurements -- the 1040px
+   table minimum, the export card -- stay in reports.css. */
+
+.panel-eyebrow {
+  margin: 0 0 var(--space-xs);
+  color: var(--color-working-policy);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-caption-line-height);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Arabic is cursive: letterspacing pulls apart glyphs that are meant to join. */
+html[lang='ar'] .panel-eyebrow {
+  letter-spacing: normal;
+}
+
+.panel-results {
+  overflow: hidden;
+}
+
+.panel-results-header {
+  align-items: flex-start;
+}
+
+.panel-filter-grid {
+  display: grid;
+  /* auto-fit, not repeat(4): a fixed four-track minimum is wider than the card between
+     901px and ~1113px, and the card clips rather than scrolls, so the last controls
+     became unreachable instead of merely cramped. */
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-lg);
+  padding: var(--space-card-padding);
+}
+
+.panel-filter-grid .form-group {
+  min-width: 0;
+  margin-block-end: 0;
+}
+
+.panel-filter-hint {
+  margin: 0;
+  padding-block-end: var(--space-md);
+  padding-inline: var(--space-card-padding);
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-sm-size);
+}
+
+/* A hint that sits inside .panel-filter-grid is already inside the grid's padding; adding
+   the card padding again indents it under its own field. */
+.panel-filter-grid .panel-filter-hint {
+  padding-block-end: 0;
+  padding-inline: 0;
+}
+
+.panel-checkbox {
+  display: flex;
+  align-items: center;
+  align-self: end;
+  gap: var(--space-sm);
+  min-height: var(--min-touch-target);
+  color: var(--color-text-primary);
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+}
+
+.panel-checkbox input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--color-action-primary);
+}
+
+.panel-filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-lg);
+  padding-block: var(--space-lg);
+  padding-inline: var(--space-card-padding);
+  border-block-start: 1px solid var(--color-border-default);
+}
+
+.panel-filter-actions .field-error {
+  margin: 0;
+}
+
+.panel-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-lg);
+  padding-block: var(--space-lg);
+  padding-inline: var(--space-card-padding);
+  border-block-start: 1px solid var(--color-border-default);
+}
+
+.panel-pagination p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-sm-size);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .panel-filter-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel-filter-actions,
+  .panel-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .panel-filter-actions .btn,
+  .panel-pagination .btn {
+    width: 100%;
+  }
+
+  .panel-pagination p {
+    text-align: center;
+  }
+}
+
+@media (forced-colors: active) {
+  .panel-checkbox input:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+}

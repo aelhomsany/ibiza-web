@@ -251,132 +251,176 @@ export function CorrectionsPage() {
     <div className="page page-wide" data-testid="corrections-page">
       <header className="page-header">
         <div>
-          <p className="reports-eyebrow">{t('corrections:eyebrow')}</p>
+          <p className="panel-eyebrow">{t('corrections:eyebrow')}</p>
           <h1 className="page-title">{t('corrections:title')}</h1>
           <p className="page-sub">{t('corrections:subtitle')}</p>
         </div>
       </header>
 
-      <section className="card" aria-labelledby="correction-form-title" data-testid="correction-form">
-        <h2 id="correction-form-title">{t('corrections:form.title')}</h2>
-        {referenceQuery.isError && (
-          <p className="field-error" role="alert" data-testid="correction-reference-error">
-            {t('corrections:errors.referenceDataFailed')}
-          </p>
-        )}
-        <form
-          noValidate
-          onSubmit={(event) => {
-            event.preventDefault()
-            openConfirm()
-          }}
-        >
-          <div className="reports-filter-grid">
-            <div className="form-group">
-              <label htmlFor="correction-user">{t('corrections:form.user')}</label>
-              <select
-                id="correction-user"
-                value={form.userPublicId}
-                onChange={(event) => setForm((current) => ({ ...current, userPublicId: event.target.value }))}
-              >
-                <option value="">{t('corrections:form.userPlaceholder')}</option>
-                {(referenceQuery.data?.users ?? []).map((user) => (
-                  <option key={user.publicId} value={user.publicId} dir="auto">
-                    {user.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="correction-leave-type">{t('corrections:form.leaveType')}</label>
-              <select
-                id="correction-leave-type"
-                value={form.leaveTypePublicId}
-                onChange={(event) =>
-                  setForm((current) => ({ ...current, leaveTypePublicId: event.target.value }))}
-              >
-                <option value="">{t('corrections:form.leaveTypePlaceholder')}</option>
-                {(referenceQuery.data?.leaveTypes ?? []).map((leaveType) => (
-                  <option key={leaveType.leaveTypePublicId} value={leaveType.leaveTypePublicId} dir="auto">
-                    {leaveType.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="correction-delta">{t('corrections:form.deltaDays')}</label>
-              <input
-                id="correction-delta"
-                type="number"
-                step="1"
-                value={form.deltaDays}
-                onChange={(event) => setForm((current) => ({ ...current, deltaDays: event.target.value }))}
-              />
-              <p className="reports-filter-hint">{t('corrections:form.deltaHint')}</p>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="correction-effective-date">{t('corrections:form.effectiveDate')}</label>
-              <DateField
-                id="correction-effective-date"
-                value={form.effectiveDate}
-                onChange={(value) => setForm((current) => ({ ...current, effectiveDate: value }))}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="correction-reason">{t('corrections:form.reason')}</label>
-              <textarea
-                id="correction-reason"
-                value={form.reason}
-                onChange={(event) => setForm((current) => ({ ...current, reason: event.target.value }))}
-              />
-            </div>
-
-            <label className="reports-checkbox" htmlFor="correction-notify">
-              <input
-                id="correction-notify"
-                type="checkbox"
-                checked={form.notifyUser}
-                onChange={(event) => setForm((current) => ({ ...current, notifyUser: event.target.checked }))}
-              />
-              <span>{t('corrections:form.notifyUser')}</span>
-            </label>
-          </div>
-
-          {formError && (
-            <p className="field-error" role="alert">
-              {formError}
+      {/* `.page` is padding, not a gapped grid, so these sections stacked flush against one
+          another with no rhythm at all. `.panel-stack` is the shared vocabulary for exactly
+          this. The modals stay OUTSIDE it: a native <dialog> is a DOM child of whatever
+          renders it, and the stack's layout rules have no business reaching into the top
+          layer. */}
+      <div className="panel-stack">
+        <section className="card" aria-labelledby="correction-form-title" data-testid="correction-form">
+          <h2 id="correction-form-title">{t('corrections:form.title')}</h2>
+          {referenceQuery.isError && (
+            <p className="field-error" role="alert" data-testid="correction-reference-error">
+              {t('corrections:errors.referenceDataFailed')}
             </p>
           )}
+          <form
+            noValidate
+            onSubmit={(event) => {
+              event.preventDefault()
+              openConfirm()
+            }}
+          >
+            <div className="panel-filter-grid">
+              <div className="form-group">
+                <label htmlFor="correction-user">{t('corrections:form.user')}</label>
+                <select
+                  id="correction-user"
+                  value={form.userPublicId}
+                  onChange={(event) => setForm((current) => ({ ...current, userPublicId: event.target.value }))}
+                >
+                  <option value="">{t('corrections:form.userPlaceholder')}</option>
+                  {(referenceQuery.data?.users ?? []).map((user) => (
+                    <option key={user.publicId} value={user.publicId} dir="auto">
+                      {user.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="reports-filter-actions">
-            <button type="submit" className="btn btn-primary">
-              {t('corrections:actions.review')}
-            </button>
-          </div>
-        </form>
-      </section>
+              <div className="form-group">
+                <label htmlFor="correction-leave-type">{t('corrections:form.leaveType')}</label>
+                <select
+                  id="correction-leave-type"
+                  value={form.leaveTypePublicId}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, leaveTypePublicId: event.target.value }))}
+                >
+                  <option value="">{t('corrections:form.leaveTypePlaceholder')}</option>
+                  {(referenceQuery.data?.leaveTypes ?? []).map((leaveType) => (
+                    <option key={leaveType.leaveTypePublicId} value={leaveType.leaveTypePublicId} dir="auto">
+                      {leaveType.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-      {lastResult && (
-        <section className="card" aria-labelledby="correction-result-title" data-testid="correction-result">
-          <h2 id="correction-result-title">{t('corrections:result.title')}</h2>
-          <dl>
-            <div>
-              <dt>{t('corrections:result.before')}</dt>
-              <dd>{lastResult.beforeRemainingDays}</dd>
+              <div className="form-group">
+                <label htmlFor="correction-delta">{t('corrections:form.deltaDays')}</label>
+                <input
+                  id="correction-delta"
+                  type="number"
+                  step="1"
+                  value={form.deltaDays}
+                  onChange={(event) => setForm((current) => ({ ...current, deltaDays: event.target.value }))}
+                />
+                <p className="panel-filter-hint">{t('corrections:form.deltaHint')}</p>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="correction-effective-date">{t('corrections:form.effectiveDate')}</label>
+                <DateField
+                  id="correction-effective-date"
+                  value={form.effectiveDate}
+                  onChange={(value) => setForm((current) => ({ ...current, effectiveDate: value }))}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="correction-reason">{t('corrections:form.reason')}</label>
+                <textarea
+                  id="correction-reason"
+                  value={form.reason}
+                  onChange={(event) => setForm((current) => ({ ...current, reason: event.target.value }))}
+                />
+              </div>
+
+              <label className="panel-checkbox" htmlFor="correction-notify">
+                <input
+                  id="correction-notify"
+                  type="checkbox"
+                  checked={form.notifyUser}
+                  onChange={(event) => setForm((current) => ({ ...current, notifyUser: event.target.checked }))}
+                />
+                <span>{t('corrections:form.notifyUser')}</span>
+              </label>
             </div>
-            <div>
-              <dt>{t('corrections:result.after')}</dt>
-              <dd>{lastResult.afterRemainingDays}</dd>
+
+            {formError && (
+              <p className="field-error" role="alert">
+                {formError}
+              </p>
+            )}
+
+            <div className="panel-filter-actions">
+              <button type="submit" className="btn btn-primary">
+                {t('corrections:actions.review')}
+              </button>
             </div>
-          </dl>
+          </form>
         </section>
-      )}
 
-      <section className="reports-results card" aria-labelledby="correction-ledger-title" data-testid="correction-ledger">
+        {lastResult && (
+          <section className="card" aria-labelledby="correction-result-title" data-testid="correction-result">
+            <h2 id="correction-result-title">{t('corrections:result.title')}</h2>
+            <dl>
+              <div>
+                <dt>{t('corrections:result.before')}</dt>
+                <dd>{lastResult.beforeRemainingDays}</dd>
+              </div>
+              <div>
+                <dt>{t('corrections:result.after')}</dt>
+                <dd>{lastResult.afterRemainingDays}</dd>
+              </div>
+            </dl>
+          </section>
+        )}
+
+        {/* A band, not a rail: the ledger's seven columns want 1040px of min-content against
+            a 1121px panel, so a 300px rail beside it would leave the table 797px and force a
+            permanent sideways scroll inside a narrowed column. */}
+        <div className="support-band" data-testid="corrections-ledger-band">
+          <div className="support-note">
+            <p className="support-note-title">{t('corrections:ledger.band.countTitle')}</p>
+            <dl className="support-note-list">
+              <div className="support-note-kv">
+                <dt>{t('corrections:ledger.band.entriesLabel')}</dt>
+                <dd data-testid="corrections-ledger-entries">
+                  {ledgerQuery.isPending || ledgerQuery.isError ? '—' : ledgerTotal}
+                </dd>
+              </div>
+              <div className="support-note-kv">
+                <dt>{t('corrections:ledger.band.pagesLabel')}</dt>
+                <dd data-testid="corrections-ledger-pages">
+                  {ledgerQuery.isPending || ledgerQuery.isError ? '—' : ledgerTotalPages}
+                </dd>
+              </div>
+            </dl>
+            <p className="support-note-body support-note-footnote">
+              {t('corrections:ledger.band.countFootnote')}
+            </p>
+          </div>
+          <div className="support-note">
+            <p className="support-note-title">{t('corrections:ledger.band.meaningTitle')}</p>
+            <p className="support-note-body">{t('corrections:ledger.band.meaningBody')}</p>
+          </div>
+          <div className="support-note">
+            <p className="support-note-title">{t('corrections:ledger.band.readingTitle')}</p>
+            <ul className="support-note-bullets">
+              <li>{t('corrections:ledger.band.readingDelta')}</li>
+              <li>{t('corrections:ledger.band.readingEffectiveDate')}</li>
+              <li>{t('corrections:ledger.band.readingCompensate')}</li>
+            </ul>
+          </div>
+      </div>
+
+      <section className="panel-results card" aria-labelledby="correction-ledger-title" data-testid="correction-ledger">
         <div className="card-header">
           <h2 className="card-title" id="correction-ledger-title">
             {t('corrections:ledger.title')}
@@ -453,7 +497,7 @@ export function CorrectionsPage() {
           </HorizontalScrollRegion>
         )}
 
-        <div className="reports-pagination">
+        <div className="panel-pagination">
           <button
             type="button"
             className="btn btn-outline btn-sm"
@@ -481,6 +525,7 @@ export function CorrectionsPage() {
           </button>
         </div>
       </section>
+      </div>
 
       {confirmOpen && (
         <Modal labelledBy="correction-confirm-title" onClose={() => setConfirmOpen(false)} closeOnBackdrop={false}>
@@ -593,7 +638,7 @@ export function CorrectionsPage() {
                 onChange={(value) => setCompensateDraft((current) => ({ ...current, effectiveDate: value }))}
               />
             </div>
-            <label className="reports-checkbox" htmlFor="compensate-notify">
+            <label className="panel-checkbox" htmlFor="compensate-notify">
               <input
                 id="compensate-notify"
                 type="checkbox"

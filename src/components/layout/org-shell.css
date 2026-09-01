@@ -24,5 +24,10 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  /* Reserve the scrollbar's track whether or not this route scrolls. Without it the
+     content box is 15px narrower on a long route than on a short one, so every
+     navigation between the two shifted the whole page sideways by 15px — measured
+     between a scrolling route and a non-scrolling one on the same viewport. */
+  scrollbar-gutter: stable;
   background: var(--color-mist);
 }

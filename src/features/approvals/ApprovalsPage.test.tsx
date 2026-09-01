@@ -4,7 +4,12 @@ import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
-import type { PendingApprovalResponse, RecentApprovalDecisionResponse } from '../../api/generated/types'
+import type {
+  OutTodayResponse,
+  PendingApprovalResponse,
+  RecentApprovalDecisionResponse,
+  UpcomingAbsenceResponse,
+} from '../../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
 import { ToastProvider } from '../../components/ui/ToastProvider'
 import { ApprovalsPage } from './ApprovalsPage'
@@ -129,6 +134,99 @@ describe('ApprovalsPage', () => {
     expect(
       screen.getByRole('status', { name: /loading recent decisions/i }),
     ).toHaveAttribute('aria-busy', 'true')
+  })
+
+  // The coverage rail must SEPARATE presence from absence: Work From Home is presence. A rail
+  // that folded WFH into "off today" would tell a manager three people are away when one of
+  // them is at their desk.
+  it('[P1] splits WFH from time off in the coverage rail', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue(mockPendingApprovals)
+    vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([
+      { userId: 1, fullName: 'A', presence: 'OFF' },
+      { userId: 2, fullName: 'B', presence: 'OFF' },
+      { userId: 3, fullName: 'C', presence: 'WFH' },
+    ] as OutTodayResponse[])
+    vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([
+      { id: 9, userId: 4, fullName: 'D', dateFrom: '2026-06-20', workingDays: 1 },
+    ] as UpcomingAbsenceResponse[])
+
+    renderApprovalsPage('MANAGER')
+
+    const note = await screen.findByTestId('approvals-coverage-note')
+    // The screen renders before the queries resolve, and the loading placeholder is a
+    // DIFFERENT element than the resolved summary -- so the node has to be re-queried on
+    // every attempt, not captured once and re-read.
+    await waitFor(() =>
+      expect(within(note).getByTestId('coverage-summary')).toHaveTextContent(
+        /off today\s*2/i,
+      ),
+    )
+    const summary = within(note).getByTestId('coverage-summary')
+    expect(summary).toHaveTextContent(/wfh today\s*1/i)
+    expect(summary).toHaveTextContent(/upcoming\s*1/i)
+  })
+
+  // The rail used to be `display: none` below ~1204px. It is markup now, not a breakpoint, so
+  // the advisory that governs a decision cannot be deleted by a viewport width.
+  it('[P1] keeps the decision advisory in the rail', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue(mockPendingApprovals)
+
+    renderApprovalsPage('MANAGER')
+
+    const note = await screen.findByTestId('approvals-decision-note')
+    expect(within(note).getByText(/coverage watch is advisory/i)).toBeInTheDocument()
+  })
+
+  // The band above Recent Decisions counts what the server returned for THIS table. Scoped with
+  // within() because the table underneath repeats every name and status the band mentions.
+  it('[P1] counts the decisions the server returned in the recent-decisions band', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getRecentApprovalDecisions').mockResolvedValue(mockRecentDecisions)
+
+    renderApprovalsPage('HR_ADMIN')
+
+    const band = await screen.findByTestId('approvals-recent-band')
+    await waitFor(() =>
+      expect(within(band).getByTestId('approvals-recent-shown')).toHaveTextContent('1'),
+    )
+    expect(
+      within(band).getByText(/days are the working days stored on the request/i),
+    ).toBeInTheDocument()
+  })
+
+  // A failed decisions load must not read as "0 decisions" — that is a claim about the record,
+  // not about the request that failed.
+  it('[P1] withholds the recent-decisions count when the query fails', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getRecentApprovalDecisions').mockRejectedValue(new Error('boom'))
+
+    renderApprovalsPage('HR_ADMIN')
+
+    const band = await screen.findByTestId('approvals-recent-band')
+    await waitFor(() =>
+      expect(within(band).getByTestId('approvals-recent-shown')).toHaveTextContent('—'),
+    )
+  })
+
+  // The audit panel opens in a row of its OWN spanning every column, not inside the audit
+  // cell. That cell starts ~700px into a table wider than a phone, so a panel rendered there
+  // opened entirely outside a 375px viewport.
+  it('[P1] opens recent-decision audit history in a row spanning the table', async () => {
+    vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getRecentApprovalDecisions').mockResolvedValue(mockRecentDecisions)
+    vi.spyOn(apiClient, 'getLeaveRequestAuditEvents').mockResolvedValue([])
+
+    const user = userEvent.setup()
+    renderApprovalsPage('HR_ADMIN')
+
+    const toggle = await screen.findByRole('button', { name: /audit history for Jamie Lee/i })
+    await user.click(toggle)
+
+    const auditRow = await screen.findByTestId('recent-decision-audit-row-201')
+    const cell = within(auditRow).getByRole('cell')
+    // Spanning every column is what makes the panel start at the table's inline start.
+    expect(cell).toHaveAttribute('colspan', '9')
+    expect(within(auditRow).getByTestId('audit-history-panel')).toBeInTheDocument()
   })
 
   it('renders the page full-bleed (page-wide) like Settings', async () => {

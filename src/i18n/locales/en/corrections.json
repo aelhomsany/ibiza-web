@@ -70,6 +70,18 @@
       "previous": "Previous",
       "next": "Next",
       "status": "Page {{page}} of {{totalPages}}, {{total}} entries"
+    },
+    "band": {
+      "countFootnote": "The ledger's own total, from the paged response.",
+      "countTitle": "Ledger",
+      "entriesLabel": "Entries recorded",
+      "meaningBody": "It adjusts a balance without a leave request, and stays on the record. A correction is never deleted — it is compensated by an opposite entry.",
+      "meaningTitle": "What a correction does",
+      "pagesLabel": "Pages",
+      "readingCompensate": "Compensate appends the exact opposite entry; it never deletes this one.",
+      "readingDelta": "Delta is counted in days and carries a sign.",
+      "readingEffectiveDate": "The effective date decides which balance year the entry lands in.",
+      "readingTitle": "Reading a row"
     }
   },
   "errors": {

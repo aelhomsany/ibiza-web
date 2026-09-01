@@ -397,7 +397,7 @@ export function ApprovalsPage() {
         </div>
       ) : null}
 
-      <div className="approvals-workspace">
+      <div className="panel-with-aside">
         <section className="approvals-queue" aria-labelledby="approvals-queue-title">
           <div className="approvals-section-heading">
             <div>
@@ -507,34 +507,41 @@ export function ApprovalsPage() {
           )}
         </section>
 
-        <aside
-          className="approvals-coverage-rail card"
-          aria-labelledby="approvals-coverage-title"
-        >
-          <p className="approvals-section-eyebrow">
-            {t('approvals:coverage.eyebrow')}
-          </p>
-          <h2 id="approvals-coverage-title">
-            {t('approvals:coverage.teamTitle')}
-          </h2>
-          <p>{t('approvals:coverage.railDescription')}</p>
-          <CoverageSummary
-            label={t('approvals:coverage.summaryLabel')}
-            offToday={offToday}
-            workingFromHomeToday={workingFromHomeToday}
-            upcoming={upcomingQuery.data?.length ?? 0}
-            offLabel={t('approvals:coverage.offToday')}
-            workingFromHomeLabel={t('approvals:coverage.wfhToday')}
-            upcomingLabel={t('approvals:coverage.upcoming')}
-            stateLabel={t('approvals:coverage.state', { count: offToday })}
-            isLoading={coverageIsLoading}
-            loadingLabel={t('approvals:coverage.loading')}
-            isPartial={coverageIsPartial}
-            partialLabel={t('approvals:coverage.partialRail')}
-          />
-          <p className="approval-coverage-advisory">
-            {t('approvals:coverage.advisory')}
-          </p>
+        {/* The shared rail, not a fork of it. The feature's own `.approvals-coverage-rail`
+            was `display: none` below ~1204px, so a manager on a laptop lost the coverage
+            figures entirely rather than reading them stacked. `.support-rail` reflows into
+            the reading column at 1200px and keeps every fact on screen. */}
+        <aside className="support-rail" aria-labelledby="approvals-coverage-title">
+          <div className="support-note" data-testid="approvals-coverage-note">
+            <h2 className="support-note-title" id="approvals-coverage-title">
+              {t('approvals:coverage.teamTitle')}
+            </h2>
+            <p className="support-note-body">
+              {t('approvals:coverage.railDescription')}
+            </p>
+            <CoverageSummary
+              label={t('approvals:coverage.summaryLabel')}
+              offToday={offToday}
+              workingFromHomeToday={workingFromHomeToday}
+              upcoming={upcomingQuery.data?.length ?? 0}
+              offLabel={t('approvals:coverage.offToday')}
+              workingFromHomeLabel={t('approvals:coverage.wfhToday')}
+              upcomingLabel={t('approvals:coverage.upcoming')}
+              stateLabel={t('approvals:coverage.state', { count: offToday })}
+              isLoading={coverageIsLoading}
+              loadingLabel={t('approvals:coverage.loading')}
+              isPartial={coverageIsPartial}
+              partialLabel={t('approvals:coverage.partialRail')}
+            />
+          </div>
+          <div className="support-note" data-testid="approvals-decision-note">
+            <p className="support-note-title">
+              {t('approvals:coverage.advisoryTitle')}
+            </p>
+            <p className="support-note-body">
+              {t('approvals:coverage.advisory')}
+            </p>
+          </div>
         </aside>
       </div>
 
@@ -553,6 +560,34 @@ export function ApprovalsPage() {
           </div>
           <p>{t('approvals:recent.description')}</p>
         </div>
+
+        {/* A band, not a rail: the decisions table has a min-content width of 1077.6px
+            against a 1121px panel, so a 300px rail beside it would leave the reading
+            column narrower than the table can draw and push it into a sideways scroll. */}
+        <div className="support-band support-band-spaced" data-testid="approvals-recent-band">
+          <div className="support-note">
+            <p className="support-note-title">{t('approvals:recent.shownTitle')}</p>
+            <dl className="support-note-list">
+              <div className="support-note-kv">
+                <dt>{t('approvals:recent.shownLabel')}</dt>
+                <dd data-testid="approvals-recent-shown">
+                  {isRecentPending || isRecentError ? '—' : recentDecisions.length}
+                </dd>
+              </div>
+            </dl>
+            <p className="support-note-body support-note-footnote">
+              {t('approvals:recent.shownFootnote')}
+            </p>
+          </div>
+          <div className="support-note">
+            <p className="support-note-title">{t('approvals:recent.readingTitle')}</p>
+            <ul className="support-note-bullets">
+              <li>{t('approvals:recent.readingDays')}</li>
+              <li>{t('approvals:recent.readingEvidence')}</li>
+            </ul>
+          </div>
+        </div>
+
         {isRecentPending ? (
           <LoadingState
             label={t('layout:loading.recentDecisions')}

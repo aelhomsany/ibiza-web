@@ -351,6 +351,60 @@ describe('CorrectionsPage', () => {
     await waitFor(() => expect(listSpy).toHaveBeenCalledWith(undefined, undefined, 1, 50))
   })
 
+  // The ledger band must report the SERVER's total, not the number of rows this page happens
+  // to be showing. Ninety entries over a 50-row page is the case where a client-side count
+  // would silently disagree with the pager two lines below it.
+  it('reports the paged response total and page count in the ledger band', async () => {
+    vi.spyOn(apiClient, 'listBalanceCorrections').mockResolvedValue({
+      items: [
+        {
+          id: 1,
+          kind: 'MANUAL_CORRECTION',
+          userPublicId: 'user-1',
+          leaveTypePublicId: 'lt-1',
+          deltaDays: 3,
+          reason: 'Carried over',
+          effectiveDate: '2026-01-01',
+          compensated: false,
+        },
+      ],
+      page: 0,
+      size: 50,
+      total: 90,
+    } as unknown as BalanceCorrectionListPage)
+
+    renderPage()
+
+    const band = await screen.findByTestId('corrections-ledger-band')
+    // Screens render before their queries resolve; the em dash is the pre-data state.
+    await waitFor(() =>
+      expect(within(band).getByTestId('corrections-ledger-entries')).toHaveTextContent('90'),
+    )
+    expect(within(band).getByTestId('corrections-ledger-pages')).toHaveTextContent('2')
+
+    // Scoped with within(): "Compensate" and the leave type name are also in the table below.
+    expect(within(band).getByText(/what a correction does/i)).toBeInTheDocument()
+    expect(
+      within(band).getByText(/compensate appends the exact opposite entry/i),
+    ).toBeInTheDocument()
+  })
+
+  // A failed ledger load must not let the band assert a confident "0 entries" — that reads as
+  // a clean audit trail when what actually happened is that nobody could read it.
+  it('shows no ledger figures while the ledger is unavailable', async () => {
+    vi.spyOn(apiClient, 'listBalanceCorrections').mockRejectedValue(
+      new ApiError(500, { status: 500, code: 'internal', title: 'Error', detail: 'boom' }),
+    )
+
+    renderPage()
+
+    const band = await screen.findByTestId('corrections-ledger-band')
+    await waitFor(() =>
+      expect(within(band).getByTestId('corrections-ledger-entries')).toHaveTextContent('—'),
+    )
+    expect(within(band).getByTestId('corrections-ledger-pages')).toHaveTextContent('—')
+  })
+
   // CORRECTION-UI-VAL-009: a failed reference load must say so rather than leaving two empty
   // selects with no explanation.
   it('surfaces a reference-data load failure', async () => {

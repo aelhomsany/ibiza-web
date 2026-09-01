@@ -239,5 +239,14 @@
     "UNKNOWN_CHARGED_DATE_REQUESTS": "طلبات بتواريخ محتسبة غير معروفة",
     "INACTIVE_REQUESTER_PENDING_REQUESTS": "طلبات معلّقة من مستخدمين مُعطَّلين",
     "PENDING_REQUESTS_WITHOUT_ACTIVATED_STEP": "طلبات معلّقة بلا خطوة مفعّلة"
+  },
+  "band": {
+    "matchedLabel": "الصفوف المطابقة",
+    "readingOrdering": "تتبع الصفوف ترتيب العرض المطبَّق، لا ترتيب إدخالها.",
+    "readingTimezone": "تُحسب التواريخ والأعداد وفق المنطقة الزمنية المعروضة أعلاه.",
+    "readingTitle": "قراءة الأعمدة",
+    "setFootnote": "الصفوف المطابقة هي عدّ الخادم للاستعلام كاملًا، وليس لهذه الصفحة.",
+    "setTitle": "مجموعة النتائج هذه",
+    "shownLabel": "المعروض في هذه الصفحة"
   }
 }

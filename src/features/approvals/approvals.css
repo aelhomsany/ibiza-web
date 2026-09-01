@@ -59,13 +59,11 @@
   color: var(--color-error-fg);
 }
 
-.approvals-workspace {
-  min-width: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
-  gap: var(--space-section-gap);
-  align-items: start;
-}
+/* The queue + coverage layout is `.panel-with-aside` / `.support-rail` from
+   src/styles/support-rail.css. It used to be `.approvals-workspace` +
+   `.approvals-coverage-rail` here — a 360px fork of the shared 300px rail that
+   `display: none`d itself below ~1204px, which is a laptop. Reflowing beats deleting:
+   the shared rail drops into the reading column at 1200px with every figure intact. */
 
 .approvals-queue,
 .approvals-card-list {
@@ -81,8 +79,7 @@
   margin-block-end: var(--space-lg);
 }
 
-.approvals-section-heading h2,
-.approvals-coverage-rail h2 {
+.approvals-section-heading h2 {
   margin: 0;
   color: var(--color-text-primary);
   font-size: var(--font-section-title-size);
@@ -90,8 +87,7 @@
   line-height: var(--font-section-title-line-height);
 }
 
-.approvals-section-heading > p,
-.approvals-coverage-rail > p {
+.approvals-section-heading > p {
   max-width: 52ch;
   margin: 0;
   color: var(--color-text-secondary);
@@ -420,16 +416,9 @@ html[lang='ar'] .approval-card-eyebrow {
   min-width: 124px;
 }
 
-.approvals-coverage-rail {
-  position: sticky;
-  inset-block-start: var(--space-page);
-  display: grid;
-  gap: var(--space-md);
-  padding: var(--space-card-padding);
-}
-
-.approvals-coverage-rail .coverage-summary {
-  margin-block-start: var(--space-xs);
+/* The rail's own coverage figures sit directly under the note body. */
+.support-rail .coverage-summary {
+  margin-block-start: var(--space-sm);
 }
 
 .approvals-empty-state,
@@ -522,6 +511,35 @@ html[lang='ar'] .approval-card-eyebrow {
   align-items: center;
   gap: var(--space-sm);
   font-weight: var(--font-label-weight);
+}
+
+/* The audit disclosure is a row of its own spanning the table, so it stays under the record
+   it describes at every width instead of opening inside a column that starts past the right
+   edge of a phone.
+
+   Spanning the table is only half the fix: the cell is as wide as the table (1076px measured,
+   near three phone widths), so a panel filling it pushed its right-aligned timestamps to
+   x 959-1077 -- still off a 375px screen, just for a different reason. The scroll region is
+   made an inline-size container so the panel can be sized to the SCROLL PORT (`100cqi`, 341px
+   at 375) rather than to the table, and stuck to that port's inline start so it follows the
+   reader instead of scrolling away. */
+[data-testid='recent-decisions-table'] {
+  container: recent-decisions-scroll / inline-size;
+}
+
+.recent-decision-audit-row > td {
+  padding: 0;
+  background: var(--color-surface-subtle);
+}
+
+.recent-decision-audit-row .audit-history-panel {
+  position: sticky;
+  inset-inline-start: 0;
+  /* It already spans the table; a 300px floor here would only widen the table further. */
+  min-width: 0;
+  width: 100cqi;
+  margin-block-start: 0;
+  border-radius: 0;
 }
 
 .audit-history-panel {
@@ -675,19 +693,8 @@ html[lang='ar'] .approval-card-eyebrow {
   }
 }
 
-@container approvals-page (max-width: 900px) {
-  .approvals-workspace {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .approvals-coverage-rail {
-    display: none;
-  }
-}
-
 @media (max-width: 900px) {
   .approvals-summary dl,
-  .approvals-workspace,
   .approval-card-facts {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -713,10 +720,6 @@ html[lang='ar'] .approval-card-eyebrow {
   .approvals-section-heading {
     display: grid;
     gap: var(--space-sm);
-  }
-
-  .approvals-coverage-rail {
-    display: none;
   }
 
   .approval-card {

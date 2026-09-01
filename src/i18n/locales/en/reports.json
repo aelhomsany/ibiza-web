@@ -239,5 +239,14 @@
     "UNKNOWN_CHARGED_DATE_REQUESTS": "Requests with unknown charged dates",
     "INACTIVE_REQUESTER_PENDING_REQUESTS": "Pending requests from deactivated users",
     "PENDING_REQUESTS_WITHOUT_ACTIVATED_STEP": "Pending requests without an activated step"
+  },
+  "band": {
+    "matchedLabel": "Rows matched",
+    "readingOrdering": "Rows follow the ordering of the applied view, not the order they were entered.",
+    "readingTimezone": "Dates and counts are resolved in the display timezone stamped above.",
+    "readingTitle": "Reading the columns",
+    "setFootnote": "Rows matched is the server’s count for the whole query, not for this page.",
+    "setTitle": "This result set",
+    "shownLabel": "Shown on this page"
   }
 }

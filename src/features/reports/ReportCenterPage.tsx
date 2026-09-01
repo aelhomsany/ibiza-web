@@ -612,7 +612,7 @@ export function ReportCenterPage() {
     <div className="page page-wide reports-page" data-testid="report-center-page">
       <header className="page-header reports-page-header">
         <div>
-          <p className="reports-eyebrow">{t('reports:eyebrow')}</p>
+          <p className="panel-eyebrow">{t('reports:eyebrow')}</p>
           <h1 className="page-title">{t('reports:title')}</h1>
           <p className="page-sub">{t('reports:subtitle')}</p>
         </div>
@@ -638,7 +638,7 @@ export function ReportCenterPage() {
             handleApply()
           }}
         >
-          <div className="reports-filter-grid">
+          <div className="panel-filter-grid">
             <div className="form-group">
               <label htmlFor="report-definition">{t('reports:filters.definition')}</label>
               <select
@@ -829,7 +829,7 @@ export function ReportCenterPage() {
             </div>
 
             {supports(definition, 'includeInactiveUsers') && (
-              <label className="reports-checkbox" htmlFor="report-include-inactive">
+              <label className="panel-checkbox" htmlFor="report-include-inactive">
                 <input
                   id="report-include-inactive"
                   type="checkbox"
@@ -844,7 +844,7 @@ export function ReportCenterPage() {
           </div>
 
           {groupless && (
-            <p className="reports-filter-hint" id="report-groupless-hint">
+            <p className="panel-filter-hint" id="report-groupless-hint">
               {t('reports:filters.grouplessHint')}
             </p>
           )}
@@ -858,7 +858,7 @@ export function ReportCenterPage() {
             </p>
           )}
 
-          <div className="reports-filter-actions">
+          <div className="panel-filter-actions">
             {draftError && (
               <p className="field-error" role="alert" id="report-filter-error">
                 {draftError}
@@ -1070,8 +1070,41 @@ export function ReportCenterPage() {
             {exportStatusPanel}
           </section>
 
-          <section className="reports-results card" aria-labelledby="report-results-title">
-            <div className="card-header reports-results-header">
+          {/* A band, not a rail: the results table declares a 1040px minimum against a
+              1121px panel, so a 300px rail beside it would leave 797px and put the table
+              into a permanent sideways scroll inside a narrowed column.
+
+              It carries the page-versus-total figures and nothing that is already on this
+              screen — the applied view, the as-of stamp and the summary have their own
+              cards above, and repeating them here would be noise rather than support. */}
+          <div className="support-band support-band-spaced" data-testid="report-results-band">
+            <div className="support-note">
+              <p className="support-note-title">{t('reports:band.setTitle')}</p>
+              <dl className="support-note-list">
+                <div className="support-note-kv">
+                  <dt>{t('reports:band.matchedLabel')}</dt>
+                  <dd data-testid="report-band-matched">{total}</dd>
+                </div>
+                <div className="support-note-kv">
+                  <dt>{t('reports:band.shownLabel')}</dt>
+                  <dd data-testid="report-band-shown">{rows.length}</dd>
+                </div>
+              </dl>
+              <p className="support-note-body support-note-footnote">
+                {t('reports:band.setFootnote')}
+              </p>
+            </div>
+            <div className="support-note">
+              <p className="support-note-title">{t('reports:band.readingTitle')}</p>
+              <ul className="support-note-bullets">
+                <li>{t('reports:band.readingTimezone')}</li>
+                <li>{t('reports:band.readingOrdering')}</li>
+              </ul>
+            </div>
+          </div>
+
+          <section className="panel-results reports-results card" aria-labelledby="report-results-title">
+            <div className="card-header panel-results-header">
               <div>
                 <h2 className="card-title" id="report-results-title">
                   {t('reports:results.titleFor', {
@@ -1124,7 +1157,7 @@ export function ReportCenterPage() {
                 </table>
               </HorizontalScrollRegion>
             )}
-            <div className="reports-pagination">
+            <div className="panel-pagination">
               <button
                 type="button"
                 ref={previousPageRef}

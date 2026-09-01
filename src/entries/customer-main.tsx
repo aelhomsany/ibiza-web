@@ -8,6 +8,7 @@ import '../styles/card.css'
 import '../styles/data-table.css'
 import '../styles/form-fields.css'
 import '../styles/global.css'
+import '../styles/panel-chrome.css'
 import '../styles/support-rail.css'
 import '../styles/layout.css'
 

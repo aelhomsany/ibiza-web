@@ -362,6 +362,28 @@ describe('ReportCenterPage', () => {
     )
   })
 
+  // The band above the table reports the SERVER's count for the whole query alongside the
+  // rows this page received. A band that counted `rows` for both would read "1 matched" on a
+  // 143-row report and quietly tell an admin the query found almost nothing.
+  it('[P1] separates the server row count from the rows on this page in the results band', async () => {
+    vi.spyOn(apiClient, 'queryReport').mockResolvedValue(
+      // 143 matched, one row returned: a page that summed or counted rows renders 1 here.
+      balanceResponse({ total: 143, page: 0, size: 50 }),
+    )
+
+    renderPage()
+
+    const band = await screen.findByTestId('report-results-band')
+    // Scoped with within(): the table beneath repeats the same figures as cell values.
+    await waitFor(() =>
+      expect(within(band).getByTestId('report-band-matched')).toHaveTextContent('143'),
+    )
+    expect(within(band).getByTestId('report-band-shown')).toHaveTextContent('1')
+    expect(
+      within(band).getByText(/count for the whole query, not for this page/i),
+    ).toBeInTheDocument()
+  })
+
   it('[P0] renders the server ordering including its tie-breakers', async () => {
     vi.spyOn(apiClient, 'queryReport').mockResolvedValue(balanceResponse())
 

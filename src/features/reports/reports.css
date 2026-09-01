@@ -7,22 +7,13 @@
   margin-block-end: 0;
 }
 
-.reports-eyebrow {
-  margin: 0 0 var(--space-xs);
-  color: var(--color-working-policy);
-  font-size: var(--font-caption-size);
-  font-weight: var(--font-label-weight);
-  line-height: var(--font-caption-line-height);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
+/* The eyebrow, filter grid, checkbox, action bar, pagination and results chrome this
+   screen used to own now live in src/styles/panel-chrome.css under `.panel-*` names:
+   Balance Corrections is the same screen shape and was borrowing these class names
+   across a feature boundary it could not import across. Only the measurements that are
+   genuinely about reports stay here. */
 
-html[lang='ar'] .reports-eyebrow {
-  letter-spacing: normal;
-}
-
-.reports-filter-card,
-.reports-results {
+.reports-filter-card {
   overflow: hidden;
 }
 
@@ -32,53 +23,6 @@ html[lang='ar'] .reports-eyebrow {
   color: var(--color-text-secondary);
   font-size: var(--font-caption-size);
   line-height: var(--font-caption-line-height);
-}
-
-.reports-filter-grid {
-  display: grid;
-  /* auto-fit, not repeat(4): a fixed four-track minimum is wider than the card between
-     901px and ~1113px, and .reports-filter-card clips rather than scrolls, so the last
-     controls became unreachable instead of merely cramped. */
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-lg);
-  padding: var(--space-card-padding);
-}
-
-.reports-filter-grid .form-group {
-  min-width: 0;
-  margin-block-end: 0;
-}
-
-.reports-checkbox {
-  display: flex;
-  align-items: center;
-  align-self: end;
-  gap: var(--space-sm);
-  min-height: var(--min-touch-target);
-  color: var(--color-text-primary);
-  font-size: var(--font-label-size);
-  font-weight: var(--font-label-weight);
-}
-
-.reports-checkbox input {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  accent-color: var(--color-action-primary);
-}
-
-.reports-filter-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-lg);
-  padding-block: var(--space-lg);
-  padding-inline: var(--space-card-padding);
-  border-block-start: 1px solid var(--color-border-default);
-}
-
-.reports-filter-actions .field-error {
-  margin: 0;
 }
 
 .reports-error {
@@ -227,24 +171,12 @@ html[lang='ar'] .reports-eyebrow {
   font-weight: var(--font-label-weight);
 }
 
-.reports-results-header {
-  align-items: flex-start;
-}
-
 .reports-results .table-wrap {
   border-radius: 0;
 }
 
 .reports-results .dashboard-table {
   min-width: 1040px;
-}
-
-.reports-filter-hint {
-  margin: 0;
-  padding-block-end: var(--space-md);
-  padding-inline: var(--space-card-padding);
-  color: var(--color-text-secondary);
-  font-size: var(--font-body-sm-size);
 }
 
 .reports-as-of-zone {
@@ -329,25 +261,7 @@ html[lang='ar'] .reports-eyebrow {
   margin-block-start: var(--space-xs);
 }
 
-.reports-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-lg);
-  padding-block: var(--space-lg);
-  padding-inline: var(--space-card-padding);
-  border-block-start: 1px solid var(--color-border-default);
-}
-
-.reports-pagination p {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-size: var(--font-body-sm-size);
-  font-variant-numeric: tabular-nums;
-}
-
 @media (max-width: 900px) {
-  .reports-filter-grid,
   .reports-export-card,
   .reports-export-status dl {
     grid-template-columns: minmax(0, 1fr);
@@ -362,29 +276,14 @@ html[lang='ar'] .reports-eyebrow {
     grid-column: auto;
   }
 
-  .reports-filter-actions,
-  .reports-pagination,
   .reports-export-controls,
   .reports-export-actions {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .reports-filter-actions .btn,
-  .reports-pagination .btn,
   .reports-export-controls .btn,
   .reports-export-actions .btn {
     width: 100%;
-  }
-
-  .reports-pagination p {
-    text-align: center;
-  }
-}
-
-@media (forced-colors: active) {
-  .reports-checkbox input:focus-visible {
-    outline: 2px solid CanvasText;
-    outline-offset: 2px;
   }
 }

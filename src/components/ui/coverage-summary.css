@@ -57,9 +57,13 @@
     gap: var(--space-md);
   }
 
+  /* Label on the inline start, figure on the inline end -- the same shape as
+     `.support-note-kv`, which is what the rail sets around this block. `flex-end` pushed BOTH
+     halves to the right edge, so the labels hung away from the left-aligned prose above and
+     below them and the whole block read as misaligned. */
   .coverage-summary-facts > div {
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: baseline;
   }
 }

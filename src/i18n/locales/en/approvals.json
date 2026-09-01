@@ -70,7 +70,8 @@
     "teamTitle": "Team context",
     "title": "Available coverage",
     "upcoming": "Upcoming",
-    "wfhToday": "WFH today"
+    "wfhToday": "WFH today",
+    "advisoryTitle": "Before you decide"
   },
   "facts": {
     "ageLabel": "Current-step age",
@@ -190,6 +191,12 @@
     "description": "A durable record of the latest scoped decisions and who made them.",
     "empty": "No recent decisions yet.",
     "eyebrow": "Decision record",
+    "readingDays": "Days are the working days stored on the request, not calendar days.",
+    "readingEvidence": "Approval evidence records who decided, and on whose behalf.",
+    "readingTitle": "Reading a row",
+    "shownFootnote": "The server returns the most recent decisions in your approval scope; the list is not filtered here.",
+    "shownLabel": "Decisions shown",
+    "shownTitle": "This table",
     "title": "Recent Decisions"
   },
   "stale": {

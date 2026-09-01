@@ -19,8 +19,10 @@ const paths = {
   firstUseCss: join(featuresRoot, 'dashboard/first-use.css'),
   teamMembersCss: join(featuresRoot, 'settings/team-members.css'),
   approvalsCss: join(featuresRoot, 'approvals/approvals.css'),
+  coverageSummaryCss: join(srcRoot, 'components/ui/coverage-summary.css'),
   modalCss: join(srcRoot, 'components/ui/modal.css'),
   supportRailCss: join(srcRoot, 'styles/support-rail.css'),
+  panelChromeCss: join(srcRoot, 'styles/panel-chrome.css'),
   organizationsPage: join(featuresRoot, 'platform/OrganizationsPage.tsx'),
 }
 
@@ -73,6 +75,50 @@ describe('shared UI CSS boundaries — Story 10.11', () => {
     expect(existsSync(paths.supportRailCss)).toBe(true)
   })
 
+  it('[P0] loads panel chrome globally from both entries and keeps it out of features', () => {
+    // Balance Corrections used eight `.reports-*` class names it could not import: a feature
+    // stylesheet may not cross a feature boundary (the test below), so /corrections cold-loaded
+    // with the names and none of the rules — the filter grid fell to `display: block` (226.9px
+    // -> 453.5px tall) and the notify checkbox to `display: inline` (44px -> 20px, under the
+    // touch-target floor). The chrome is shared now, so neither feature can lose it again.
+    const entries: Array<[string, string]> = [
+      [readFileSync(paths.main, 'utf-8'), './styles'],
+      [readFileSync(paths.customerMain, 'utf-8'), '../styles'],
+    ]
+    entries.forEach(([entry, prefix]) => {
+      expect(entry).toContain(`import '${prefix}/panel-chrome.css'`)
+      expect(entry.indexOf(`import '${prefix}/panel-chrome.css'`)).toBeGreaterThan(
+        entry.indexOf(`import '${prefix}/global.css'`),
+      )
+      expect(entry.indexOf(`import '${prefix}/panel-chrome.css'`)).toBeLessThan(
+        entry.indexOf(`import '${prefix}/layout.css'`),
+      )
+    })
+    expect(existsSync(paths.panelChromeCss)).toBe(true)
+
+    const panelChromeCss = readFileSync(paths.panelChromeCss, 'utf-8')
+    ;[
+      'panel-eyebrow',
+      'panel-filter-grid',
+      'panel-filter-actions',
+      'panel-filter-hint',
+      'panel-checkbox',
+      'panel-pagination',
+      'panel-results',
+    ].forEach((className) => {
+      expect(panelChromeCss).toMatch(new RegExp(`\\.${className}\\s*[,{ ]`))
+    })
+
+    // No feature may reach for another feature's class names, which is how this started.
+    const borrowers = filesUnder(featuresRoot, (path) => /\.(?:css|tsx)$/.test(path))
+      .filter((path) => !relative(featuresRoot, path).startsWith(`reports${sep}`))
+      .filter((path) => /\breports-(?:eyebrow|filter-grid|filter-actions|filter-hint|checkbox|pagination|results)\b/
+        .test(readFileSync(path, 'utf-8')))
+      .map((path) => relative(repoRoot, path))
+
+    expect(borrowers).toEqual([])
+  })
+
   it('[P0] keeps panel layout margins off a universal child selector', () => {
     const supportRailCss = readFileSync(paths.supportRailCss, 'utf-8')
 
@@ -83,6 +129,50 @@ describe('shared UI CSS boundaries — Story 10.11', () => {
     // middle of it. Layout rules on these containers name the class they actually mean.
     expect(supportRailCss).not.toMatch(/\.panel-(?:with-aside|stack)\s*>\s*\*/)
     expect(supportRailCss).toMatch(/\.panel-with-aside\s*>\s*\.settings-card-spaced/)
+
+    // Same hazard on the adjacent-sibling axis: a modal <dialog> is a SIBLING of whatever
+    // renders it, so `.support-band + *` would reach it in the top layer and shift a centred
+    // dialog. The band's trailing gap is a named modifier for exactly that reason.
+    expect(supportRailCss).not.toMatch(/\.support-[a-z-]+\s*\+\s*\*\s*[,{]/)
+    expect(supportRailCss).toMatch(/\.support-band-spaced\s*\{/)
+  })
+
+  it('[P0] keeps the Approvals coverage rail on the shared vocabulary', () => {
+    const approvalsCss = readFileSync(paths.approvalsCss, 'utf-8')
+    const approvalsPage = readFileSync(join(featuresRoot, 'approvals/ApprovalsPage.tsx'), 'utf-8')
+
+    // `.approvals-coverage-rail` was a 360px fork of the shared 300px rail that answered every
+    // width below ~1204px with `display: none` — a manager on a laptop lost the coverage figures
+    // outright rather than reading them stacked. The shared rail reflows at 1200px instead.
+    // Matched as SELECTORS (trailing `,` or `{`) — the comment that records why they went
+    // away still names them, and should keep naming them.
+    expect(approvalsCss).not.toMatch(/\.approvals-coverage-rail\s*[,{]/)
+    expect(approvalsCss).not.toMatch(/\.approvals-workspace\s*[,{]/)
+    expect(approvalsPage).toContain('className="panel-with-aside"')
+    expect(approvalsPage).toContain('className="support-rail"')
+
+    // Spanning the table is only half the fix: the audit cell is as wide as the table, so a
+    // panel filling it still put its right-aligned timestamps off a phone screen. The panel is
+    // sized to the SCROLL PORT via a container query unit and stuck to that port's inline
+    // start. A plain `width: 100%` here would resolve against the table and regress it.
+    expect(approvalsCss).toMatch(
+      /\[data-testid='recent-decisions-table'\]\s*\{[^}]*container:\s*recent-decisions-scroll\s*\/\s*inline-size/,
+    )
+    expect(approvalsCss).toMatch(
+      /\.recent-decision-audit-row\s+\.audit-history-panel\s*\{[^}]*width:\s*100cqi/,
+    )
+
+    // In a 300px rail the coverage summary takes its narrow branch, one fact per line. Those
+    // lines sit between two paragraphs of left-aligned prose, so the label belongs on the
+    // inline start and the figure on the inline end. `flex-end` pushed BOTH halves right and
+    // left the labels floating away from the text above and below them.
+    const coverageSummaryCss = readFileSync(paths.coverageSummaryCss, 'utf-8')
+    expect(coverageSummaryCss).toMatch(
+      /\.coverage-summary-facts\s*>\s*div\s*\{[^}]*justify-content:\s*space-between/,
+    )
+    expect(coverageSummaryCss).not.toMatch(
+      /\.coverage-summary-facts\s*>\s*div\s*\{[^}]*justify-content:\s*flex-end/,
+    )
   })
 
   it('[P0] keeps generic rules out of Dashboard and Settings feature stylesheets', () => {

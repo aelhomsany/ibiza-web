@@ -156,6 +156,14 @@ html[lang='ar'] .support-note-title {
   gap: var(--space-lg);
 }
 
+/* A band that introduces the block beneath it carries the gap to that block, so callers do
+   not each invent one. A named modifier rather than `.support-band + *`: a modal <dialog> is
+   a sibling of whatever renders it, and an adjacent-sibling rule reaches it in the top layer
+   -- the same way `> *` did -- and would shift a centred dialog off centre. */
+.support-band-spaced {
+  margin-block-end: var(--space-lg);
+}
+
 /* The rail collapses well above the shared 900px breakpoint on purpose: at 900px the panel's
    region is already too narrow to give both a rail and a readable column, so waiting for the
    app-wide breakpoint would break the column rather than the supporting material. */

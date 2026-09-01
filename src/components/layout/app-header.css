@@ -122,4 +122,25 @@
     background: var(--color-action-primary-hover);
     color: var(--color-text-inverse);
   }
+
+  /* `.notification-bell-wrap` is `position: relative`, so it — a 44px box — was the panel's
+     containing block. `inset-inline-end: 0` then pinned the panel's right edge to the bell's
+     right edge, and the bell is not the last thing in the header: the avatar follows it. A
+     347px panel hanging left from there started at x = -40 on a 375px viewport, clipping 40px
+     of every notification. `max-width: calc(100vw - 28px)` bounded the WIDTH, never the
+     position, so it could not catch this.
+
+     Making the wrap static inside the header hands the containing block to `.app-header`,
+     which is `position: relative` here and spans the viewport, so a symmetric inline inset
+     is measured against the screen instead of against the bell. `inset-block-start` is
+     `calc(100% + …)` — off the header's own height — so it still drops just below the bar. */
+  .app-header .notification-bell-wrap {
+    position: static;
+  }
+
+  .app-header .notification-panel {
+    inset-inline: var(--space-sm);
+    width: auto;
+    max-width: none;
+  }
 }
