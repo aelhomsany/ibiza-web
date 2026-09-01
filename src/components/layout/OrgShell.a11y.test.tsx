@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import * as apiClient from '../../api/client'
-import { DashboardPage } from '../../features/dashboard/DashboardPage'
+import { MyLeavesPage } from '../../features/my-leaves/MyLeavesPage'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
 import { ToastProvider } from '../ui/ToastProvider'
 import { OrgShell } from './OrgShell'
@@ -21,7 +21,7 @@ function renderOrgShell() {
           <AuthTestProvider value={createMockAuthForRole('EMPLOYEE')}>
             <Routes>
               <Route element={<OrgShell />}>
-                <Route path="/" element={<DashboardPage />} />
+                <Route path="/" element={<MyLeavesPage />} />
               </Route>
             </Routes>
           </AuthTestProvider>
@@ -38,6 +38,12 @@ function renderOrgShell() {
 describe('OrgShell accessibility ATDD — Story 10.10', () => {
   beforeEach(() => {
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getApprovalCapability').mockResolvedValue({
+      canReviewApprovals: false,
+    })
     vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 0 })
     vi.spyOn(apiClient, 'getUnreadNotificationCount').mockResolvedValue({ count: 0 })
   })

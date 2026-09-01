@@ -23,13 +23,17 @@ test.describe('Authentication UI', { tag: [tags.smoke, tags.regression, tags.api
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for UI auth checks',
   )
 
-  test('Given the login page, When signing in with valid credentials, Then dashboard loads', async ({
+  test('Given the login page, When signing in with valid credentials, Then the team calendar loads', async ({
     page,
   }) => {
     await page.goto('/login')
     await page.getByTestId('sign-in-email').fill(pilotCredentials.email)
     await page.getByTestId('sign-in-password').fill(pilotCredentials.password)
     await page.getByTestId('sign-in-submit').click()
-    await expect(page.getByTestId('nav-dashboard')).toBeVisible()
+    // getHomePath sends org roles to the Team Calendar since the Dashboard merged
+    // into My Leaves (2026-09-01). Asserting the page, not just the nav item, keeps
+    // this a real landing check rather than a shell-rendered check.
+    await expect(page.getByTestId('nav-calendar')).toBeVisible()
+    await expect(page.getByTestId('team-calendar-page')).toBeVisible()
   })
 })

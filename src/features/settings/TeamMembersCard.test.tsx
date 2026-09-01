@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { isolate } from '../../i18n/bidi'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
@@ -10,6 +10,7 @@ import type {
   TeamMemberSummaryResponse,
   WorkforceGroupResponse,
 } from '../../api/generated/types'
+import { MemoryRouter } from 'react-router-dom'
 
 function renderCard(
   onSuccess = vi.fn(),
@@ -20,11 +21,21 @@ function renderCard(
   })
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
-        <TeamMembersCard onSuccess={onSuccess} onWarning={onWarning} />
-      </AuthTestProvider>
+      <MemoryRouter>
+        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+          <TeamMembersCard onSuccess={onSuccess} onWarning={onWarning} />
+        </AuthTestProvider>
+      </MemoryRouter>
     </QueryClientProvider>,
   )
+}
+
+/**
+ * Deactivate and reactivate sit behind the row's overflow menu, so a test that wants
+ * one has to open the menu the way a user would. Only one menu is open at a time.
+ */
+function openMemberMenu(memberName: string) {
+  fireEvent.click(screen.getByRole('button', { name: `More actions: ${memberName}` }))
 }
 
 const mockMembers: TeamMemberSummaryResponse[] = [
@@ -80,9 +91,12 @@ describe('TeamMembersCard', () => {
       expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
     })
 
-    // Group pills use hash-derived CSS custom properties
-    const usPill = screen.getByText('US')
-    const egyptPill = screen.getByText('Egypt')
+    // Group pills use hash-derived CSS custom properties. Scoped to the table because
+    // the supporting rail breaks the roster down by group, so every group name is on
+    // screen twice by design and an unscoped getByText no longer resolves.
+    const list = within(screen.getByTestId('team-members-list'))
+    const usPill = list.getByText('US')
+    const egyptPill = list.getByText('Egypt')
     expect(usPill).toHaveClass('group-pill')
     expect(egyptPill).toHaveClass('group-pill')
     expect(usPill).not.toHaveClass('group-pill-us')
@@ -92,8 +106,11 @@ describe('TeamMembersCard', () => {
     expect((usPill as HTMLElement).style.getPropertyValue('--pill-bg')).not.toBe(
       (egyptPill as HTMLElement).style.getPropertyValue('--pill-bg'),
     )
-    // Manager meta shown for Sarah
-    expect(screen.getByText(new RegExp(`Reports to ${isolate('Alex')}`))).toBeInTheDocument()
+    // The manager is a column now, not a middot-joined fragment of a meta line, so
+    // it is asserted where a reader would look for it: Sarah's cell under the header.
+    expect(screen.getByRole('columnheader', { name: 'Reports to' })).toBeInTheDocument()
+    const sarahRow = screen.getByTestId('team-member-row-2')
+    expect(within(sarahRow).getByText('Alex Johnson')).toBeInTheDocument()
   })
 
   // Names, team names and emails are entered by users and are never translated with
@@ -109,9 +126,11 @@ describe('TeamMembersCard', () => {
     const keepsOwnDirection = (element: HTMLElement) =>
       element.tagName === 'BDI' || element.getAttribute('dir') === 'auto'
 
-    expect(keepsOwnDirection(screen.getByText('Sarah Chen'))).toBe(true)
-    expect(keepsOwnDirection(screen.getByText('Egypt'))).toBe(true)
-    expect(keepsOwnDirection(screen.getByText('sarah@company.com'))).toBe(true)
+    // Scoped to the table: the rail restates group names, so 'Egypt' matches twice.
+    const list = within(screen.getByTestId('team-members-list'))
+    expect(keepsOwnDirection(list.getByText('Sarah Chen'))).toBe(true)
+    expect(keepsOwnDirection(list.getByText('Egypt'))).toBe(true)
+    expect(keepsOwnDirection(list.getByText('sarah@company.com'))).toBe(true)
   })
 
   it('[P1] filters the scalable people list by name, email, role, or group', async () => {
@@ -176,10 +195,13 @@ describe('TeamMembersCard', () => {
     expect(screen.getByText('No team members match this search.')).toBeInTheDocument()
 
     await user.click(screen.getByTestId('add-member-btn'))
-    await user.type(screen.getByLabelText(/Full name/i), 'New Hire')
-    await user.type(screen.getByLabelText(/Email/i), 'new.hire@company.com')
-    await user.type(screen.getByLabelText(/Department/i), 'Ops')
-    await user.selectOptions(screen.getByLabelText(/Workforce Group/i), '1')
+    // Scoped to the dialog: the rail's "By workforce group" note is a section named by
+    // its own heading, so its accessible name matches /Workforce Group/i as well.
+    const form = within(screen.getByRole('dialog'))
+    await user.type(form.getByLabelText(/Full name/i), 'New Hire')
+    await user.type(form.getByLabelText(/Email/i), 'new.hire@company.com')
+    await user.type(form.getByLabelText(/Department/i), 'Ops')
+    await user.selectOptions(form.getByLabelText(/Workforce Group/i), '1')
     await user.click(screen.getByRole('button', { name: /Save/i }))
 
     await waitFor(() => {
@@ -223,13 +245,19 @@ describe('TeamMembersCard', () => {
     renderCard()
 
     await waitFor(() => {
-      expect(screen.getByText('Jordan Lee')).toBeInTheDocument()
-      expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
-      expect(screen.getByText('Active')).toBeInTheDocument()
-      expect(screen.getByText('Deactivated')).toBeInTheDocument()
+      const list = within(screen.getByTestId('team-members-list'))
+      expect(list.getByText('Jordan Lee')).toBeInTheDocument()
+      expect(list.getByText('Sarah Chen')).toBeInTheDocument()
+      expect(list.getByText('Active')).toBeInTheDocument()
+      // Scoped: the rail counts deactivated people, so the word is on screen twice.
+      expect(list.getByText('Deactivated')).toBeInTheDocument()
     })
 
+    openMemberMenu('Jordan Lee')
     expect(screen.getByTestId('deactivate-member-1')).toBeInTheDocument()
+    fireEvent.keyDown(window, { key: 'Escape' })
+
+    openMemberMenu('Sarah Chen')
     expect(screen.getByTestId('reactivate-member-2')).toBeInTheDocument()
   })
 
@@ -243,9 +271,10 @@ describe('TeamMembersCard', () => {
     renderCard()
 
     await waitFor(() => {
-      expect(screen.getByTestId('deactivate-member-2')).toBeInTheDocument()
+      expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
     })
 
+    openMemberMenu('Sarah Chen')
     fireEvent.click(screen.getByTestId('deactivate-member-2'))
 
     expect(deactivateTeamMember).not.toHaveBeenCalled()
@@ -269,9 +298,10 @@ describe('TeamMembersCard', () => {
     renderCard(onSuccess)
 
     await waitFor(() => {
-      expect(screen.getByTestId('deactivate-member-2')).toBeInTheDocument()
+      expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
     })
 
+    openMemberMenu('Sarah Chen')
     fireEvent.click(screen.getByTestId('deactivate-member-2'))
     fireEvent.click(screen.getByRole('button', { name: 'Confirm Deactivation' }))
 
@@ -298,10 +328,14 @@ describe('TeamMembersCard accessibility ATDD — Story 10.10', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /edit.*jordan lee/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /deactivate.*jordan lee/i })).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /edit.*sarah chen/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /deactivate.*sarah chen/i })).toBeInTheDocument()
     })
+
+    // Deactivate moved behind the overflow menu; the trigger and the item both have
+    // to name the member, or a screen-reader list of them is five identical rows.
+    expect(screen.getByRole('button', { name: 'More actions: Jordan Lee' })).toBeInTheDocument()
+    openMemberMenu('Sarah Chen')
+    expect(screen.getByRole('menuitem', { name: /deactivate.*sarah chen/i })).toBeInTheDocument()
   })
 
   test('[P0] exposes member-qualified Reactivate accessible name for deactivated rows', async () => {
@@ -312,7 +346,78 @@ describe('TeamMembersCard accessibility ATDD — Story 10.10', () => {
     renderCard()
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /reactivate.*sarah chen/i })).toBeInTheDocument()
+      expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
+    })
+
+    openMemberMenu('Sarah Chen')
+    expect(screen.getByRole('menuitem', { name: /reactivate.*sarah chen/i })).toBeInTheDocument()
+  })
+
+  // The band above the roster summarises the organization, not the current search. Every figure
+  // is one a reader would otherwise get by counting rows in a table that paginates.
+  describe('supporting band', () => {
+    const roster: TeamMemberSummaryResponse[] = [
+      { ...mockMembers[0], id: 1, fullName: 'Jordan Lee', role: 'HR_ADMIN', workforceGroupName: 'US', managerName: undefined },
+      { ...mockMembers[1], id: 2, fullName: 'Sarah Chen', role: 'EMPLOYEE', workforceGroupName: 'Egypt', managerName: 'Alex Johnson' },
+      { ...mockMembers[1], id: 3, fullName: 'Priya Nair', email: 'priya@company.com', role: 'EMPLOYEE', workforceGroupName: 'Egypt', managerName: 'Alex Johnson' },
+      { ...mockMembers[1], id: 4, fullName: 'Tom Reed', email: 'tom@company.com', role: 'MANAGER', workforceGroupName: 'US', managerName: 'Jordan Lee' },
+      { ...mockMembers[1], id: 5, fullName: 'Gone Away', email: 'gone@company.com', role: 'EMPLOYEE', workforceGroupName: 'US', managerName: 'Alex Johnson', status: 'DEACTIVATED' },
+    ] as TeamMemberSummaryResponse[]
+
+    it('counts roles and deactivations off the whole roster', async () => {
+      vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(roster)
+      renderCard()
+
+      // The list container is rendered while the request is still in flight, so wait for a row.
+      await screen.findByTestId('team-member-row-1')
+
+      // Deactivated people are counted once, as deactivated — never again inside a role.
+      expect(screen.getByTestId('members-role-HR_ADMIN')).toHaveTextContent('1')
+      expect(screen.getByTestId('members-role-MANAGER')).toHaveTextContent('1')
+      expect(screen.getByTestId('members-role-EMPLOYEE')).toHaveTextContent('2')
+      expect(screen.getByTestId('members-deactivated')).toHaveTextContent('1')
+    })
+
+    it('names the heaviest approver and flags a chain that rests on one person', async () => {
+      vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(roster)
+      renderCard()
+
+      // The list container is rendered while the request is still in flight, so wait for a row.
+      await screen.findByTestId('team-member-row-1')
+
+      // Alex Johnson holds two of the four active people; Jordan Lee holds one.
+      expect(screen.getByTestId('members-top-approver')).toHaveTextContent('Alex Johnson')
+      expect(screen.getByTestId('members-top-approver')).toHaveTextContent('2')
+      // Two of four is not more than half, so nothing is flagged yet.
+      expect(screen.queryByTestId('members-approval-concentrated')).not.toBeInTheDocument()
+    })
+
+    it('flags concentration once one approver holds more than half the active roster', async () => {
+      vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue([
+        roster[0],
+        { ...roster[1], managerName: 'Alex Johnson' },
+        { ...roster[2], managerName: 'Alex Johnson' },
+        { ...roster[3], managerName: 'Alex Johnson' },
+      ] as TeamMemberSummaryResponse[])
+      renderCard()
+
+      // The list container is rendered while the request is still in flight, so wait for a row.
+      await screen.findByTestId('team-member-row-1')
+
+      expect(screen.getByTestId('members-approval-concentrated')).toBeInTheDocument()
+    })
+
+    it('summarises the roster, not the current search', async () => {
+      vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(roster)
+      renderCard()
+
+      await screen.findByTestId('team-member-row-1')
+      fireEvent.change(screen.getByTestId('team-members-search'), { target: { value: 'Priya' } })
+
+      // The table narrows to one row; the band still describes the organization behind it.
+      expect(screen.getByRole('status')).toHaveTextContent('Showing 1 of 5 people')
+      expect(screen.getByTestId('members-role-EMPLOYEE')).toHaveTextContent('2')
+      expect(screen.getByTestId('members-deactivated')).toHaveTextContent('1')
     })
   })
 })

@@ -1,0 +1,361 @@
+/* Import wizard composition.
+
+   This page previously styled itself with `reports-*` classes it never imported. Both pages are
+   `lazy()` routes, so a direct load of /import (without visiting Reports first) pulled in none of
+   those rules: cards rendered with no interior padding, no gap between them, and the action rows
+   collapsed into bare stacked buttons. Everything here is import-owned; shared card/table/form
+   chrome stays in src/styles. */
+
+.import-page {
+  display: grid;
+  gap: var(--space-section-gap);
+}
+
+.import-eyebrow {
+  margin: 0 0 var(--space-xs);
+  color: var(--color-working-policy);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-caption-line-height);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+html[lang='ar'] .import-eyebrow {
+  letter-spacing: normal;
+}
+
+.import-card {
+  overflow: hidden;
+}
+
+.import-card-subtitle {
+  max-width: 68ch;
+  margin: var(--space-xs) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  line-height: var(--font-caption-line-height);
+}
+
+/* .card carries no padding of its own — feature styles own the interior. */
+.import-card-body {
+  display: grid;
+  gap: var(--space-lg);
+  padding: var(--space-card-padding);
+}
+
+.import-card-body > .form-group {
+  margin-block-end: 0;
+}
+
+.import-hint {
+  margin: 0;
+  max-width: 68ch;
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+}
+
+/* --- Progress stepper ---------------------------------------------------- */
+
+.import-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md) var(--space-lg);
+  margin: 0;
+  padding: var(--space-lg) var(--space-card-padding);
+  list-style: none;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-card);
+}
+
+.import-step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-caption-line-height);
+}
+
+.import-step-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-card);
+  font-variant-numeric: tabular-nums;
+}
+
+.import-step[data-state='current'] {
+  color: var(--color-text-primary);
+}
+
+.import-step[data-state='current'] .import-step-marker {
+  border-color: var(--color-action-primary);
+  background: var(--color-action-primary);
+  color: var(--color-action-primary-foreground);
+}
+
+.import-step[data-state='done'] {
+  color: var(--color-working-policy);
+}
+
+.import-step[data-state='done'] .import-step-marker {
+  border-color: var(--color-working-policy);
+  background: var(--color-surface-selected);
+  color: var(--color-working-policy);
+}
+
+/* The connector is decorative; it must never widen the row past the marker + label. */
+.import-step::after {
+  content: '';
+  flex: none;
+  width: var(--space-xl);
+  height: 1px;
+  margin-inline-start: var(--space-sm);
+  background: var(--color-border-strong);
+}
+
+.import-step:last-child::after {
+  display: none;
+}
+
+/* --- Template picker ----------------------------------------------------- */
+
+.import-template-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.import-template-legend {
+  padding: 0;
+  margin-block-end: var(--space-md);
+  color: var(--color-text-primary);
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-label-line-height);
+}
+
+.import-template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-lg);
+}
+
+.import-template-option {
+  display: grid;
+  gap: var(--space-md);
+  align-content: start;
+  min-width: 0;
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-card);
+}
+
+.import-template-option[data-selected='true'] {
+  border-color: var(--color-action-primary);
+  background: var(--color-surface-selected);
+  box-shadow: var(--shadow-card);
+}
+
+/* The radio owns the whole label; the download button is a sibling, because nesting a button
+   inside a label is invalid and would toggle the radio on every download click. */
+.import-template-option-main {
+  display: flex;
+  align-items: start;
+  gap: var(--space-md);
+  min-width: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.import-template-option-main input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--color-action-primary);
+}
+
+.import-template-option-text {
+  display: grid;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.import-template-option-name {
+  color: var(--color-text-primary);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-card-title-weight);
+  line-height: var(--font-card-title-line-height);
+}
+
+.import-template-option-desc {
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  line-height: var(--font-caption-line-height);
+}
+
+.import-template-option .btn {
+  justify-self: start;
+}
+
+/* --- Action bars --------------------------------------------------------- */
+
+/* One row per card footer. The spacer pushes the destructive control away from the primary one:
+   they used to sit flush together, one misclick apart. */
+/*
+ * One rule for every action bar in the wizard: the primary sits at the inline-end, matching
+ * `.modal-actions`, and whatever leads is pushed to the far start by its own auto margin.
+ */
+.import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-md);
+  padding-block: var(--space-lg);
+  padding-inline: var(--space-card-padding);
+  border-block-start: 1px solid var(--color-border-default);
+}
+
+/*
+ * The secondary control -- Back, or the evidence download -- reads first and sits at the far
+ * start. On one line that is direction of travel. Stacked, it would put the way out directly
+ * under the thumb aiming for Commit, so the order flips at the breakpoint.
+ */
+.import-action-lead {
+  order: -1;
+  margin-inline-end: auto;
+}
+
+.import-actions .field-error {
+  margin: 0;
+}
+
+/* Table row controls — two `btn-sm`s that previously touched. */
+.import-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.import-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-lg);
+  padding-block: var(--space-lg);
+  padding-inline: var(--space-card-padding);
+  border-block-start: 1px solid var(--color-border-default);
+}
+
+.import-pagination p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-sm-size);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Callouts and result detail ------------------------------------------ */
+
+.import-callout {
+  display: grid;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-error-bg);
+  color: var(--color-error-fg);
+}
+
+.import-callout p {
+  margin: 0;
+}
+
+.import-callout-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.import-status-note {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+}
+
+.import-reconciliation {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-lg);
+  margin: 0;
+}
+
+.import-reconciliation dt {
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-caption-line-height);
+}
+
+.import-reconciliation dd {
+  margin: var(--space-xs) 0 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-body-size);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rendered as a <span> inside the history status cell as well as a <p> in the result card, so it
+   has to break its own line: inline, the reason ran straight on from the status word
+   ("Failed - RetiredValidation worker exhausted its retries"). */
+.import-failure-hint {
+  display: block;
+  margin: var(--space-xs) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  line-height: var(--font-caption-line-height);
+}
+
+.import-results .table-wrap {
+  border-radius: 0;
+}
+
+@media (max-width: 900px) {
+  .import-template-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Below the breakpoint the bar wraps to one control per line; the spacer would otherwise
+     insert an empty row between the primary and destructive actions. */
+  .import-actions > .btn,
+  .import-callout-actions > .btn {
+    flex: 1 1 100%;
+  }
+
+  .import-action-lead {
+    order: 1;
+    margin-inline-end: 0;
+  }
+
+  .import-pagination {
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
+
+  .import-step::after {
+    display: none;
+  }
+}

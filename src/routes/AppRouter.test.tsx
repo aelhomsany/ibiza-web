@@ -73,13 +73,17 @@ describe('AppRoutes', () => {
     })
   })
 
-  it('renders org shell at root route when authenticated', async () => {
+  it('redirects the root route to the team calendar when authenticated', async () => {
+    // The Dashboard merged into /my-leaves (2026-09-01); '/' stays as a
+    // bookmark-preserving redirect to the calendar landing page.
     renderAppRoutes(['/'], createMockAuthForRole('EMPLOYEE'))
 
     // Pages are lazy-loaded, so wait for the chunk to resolve.
-    expect(await screen.findByTestId('dashboard-page')).toBeInTheDocument()
+    expect(
+      await screen.findByTestId('team-calendar-page', undefined, { timeout: 3000 }),
+    ).toBeInTheDocument()
     expect(screen.getByTestId('org-shell')).toBeInTheDocument()
-    expect(screen.getByTestId('nav-dashboard')).toBeInTheDocument()
+    expect(screen.getByTestId('nav-calendar')).toBeInTheDocument()
   })
 
   // Story 12.1 moved the Platform Admin console out of the customer artifact. The
@@ -98,7 +102,7 @@ describe('AppRoutes', () => {
     renderAppRoutes(['/'], createMockAuthForRole('PLATFORM_ADMIN'))
 
     await waitFor(() => {
-      expect(screen.queryByTestId('dashboard-page')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('team-calendar-page')).not.toBeInTheDocument()
     })
     expect(screen.queryByTestId('admin-shell')).not.toBeInTheDocument()
   })
@@ -106,27 +110,27 @@ describe('AppRoutes', () => {
   it('redirects employee from settings route', async () => {
     renderAppRoutes(['/settings'], createMockAuthForRole('EMPLOYEE'))
 
-    await waitFor(() => {
-      expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
-    })
+    expect(
+      await screen.findByTestId('team-calendar-page', undefined, { timeout: 3000 }),
+    ).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Settings' })).not.toBeInTheDocument()
   })
 
   it('redirects employee from approvals route', async () => {
     renderAppRoutes(['/approvals'], createMockAuthForRole('EMPLOYEE'))
 
-    await waitFor(() => {
-      expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
-    })
+    expect(
+      await screen.findByTestId('team-calendar-page', undefined, { timeout: 3000 }),
+    ).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Approvals' })).not.toBeInTheDocument()
   })
 
   it('redirects manager from settings route', async () => {
     renderAppRoutes(['/settings'], createMockAuthForRole('MANAGER'))
 
-    await waitFor(() => {
-      expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
-    })
+    expect(
+      await screen.findByTestId('team-calendar-page', undefined, { timeout: 3000 }),
+    ).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Settings' })).not.toBeInTheDocument()
   })
 
@@ -158,11 +162,11 @@ describe('AppRoutes', () => {
     expect(screen.getByRole('heading', { name: 'Page Not Found' })).toBeInTheDocument()
   })
 
-  it('sets the dashboard page title', async () => {
+  it('sets the team calendar page title on the root redirect', async () => {
     renderAppRoutes(['/'], createMockAuthForRole('EMPLOYEE'))
 
-    await screen.findByTestId('dashboard-page')
-    expect(document.title).toBe('Dashboard — Ibiza')
+    await screen.findByTestId('team-calendar-page', undefined, { timeout: 3000 })
+    expect(document.title).toBe('Team Calendar — Ibiza')
   })
 
   it('sets the settings page title', async () => {

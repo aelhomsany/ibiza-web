@@ -4,6 +4,9 @@
     "myLeaves": "My Leaves",
     "requestLeave": "Request Leave"
   },
+  "attention": {
+    "viewRequest": "View Request"
+  },
   "balances": "Balances",
   "deepLink": {
     "notFound": "This request is not available. Your full personal history is still shown below.",
@@ -21,7 +24,7 @@
     "eyebrow": "Stored request result",
     "loading": "Loading your latest stored working-day result…",
     "policy": "Workforce Group on your profile: {{group}}",
-    "policyFallback": "Policy source: the Workforce Group on your profile",
+    "policyFallback": "Policy source: no Workforce Group on your profile yet",
     "requestContext": "{{type}} · {{dates}}. This is the stored result for that request.",
     "requestContextWithHint": "{{type}} · {{dates}}. {{hint}}",
     "title": "Working-day clarity"
@@ -56,6 +59,9 @@
     "workingDays_other": "{{count}} working days",
     "workingDays_two": "{{count}} working days",
     "workingDays_zero": "No working days"
+  },
+  "rail": {
+    "coverageFootnote": "Live from the same feed as the Team Calendar."
   },
   "requestContext": {
     "approved": "Approved",

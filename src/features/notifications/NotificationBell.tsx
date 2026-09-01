@@ -28,11 +28,26 @@ export function NotificationBell() {
 
   const closePanel = useCallback((restoreFocus = true) => {
     setOpen(false)
-    if (restoreFocus) {
-      requestAnimationFrame(() => {
-        bellRef.current?.focus()
-      })
+    if (!restoreFocus) {
+      return
     }
+
+    requestAnimationFrame(() => {
+      // Restore only when closing left focus orphaned -- Escape, or a click on chrome that
+      // takes no focus. A dismissal by pointer onto another control (the avatar, a nav link)
+      // has already moved focus there by the time this frame runs, and pulling it back to the
+      // bell blurs that control: on the user menu it closes the menu the same click opened.
+      const active = document.activeElement
+      const orphaned =
+        !active ||
+        active === document.body ||
+        active === document.documentElement ||
+        !active.isConnected ||
+        containerRef.current?.contains(active) === true
+      if (orphaned) {
+        bellRef.current?.focus()
+      }
+    })
   }, [])
 
   const refocusAfterMarkAllRead = useCallback(() => {

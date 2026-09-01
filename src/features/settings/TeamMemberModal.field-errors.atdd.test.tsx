@@ -13,6 +13,7 @@ import type {
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
 import i18n from '../../i18n/config'
 import { TeamMemberModal } from './TeamMemberModal'
+import { MemoryRouter } from 'react-router-dom'
 
 const mockGroups: WorkforceGroupResponse[] = [
   { id: 1, name: 'US', weekendDays: ['SATURDAY', 'SUNDAY'] },
@@ -55,14 +56,16 @@ function renderModal(onClose = vi.fn(), onWarning = vi.fn()) {
 
   render(
     <QueryClientProvider client={queryClient}>
-      <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
-        <TeamMemberModal
-          editMemberId={null}
-          onClose={onClose}
-          onSuccess={vi.fn()}
-          onWarning={onWarning}
-        />
-      </AuthTestProvider>
+      <MemoryRouter>
+        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+          <TeamMemberModal
+            editMemberId={null}
+            onClose={onClose}
+            onSuccess={vi.fn()}
+            onWarning={onWarning}
+          />
+        </AuthTestProvider>
+      </MemoryRouter>
     </QueryClientProvider>,
   )
 

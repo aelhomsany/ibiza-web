@@ -56,12 +56,14 @@ test.describe(
     )
 
     test(
-      '[P1] Given HR Admin with incomplete first-use, When Dashboard loads, Then cue CTA opens Working calendars',
+      '[P1] Given HR Admin with incomplete first-use, When My Leaves loads, Then cue CTA opens Working calendars',
       async ({ page }) => {
         await loginViaUi(page, { email: firstUseHrEmail, password })
-        await navigateInApp(page, '/')
+        // The first-use cue moved with the greeting to My Leaves when the Dashboard
+        // merged into it (2026-09-01); '/' now redirects to the Team Calendar.
+        await navigateInApp(page, '/my-leaves')
 
-        await expect(page.getByTestId('dashboard-page')).toBeVisible()
+        await expect(page.getByTestId('my-leaves-page')).toBeVisible()
         const cue = page.getByTestId('first-use-cue')
         await expect(cue).toBeVisible()
         await expect(page.getByTestId('first-use-step-1')).toHaveAttribute(

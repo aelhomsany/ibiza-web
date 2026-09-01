@@ -12,13 +12,52 @@
 .billing-notice-actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
 .billing-notice--restricted { background: var(--color-status-risk-bg); }
 .billing-page { display: grid; gap: var(--space-section-gap); }
-.billing-summary, .billing-actions { padding: var(--space-card-padding); }
-.billing-summary dl { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: var(--space-lg); }
+
+/* .page-header carries its own section-gap margin, which lands on top of this grid's
+   gap and put 48px between the title and the first card -- twice the gap between the
+   cards themselves. The grid owns the rhythm here. */
+.billing-page > .page-header { margin-block-end: 0; }
+
+/* .card sets a surface, not a layout, so every child of these two ran flush against
+   the next: the plan line, the figures and the footnote were one unbroken block with
+   0px between them. */
+.billing-summary,
+.billing-actions {
+  display: grid;
+  gap: var(--space-lg);
+  padding: var(--space-card-padding);
+}
+
+/* The card's identity row: what this is on the left, which plan on the right. The rule
+   underneath separates it from the figures the way .card-header does elsewhere. */
+.billing-summary-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-block-end: var(--space-lg);
+  border-block-end: 1px solid var(--color-border-default);
+}
+
+/* The plan tier was a bare <bdi> at body size -- the single most important fact on the
+   page, rendered as unstyled text. It takes the shared badge base and the neutral teal
+   pairing the group pills use, since a plan is a label, not a status. */
+.billing-plan-badge {
+  background: var(--color-teal-tint);
+  color: var(--color-teal);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* auto-fit, not repeat(5): the card sits beside the supporting rail now, so it is ~540px wide on
+   a 1440px viewport and a fixed five-track grid overflowed it while the viewport-keyed 900px
+   fallback below never fired. The tracks fit themselves to whatever the card actually has. */
+.billing-summary dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--space-lg); }
 .billing-summary dt { font-size: var(--font-caption-size); color: var(--color-text-secondary); }
 .billing-summary dd { margin: var(--space-xs) 0 0; font-weight: var(--font-card-title-weight); }
 .billing-action-row { display: flex; flex-wrap: wrap; gap: var(--space-md); }
 
 @media (max-width: 900px) {
   .billing-notice { align-items: flex-start; flex-direction: column; }
-  .billing-summary dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

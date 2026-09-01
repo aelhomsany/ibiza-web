@@ -15,6 +15,7 @@ import type {
   TeamMemberSummaryResponse,
   WorkforceGroupResponse,
 } from '../../api/generated/types'
+import { MemoryRouter, useLocation } from 'react-router-dom'
 
 vi.mock('../../navigation/redirect', () => ({
   redirectToExternalUrl: vi.fn(),
@@ -47,14 +48,16 @@ function renderModal(
   })
   const result = render(
     <QueryClientProvider client={queryClient}>
-      <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
-        <TeamMemberModal
-          editMemberId={editMemberId}
-          onClose={onClose}
-          onSuccess={onSuccess}
-          onWarning={onWarning}
-        />
-      </AuthTestProvider>
+      <MemoryRouter>
+        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+          <TeamMemberModal
+            editMemberId={editMemberId}
+            onClose={onClose}
+            onSuccess={onSuccess}
+            onWarning={onWarning}
+          />
+        </AuthTestProvider>
+      </MemoryRouter>
     </QueryClientProvider>,
   )
   return { ...result, onClose }
@@ -481,5 +484,77 @@ describe('TeamMemberModal — edit mode', () => {
     await waitFor(() => {
       expect(screen.queryByLabelText(/Email/i)).not.toBeInTheDocument()
     })
+  })
+})
+
+// A tenant now starts with zero Workforce Groups — the HR Admin creates them — so the required
+// group field can legitimately have nothing to pick. The modal has to say so and refuse to
+// submit, otherwise the only feedback is a 400 from the server.
+describe('TeamMemberModal — organization has no workforce groups', () => {
+  function LocationProbe() {
+    const location = useLocation()
+    return <div data-testid="location">{`${location.pathname}${location.search}`}</div>
+  }
+
+  function renderWithLocation(onClose = vi.fn()) {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    })
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/settings?category=people']}>
+          <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+            <TeamMemberModal
+              editMemberId={null}
+              onClose={onClose}
+              onSuccess={vi.fn()}
+              onWarning={vi.fn()}
+            />
+            <LocationProbe />
+          </AuthTestProvider>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    )
+    return { onClose }
+  }
+
+  beforeEach(() => {
+    vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getLeaveTypes').mockResolvedValue(mockLeaveTypes)
+    vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(mockMembers)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('[P1] explains the empty group field and blocks save until a group exists', async () => {
+    renderWithLocation()
+
+    const hint = await screen.findByTestId('tm-no-groups-hint')
+    expect(hint).toHaveTextContent(/Every team member belongs to a workforce group/i)
+    expect(screen.getByLabelText(/Workforce Group/i)).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
+  })
+
+  it('[P1] routes to Working Calendars so the admin can create the first group', async () => {
+    const user = userEvent.setup()
+    const { onClose } = renderWithLocation()
+
+    await user.click(await screen.findByTestId('tm-create-group-link'))
+
+    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(screen.getByTestId('location')).toHaveTextContent(
+      '/settings?category=working-calendars',
+    )
+  })
+
+  it('[P1] leaves the field alone once the organization has groups', async () => {
+    vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue(mockGroups)
+    renderWithLocation()
+
+    await waitFor(() => expect(screen.getByLabelText(/Workforce Group/i)).toBeEnabled())
+    expect(screen.queryByTestId('tm-no-groups-hint')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled()
   })
 })

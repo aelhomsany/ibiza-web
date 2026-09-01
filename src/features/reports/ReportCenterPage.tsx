@@ -603,6 +603,10 @@ export function ReportCenterPage() {
 
   const dateRangeErrorId = draftError ? 'report-filter-error' : undefined
   const grouplessHintId = groupless ? 'report-groupless-hint' : undefined
+  // An organization starts with no Workforce Groups (the HR Admin creates them), which would
+  // leave this optional filter as a select whose only choice is "All groups".
+  const hasWorkforceGroupFilter =
+    !workforceGroupsQuery.isSuccess || (workforceGroupsQuery.data?.length ?? 0) > 0
 
   return (
     <div className="page page-wide reports-page" data-testid="report-center-page">
@@ -697,7 +701,7 @@ export function ReportCenterPage() {
               </>
             )}
 
-            {supports(definition, 'workforceGroup') && (
+            {supports(definition, 'workforceGroup') && hasWorkforceGroupFilter && (
               <div className="form-group">
                 <label htmlFor="report-workforce-group">
                   {t('reports:filters.workforceGroup')}
@@ -924,109 +928,37 @@ export function ReportCenterPage() {
 
       {response && appliedView && (
         <>
-          <section className="reports-evidence" aria-labelledby="report-applied-title">
-            <div className="reports-applied card" data-testid="report-applied-view">
-              <h2 id="report-applied-title">{t('reports:applied.title')}</h2>
-              <dl>
-                <div>
-                  <dt>{t('reports:applied.definition')}</dt>
-                  <dd>{t(resultDefinition.labelKey)}</dd>
-                </div>
-                {Object.entries(appliedView)
-                  .filter(([, value]) => value != null && value !== '')
-                  .map(([key, value]) => {
-                    const labelKey = `reports:applied.${key}`
-                    return (
-                      <div key={key}>
-                        {/* parseMissingKeyHandler returns '', so an unrecognized key
-                            would render a value under a blank term without this. */}
-                        <dt>{i18n.exists(labelKey) ? t(labelKey) : key}</dt>
-                        <dd dir="auto">{describeAppliedValue(key, value)}</dd>
-                      </div>
-                    )
-                  })}
-                <div>
-                  <dt>{t('reports:applied.ordering')}</dt>
-                  <dd data-testid="report-ordering">
-                    {formatOrdering(format, response.ordering)}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-            <div className="reports-provenance card" data-testid="report-provenance">
-              <h2>{t('reports:provenance.title')}</h2>
-              <dl>
-                <div>
-                  <dt>{t('reports:provenance.basis')}</dt>
-                  <dd>{formatValue(format, provenance?.basis)}</dd>
-                </div>
-                <div>
-                  <dt>{t('reports:provenance.completeness')}</dt>
-                  <dd>
-                    {provenance?.incomplete
-                      ? t('reports:provenance.incomplete')
-                      : t('reports:provenance.complete')}
-                  </dd>
-                </div>
-                {provenance?.uncertainty && (
-                  <div>
-                    <dt>{t('reports:provenance.uncertainty')}</dt>
-                    <dd>{formatValue(format, provenance.uncertainty)}</dd>
-                  </div>
-                )}
-                {provenance?.adjustmentsBasis && (
-                  <div>
-                    <dt>{t('reports:provenance.adjustmentsBasis')}</dt>
-                    <dd>{formatValue(format, provenance.adjustmentsBasis)}</dd>
-                  </div>
-                )}
-                {provenance?.excludedCounts &&
-                  Object.keys(provenance.excludedCounts).length > 0 && (
-                    <div>
-                      <dt>{t('reports:provenance.excluded')}</dt>
-                      <dd>{formatValue(format, provenance.excludedCounts)}</dd>
-                    </div>
-                  )}
-              </dl>
-            </div>
-          </section>
-
-          <section className="card reports-export-card" aria-labelledby="report-export-title">
-            <div>
-              <h2 id="report-export-title">{t('reports:exports.title')}</h2>
-              <p>{t('reports:exports.description')}</p>
-            </div>
-            <div className="reports-export-controls">
-              <div className="form-group">
-                <label htmlFor="report-export-format">
-                  {t('reports:exports.format')}
-                </label>
-                <select
-                  id="report-export-format"
-                  value={exportFormat}
-                  disabled={createExportMutation.isPending}
-                  onChange={(event) =>
-                    setExportFormat(event.target.value as 'CSV' | 'XLSX')}
-                >
-                  <option value="CSV">{t('reports:exports.formats.CSV')}</option>
-                  <option value="XLSX">{t('reports:exports.formats.XLSX')}</option>
-                </select>
+          <section
+            className="reports-applied card"
+            aria-labelledby="report-applied-title"
+            data-testid="report-applied-view"
+          >
+            <h2 id="report-applied-title">{t('reports:applied.title')}</h2>
+            <dl>
+              <div>
+                <dt>{t('reports:applied.definition')}</dt>
+                <dd>{t(resultDefinition.labelKey)}</dd>
               </div>
-              <button
-                type="button"
-                className="btn btn-primary"
-                // One export per user: creating another while one is pending is a guaranteed 429
-                // the page already had the state to prevent.
-                disabled={createExportMutation.isPending || exportPending}
-                onClick={() => void handleCreateExport()}
-              >
-                {createExportMutation.isPending
-                  ? t('reports:exports.creating')
-                  : t('reports:exports.create')}
-              </button>
-            </div>
-
-            {exportStatusPanel}
+              {Object.entries(appliedView)
+                .filter(([, value]) => value != null && value !== '')
+                .map(([key, value]) => {
+                  const labelKey = `reports:applied.${key}`
+                  return (
+                    <div key={key}>
+                      {/* parseMissingKeyHandler returns '', so an unrecognized key
+                          would render a value under a blank term without this. */}
+                      <dt>{i18n.exists(labelKey) ? t(labelKey) : key}</dt>
+                      <dd dir="auto">{describeAppliedValue(key, value)}</dd>
+                    </div>
+                  )
+                })}
+              <div>
+                <dt>{t('reports:applied.ordering')}</dt>
+                <dd data-testid="report-ordering">
+                  {formatOrdering(format, response.ordering)}
+                </dd>
+              </div>
+            </dl>
           </section>
 
           <p className="reports-as-of" data-testid="report-as-of">
@@ -1072,7 +1004,7 @@ export function ReportCenterPage() {
                                 <span className="reports-breakdown-parts">
                                   {row.parts.map((part) => (
                                     <span
-                                      key={part.label || row.key}
+                                      key={part.key || row.key}
                                       className="reports-breakdown-part"
                                     >
                                       {part.label ? (
@@ -1099,6 +1031,44 @@ export function ReportCenterPage() {
               </dl>
             </section>
           )}
+
+          <section className="card reports-export-card" aria-labelledby="report-export-title">
+            <div>
+              <h2 id="report-export-title">{t('reports:exports.title')}</h2>
+              <p>{t('reports:exports.description')}</p>
+            </div>
+            <div className="reports-export-controls">
+              <div className="form-group">
+                <label htmlFor="report-export-format">
+                  {t('reports:exports.format')}
+                </label>
+                <select
+                  id="report-export-format"
+                  value={exportFormat}
+                  disabled={createExportMutation.isPending}
+                  onChange={(event) =>
+                    setExportFormat(event.target.value as 'CSV' | 'XLSX')}
+                >
+                  <option value="CSV">{t('reports:exports.formats.CSV')}</option>
+                  <option value="XLSX">{t('reports:exports.formats.XLSX')}</option>
+                </select>
+              </div>
+              <button
+                type="button"
+                className="btn btn-primary"
+                // One export per user: creating another while one is pending is a guaranteed 429
+                // the page already had the state to prevent.
+                disabled={createExportMutation.isPending || exportPending}
+                onClick={() => void handleCreateExport()}
+              >
+                {createExportMutation.isPending
+                  ? t('reports:exports.creating')
+                  : t('reports:exports.create')}
+              </button>
+            </div>
+
+            {exportStatusPanel}
+          </section>
 
           <section className="reports-results card" aria-labelledby="report-results-title">
             <div className="card-header reports-results-header">

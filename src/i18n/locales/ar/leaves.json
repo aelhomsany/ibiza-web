@@ -4,6 +4,9 @@
     "myLeaves": "إجازاتي",
     "requestLeave": "طلب إجازة"
   },
+  "attention": {
+    "viewRequest": "عرض الطلب"
+  },
   "balances": "الأرصدة",
   "deepLink": {
     "notFound": "هذا الطلب غير متاح. لا يزال سجل طلباتك الشخصي الكامل ظاهرًا أدناه.",
@@ -21,7 +24,7 @@
     "eyebrow": "نتيجة الطلب المحفوظة",
     "loading": "جارٍ تحميل أحدث نتيجة محفوظة لأيام العمل…",
     "policy": "مجموعة العمل في ملفك الشخصي: {{group}}",
-    "policyFallback": "مصدر السياسة: مجموعة العمل في ملفك الشخصي",
+    "policyFallback": "مصدر السياسة: لا توجد مجموعة عمل في ملفك الشخصي بعد",
     "requestContext": "{{type}} · {{dates}}. هذه هي النتيجة المحفوظة لهذا الطلب.",
     "requestContextWithHint": "{{type}} · {{dates}}. {{hint}}",
     "title": "وضوح أيام العمل"
@@ -56,6 +59,9 @@
     "workingDays_other": "{{count}} يوم عمل",
     "workingDays_two": "يوما عمل",
     "workingDays_zero": "لا توجد أيام عمل"
+  },
+  "rail": {
+    "coverageFootnote": "من نفس مصدر بيانات تقويم الفريق مباشرة."
   },
   "requestContext": {
     "approved": "تمت الموافقة",

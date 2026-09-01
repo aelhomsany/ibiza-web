@@ -26,7 +26,9 @@ import {
   createMockAuthValue,
   mockUsers,
 } from '../../test/authTestUtils'
-import { DashboardPage } from '../dashboard/DashboardPage'
+// The Dashboard merged into My Leaves (2026-09-01); the first-use cue and the
+// greeting now live on MyLeavesPage, so the "Dashboard" scenarios mount that.
+import { MyLeavesPage } from '../my-leaves/MyLeavesPage'
 import { LoginPage } from './LoginPage'
 
 const FIRST_USE_STORAGE_PREFIX = 'ibiza.firstUse.v1:'
@@ -95,12 +97,20 @@ function stubDashboardApis(options?: {
   soleMember?: boolean
 }) {
   vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
-  vi.spyOn(apiClient, 'getDashboardRecentRequests').mockResolvedValue(
+  vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(
     options?.emptyHistory === false ? [mockRequestHistory] : [],
   )
   vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
   vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([])
   vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 0 })
+  vi.spyOn(apiClient, 'getApprovalCapability').mockResolvedValue({
+    canReviewApprovals: false,
+  })
+  // Guided onboarding declines presentation so the legacy FirstUseCue branch —
+  // the subject of these scenarios — renders deterministically.
+  vi.spyOn(apiClient, 'getOnboarding').mockResolvedValue({
+    presentationEnabled: false,
+  } as never)
   vi.spyOn(apiClient, 'getRecentApprovalDecisions').mockResolvedValue(
     options?.noOrgLeaveHistory
       ? []
@@ -188,7 +198,7 @@ function renderDashboard(
         <MemoryRouter initialEntries={['/']}>
           <AuthTestProvider value={createMockAuthForRole(role)}>
             <Routes>
-              <Route path="/" element={<DashboardPage />} />
+              <Route path="/" element={<MyLeavesPage />} />
               <Route path="/settings" element={<SettingsDeepLinkStub />} />
             </Routes>
           </AuthTestProvider>
@@ -284,7 +294,7 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
         'aria-current',
         'step',
       )
-      expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
+      expect(screen.getByTestId('my-leaves-page')).toBeInTheDocument()
     },
   )
 
@@ -337,7 +347,7 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
       for (const role of ['EMPLOYEE', 'MANAGER', 'PLATFORM_ADMIN'] as const) {
         cleanup()
         renderDashboard(role)
-        await screen.findByTestId('dashboard-page')
+        await screen.findByTestId('my-leaves-page')
         expect(screen.queryByTestId('first-use-cue')).not.toBeInTheDocument()
       }
     },
@@ -358,7 +368,7 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
       )
       renderDashboard('HR_ADMIN')
 
-      await screen.findByTestId('dashboard-page')
+      await screen.findByTestId('my-leaves-page')
       expect(screen.queryByTestId('first-use-cue')).not.toBeInTheDocument()
       expect(screen.getByTestId('request-leave-btn')).toBeInTheDocument()
     },
@@ -370,7 +380,7 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
       stubDashboardApis()
       renderDashboard('HR_ADMIN')
 
-      await screen.findByTestId('dashboard-page')
+      await screen.findByTestId('my-leaves-page')
       await waitFor(() => {
         expect(apiClient.getTeamMembers).toHaveBeenCalled()
         expect(apiClient.getPublicHolidays).toHaveBeenCalled()
@@ -400,7 +410,7 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
       stubDashboardApis({ emptyHistory: true })
       renderDashboard('HR_ADMIN')
 
-      await screen.findByTestId('dashboard-page')
+      await screen.findByTestId('my-leaves-page')
       await waitFor(() => {
         expect(apiClient.getRecentApprovalDecisions).toHaveBeenCalled()
       })

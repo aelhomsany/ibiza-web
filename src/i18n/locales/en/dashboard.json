@@ -86,12 +86,12 @@
     "steps": {
       "calendars": {
         "action": "Start With Working Calendars",
-        "description": "Confirm groups, weekend patterns, and public holidays.",
+        "description": "Create your first Workforce Group, then set its weekend pattern and public holidays.",
         "title": "Working calendars"
       },
       "people": {
         "action": "Continue To People",
-        "description": "Confirm people and their Workforce Group assignments.",
+        "description": "Add people and assign each one to a Workforce Group.",
         "title": "People and groups"
       },
       "preview": {
@@ -127,6 +127,7 @@
       "submitting": "Submitting…"
     },
     "errors": {
+      "noWorkforceGroup": "You are not in a workforce group yet, so working days cannot be counted. Create one under Settings → Working Calendars — you will be added to it automatically.",
       "preview": "Unable to preview working days",
       "submit": "Unable to submit leave request"
     },
@@ -185,7 +186,7 @@
     "latestEyebrow": "Stored result from your latest request",
     "loading": "Loading your latest working-day result…",
     "policy": "Policy source: {{group}} Workforce Group",
-    "policyFallback": "Policy source: your Workforce Group",
+    "policyFallback": "Policy source: no Workforce Group yet — create one under Settings → Working Calendars",
     "requestContext": "{{type}} · {{dates}}. This is the stored result for that request.",
     "requestContextWithHint": "{{type}} · {{dates}}. {{hint}}",
     "title": "Working-day clarity",

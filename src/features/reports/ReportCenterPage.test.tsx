@@ -318,7 +318,7 @@ describe('ReportCenterPage', () => {
     }
   })
 
-  it('[P0] renders authoritative summary, applied scope, provenance, and rows without client aggregation', async () => {
+  it('[P0] renders authoritative summary, applied scope, and rows without client aggregation', async () => {
     vi.spyOn(apiClient, 'queryReport').mockResolvedValue(balanceResponse())
 
     renderPage()
@@ -343,6 +343,20 @@ describe('ReportCenterPage', () => {
     expect(applied).toHaveTextContent('Aug 24, 2026')
     expect(applied).toHaveTextContent('America/New_York')
     expect(applied).toHaveTextContent('Balance Snapshot')
+    // The provenance card was removed; the applied view is the only evidence card.
+    expect(screen.queryByTestId('report-provenance')).not.toBeInTheDocument()
+    // The export card sits below the organization summary, above the results.
+    const summaryHeading = screen.getByRole('heading', { name: 'Organization summary' })
+    const exportHeading = screen.getByRole('heading', { name: 'Export applied view' })
+    expect(
+      summaryHeading.compareDocumentPosition(exportHeading) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+    expect(
+      exportHeading.compareDocumentPosition(
+        screen.getByRole('heading', { name: 'Balance Snapshot results' }),
+      ) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
     expect(screen.getByTestId('report-results-region')).toHaveAccessibleName(
       'Balance Snapshot results',
     )
@@ -365,11 +379,7 @@ describe('ReportCenterPage', () => {
 
     renderPage()
 
-    const provenance = await screen.findByTestId('report-provenance')
-    expect(provenance).toHaveTextContent('Current balance account')
-    expect(provenance).toHaveTextContent('Explicit zero (schema 1)')
-    expect(provenance).not.toHaveTextContent('CURRENT_BALANCE_ACCOUNT')
-    expect(screen.getByTestId('report-row-0')).toHaveTextContent('Away')
+    expect(await screen.findByTestId('report-row-0')).toHaveTextContent('Away')
     // Nested summary maps must not collapse to [object Object].
     const byPresence = screen.getByTestId('report-summary-totalsByPresence')
     expect(byPresence).toHaveTextContent('Away')
@@ -549,6 +559,11 @@ describe('ReportCenterPage', () => {
     expect(querySpy).toHaveBeenCalledTimes(2)
     expect(screen.getByText('Noor Ali')).toBeInTheDocument()
     expect(screen.getByTestId('report-applied-view')).toHaveTextContent('عمر الطلبات المعلقة')
+    // parseMissingKeyHandler returns '', so a missing ar key would render a blank
+    // heading and still pass a bare visibility check — assert the actual text.
+    expect(
+      screen.getByRole('heading', { name: 'الوضع الحالى للمنشآة' }),
+    ).toBeInTheDocument()
   })
 
   it('[P0] clears stale evidence after a denied query while preserving the draft filters', async () => {
@@ -635,10 +650,6 @@ describe('ReportCenterPage', () => {
     expect(screen.getByTestId('report-empty-incomplete')).toHaveTextContent(
       /not a confirmed zero/i,
     )
-    const provenance = screen.getByTestId('report-provenance')
-    expect(provenance).toHaveTextContent('Incomplete')
-    expect(provenance).toHaveTextContent('Reconstructed legacy requests')
-    expect(provenance).toHaveTextContent('3')
     // An empty map must read as "Not available", not as a blank tile.
     expect(screen.getByTestId('report-summary-totalsByPresence')).toHaveTextContent(
       'Not available',
@@ -921,9 +932,14 @@ describe('ReportCenterPage', () => {
     expect(within(tile).getByText('Away')).toHaveClass('badge-off')
 
     // Nested keys are camelCase, so formatEnum rejected them and they reached the page raw.
-    expect(tile).toHaveTextContent('Rows')
     expect(tile).toHaveTextContent('Allocation')
     expect(tile).toHaveTextContent('Remaining')
+    // The row count is the group's headline number and carries no label: "Away 8".
+    expect(tile).not.toHaveTextContent('Rows')
+    const awayRow = within(tile).getByText('Away').closest('li')
+    expect(awayRow).toHaveTextContent(/^Away\s*8\s*Allocation/)
+    const wfhRow = within(tile).getByText('Working from home').closest('li')
+    expect(wfhRow).toHaveTextContent(/^Working from home\s*2\s*Allocation/)
     expect(tile).not.toHaveTextContent('rowCount')
     expect(tile).not.toHaveTextContent('approvedUsage')
     expect(tile).not.toHaveTextContent('[object Object]')

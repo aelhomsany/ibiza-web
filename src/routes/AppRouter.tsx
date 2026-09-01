@@ -1,6 +1,7 @@
 import { Suspense, lazy, type ReactElement, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
+  Navigate,
   Route,
   RouterProvider,
   Routes,
@@ -21,9 +22,6 @@ import { RoleGuard } from './RoleGuard'
 //
 // Route-level code splitting: each page loads on demand. Login stays eager — it is
 // the first paint for signed-out users.
-const DashboardPage = lazy(() =>
-  import('../features/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })),
-)
 const MyLeavesPage = lazy(() =>
   import('../features/my-leaves/MyLeavesPage').then((m) => ({ default: m.MyLeavesPage })),
 )
@@ -113,7 +111,9 @@ export function AppRoutes() {
 
           <Route element={<RoleGuard shell="org" />}>
             <Route element={<OrgShell />}>
-              <Route path="/" element={withPageTitle('routes.dashboard', <DashboardPage />)} />
+              {/* The Dashboard merged into /my-leaves (2026-09-01); the Team Calendar is
+                  the landing screen. Keep '/' as a redirect so bookmarks still work. */}
+              <Route path="/" element={<Navigate to="/calendar" replace />} />
               <Route path="/my-leaves" element={withPageTitle('routes.myLeaves', <MyLeavesPage />)} />
               <Route
                 path="/leave-requests/:id"

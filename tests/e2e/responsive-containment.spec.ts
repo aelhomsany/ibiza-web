@@ -66,21 +66,35 @@ test.describe(
       'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot dashboard/settings data',
     )
 
-    test('[P0] Dashboard has no page-level overflow at 390px', async ({ page }) => {
+    // 390px and 901px bracket the 900px shell breakpoint. The Dashboard merged into
+    // My Leaves on 2026-09-01, so the screen Story 10.9 guarded is now My Leaves —
+    // and the Team Calendar inherited the landing-page role, which is where a
+    // containment regression would hit users first.
+    test('[P0] My Leaves has no page-level overflow at 390px', async ({ page }) => {
       await loginViaUi(page, { email: 'sarah@company.com', password })
       await page.setViewportSize({ width: 390, height: 844 })
-      await navigateInApp(page, '/')
+      await navigateInApp(page, '/my-leaves')
 
-      await expect(page.getByTestId('recent-requests-card')).toBeVisible()
+      await expect(page.getByTestId('my-leaves-history')).toBeVisible()
       await expectPageDoesNotOverflow(page)
     })
 
-    test('[P0] Dashboard has no page-level overflow at 901px', async ({ page }) => {
+    test('[P0] My Leaves has no page-level overflow at 901px', async ({ page }) => {
       await loginViaUi(page, { email: 'sarah@company.com', password })
       await page.setViewportSize({ width: 901, height: 844 })
-      await navigateInApp(page, '/')
+      await navigateInApp(page, '/my-leaves')
 
-      await expect(page.getByTestId('recent-requests-card')).toBeVisible()
+      await expect(page.getByTestId('my-leaves-history')).toBeVisible()
+      await expect(page.getByTestId('my-leaves-support-rail')).toBeVisible()
+      await expectPageDoesNotOverflow(page)
+    })
+
+    test('[P0] Team Calendar has no page-level overflow at 390px', async ({ page }) => {
+      await loginViaUi(page, { email: 'sarah@company.com', password })
+      await page.setViewportSize({ width: 390, height: 844 })
+      await navigateInApp(page, '/calendar')
+
+      await expect(page.getByTestId('calendar-out-today')).toBeVisible()
       await expectPageDoesNotOverflow(page)
     })
 
@@ -122,22 +136,22 @@ test.describe(
     )
 
     test(
-      '[P1] Dashboard recent requests preserve primary facts in cards at 390px',
+      '[P1] My Leaves history preserves primary facts in cards at 390px',
       async ({ page }) => {
         await loginViaUi(page, { email: 'sarah@company.com', password })
         await page.setViewportSize({ width: 390, height: 844 })
-        await navigateInApp(page, '/')
+        await navigateInApp(page, '/my-leaves')
 
-        const card = page.getByTestId('recent-requests-card')
+        const card = page.getByTestId('my-leaves-history')
         await expect(card).toBeVisible()
 
-        const tableView = card.getByTestId('recent-requests-table-view')
+        const tableView = card.getByTestId('my-leaves-desktop-history')
         await expect(tableView).toBeAttached()
         await expect(tableView).toBeHidden()
 
-        const mobileCards = card.getByTestId('recent-request-card-list')
+        const mobileCards = card.getByTestId('my-leaves-mobile-history')
         const firstMobileCard = mobileCards.getByTestId(
-          /recent-request-card-\d+/,
+          /my-leaves-request-card-\d+/,
         ).first()
         await expect(mobileCards).toBeVisible()
         await expect(firstMobileCard).toBeVisible()
@@ -148,15 +162,17 @@ test.describe(
     )
 
     test(
-      '[P1] Dashboard recent requests keep the trailing desktop column keyboard-reachable',
+      '[P1] My Leaves history keeps the trailing desktop column keyboard-reachable',
       async ({ page }) => {
         await loginViaUi(page, { email: 'sarah@company.com', password })
         await page.setViewportSize({ width: 1280, height: 900 })
-        await navigateInApp(page, '/')
+        await navigateInApp(page, '/my-leaves')
 
-        const card = page.getByTestId('recent-requests-card')
-        const tableView = card.getByTestId('recent-requests-table-view')
-        const region = card.getByTestId('recent-requests-scroll-region')
+        const card = page.getByTestId('my-leaves-history')
+        const tableView = card.getByTestId('my-leaves-desktop-history')
+        // my-leaves-history-table IS the HorizontalScrollRegion (role="region",
+        // tabindex="0") — the My Leaves equivalent of recent-requests-scroll-region.
+        const region = card.getByTestId('my-leaves-history-table')
         await expect(tableView).toBeVisible()
         await expectTrailingColumnKeyboardReachable(
           region,

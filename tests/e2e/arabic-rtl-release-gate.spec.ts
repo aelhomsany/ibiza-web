@@ -1,5 +1,5 @@
 import { test, expect } from '../support/fixtures'
-import { loginViaUi } from '../support/helpers/auth'
+import { loginViaUi, navigateInApp } from '../support/helpers/auth'
 import { tags } from '../support/tags'
 
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
@@ -19,7 +19,7 @@ test.describe(
   () => {
     test.skip(true, 'Intentionally skipped — browser evidence pack is the release gate, not Playwright')
 
-    test('[P0] Given Arabic preferred, When Employee opens Dashboard, Then Request Leave is Arabic and html dir=rtl (no raw keys)', async ({
+    test('[P0] Given Arabic preferred, When Employee opens My Leaves, Then Request Leave is Arabic and html dir=rtl (no raw keys)', async ({
       page,
     }) => {
       test.skip(
@@ -35,7 +35,9 @@ test.describe(
       await expect(page.locator('html')).toHaveAttribute('lang', 'ar')
       await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
 
-      await expect(page.getByTestId('dashboard-page')).toBeVisible()
+      // Request Leave lives on My Leaves since the Dashboard merge (2026-09-01).
+      await navigateInApp(page, '/my-leaves')
+      await expect(page.getByTestId('my-leaves-page')).toBeVisible()
       const requestLeave = page.getByTestId('request-leave-btn')
       await expect(requestLeave).toBeVisible()
       await expect(requestLeave).not.toHaveText(/Request Leave/)

@@ -6,7 +6,7 @@ import type { UserRole } from '../api/generated/types'
  * Deliberately its own module, free of nav catalog data and icon imports: `UserMenu`
  * is shared by the org and Platform Admin shells, so anything it imports statically
  * lands in BOTH built artifacts. Importing `ORG_NAV_ITEMS` here shipped the org nav
- * labels, paths, and testids (`nav-dashboard`, `nav-my-leaves`, `nav-approvals`) into
+ * labels, paths, and testids (`nav-calendar`, `nav-my-leaves`, `nav-approvals`) into
  * the admin bundle, which `verify-artifact-boundaries.mjs` does not grep for.
  * `rolePermissions.ts` consumes this constant so there is still one source of truth.
  */

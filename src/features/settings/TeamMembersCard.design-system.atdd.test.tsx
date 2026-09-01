@@ -5,6 +5,7 @@ import * as apiClient from '../../api/client'
 import type { TeamMemberSummaryResponse } from '../../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
 import { TeamMembersCard } from './TeamMembersCard'
+import { MemoryRouter } from 'react-router-dom'
 
 const mockMembers: TeamMemberSummaryResponse[] = [
   {
@@ -39,9 +40,11 @@ function renderCard() {
   })
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
-        <TeamMembersCard onSuccess={vi.fn()} onWarning={vi.fn()} />
-      </AuthTestProvider>
+      <MemoryRouter>
+        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+          <TeamMembersCard onSuccess={vi.fn()} onWarning={vi.fn()} />
+        </AuthTestProvider>
+      </MemoryRouter>
     </QueryClientProvider>,
   )
 }
@@ -74,9 +77,11 @@ describe('TeamMembersCard design-system ATDD — Story 10.6', () => {
     renderCard()
 
     await waitFor(() => {
-      expect(screen.getByTestId('deactivate-member-2')).toBeInTheDocument()
+      expect(screen.getByText('Sarah Chen')).toBeInTheDocument()
     })
 
+    // Deactivate lives in the row's overflow menu.
+    fireEvent.click(screen.getByRole('button', { name: 'More actions: Sarah Chen' }))
     fireEvent.click(screen.getByTestId('deactivate-member-2'))
 
     const confirmButton = screen.getByRole('button', { name: 'Confirm Deactivation' })

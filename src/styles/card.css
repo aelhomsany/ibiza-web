@@ -45,10 +45,31 @@
   justify-content: space-between;
 }
 
+/* space-between spreads three children evenly, so a header with two actions left the
+   first one stranded mid-row. The actions travel together at the end. */
+.card-section-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 .settings-card .card-section-header {
   margin-block-end: 0;
   padding-block-start: var(--space-lg);
   padding-inline: var(--space-card-padding);
+}
+
+/* Sections stacked inside one card ran edge to edge: the last row of one table sat
+   directly on the next section's heading, separated by nothing but the row hairline,
+   so three sections read as one long run of table. Divide them with the card's own
+   rule and matching space either side of it. */
+.settings-card > section + section {
+  margin-block-start: var(--space-2xl);
+  border-block-start: 1px solid var(--color-border-default);
+}
+
+.settings-card > section + section > .card-section-header {
+  padding-block-start: var(--space-2xl);
 }
 
 /* Legacy class names retained because they are shared content-state contracts. */
@@ -58,4 +79,70 @@
   padding-inline: var(--space-card-padding);
   color: var(--color-text-secondary);
   font-size: var(--font-body-size);
+}
+
+/* --- Card header text and record rows (Claude Design canvas) ------------------- */
+
+/* Every card in the design states what it is and then, in a quieter line underneath,
+   what it governs -- "Which schedule and location govern each workforce group." The
+   title block grows; the card's action stays at the end of the same row. */
+.card-header-text {
+  min-width: 0;
+}
+
+.card-description {
+  margin: 2px 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-label-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-line-height);
+}
+
+/* A list of records that get read one at a time rather than compared column by column:
+   a name, a line of supporting detail, and that record's actions. A table forces every
+   row to share one set of column widths, which is what stranded a schedule's name half
+   a card away from its own working days. These rows size to their own content. */
+.settings-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  min-height: 56px;
+  padding-block: var(--space-md);
+  padding-inline: var(--space-card-padding);
+  border-block-start: 1px solid var(--color-border-default);
+}
+
+.settings-rows > .settings-row:first-child {
+  border-block-start: 0;
+}
+
+.settings-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-row-title {
+  color: var(--color-text-primary);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-card-title-weight);
+  line-height: 1.35;
+}
+
+.settings-row-meta {
+  margin-block-start: 2px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-label-size);
+}
+
+.settings-row-actions {
+  margin-inline-start: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex: none;
 }

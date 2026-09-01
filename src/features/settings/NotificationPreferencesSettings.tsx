@@ -209,108 +209,138 @@ export function NotificationPreferencesSettings({
   const saving = updateMutation.isPending
 
   return (
-    <section
-      className="settings-card settings-card-spaced"
-      data-testid="notification-preferences-settings"
-    >
-      <div className="card-section-header">
-        <span className="card-section-title">
-          <BellIcon size={18} /> {t('notifications.title')}
-        </span>
-      </div>
-      <p className="notification-pref-intro">
-        {t('notifications.intro')}
-      </p>
-
-      <div
-        className="notification-pref-row"
-        data-testid="notification-preference-in-app-workflow"
+    <div className="panel-with-aside">
+      <section
+        className="settings-card settings-card-spaced"
+        data-testid="notification-preferences-settings"
       >
-        <div className="notification-pref-main">
-          <label className="notification-pref-toggle">
-            <input type="checkbox" checked disabled />
-            <span>{t('notifications.inApp')}</span>
-          </label>
-          <span className="notification-pref-badge notification-pref-badge-required">
-            {t('notifications.badges.required')}
+        <div className="card-section-header">
+          <span className="card-section-title">
+            <BellIcon size={18} /> {t('notifications.title')}
           </span>
         </div>
-        <p className="notification-pref-help">
-          {t('notifications.inAppHelp')}
-        </p>
-      </div>
-
-      <div
-        className="notification-pref-row"
-        data-testid="notification-preference-email-workflow"
-      >
-        <div className="notification-pref-main">
-          <label className="notification-pref-toggle">
-            <input
-              type="checkbox"
-              checked={emailEnabled}
-              onChange={(event) => {
-                setEmailEnabled(event.target.checked)
-                setEmailDirty(true)
-              }}
-            />
-            <span>{t('notifications.email')}</span>
-          </label>
-          <span className="notification-pref-badge notification-pref-badge-optional">
-            {t('notifications.badges.optional')}
-          </span>
-        </div>
-        <p className="notification-pref-help" data-testid="notification-preference-email-status">
-          {t(emailStatusKey(emailEnabled, emailMutedUntil), {
-            date: emailMutedUntil ? new Date(emailMutedUntil).toLocaleString(i18n.language) : '',
-          })}
+        <p className="notification-pref-intro">
+          {t('notifications.intro')}
         </p>
 
-        <div className="notification-pref-mute">
-          <label htmlFor="mute-email-select">{t('notifications.muteFor')}</label>
-          <select
-            id="mute-email-select"
-            value={mutePreset}
-            onChange={(event) => setMutePreset(event.target.value as MutePreset)}
-          >
-            {MUTE_PRESETS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {t(option.labelKey)}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            onClick={muteEmail}
-            disabled={saving}
-            data-busy={saving ? 'true' : undefined}
-          >
-            {t('notifications.actions.mute')}
-          </button>
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            onClick={clearEmailMute}
-            disabled={saving}
-            data-busy={saving ? 'true' : undefined}
-          >
-            {t('notifications.actions.clearMute')}
-          </button>
+        <div
+          className="notification-pref-row"
+          data-testid="notification-preference-in-app-workflow"
+        >
+          <div className="notification-pref-main">
+            <label className="notification-pref-toggle">
+              <input type="checkbox" checked disabled />
+              <span>{t('notifications.inApp')}</span>
+            </label>
+            <span className="notification-pref-badge notification-pref-badge-required">
+              {t('notifications.badges.required')}
+            </span>
+          </div>
+          <p className="notification-pref-help">
+            {t('notifications.inAppHelp')}
+          </p>
         </div>
 
-        <div className="notification-pref-actions">
-          <button
-            type="button"
-            className="btn btn-primary btn-sm"
-            onClick={saveEmailPreference}
-            disabled={saving || !emailDirty}
-            data-busy={saving ? 'true' : undefined}
-          >
-            {t('notifications.actions.save')}
-          </button>
+        <div
+          className="notification-pref-row"
+          data-testid="notification-preference-email-workflow"
+        >
+          <div className="notification-pref-main">
+            <label className="notification-pref-toggle">
+              <input
+                type="checkbox"
+                checked={emailEnabled}
+                onChange={(event) => {
+                  setEmailEnabled(event.target.checked)
+                  setEmailDirty(true)
+                }}
+              />
+              <span>{t('notifications.email')}</span>
+            </label>
+            <span className="notification-pref-badge notification-pref-badge-optional">
+              {t('notifications.badges.optional')}
+            </span>
+          </div>
+          <p className="notification-pref-help" data-testid="notification-preference-email-status">
+            {t(emailStatusKey(emailEnabled, emailMutedUntil), {
+              date: emailMutedUntil ? new Date(emailMutedUntil).toLocaleString(i18n.language) : '',
+            })}
+          </p>
+
+          <div className="notification-pref-mute">
+            <label htmlFor="mute-email-select">{t('notifications.muteFor')}</label>
+            <select
+              id="mute-email-select"
+              value={mutePreset}
+              onChange={(event) => setMutePreset(event.target.value as MutePreset)}
+            >
+              {MUTE_PRESETS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {t(option.labelKey)}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={muteEmail}
+              disabled={saving}
+              data-busy={saving ? 'true' : undefined}
+            >
+              {t('notifications.actions.mute')}
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={clearEmailMute}
+              disabled={saving}
+              data-busy={saving ? 'true' : undefined}
+            >
+              {t('notifications.actions.clearMute')}
+            </button>
+          </div>
+
+          <div className="notification-pref-actions">
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={saveEmailPreference}
+              disabled={saving || !emailDirty}
+              data-busy={saving ? 'true' : undefined}
+            >
+              {t('notifications.actions.save')}
+            </button>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <aside className="support-rail">
+        {/* Two toggles and a mute duration say nothing about what is actually being tuned. These
+            are the five workflow emails the server sends (NotificationType), phrased from the
+            recipient's side because that is who is reading this panel. */}
+        <section className="support-note" aria-labelledby="notifications-sent-title">
+          <h3 className="support-note-title" id="notifications-sent-title">
+            {t('notifications.rail.sentTitle')}
+          </h3>
+          <ul className="support-note-bullets">
+            <li>{t('notifications.rail.sentApproval')}</li>
+            <li>{t('notifications.rail.sentDecision')}</li>
+            <li>{t('notifications.rail.sentConcern')}</li>
+            <li>{t('notifications.rail.sentComplete')}</li>
+          </ul>
+        </section>
+
+        <section className="support-note" aria-labelledby="notifications-scope-title">
+          <h3 className="support-note-title" id="notifications-scope-title">
+            {t('notifications.rail.scopeTitle')}
+          </h3>
+          <p className="support-note-body">{t('notifications.rail.scopeYours')}</p>
+          <p className="support-note-body">{t('notifications.rail.scopeRequired')}</p>
+          {/* The server caps a mute at 30 days and rejects anything longer; the presets stop at a
+              week, so nothing on the left ever mentions the ceiling. */}
+          <p className="support-note-body">{t('notifications.rail.scopeMuteCap')}</p>
+        </section>
+      </aside>
+    </div>
   )
 }

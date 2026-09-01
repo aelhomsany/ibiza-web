@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import * as apiClient from '../../api/client'
-import { DashboardPage } from '../../features/dashboard/DashboardPage'
+import { MyLeavesPage } from '../../features/my-leaves/MyLeavesPage'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
 import { ToastProvider } from '../ui/ToastProvider'
 import { OrgShell } from './OrgShell'
@@ -21,7 +21,7 @@ function renderOrgShell() {
           <AuthTestProvider value={createMockAuthForRole('EMPLOYEE')}>
             <Routes>
               <Route element={<OrgShell />}>
-                <Route path="/" element={<DashboardPage />} />
+                <Route path="/" element={<MyLeavesPage />} />
               </Route>
             </Routes>
           </AuthTestProvider>
@@ -34,6 +34,12 @@ function renderOrgShell() {
 describe('OrgShell ATDD — Story 10.7 mobile drawer focus and inert', () => {
   beforeEach(() => {
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getApprovalCapability').mockResolvedValue({
+      canReviewApprovals: false,
+    })
     vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 0 })
     vi.spyOn(apiClient, 'getUnreadNotificationCount').mockResolvedValue({ count: 0 })
   })
@@ -59,7 +65,7 @@ describe('OrgShell ATDD — Story 10.7 mobile drawer focus and inert', () => {
     await user.click(screen.getByTestId('shell-topbar-menu'))
 
     await waitFor(() => {
-      expect(screen.getByTestId('nav-dashboard')).toHaveFocus()
+      expect(screen.getByTestId('nav-calendar')).toHaveFocus()
     })
   })
 
@@ -142,7 +148,7 @@ describe('OrgShell ATDD — Story 10.7 mobile drawer focus and inert', () => {
     await user.click(menu)
     await screen.findByTestId('sidebar')
 
-    const firstNavLink = screen.getByTestId('nav-dashboard')
+    const firstNavLink = screen.getByTestId('nav-calendar')
     await waitFor(() => {
       expect(firstNavLink).toHaveFocus()
     })

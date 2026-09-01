@@ -90,7 +90,7 @@ tests/
 
 - **Fixtures:** Pure helpers wrapped in Playwright fixtures; compose via `mergeTests` in `support/fixtures/index.ts`.
 - **Factories:** `@faker-js/faker` with in-memory tracking and `cleanup()` on fixture teardown.
-- **Selectors:** Prefer `data-testid` per TEA handoff (`sign-in-email`, `nav-dashboard`, etc.).
+- **Selectors:** Prefer `data-testid` per TEA handoff (`sign-in-email`, `nav-calendar`, etc.).
 - **Network:** Use Playwright `request` fixture for API calls; UI flows go through `page`.
 - **Tags:** Apply canonical tags at `test.describe` level. Every maintained test is
   `@regression` plus exactly one of `@api`/`@ui-only`; update `tag-manifest.json` with any change.

@@ -79,9 +79,13 @@ describe('LoginPage', () => {
     )
   })
 
-  it('redirects authenticated user to role-appropriate home', () => {
+  it('redirects an already authenticated user off /login to their role home', () => {
+    // Starts at /login on purpose. This used to render at "/" with a stub named
+    // "dashboard", so the `/` route matched before LoginPage was ever mounted and
+    // the redirect was never exercised. The home is /calendar since the Dashboard
+    // merged into My Leaves (2026-09-01).
     render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={['/login']}>
         <AuthTestProvider
           value={createMockAuthValue({
             user: {
@@ -98,13 +102,16 @@ describe('LoginPage', () => {
         >
           <Routes>
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={<div data-testid="dashboard">Dashboard</div>} />
+            <Route
+              path="/calendar"
+              element={<div data-testid="team-calendar">Team Calendar</div>}
+            />
           </Routes>
         </AuthTestProvider>
       </MemoryRouter>,
     )
 
-    expect(screen.getByTestId('dashboard')).toBeInTheDocument()
+    expect(screen.getByTestId('team-calendar')).toBeInTheDocument()
     expect(screen.queryByTestId('login-page')).not.toBeInTheDocument()
   })
 
@@ -138,8 +145,10 @@ describe('LoginPage', () => {
     expect(screen.queryByTestId('admin-home')).not.toBeInTheDocument()
   })
 
+  // getHomePath sends org roles to the Team Calendar since the Dashboard
+  // merged into My Leaves (2026-09-01).
   it.each([
-    ['EMPLOYEE', '/', 'dashboard'],
+    ['EMPLOYEE', '/calendar', 'team-calendar'],
   ] as const)(
     'routes a successful %s sign-in to the authorized home',
     async (role, destination, testId) => {
@@ -270,7 +279,7 @@ describe('LoginPage', () => {
         >
           <Routes>
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={<div data-testid="dashboard">Dashboard</div>} />
+            <Route path="/calendar" element={<div data-testid="team-calendar">Team Calendar</div>} />
             <Route path="/onboarding" element={<div data-testid="guided-onboarding">Guided onboarding</div>} />
           </Routes>
         </AuthTestProvider>
@@ -281,7 +290,7 @@ describe('LoginPage', () => {
     await user.type(screen.getByTestId('sign-in-password'), 'Secret1!')
     await user.click(screen.getByTestId('sign-in-submit'))
 
-    expect(await screen.findByTestId('dashboard')).toBeInTheDocument()
+    expect(await screen.findByTestId('team-calendar')).toBeInTheDocument()
     expect(screen.queryByTestId('guided-onboarding')).not.toBeInTheDocument()
     // The opt-out short-circuits before the lookup — no reason to ask.
     expect(fetch).not.toHaveBeenCalled()
@@ -312,7 +321,7 @@ describe('LoginPage', () => {
         >
           <Routes>
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={<div data-testid="dashboard-fallback">Dashboard</div>} />
+            <Route path="/calendar" element={<div data-testid="team-calendar-fallback">Team Calendar</div>} />
           </Routes>
         </AuthTestProvider>
       </MemoryRouter>,
@@ -322,7 +331,7 @@ describe('LoginPage', () => {
     await user.type(screen.getByTestId('sign-in-password'), 'Secret1!')
     await user.click(screen.getByTestId('sign-in-submit'))
 
-    expect(await screen.findByTestId('dashboard-fallback')).toBeInTheDocument()
+    expect(await screen.findByTestId('team-calendar-fallback')).toBeInTheDocument()
   })
 
   it('submits credentials via login and shows API error message', async () => {

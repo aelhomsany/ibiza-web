@@ -98,19 +98,11 @@ html[lang='ar'] .reports-eyebrow {
   font-size: var(--font-card-title-size);
 }
 
-.reports-evidence {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-section-gap);
-}
-
-.reports-applied,
-.reports-provenance {
+.reports-applied {
   padding: var(--space-card-padding);
 }
 
 .reports-applied h2,
-.reports-provenance h2,
 .reports-summary h2 {
   margin: 0 0 var(--space-lg);
   color: var(--color-text-primary);
@@ -119,21 +111,19 @@ html[lang='ar'] .reports-eyebrow {
   line-height: var(--font-card-title-line-height);
 }
 
-.reports-applied dl,
-.reports-provenance dl {
+.reports-applied dl {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Full content width since the provenance card was removed; fixed tracks left two sparse columns. */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-lg);
   margin: 0;
 }
 
-.reports-applied dl > div,
-.reports-provenance dl > div {
+.reports-applied dl > div {
   min-width: 0;
 }
 
 .reports-applied dt,
-.reports-provenance dt,
 .reports-summary dt {
   color: var(--color-text-secondary);
   font-size: var(--font-caption-size);
@@ -141,8 +131,7 @@ html[lang='ar'] .reports-eyebrow {
   line-height: var(--font-caption-line-height);
 }
 
-.reports-applied dd,
-.reports-provenance dd {
+.reports-applied dd {
   overflow-wrap: anywhere;
   margin: var(--space-xs) 0 0;
   color: var(--color-text-primary);
@@ -359,7 +348,6 @@ html[lang='ar'] .reports-eyebrow {
 
 @media (max-width: 900px) {
   .reports-filter-grid,
-  .reports-evidence,
   .reports-export-card,
   .reports-export-status dl {
     grid-template-columns: minmax(0, 1fr);

@@ -5,19 +5,24 @@ import { tags } from '../support/tags'
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
 /**
- * Story 3.1 — balance cards on dashboard (FR-3 full-stack regression journey).
+ * Story 3.1 — balance cards (FR-3 full-stack regression journey).
+ *
+ * The filename still says "dashboard" because Story 3.1's implementation and
+ * ATDD artifacts reference this path; the screen it covers moved. The Dashboard
+ * merged into My Leaves on 2026-09-01, so the balance grid now lives at
+ * /my-leaves and '/' redirects to the Team Calendar, which has no balance cards.
  */
-test.describe('Dashboard balances — Story 3.1', { tag: [tags.regression, tags.api] }, () => {
+test.describe('Balance cards — Story 3.1', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for dashboard data',
+    'Set E2E_API_AVAILABLE=true when ibiza-api is running for balance data',
   )
 
   test('[P1] Employee sees annual leave balance card with numbers after login', async ({
     page,
   }) => {
     await loginViaUi(page, { email: 'sarah@company.com', password })
-    await navigateInApp(page, '/')
+    await navigateInApp(page, '/my-leaves')
 
     const annualCard = page.getByTestId('balance-card-annual-leave')
     await expect(annualCard).toBeVisible()

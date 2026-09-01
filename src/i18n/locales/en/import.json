@@ -1,27 +1,41 @@
 {
   "eyebrow": "Data Import",
   "title": "Import Data",
-  "subtitle": "Upload a CSV to add people or opening balances. Nothing is committed until you confirm.",
+  "subtitle": "Upload a spreadsheet to add people or opening balances. Nothing is committed until you confirm.",
+  "steps": {
+    "label": "Import progress",
+    "file": "Choose file",
+    "review": "Review rows",
+    "finish": "Finish",
+    "completed": "Completed"
+  },
   "templates": {
     "label": "What are you importing?",
     "PEOPLE_AND_ASSIGNMENTS": "People & Assignments",
-    "ENTITLEMENTS_AND_OPENING_BALANCES": "Entitlements & Opening Balances"
+    "ENTITLEMENTS_AND_OPENING_BALANCES": "Entitlements & Opening Balances",
+    "heading": "Choose what to import",
+    "help": "Download the template, fill it in, then upload it. Keep the header row exactly as it comes — the file already carries every column the importer expects.",
+    "descriptions": {
+      "PEOPLE_AND_ASSIGNMENTS": "Creates people, invites them, and places them into workforce groups and leave policies.",
+      "ENTITLEMENTS_AND_OPENING_BALANCES": "Loads each person's opening balance for one leave type, effective from a date you choose."
+    }
   },
   "actions": {
     "start": "Start Import",
     "starting": "Starting…",
-    "chooseFile": "Choose CSV file",
+    "chooseFile": "Choose file",
     "upload": "Upload",
     "uploading": "Uploading…",
     "commit": "Commit Import",
     "confirmCommit": "Confirm Commit",
-    "cancelImport": "Cancel Import",
-    "cancelling": "Cancelling…",
     "downloadEvidence": "Download Source Evidence",
     "startAnother": "Start Another Import",
     "close": "Close",
     "resume": "Resume",
-    "open": "Open"
+    "open": "Open",
+    "downloadTemplate": "Download template",
+    "downloadTemplateNamed": "Download the {{template}} template",
+    "back": "Back"
   },
   "history": {
     "title": "Recent Imports",
@@ -37,10 +51,13 @@
   },
   "upload": {
     "title": "Upload Source File",
-    "hint": "CSV, UTF-8, up to 10 MB and 2,000 rows.",
-    "noFile": "Choose a CSV file to upload.",
+    "hint": "Excel (.xlsx) or CSV, up to 10 MB and 2,000 rows.",
+    "noFile": "Choose a file to upload.",
     "tooLarge": "That file is larger than 10 MB. Split it and import the parts separately.",
-    "wrongType": "Choose a .csv file. Spreadsheets must be exported as CSV first."
+    "wrongType": "Choose an .xlsx or .csv file.",
+    "templateReminder": "Need the columns? Download the {{template}} template and fill that in.",
+    "pickerHint": "Start Import opens your file browser. Pick a filled-in template — up to 10 MB and 2,000 rows.",
+    "recoveryHint": "The import was created but the file never arrived. Choose it again, or go back and start over."
   },
   "processing": {
     "title": "Validating…",
@@ -62,7 +79,8 @@
       "previous": "Previous",
       "next": "Next",
       "status": "Page {{page}} of {{totalPages}}, {{total}} rows"
-    }
+    },
+    "rejectionEmailed": "A text file listing every rejected row is being emailed to you, so you can correct them away from this page."
   },
   "confirm": {
     "title": "Confirm Commit",
@@ -74,7 +92,7 @@
   },
   "result": {
     "title": "Import Complete",
-    "reconciledBody": "The import reached RECONCILED with {{committed}} rows committed.",
+    "reconciledBody": "The import committed {{committed}} rows and reconciled them against the source file.",
     "failedBody": "The import could not be committed.",
     "deadLetterBody": "This import was retired after repeated failures and will not be retried. Start a new import once the source file is corrected.",
     "failureReason": "Reason: {{reason}}",
@@ -103,7 +121,6 @@
     "RECONCILING": "Reconciling",
     "RECONCILED": "Reconciled",
     "FAILED": "Failed",
-    "CANCELLED": "Cancelled",
     "EXPIRED": "Expired",
     "DEAD_LETTER": "Failed — Retired"
   },
@@ -118,11 +135,11 @@
     "statusFailed": "Could not read the import job's status.",
     "rowsFailed": "Could not load row detail.",
     "commitFailed": "Could not commit the import.",
-    "cancelFailed": "Could not cancel the import.",
     "downloadFailed": "Could not download the source evidence.",
     "evidenceExpired": "This evidence has expired and can no longer be downloaded.",
     "historyFailed": "Could not load recent imports.",
-    "openFailed": "Could not open that import job."
+    "openFailed": "Could not open that import job.",
+    "templateDownloadFailed": "Could not download the template."
   },
   "stalled": "This is taking longer than expected. Refresh the page or check back shortly.",
   "capabilityUnavailable": {
@@ -130,7 +147,7 @@
     "body": "Data import is not available for this organization yet. Contact support if you believe this is a mistake."
   },
   "activeJob": {
-    "body": "This organization already has an import in progress. Resume it or cancel it before starting a new one.",
+    "body": "An import for this organization is being applied right now. Wait for it to finish before starting a new one.",
     "notFound": "The blocking import is no longer listed. Reload the page and try again."
   }
 }

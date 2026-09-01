@@ -187,6 +187,12 @@
   --space-section-gap: 24px;
   --space-header-height: 64px;
   --min-touch-target: 44px;
+  /* One size for every tick box and radio in the app. Four different sizes had grown
+     up in isolation -- 13px native on the weekend chips, 16px on the notification
+     toggles, 20px in the calendar-privacy matrix -- because each feature reset the
+     global field sizing its own way. The touch target stays 44px and belongs to the
+     row or label that wraps the control. */
+  --control-checkbox-size: 18px;
   --table-row-comfortable: 56px;
   --table-row-compact: 48px;
 
@@ -201,6 +207,11 @@
   /* Layout. */
   --layout-sidebar-width: 240px;
   --layout-content-max-width: 1100px;
+  /* Settings is full-bleed but still needs a reading limit and a fixed nav rail. */
+  /* Settings is a form-and-list surface, not a data console: past ~1280px the rows
+     just get further from their labels. 1280 leaves the task column near 1024px. */
+  --settings-ia-max-width: 1280px;
+  --settings-ia-rail-width: 232px;
   --layout-table-max-width: 1100px;
 
   /* Elevation. */

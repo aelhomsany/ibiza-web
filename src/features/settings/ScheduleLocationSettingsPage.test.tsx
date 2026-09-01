@@ -68,6 +68,11 @@ function mockLists(options: { empty?: boolean } = {}) {
   vi.spyOn(apiClient, 'getWorkSchedules').mockResolvedValue(options.empty ? [] : schedules)
   vi.spyOn(apiClient, 'getLocationContexts').mockResolvedValue(options.empty ? [] : locations)
   vi.spyOn(apiClient, 'listScheduleAssignments').mockResolvedValue(options.empty ? [] : assignments)
+  vi.spyOn(apiClient, 'getScheduleAssignmentCoverage').mockResolvedValue(
+    options.empty
+      ? { activeMemberCount: 12, coveredMemberCount: 0, unassignedMemberCount: 12 }
+      : { activeMemberCount: 12, coveredMemberCount: 9, unassignedMemberCount: 3 },
+  )
   vi.spyOn(apiClient, 'getPolicySettingsOverview').mockResolvedValue(
     overview as unknown as Awaited<ReturnType<typeof apiClient.getPolicySettingsOverview>>,
   )
@@ -126,6 +131,48 @@ describe('ScheduleLocationSettingsPage', () => {
     renderPage()
 
     expect(await screen.findByRole('button', { name: /new version of cairo week/i })).toBeInTheDocument()
+  })
+
+  /**
+   * Coverage is served as its own endpoint rather than summed from the assignment rows on this
+   * page: the three scopes overlap, so an ORGANIZATION row and a WORKFORCE_GROUP row both select
+   * the same person and adding each row's affectedMemberCount reports more covered people than
+   * the organization has. This asserts the page renders the server's answer, not a local sum --
+   * the single assignment here carries affectedMemberCount 2, which is neither figure shown.
+   */
+  it('reports coverage from the server rather than summing the assignment rows', async () => {
+    mockLists()
+
+    renderPage()
+
+    // The cell exists from the first paint holding an em dash, so findBy* resolves before the
+    // query settles -- wait on the figure itself.
+    await waitFor(() => expect(screen.getByTestId('coverage-people-covered')).toHaveTextContent('9 of 12'))
+    expect(screen.getByTestId('coverage-unassigned')).toHaveTextContent('3')
+  })
+
+  it('raises a heads-up only while someone is actually uncovered', async () => {
+    mockLists()
+
+    const uncovered = renderPage()
+
+    expect(await screen.findByText(/fall back to the organization-wide row/i)).toBeInTheDocument()
+    uncovered.unmount()
+
+    vi.restoreAllMocks()
+    mockLists()
+    vi.spyOn(apiClient, 'getScheduleAssignmentCoverage').mockResolvedValue({
+      activeMemberCount: 12,
+      coveredMemberCount: 12,
+      unassignedMemberCount: 0,
+    })
+
+    renderPage()
+
+    // Everyone is covered, so the card has nothing to say and does not render at all -- a panel
+    // headed "Heads up" holding nothing is worse than no panel.
+    await waitFor(() => expect(screen.getByTestId('coverage-unassigned')).toHaveTextContent('0'))
+    expect(screen.queryByText(/fall back to the organization-wide row/i)).not.toBeInTheDocument()
   })
 
   it('shows centered empty states, not bare text, when nothing is configured', async () => {
@@ -198,5 +245,41 @@ describe('ScheduleLocationSettingsPage', () => {
     expect(await screen.findByTestId('bulk-schedule-assignment-modal')).toBeInTheDocument()
     // The roster comes from the overview query, not from a second fetch of its own.
     expect(screen.getByTestId('bulk-assignment-subjects-list')).toHaveTextContent('Jane Doe')
+  })
+
+  /**
+   * A tenant is provisioned with zero Workforce Groups -- the HR Admin creates them -- so the
+   * holiday source can legitimately have nothing to offer. Without an explanation the admin sees
+   * an empty required select above a button that never enables.
+   */
+  it('explains the empty holiday source when the organization has no workforce groups', async () => {
+    const user = userEvent.setup()
+    mockLists({ empty: true })
+    vi.spyOn(apiClient, 'getPolicySettingsOverview').mockResolvedValue({
+      ...overview,
+      workforceGroups: [],
+    } as unknown as Awaited<ReturnType<typeof apiClient.getPolicySettingsOverview>>)
+
+    renderPage()
+
+    await user.click(await screen.findByTestId('new-location-context'))
+
+    const hint = await screen.findByTestId('location-no-groups-hint')
+    expect(hint).toHaveTextContent(/takes its public holidays from a workforce group/i)
+    expect(screen.getByLabelText(/Holiday source/i)).toBeDisabled()
+    expect(screen.getByTestId('create-location-context-submit')).toBeDisabled()
+    expect(screen.getByTestId('location-create-group-link')).toBeInTheDocument()
+  })
+
+  it('leaves the holiday source alone once workforce groups exist', async () => {
+    const user = userEvent.setup()
+    mockLists({ empty: true })
+
+    renderPage()
+
+    await user.click(await screen.findByTestId('new-location-context'))
+
+    await waitFor(() => expect(screen.getByLabelText(/Holiday source/i)).toBeEnabled())
+    expect(screen.queryByTestId('location-no-groups-hint')).not.toBeInTheDocument()
   })
 })

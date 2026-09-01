@@ -162,6 +162,11 @@ html {
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
+  /* A dozen call sites render .btn on an <a> -- "Contact Sales" on Plan & Billing and
+     most of the public site's calls to action. Those were inheriting the link
+     underline on top of the button's fill and border, which reads as a broken
+     control. A <button> has no decoration to lose, so this only affects the anchors. */
+  text-decoration: none;
   font-family: inherit;
   font-size: var(--font-body-sm-size);
   font-weight: var(--font-label-weight);

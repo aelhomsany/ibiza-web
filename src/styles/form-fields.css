@@ -1,5 +1,63 @@
 /* Shared labelled-field and form-grid contracts. */
 
+/* `.form-field` is the label-wraps-its-control variant of `.form-group`: the
+   <label> owns the field, so the caption and the input are its children rather
+   than siblings. Without a display rule both flow inline and the caption wraps
+   around the control, so keep this in step with `.form-group` below. */
+.form-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field > span {
+  color: var(--color-text-primary);
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-label-line-height);
+}
+
+.form-field > input:not([type='checkbox']):not([type='radio']),
+.form-field > select,
+.form-field > textarea {
+  width: 100%;
+  min-height: var(--min-touch-target);
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-card);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--font-body-size);
+}
+
+.form-field > input:focus-visible,
+.form-field > select:focus-visible,
+.form-field > textarea:focus-visible {
+  outline: none;
+  border-color: var(--color-action-primary);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+@media (forced-colors: active) {
+  .form-field > input:focus-visible,
+  .form-field > select:focus-visible,
+  .form-field > textarea:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+}
+
+/* A colour well is a swatch, not a text box: the UA paints the whole padding
+   box, so padding just inflates the swatch. */
+.form-field > input[type='color'] {
+  height: var(--min-touch-target);
+  padding: 4px;
+  cursor: pointer;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -14,7 +72,7 @@
   line-height: var(--font-label-line-height);
 }
 
-.form-group input,
+.form-group input:not([type='checkbox']):not([type='radio']),
 .form-group select {
   width: 100%;
   min-height: var(--min-touch-target);
@@ -43,6 +101,17 @@
   }
 }
 
+/* A native select paints its dropdown arrow INSIDE the content box, so a symmetric
+   inline padding leaves the longest option sitting under the arrow -- the English
+   holiday-source placeholder already runs to within 9px of the edge, and Arabic is
+   longer. Reserve the arrow's lane, and ellipse rather than hard-clip what still
+   does not fit. */
+.form-field > select,
+.form-group select {
+  padding-inline-end: var(--space-2xl);
+  text-overflow: ellipsis;
+}
+
 .field-error {
   color: var(--color-error-fg);
   font-size: var(--font-caption-size);
@@ -60,6 +129,22 @@
   margin-block-start: 2px;
 }
 
+/* One grid cell: the field plus whatever error belongs to it. Keeping the error
+   a sibling of the <label> rather than a child keeps it out of the control's
+   accessible name, and the cell keeps the pair together in a grid. */
+.form-cell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-error {
+  color: var(--color-error-fg);
+  font-size: var(--font-caption-size);
+  line-height: var(--font-caption-line-height);
+}
+
 .form-row-2col {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -70,4 +155,68 @@
   .form-row-2col {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* --- Checkboxes, radios and pickers ------------------------------------- */
+
+/* A tick box is not a text field. The sizing rules above -- width 100%, a 44px block
+   floor, a border and a card background -- are written for controls you type into;
+   applied to a checkbox they stretch it across its whole group and shove the label
+   onto the line below. Two features had already patched around that one at a time
+   (.weekend-chip, .calendar-privacy-cell), so the exclusion belongs at the source.
+   The touch target then comes from the <label> wrapping the control, which is what
+   the pointer actually hits. */
+.form-field > input[type='checkbox'],
+.form-field > input[type='radio'],
+.form-group input[type='checkbox'],
+.form-group input[type='radio'] {
+  flex: none;
+  inline-size: var(--control-checkbox-size);
+  block-size: var(--control-checkbox-size);
+  accent-color: var(--color-action-primary);
+  cursor: pointer;
+}
+
+/* A vertical multi-select: one tickable row per option, box and label on one line.
+   The height cap matters in a dialog -- a roster of any size would otherwise push
+   the primary action off the bottom of the modal and make the whole thing scroll. */
+.checkbox-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-xs);
+  max-block-size: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle);
+}
+
+/* The row label is the option's name, not a field caption, so it drops the 13px
+   semibold treatment .form-group label would otherwise give it and reads as body
+   text. */
+.checkbox-list > li > label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-block-size: var(--min-touch-target);
+  padding-inline: var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-line-height);
+  cursor: pointer;
+}
+
+.checkbox-list > li > label:hover {
+  background: var(--color-surface-card);
+}
+
+.checkbox-list > li > label:focus-within {
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.checkbox-list-empty {
+  padding: var(--space-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
 }

@@ -57,6 +57,10 @@ export function PlanAndBillingPage() {
     })
   }
 
+  // The same sum BillingManagementService applies before allowing a downgrade: active users plus
+  // unexpired pending invitations. Neither the summary nor the provider reports it as one number.
+  const reserved = subscription ? subscription.activeSeats + subscription.pendingInvitations : 0
+
   return (
     <div className="page page-wide billing-page" data-testid="plan-and-billing-page">
       <header className="page-header">
@@ -68,9 +72,13 @@ export function PlanAndBillingPage() {
         ) : null}
       </header>
       {loading ? <p aria-live="polite">{t('loading')}</p> : subscription ? (
-        <>
+        <div className="panel-with-aside">
+          <div className="panel-stack">
           <section className="card billing-summary" aria-labelledby="billing-summary-title">
-            <div><h2 id="billing-summary-title">{t('summary.title')}</h2><strong><bdi>{subscription.plan}</bdi></strong></div>
+            <div className="billing-summary-head">
+              <h2 id="billing-summary-title" className="card-title">{t('summary.title')}</h2>
+              <strong className="badge billing-plan-badge"><bdi>{subscription.plan}</bdi></strong>
+            </div>
             <dl>
               <div><dt>{t('summary.status')}</dt><dd>{t(`statuses.${subscription.billingStatus}`)}</dd></div>
               <div><dt>{t('summary.active')}</dt><dd>{subscription.activeSeats}</dd></div>
@@ -78,11 +86,11 @@ export function PlanAndBillingPage() {
               <div><dt>{t('summary.billable')}</dt><dd>{subscription.billableQuantity}</dd></div>
               <div><dt>{t('summary.limit')}</dt><dd>{subscription.seatLimit}</dd></div>
             </dl>
-            <p>{t('summary.quantityTruth')}</p>
+            <p className="form-hint">{t('summary.quantityTruth')}</p>
             {subscription.pendingPlan ? <p role="status">{t('summary.pendingPlan', { plan: subscription.pendingPlan })}</p> : null}
           </section>
           <section className="card billing-actions" aria-labelledby="billing-actions-title">
-            <h2 id="billing-actions-title">{t('manage.title')}</h2>
+            <h2 id="billing-actions-title" className="card-title">{t('manage.title')}</h2>
             <p>{t('manage.body')}</p>
             <div className="billing-action-row">
               {subscription.plan === 'GROWTH' ? <button className="btn btn-outline" disabled={working} onClick={() => void downgrade('STARTER')}>{t('actions.starter')}</button> : null}
@@ -91,7 +99,53 @@ export function PlanAndBillingPage() {
               <a className="btn btn-outline" href="/contact-sales" onClick={() => void trackUpgrade('CONTACT_SALES', 'billing_page')}>{t('actions.sales')}</a>
             </div>
           </section>
-        </>
+          </div>
+
+          <aside className="support-rail">
+            {/* The summary lists what the provider reports. The rail does the arithmetic nobody
+                should be doing in their head: reserved is what the seat-limit check actually
+                compares (active people plus invitations that have not expired), and headroom is
+                what is left of the plan limit after it. Billable quantity is deliberately absent
+                here — it is billing's number and already on the card. */}
+            <section className="support-note" aria-labelledby="billing-seats-title">
+              <h3 className="support-note-title" id="billing-seats-title">{t('rail.seatsTitle')}</h3>
+              <dl className="support-note-list">
+                <div className="support-note-kv">
+                  <dt>{t('summary.active')}</dt>
+                  <dd>{subscription.activeSeats}</dd>
+                </div>
+                <div className="support-note-kv">
+                  <dt>{t('summary.pending')}</dt>
+                  <dd>{subscription.pendingInvitations}</dd>
+                </div>
+                <div className="support-note-kv">
+                  <dt>{t('rail.reserved')}</dt>
+                  <dd data-testid="billing-reserved">{reserved}</dd>
+                </div>
+                <div className="support-note-kv">
+                  <dt>{t('summary.limit')}</dt>
+                  <dd>{subscription.seatLimit}</dd>
+                </div>
+                <div className="support-note-kv">
+                  {/* Clamped at zero: an over-limit organization has no negative headroom, it has
+                      none, and a "-2" here would read as a quantity rather than a state. */}
+                  <dt>{t('rail.headroom')}</dt>
+                  <dd data-testid="billing-headroom">{Math.max(0, subscription.seatLimit - reserved)}</dd>
+                </div>
+              </dl>
+            </section>
+
+            <section className="support-note" aria-labelledby="billing-headroom-title">
+              <h3 className="support-note-title" id="billing-headroom-title">{t('rail.headroomTitle')}</h3>
+              <p className="support-note-body">{t('rail.headroomBody')}</p>
+            </section>
+
+            <section className="support-note" aria-labelledby="billing-lifecycle-title">
+              <h3 className="support-note-title" id="billing-lifecycle-title">{t('rail.lifecycleTitle')}</h3>
+              <p className="support-note-body">{t('rail.lifecycleBody')}</p>
+            </section>
+          </aside>
+        </div>
       ) : null}
     </div>
   )

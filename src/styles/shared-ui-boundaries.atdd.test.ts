@@ -9,14 +9,18 @@ const featuresRoot = join(srcRoot, 'features')
 
 const paths = {
   main: join(srcRoot, 'main.tsx'),
+  customerMain: join(srcRoot, 'entries/customer-main.tsx'),
   tokens: join(srcRoot, 'styles/tokens.css'),
   card: join(srcRoot, 'styles/card.css'),
   dataTable: join(srcRoot, 'styles/data-table.css'),
   formFields: join(srcRoot, 'styles/form-fields.css'),
-  dashboardCss: join(featuresRoot, 'dashboard/dashboard.css'),
+  // dashboard.css dissolved with the Dashboard page (2026-09-01); first-use.css
+  // is the surviving extraction and inherits its boundary guarantee.
+  firstUseCss: join(featuresRoot, 'dashboard/first-use.css'),
   teamMembersCss: join(featuresRoot, 'settings/team-members.css'),
   approvalsCss: join(featuresRoot, 'approvals/approvals.css'),
   modalCss: join(srcRoot, 'components/ui/modal.css'),
+  supportRailCss: join(srcRoot, 'styles/support-rail.css'),
   organizationsPage: join(featuresRoot, 'platform/OrganizationsPage.tsx'),
 }
 
@@ -46,13 +50,46 @@ describe('shared UI CSS boundaries — Story 10.11', () => {
     expect(existsSync(paths.card)).toBe(true)
     expect(existsSync(paths.dataTable)).toBe(true)
     expect(existsSync(paths.formFields)).toBe(true)
+
+    // The supporting-rail primitives are shared for the same reason the contracts above are:
+    // Settings and Plan & billing both lay panels out this way, and a feature stylesheet may
+    // not be imported across a feature boundary (the test below).
+    //
+    // Asserted on BOTH entries, and customer-main.tsx is the one that matters. src/main.tsx is
+    // the legacy entry behind index.html (vite.config.ts calls it that); the running app is
+    // app.html -> src/entries/customer-main.tsx, which is where every screen using these classes
+    // actually mounts. Checking main.tsx alone passed while the browser never requested the
+    // stylesheet at all, and the rail rendered as unstyled stacked text on every settings screen.
+    const entries: Array<[string, string]> = [
+      [readFileSync(paths.main, 'utf-8'), './styles'],
+      [readFileSync(paths.customerMain, 'utf-8'), '../styles'],
+    ]
+    entries.forEach(([entry, prefix]) => {
+      expect(entry).toContain(`import '${prefix}/support-rail.css'`)
+      expect(entry.indexOf(`import '${prefix}/support-rail.css'`)).toBeGreaterThan(
+        entry.indexOf(`import '${prefix}/global.css'`),
+      )
+    })
+    expect(existsSync(paths.supportRailCss)).toBe(true)
+  })
+
+  it('[P0] keeps panel layout margins off a universal child selector', () => {
+    const supportRailCss = readFileSync(paths.supportRailCss, 'utf-8')
+
+    // A modal <dialog> is a DOM child of whichever panel renders it — the top layer changes
+    // where it PAINTS, not where it sits in the tree — so `.panel-stack > *` reaches it. Zeroing
+    // margin-block-start there beats the `margin: auto` that centres a native dialog, and every
+    // modal opened from these panels lands against the top edge of the screen instead of in the
+    // middle of it. Layout rules on these containers name the class they actually mean.
+    expect(supportRailCss).not.toMatch(/\.panel-(?:with-aside|stack)\s*>\s*\*/)
+    expect(supportRailCss).toMatch(/\.panel-with-aside\s*>\s*\.settings-card-spaced/)
   })
 
   it('[P0] keeps generic rules out of Dashboard and Settings feature stylesheets', () => {
-    const dashboardCss = readFileSync(paths.dashboardCss, 'utf-8')
+    const firstUseCss = readFileSync(paths.firstUseCss, 'utf-8')
     const teamMembersCss = readFileSync(paths.teamMembersCss, 'utf-8')
 
-    expect(dashboardCss).not.toMatch(
+    expect(firstUseCss).not.toMatch(
       /\.(?:card|card-header|card-title|table-wrap|dashboard-table|leave-type-tag|status-hint|decline-reason|working-caption|dashboard-empty-state|dashboard-error|dashboard-section-loading)\s*[{,]/,
     )
     expect(teamMembersCss).not.toMatch(/\.(?:form-group|form-row-2col|card-section-header|card-section-title)\s*[{,]/)
@@ -137,5 +174,10 @@ describe('shared UI CSS boundaries — Story 10.11', () => {
     expect(cardCss).toMatch(/\.card\s*[,{]/)
     expect(cardCss).toContain('box-shadow: var(--shadow-card)')
     expect(dataTableCss).toMatch(/\.table-wrap\s*\{/)
+    // The scroll region has to be the containing block for the .sr-only labels inside its
+    // cells. Without it their containing block is the page, so a hidden column label sits at
+    // its document x — past the viewport once the table is wider than its region — and drags
+    // the whole page into a horizontal scroll beside a table that already scrolls on its own.
+    expect(dataTableCss).toMatch(/\.table-wrap\s*\{[^}]*position:\s*relative/s)
   })
 })

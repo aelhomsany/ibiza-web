@@ -1,0 +1,188 @@
+/* --- Supporting rail (Claude Design canvas) ------------------------------------ */
+
+/* A reading column with a narrow third track beside it, and the annotation blocks that
+   go in that track. Shared rather than owned by Settings: Plan & billing wants the same
+   layout, and a feature stylesheet may not be imported across feature boundaries
+   (shared-ui-boundaries.atdd.test.ts). Loaded from main.tsx with the other shared
+   contracts, so a feature only has to use the class names.
+
+   The names carry no feature in them for the same reason -- these were
+   `.settings-panel-with-aside` / `.settings-support-rail` / `.settings-panel-wide` while
+   Settings was the only caller. */
+
+/* The third track carries what you need while reading the panel but never edit here:
+   counts that prove coverage, and a note about what the settings on the left affect.
+   It reads as annotation, not as another card -- hence the tinted ground and no shadow. */
+.support-note {
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-xl);
+}
+
+.support-note-title {
+  margin: 0 0 var(--space-sm);
+  color: var(--color-text-disabled);
+  font-size: var(--font-label-size);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Arabic is cursive: letterspacing pulls apart glyphs that are meant to join. */
+html[lang='ar'] .support-note-title {
+  letter-spacing: normal;
+}
+
+.support-note-body {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-size);
+  line-height: 1.5;
+}
+
+/* A short list of consequences, not a menu -- markers stay, because "three things this
+   affects" is a count the reader should be able to see without counting. */
+.support-note-bullets {
+  margin: 0;
+  padding-inline-start: 1.1em;
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-size);
+  line-height: 1.5;
+}
+
+.support-note-bullets li + li {
+  margin-block-start: var(--space-sm);
+}
+
+.support-note-body + .support-note-body {
+  margin-block-start: var(--space-sm);
+}
+
+.support-note-list {
+  display: grid;
+  margin: 0;
+}
+
+/* Label left, figure right, one hairline between each pair -- the figures line up in a
+   column so the set can be scanned vertically instead of read as sentences. */
+.support-note-kv {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding-block: 7px;
+  border-block-start: 1px solid var(--color-border-default);
+  font-size: var(--font-body-size);
+}
+
+.support-note-list > .support-note-kv:first-child {
+  border-block-start: 0;
+}
+
+.support-note-kv dt {
+  color: var(--color-text-secondary);
+}
+
+.support-note-kv dd {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Some kv rows carry a phrase rather than a figure -- "Saturday and Sunday" against a group
+   name. Bold and tabular numerals are for figures; a phrase set that way reads as a heading. */
+.support-note-kv-quiet {
+  font-weight: var(--font-body-weight);
+  font-variant-numeric: normal;
+  text-align: end;
+}
+
+/* A category panel that carries supporting material splits its OWN region into a reading
+   column and a rail, rather than adding a third track to the Settings grid: the rail belongs
+   to the panel, and SettingsPage should not have to know which category wants one. */
+.panel-with-aside {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 300px);
+  gap: var(--space-section-gap);
+  align-items: start;
+}
+
+/* Content with a minimum of its own that the reading column cannot honour -- a wide table --
+   spans the rail as well. The alternative is a permanent sideways scroll inside the narrowed
+   column, which is the defect this pass exists to remove, not to relocate. */
+.panel-aside-wide {
+  grid-column: 1 / -1;
+}
+
+/* The rail scrolls with the page until it reaches the top, then stays: its figures are
+   reference material for the assignments table below, which is taller than the rail. */
+.support-rail {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  position: sticky;
+  inset-block-start: var(--space-lg);
+}
+
+/* Grid rows align on their start edge, so a card here cannot carry a top margin of its own.
+   `.settings-card-spaced` holds the 24px that separates stacked cards, and `.settings-panel`
+   already zeroes it on a card that sits directly in the panel -- wrapping that card in this
+   grid put it out of reach of that rule and dropped it 24px below the rail beside it. The
+   grid's own gap is the same 24px, so the rhythm is unchanged. `.panel-stack` is flex with
+   the same gap and needs the same.
+
+   Named class, not `> *`: a modal <dialog> is a DOM child of whichever panel renders it, and
+   the wildcard reached it in the top layer too -- overriding the `margin: auto` that centres
+   a native dialog and pinning every modal on these panels to the top edge of the screen. */
+.panel-with-aside > .settings-card-spaced,
+.panel-stack > .settings-card-spaced {
+  margin-block-start: 0;
+}
+
+/* A panel whose main card has a min-content width of its own -- the visibility matrix wants
+   645px, the People roster 849px, against an 854px panel -- cannot seat a 300px rail beside
+   it. Standing the rail next to the short card ABOVE such a table is worse than no rail: the
+   reading column then sits empty for the rail's whole height, a 300-500px hole in the middle
+   of the panel. Those panels lay the same notes out as a band across the panel instead --
+   same blocks, same voice, read left to right instead of top to bottom. auto-fit rather than
+   a fixed three, because the note count varies per panel and the band has to survive the
+   1200px collapse below without a breakpoint of its own. */
+.support-band {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-lg);
+}
+
+/* The rail collapses well above the shared 900px breakpoint on purpose: at 900px the panel's
+   region is already too narrow to give both a rail and a readable column, so waiting for the
+   app-wide breakpoint would break the column rather than the supporting material. */
+@media (max-width: 1200px) {
+  .panel-with-aside {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .support-rail {
+    position: static;
+  }
+}
+
+
+/* A line that explains the figures above it rather than adding another one -- set smaller and
+   quieter than .support-note-body so it reads as a caption on the list, not as a fourth row. */
+.support-note-footnote {
+  margin-block-start: var(--space-sm);
+  font-size: var(--font-caption-size);
+}
+
+/* The panel's vertical rhythm. Cards used to be one big card with sections divided by
+   rules; as separate cards they need the gap to come from the stack rather than from a
+   margin on each card, so the first one does not push the panel away from its heading. */
+.panel-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-section-gap);
+  min-width: 0;
+}

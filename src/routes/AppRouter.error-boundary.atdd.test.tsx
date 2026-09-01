@@ -9,9 +9,9 @@ import { mockCalendarMonth } from '../features/calendar/calendarTestFixtures'
 import { AppRoutes } from './AppRouter'
 import { ToastProvider } from '../components/ui/ToastProvider'
 
-vi.mock('../features/dashboard/DashboardPage', () => ({
-  DashboardPage: () => {
-    throw new Error('ATDD: simulated dashboard render failure')
+vi.mock('../features/my-leaves/MyLeavesPage', () => ({
+  MyLeavesPage: () => {
+    throw new Error('ATDD: simulated my-leaves render failure')
   },
 }))
 
@@ -22,7 +22,7 @@ vi.mock('../features/platform/OrganizationsPage', () => ({
 }))
 
 function renderAppRoutes(
-  initialEntries = ['/'],
+  initialEntries = ['/my-leaves'],
   authValue: AuthContextValue = createMockAuthForRole('EMPLOYEE'),
 ) {
   const queryClient = new QueryClient({

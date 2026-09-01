@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { isolate } from '../../i18n/bidi'
 import {
   ApiError,
@@ -60,6 +61,7 @@ export function TeamMemberModal({
   const { user } = useAuth()
   const orgId = user?.organizationId
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const isEdit = editMemberId != null
   // Set by the form-level onChange below on any real field edit. Programmatic
   // state updates (initial load, entitlement defaults, role→manager reset) do
@@ -114,6 +116,11 @@ export function TeamMemberModal({
   const upgradePromptRef = useRef<HTMLDivElement>(null)
 
   const groups = groupsQuery.data ?? []
+  // A tenant is provisioned with no Workforce Groups at all: the HR Admin creates them.
+  // Until they have, `workforceGroupId` is unsatisfiable, so the form is steered to the
+  // Working Calendars screen instead of being submitted into a guaranteed 400. Gated on
+  // `isSuccess` so the hint never flashes while the groups are still loading.
+  const noGroups = groupsQuery.isSuccess && groups.length === 0
   const allMembers = useMemo(() => membersQuery.data ?? [], [membersQuery.data])
   const cappedLeaveTypes: LeaveTypeOption[] = (leaveTypesQuery.data ?? [])
     .filter((lt) => lt.defaultBalanceDays != null)
@@ -481,16 +488,43 @@ export function TeamMemberModal({
                   clearFieldError('workforceGroupId')
                 }}
                 required
+                disabled={noGroups}
                 aria-invalid={groupFieldError.invalid || undefined}
-                aria-describedby={groupFieldError.describedBy}
+                aria-describedby={
+                  [groupFieldError.describedBy, noGroups ? 'tm-group-hint' : null]
+                    .filter(Boolean)
+                    .join(' ') || undefined
+                }
               >
-                <option value="">{t('settings:memberModal.fields.selectGroup')}</option>
+                <option value="">
+                  {noGroups
+                    ? t('settings:memberModal.fields.noGroups')
+                    : t('settings:memberModal.fields.selectGroup')}
+                </option>
                 {groups.map((g) => (
                   <option key={g.id} value={g.id} dir="auto">
                     {g.name}
                   </option>
                 ))}
               </select>
+              {noGroups && (
+                <div className="tm-no-groups" data-testid="tm-no-groups-hint">
+                  <p className="form-hint" id="tm-group-hint" role="status">
+                    {t('settings:memberModal.fields.noGroupsHint')}
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    data-testid="tm-create-group-link"
+                    onClick={() => {
+                      onClose()
+                      navigate('/settings?category=working-calendars')
+                    }}
+                  >
+                    {t('settings:memberModal.fields.noGroupsAction')}
+                  </button>
+                </div>
+              )}
               {groupFieldError.message && (
                 <FieldErrorMessage fieldId={groupFieldError.fieldId} message={groupFieldError.message} />
               )}
@@ -638,7 +672,7 @@ export function TeamMemberModal({
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={isPending}
+              disabled={isPending || noGroups}
               data-busy={isPending ? 'true' : undefined}
             >
               {isPending ? t('common:actions.saving') : t('common:actions.save')}

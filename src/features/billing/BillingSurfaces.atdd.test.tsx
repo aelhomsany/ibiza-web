@@ -82,4 +82,33 @@ describe('Plan and billing recovery surfaces — Story 12.4', () => {
     expect(await screen.findByTestId('billing-grace-notice')).toBeVisible()
     expect(screen.queryByTestId('cta-reduce-seats')).not.toBeInTheDocument()
   })
+
+  // The rail states the one figure neither the summary nor the provider reports: the sum the
+  // seat-limit check actually applies. Doing it in your head against five separate numbers is
+  // how somebody invites a person into a plan that has no room for them.
+  it('[BILLING-VAL-115] states reserved seats and the headroom left against the plan limit', async () => {
+    vi.spyOn(client, 'getBillingSubscription').mockResolvedValue(subscription)
+
+    render(<ToastProvider><PlanAndBillingPage /></ToastProvider>)
+
+    // 14 active + 3 pending = 17 reserved, against a 50-seat limit.
+    expect(await screen.findByTestId('billing-reserved')).toHaveTextContent('17')
+    expect(screen.getByTestId('billing-headroom')).toHaveTextContent('33')
+  })
+
+  it('[BILLING-VAL-115] clamps headroom at zero rather than reporting a negative count', async () => {
+    // A plan can end up over its own limit — a downgrade scheduled before people were removed,
+    // or a limit lowered on the provider's side. "-3 seats left" is not a thing to show anyone.
+    vi.spyOn(client, 'getBillingSubscription').mockResolvedValue({
+      ...subscription,
+      activeSeats: 50,
+      pendingInvitations: 3,
+      seatLimit: 50,
+    })
+
+    render(<ToastProvider><PlanAndBillingPage /></ToastProvider>)
+
+    expect(await screen.findByTestId('billing-reserved')).toHaveTextContent('53')
+    expect(screen.getByTestId('billing-headroom')).toHaveTextContent('0')
+  })
 })

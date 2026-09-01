@@ -105,4 +105,21 @@ describe('CalendarSyncSettings', () => {
       expect(onSuccess).toHaveBeenCalledWith('Calendar sync retry queued')
     })
   })
+
+  // Connect is an outward-facing OAuth grant, so what the connection then writes has to be
+  // readable BEFORE the button, not discovered after it. Each line is what CalendarSyncWorker
+  // actually does — and it deliberately does not say the sync respects Calendar visibility,
+  // because it does not: the worker titles every event `<leave type> - <person>` with no
+  // reference to the privacy matrix. Do not restore that claim without the code to back it.
+  it('says what the connection writes, and claims no privacy filtering it does not do', async () => {
+    vi.spyOn(apiClient, 'getCalendarSyncStatus').mockResolvedValue(disconnected)
+
+    renderCard()
+
+    const rail = await screen.findByRole('complementary')
+    expect(rail).toHaveTextContent(/Only approved leave, and only for people who are still active/)
+    expect(rail).toHaveTextContent(/Each event is titled with the leave type and the person's name/)
+    expect(rail).toHaveTextContent(/Events are written to the connected account's own calendar/)
+    expect(rail).not.toHaveTextContent(/visibility|privacy/i)
+  })
 })

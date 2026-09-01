@@ -1,22 +1,27 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
-import type { RecentRequestResponse } from '../../api/generated/types'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../auth/useAuth'
-import { LeaveStatusBadge } from '../../components/ui/LeaveStatusBadge'
 import { LoadingState } from '../../components/ui/LoadingState'
-import { WorkingDayExplainer } from '../../components/ui/WorkingDayExplainer'
 import { PlusIcon } from '../../components/ui/icons'
 import { useToast } from '../../components/ui/useToast'
+import { useApprovalCapability } from '../approvals/useApprovalCapability'
+import { usePendingApprovalCount } from '../approvals/usePendingApprovalCount'
 import { BalanceCard } from '../dashboard/BalanceCard'
+import { FirstUseCue } from '../dashboard/FirstUseCue'
 import { RequestLeaveModal } from '../dashboard/RequestLeaveModal'
 import {
   formatDateRange,
   localizedRequestStatusHint,
 } from '../dashboard/leaveRequestFormatting'
 import { useDashboardBalances } from '../dashboard/useDashboardBalances'
+import { useDashboardOutToday } from '../dashboard/useDashboardOutToday'
+import { useDashboardUpcoming } from '../dashboard/useDashboardUpcoming'
+import { useOnboarding } from '../onboarding/useOnboarding'
+import { MyLeavesAttention } from './MyLeavesAttention'
 import { MyLeavesFilters } from './MyLeavesFilters'
 import { MyLeavesHistory } from './MyLeavesHistory'
+import { MyLeavesSupportRail } from './MyLeavesSupportRail'
 import { STATUS_FILTERS, type MyLeavesStatusFilter } from './statusFilters'
 import { useMyLeaveRequests } from './useMyLeaveRequests'
 import './my-leaves.css'
@@ -38,96 +43,43 @@ function numericRequestId(value: string | null): number | null {
   return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null
 }
 
-function RequestExplainer({
-  request,
-}: {
-  request?: RecentRequestResponse
-}) {
-  const { t, i18n } = useTranslation(['leaves', 'dashboard'])
+function firstName(fullName: string): string {
+  return fullName.split(' ')[0] ?? fullName
+}
 
-  if (!request) {
-    return (
-      <section
-        className="my-leaves-request-explainer"
-        aria-labelledby="my-leaves-explainer-title"
-        data-testid="my-leaves-request-explainer"
-      >
-        <p className="my-leaves-eyebrow">{t('leaves:explainer.eyebrow')}</p>
-        <h2 id="my-leaves-explainer-title" className="my-leaves-explainer-title">
-          {t('leaves:explainer.title')}
-        </h2>
-        <WorkingDayExplainer
-          compact
-          state="before-dates"
-          stateMessage={t('leaves:explainer.empty')}
-        />
-      </section>
-    )
-  }
-
-  const localizedHint =
-    request.declineReason ?? localizedRequestStatusHint(request, t)
-  const requestContext = localizedHint
-    ? t('leaves:explainer.requestContextWithHint', {
-        type: request.leaveTypeName,
-        dates: formatDateRange(
-          request.dateFrom ?? '',
-          request.dateTo ?? '',
-          i18n.language,
-        ),
-        hint: localizedHint,
-      })
-    : t('leaves:explainer.requestContext', {
-        type: request.leaveTypeName,
-        dates: formatDateRange(
-          request.dateFrom ?? '',
-          request.dateTo ?? '',
-          i18n.language,
-        ),
-      })
-
-  return (
-    <section
-      className="my-leaves-request-explainer"
-      aria-labelledby="my-leaves-explainer-title"
-      data-testid="my-leaves-request-explainer"
-    >
-      <p className="my-leaves-eyebrow">{t('leaves:explainer.eyebrow')}</p>
-      <h2 id="my-leaves-explainer-title" className="my-leaves-explainer-title">
-        {t('leaves:explainer.title')}
-      </h2>
-      <p className="my-leaves-explainer-context" dir="auto">
-        {requestContext}
-      </p>
-      <WorkingDayExplainer
-        compact
-        state="valid"
-        stateMessage=""
-        resultLabel={t('leaves:history.workingDays', {
-          count: request.workingDays,
-        })}
-        footer={
-          <div className="my-leaves-explainer-status">
-            <LeaveStatusBadge status={request.status} />
-            {localizedHint ? <span dir="auto">{localizedHint}</span> : null}
-          </div>
-        }
-      />
-    </section>
-  )
+function timeGreetingKey(): string {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'greetings.morning'
+  if (hour < 17) return 'greetings.afternoon'
+  return 'greetings.evening'
 }
 
 export function MyLeavesPage() {
-  const { t, i18n } = useTranslation(['leaves', 'layout', 'dashboard', 'common'])
+  const { t, i18n } = useTranslation([
+    'leaves',
+    'layout',
+    'dashboard',
+    'common',
+    'onboarding',
+  ])
   const { user } = useAuth()
   const isHrAdmin = user?.role === 'HR_ADMIN'
   const [modalOpen, setModalOpen] = useState(false)
-  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null)
   const [expandedRequestId, setExpandedRequestId] = useState<number | null>(null)
   const [searchParams, setSearchParams] = useSearchParams()
+  const greetingRef = useRef<HTMLHeadingElement>(null)
   const { showToast } = useToast()
   const balancesQuery = useDashboardBalances()
   const historyQuery = useMyLeaveRequests()
+  const outTodayQuery = useDashboardOutToday()
+  const upcomingQuery = useDashboardUpcoming()
+  const pendingCountQuery = usePendingApprovalCount()
+  const approvalCapability = useApprovalCapability()
+  // Ambient cue — keeps the 30s cache; only the guided page itself forces a re-read.
+  const onboardingQuery = useOnboarding(isHrAdmin)
+  const pendingCount = pendingCountQuery.data?.count ?? 0
+  const guidedOnboarding = onboardingQuery.isSuccess
+    && onboardingQuery.data.presentationEnabled !== false
 
   const urlQuery = searchParams.get('q') ?? ''
   const statusFilter = statusFilterFrom(searchParams.get('status'))
@@ -217,18 +169,6 @@ export function MyLeavesPage() {
     })
   }, [historyQuery.data, i18n.language, liveQuery, statusFilter, t])
 
-  // Summarize the selected/next request from what is actually on screen so the
-  // compact explainer never describes a request the active filter hid.
-  const selectedRequest = useMemo(() => {
-    if (!filteredRequests.length) {
-      return undefined
-    }
-    return (
-      filteredRequests.find((request) => request.id === selectedRequestId) ??
-      filteredRequests[0]
-    )
-  }, [filteredRequests, selectedRequestId])
-
   const hasActiveFilters = liveQuery.trim() !== '' || statusFilter !== 'ALL'
 
   const deepLinkMissing =
@@ -248,18 +188,11 @@ export function MyLeavesPage() {
         : historyQuery.data.find((request) => request.id === requestedId)
 
     if (requestIdParam != null && deepLinkedRequest?.id != null) {
-      setSelectedRequestId(deepLinkedRequest.id)
       setExpandedRequestId(deepLinkedRequest.id)
       return
     }
 
     setExpandedRequestId(null)
-    setSelectedRequestId((current) => {
-      if (historyQuery.data.some((request) => request.id === current)) {
-        return current
-      }
-      return historyQuery.data[0]?.id ?? null
-    })
   }, [historyQuery.data, historyQuery.isSuccess, requestIdParam, requestedId])
 
   const showSubmitSuccessToast = useCallback(() => {
@@ -304,7 +237,6 @@ export function MyLeavesPage() {
   const toggleDetails = useCallback(
     (id: number) => {
       const next = new URLSearchParams(searchParams)
-      setSelectedRequestId(id)
       if (expandedRequestId === id) {
         setExpandedRequestId(null)
         next.delete('requestId')
@@ -319,12 +251,30 @@ export function MyLeavesPage() {
     [expandedRequestId, searchParams, setSearchParams],
   )
 
+  // The attention callout's request action expands that request in the history
+  // below (same URL semantics as a details toggle) instead of navigating — the
+  // Dashboard's "View My Leaves" link would have pointed at this very page.
+  const viewRequest = useCallback(
+    (id: number) => {
+      const next = new URLSearchParams(searchParams)
+      setExpandedRequestId(id)
+      next.set('requestId', String(id))
+      setSearchParams(next, { replace: true })
+    },
+    [searchParams, setSearchParams],
+  )
+
   return (
     <div className="page page-wide my-leaves-page" data-testid="my-leaves-page">
       <header className="page-header">
         <div>
-          <h1 className="page-title">{t('leaves:title')}</h1>
-          <p className="page-sub">{t('leaves:subtitle')}</p>
+          <h1 className="page-title" ref={greetingRef} tabIndex={-1}>
+            {t('dashboard:greeting', {
+              time: t(`dashboard:${timeGreetingKey()}`),
+              name: user ? firstName(user.fullName) : t('dashboard:nameFallback'),
+            })}
+          </h1>
+          <p className="page-sub">{t('dashboard:subtitle')}</p>
         </div>
         <button
           type="button"
@@ -336,75 +286,111 @@ export function MyLeavesPage() {
         </button>
       </header>
 
-      <div className="my-leaves-summary">
-        <section className="my-leaves-balances" aria-labelledby="my-leaves-balances-title">
-          <h2 id="my-leaves-balances-title" className="my-leaves-section-title">
-            {t('leaves:balances')}
-          </h2>
-          {balancesQuery.isPending && (
-            <LoadingState
-              label={t('layout:loading.leaveBalances')}
-              variant="skeleton"
-              testId="my-leaves-balance-grid-loading"
-            >
-              <div className="balance-grid">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <div key={index} className="dashboard-skeleton-card" />
-                ))}
-              </div>
-            </LoadingState>
-          )}
-
-          {balancesQuery.isError && (
-            <div className="my-leaves-region-error" data-testid="my-leaves-balances-error">
-              <p role="alert">{t('leaves:errors.balances')}</p>
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={() => void balancesQuery.refetch()}
-              >
-                {t('common:actions.retry')}
-              </button>
+      {isHrAdmin && guidedOnboarding
+        && onboardingQuery.data.activationStatus !== 'COMMERCIALLY_ACTIVATED' && (
+        <aside className="first-use-cue" data-testid="guided-onboarding-cue">
+          <div className="first-use-cue-header">
+            <div>
+              <p className="first-use-eyebrow">{t('onboarding:dashboardCue.eyebrow')}</p>
+              <h2 className="first-use-title">{t('onboarding:dashboardCue.title')}</h2>
+              <p className="first-use-summary">{t('onboarding:dashboardCue.body')}</p>
             </div>
-          )}
+          </div>
+          <div className="first-use-actions">
+            <Link className="btn btn-primary" to="/onboarding">
+              {t('onboarding:dashboardCue.action')}
+            </Link>
+          </div>
+        </aside>
+      )}
 
-          {balancesQuery.isSuccess && (
-            <div className="balance-grid" data-testid="my-leaves-balance-grid">
-              {balancesQuery.data.map((balance) => (
-                <BalanceCard key={balance.leaveTypeId} balance={balance} />
-              ))}
-            </div>
-          )}
-        </section>
+      {user && isHrAdmin
+        && (onboardingQuery.isError
+          || (onboardingQuery.isSuccess && onboardingQuery.data.presentationEnabled === false)) && (
+        <FirstUseCue
+          user={user}
+          onStartRequest={openRequestLeave}
+          onDismiss={() => greetingRef.current?.focus()}
+        />
+      )}
 
-        {historyQuery.isPending ? (
-          <section
-            className="my-leaves-request-explainer"
-            aria-labelledby="my-leaves-explainer-title"
-            data-testid="my-leaves-request-explainer"
-          >
-            <p className="my-leaves-eyebrow">{t('leaves:explainer.eyebrow')}</p>
-            <h2 id="my-leaves-explainer-title" className="my-leaves-explainer-title">
-              {t('leaves:explainer.title')}
-            </h2>
-            <WorkingDayExplainer
-              compact
-              state="loading"
-              stateMessage={t('leaves:explainer.loading')}
-            />
-          </section>
-        ) : historyQuery.isSuccess ? (
-          <RequestExplainer request={selectedRequest} />
-        ) : null}
+      <div className="my-leaves-attention" data-testid="my-leaves-attention">
+        <MyLeavesAttention
+          canReviewApprovals={Boolean(
+            approvalCapability.data?.canReviewApprovals ?? user?.canReviewApprovals
+              ?? (user?.role === 'MANAGER' || user?.role === 'HR_ADMIN'),
+          )}
+          pendingCount={pendingCount}
+          isPendingCountLoading={pendingCountQuery.isPending}
+          isPendingCountError={pendingCountQuery.isError}
+          requests={historyQuery.data ?? []}
+          upcoming={upcomingQuery.data ?? []}
+          isRecentLoading={historyQuery.isPending}
+          isRecentError={historyQuery.isError}
+          language={i18n.language}
+          onRequestLeave={openRequestLeave}
+          onViewRequest={viewRequest}
+          onRetryPendingCount={() => void pendingCountQuery.refetch()}
+          onRetryRecent={() => void historyQuery.refetch()}
+        />
       </div>
 
-      <MyLeavesFilters
-        query={liveQuery}
-        status={statusFilter}
-        resultCount={historyQuery.isSuccess ? filteredRequests.length : null}
-        onQueryChange={setLiveQuery}
-        onStatusChange={setStatusFilter}
-      />
+      <section
+        className="my-leaves-balances"
+        aria-labelledby="my-leaves-balances-title"
+        data-testid="my-leaves-balances-region"
+      >
+        <div className="my-leaves-section-heading">
+          <div>
+            <p className="my-leaves-eyebrow">{t('dashboard:balances.eyebrow')}</p>
+            <h2 id="my-leaves-balances-title" className="my-leaves-section-title">
+              {t('dashboard:balances.title')}
+            </h2>
+          </div>
+          <p className="my-leaves-section-summary">
+            {t('dashboard:balances.summary')}
+          </p>
+        </div>
+
+        {balancesQuery.isPending && (
+          <LoadingState
+            label={t('layout:loading.leaveBalances')}
+            variant="skeleton"
+            testId="my-leaves-balance-grid-loading"
+          >
+            <div className="balance-grid">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} className="dashboard-skeleton-card" />
+              ))}
+            </div>
+          </LoadingState>
+        )}
+
+        {balancesQuery.isError && (
+          <div className="my-leaves-region-error" data-testid="my-leaves-balances-error">
+            <p role="alert">{t('leaves:errors.balances')}</p>
+            <button
+              type="button"
+              className="btn btn-outline btn-sm"
+              onClick={() => void balancesQuery.refetch()}
+            >
+              {t('common:actions.retry')}
+            </button>
+          </div>
+        )}
+
+        {balancesQuery.isSuccess && balancesQuery.data.length === 0 && (
+          <p className="my-leaves-region-empty">{t('dashboard:balances.empty')}</p>
+        )}
+
+        {balancesQuery.isSuccess && balancesQuery.data.length > 0 && (
+          <div className="balance-grid" data-testid="my-leaves-balance-grid">
+            {balancesQuery.data.map((balance) => (
+              <BalanceCard key={balance.leaveTypeId} balance={balance} />
+            ))}
+          </div>
+        )}
+      </section>
 
       {deepLinkMissing ? (
         <div
@@ -426,53 +412,87 @@ export function MyLeavesPage() {
         </div>
       ) : null}
 
-      <section className="card my-leaves-history" data-testid="my-leaves-history">
-        <div className="card-header">
-          <h2 id="my-leaves-history-title" className="card-title">
-            {t('leaves:history.title')}
-          </h2>
+      <div className="panel-with-aside my-leaves-layout">
+        <div className="panel-stack">
+          <section className="card my-leaves-history" data-testid="my-leaves-history">
+            <div className="card-header my-leaves-history-header">
+              <h2 id="my-leaves-history-title" className="card-title">
+                {t('leaves:history.title')}
+              </h2>
+              {historyQuery.isSuccess ? (
+                <p
+                  className="my-leaves-result-count"
+                  data-testid="my-leaves-result-count"
+                >
+                  {t('leaves:filters.results', { count: filteredRequests.length })}
+                </p>
+              ) : null}
+            </div>
+
+            <MyLeavesFilters
+              query={liveQuery}
+              status={statusFilter}
+              resultCount={historyQuery.isSuccess ? filteredRequests.length : null}
+              onQueryChange={setLiveQuery}
+              onStatusChange={setStatusFilter}
+            />
+
+            {historyQuery.isPending && (
+              <LoadingState
+                label={t('layout:loading.leaveHistory')}
+                variant="block"
+                testId="my-leaves-history-loading"
+              />
+            )}
+
+            {historyQuery.isError && (
+              <div className="my-leaves-region-error" data-testid="my-leaves-history-error">
+                <p role="alert">{t('leaves:errors.history')}</p>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={() => void historyQuery.refetch()}
+                >
+                  {t('common:actions.retry')}
+                </button>
+              </div>
+            )}
+
+            {historyQuery.isSuccess && (
+              <MyLeavesHistory
+                allRequestsCount={historyQuery.data.length}
+                requests={filteredRequests}
+                showAuditHistory={isHrAdmin}
+                hasActiveFilters={hasActiveFilters}
+                workforceGroupName={user?.workforceGroupName}
+                focusedRequestId={
+                  filteredRequests.some((request) => request.id === expandedRequestId)
+                    ? expandedRequestId
+                    : null
+                }
+                expandedRequestId={expandedRequestId}
+                onClearFilters={clearFilters}
+                onRequestLeave={openRequestLeave}
+                onToggleDetails={toggleDetails}
+              />
+            )}
+          </section>
         </div>
 
-        {historyQuery.isPending && (
-          <LoadingState
-            label={t('layout:loading.leaveHistory')}
-            variant="block"
-            testId="my-leaves-history-loading"
-          />
-        )}
-
-        {historyQuery.isError && (
-          <div className="my-leaves-region-error" data-testid="my-leaves-history-error">
-            <p role="alert">{t('leaves:errors.history')}</p>
-            <button
-              type="button"
-              className="btn btn-outline btn-sm"
-              onClick={() => void historyQuery.refetch()}
-            >
-              {t('common:actions.retry')}
-            </button>
-          </div>
-        )}
-
-        {historyQuery.isSuccess && (
-          <MyLeavesHistory
-            allRequestsCount={historyQuery.data.length}
-            requests={filteredRequests}
-            showAuditHistory={isHrAdmin}
-            hasActiveFilters={hasActiveFilters}
-            workforceGroupName={user?.workforceGroupName}
-            focusedRequestId={
-              filteredRequests.some((request) => request.id === expandedRequestId)
-                ? expandedRequestId
-                : null
-            }
-            expandedRequestId={expandedRequestId}
-            onClearFilters={clearFilters}
-            onRequestLeave={openRequestLeave}
-            onToggleDetails={toggleDetails}
-          />
-        )}
-      </section>
+        <MyLeavesSupportRail
+          outToday={outTodayQuery.data ?? []}
+          upcoming={upcomingQuery.data ?? []}
+          isOutTodayLoading={outTodayQuery.isPending}
+          isUpcomingLoading={upcomingQuery.isPending}
+          isOutTodayError={outTodayQuery.isError}
+          isUpcomingError={upcomingQuery.isError}
+          onRetryOutToday={() => void outTodayQuery.refetch()}
+          onRetryUpcoming={() => void upcomingQuery.refetch()}
+          latestRequest={historyQuery.data?.[0]}
+          isLatestLoading={historyQuery.isPending}
+          workforceGroupName={user?.workforceGroupName}
+        />
+      </div>
 
       <RequestLeaveModal
         open={modalOpen}

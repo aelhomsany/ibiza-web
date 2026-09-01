@@ -748,7 +748,7 @@ export interface paths {
         /** List the tenant's import jobs, newest first */
         get: operations["listImportJobs"];
         put?: never;
-        /** Create an import job for one CSV template */
+        /** Create an import job for one import template */
         post: operations["createImportJob"];
         delete?: never;
         options?: never;
@@ -765,7 +765,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Attach the CSV source to an import job and produce its dry run */
+        /** Attach the source file (.csv or .xlsx) to an import job and produce its dry run */
         post: operations["uploadImportSource"];
         delete?: never;
         options?: never;
@@ -784,23 +784,6 @@ export interface paths {
         put?: never;
         /** Atomically commit and reconcile a validated dry run */
         post: operations["commitImportJob"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/imports/{publicId}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Cancel an import job and release the organization's active-job slot */
-        post: operations["cancelImportJob"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1376,6 +1359,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/settings/schedule-assignments/coverage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Count active members governed by any schedule/location assignment */
+        get: operations["getScheduleAssignmentCoverage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/settings/leave-policies/{policyPublicId}/history": {
         parameters: {
             query?: never;
@@ -1699,8 +1699,25 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Download the job's original CSV source, until its retention window purges it */
+        /** Download the job's original source file, until its retention window purges it */
         get: operations["downloadImportArtifact"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/templates/{templateKey}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download the empty .xlsx template for one import template key */
+        get: operations["downloadImportTemplate"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3374,6 +3391,14 @@ export interface components {
             /** Format: date-time */
             mutedUntil?: string;
             effectiveEnabledNow?: boolean;
+        };
+        ScheduleAssignmentCoverageResponse: {
+            /** Format: int32 */
+            activeMemberCount?: number;
+            /** Format: int32 */
+            coveredMemberCount?: number;
+            /** Format: int32 */
+            unassignedMemberCount?: number;
         };
         ImpactSummary: {
             /** Format: int32 */
@@ -5364,7 +5389,7 @@ export interface operations {
                     "*/*": components["schemas"]["ImportJobResponse"];
                 };
             };
-            /** @description Not CSV, not UTF-8, empty, header-only, or over the row/byte bounds */
+            /** @description Not a .csv or .xlsx file, not UTF-8, empty, header-only, multi-sheet, or over the row/byte bounds */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -5441,55 +5466,6 @@ export interface operations {
                 };
             };
             /** @description Rejected rows, dependency drift, seat capacity drift, an unsupported template, or a job not ready to commit */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetail"];
-                };
-            };
-        };
-    };
-    cancelImportJob: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                publicId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The job is CANCELLED */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ImportJobResponse"];
-                };
-            };
-            /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetail"];
-                };
-            };
-            /** @description No such job for this organization */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetail"];
-                };
-            };
-            /** @description import-job-terminal (the job already finished) */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6551,6 +6527,26 @@ export interface operations {
             };
         };
     };
+    getScheduleAssignmentCoverage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ScheduleAssignmentCoverageResponse"];
+                };
+            };
+        };
+    };
     getPolicyPublicationHistory: {
         parameters: {
             query?: never;
@@ -7019,7 +7015,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The original CSV bytes, as uploaded */
+            /** @description The original bytes, as uploaded */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -7048,6 +7044,46 @@ export interface operations {
             };
             /** @description The job's evidence has already been purged (retention expired) */
             410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    downloadImportTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                templateKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The empty template workbook: one sheet carrying the header row */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Unknown template key */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+            /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -7691,6 +7727,7 @@ export type CreateLocationContextRequest = components["schemas"]["CreateLocation
 export type LocationContextResponse = RequiredSchema<"LocationContextResponse">;
 export type ScheduleAssignmentRequest = components["schemas"]["ScheduleAssignmentRequest"];
 export type ScheduleAssignmentResponse = RequiredSchema<"ScheduleAssignmentResponse">;
+export type ScheduleAssignmentCoverageResponse = RequiredSchema<"ScheduleAssignmentCoverageResponse">;
 export type ScheduleAssignmentMemberImpact = RequiredSchema<"ScheduleAssignmentMemberImpact">;
 export type ScheduleAssignmentPreviewResponse = Omit<
     RequiredSchema<"ScheduleAssignmentPreviewResponse">,

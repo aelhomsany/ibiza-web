@@ -21,7 +21,7 @@ test.describe('Auth session security', { tag: [tags.regression, tags.api] }, () 
 
     await page.goto('/')
     await expect(page.getByTestId('login-page')).toBeVisible()
-    await expect(page.getByTestId('nav-dashboard')).toHaveCount(0)
+    await expect(page.getByTestId('nav-calendar')).toHaveCount(0)
   })
 
   test('[P0-012] Given a failed session restore, When reloading the app, Then login page is shown', async ({
@@ -44,10 +44,10 @@ test.describe('Auth session security', { tag: [tags.regression, tags.api] }, () 
 
     await page.reload()
     await expect(page.getByTestId('login-page')).toBeVisible()
-    await expect(page.getByTestId('nav-dashboard')).toHaveCount(0)
+    await expect(page.getByTestId('nav-calendar')).toHaveCount(0)
   })
 
-  test('[P0-012] Given a signed-in user, When signing out, Then in-app navigation to dashboard shows login', async ({
+  test('[P0-012] Given a signed-in user, When signing out, Then in-app navigation to the home route shows login', async ({
     page,
   }) => {
     await loginViaUi(page, pilotCredentials)

@@ -31,8 +31,9 @@
 }
 
 .notification-pref-toggle input {
-  width: 16px;
-  height: 16px;
+  width: var(--control-checkbox-size);
+  height: var(--control-checkbox-size);
+  accent-color: var(--color-action-primary);
 }
 
 .notification-pref-badge {

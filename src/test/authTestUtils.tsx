@@ -21,6 +21,7 @@ export const mockUsers = {
     organizationId: 1,
     organizationName: 'Nile Harbor',
     timezone: 'America/New_York',
+    workforceGroupName: 'US',
   },
   hrAdmin: {
     id: 5,
@@ -30,6 +31,7 @@ export const mockUsers = {
     organizationId: 1,
     organizationName: 'Nile Harbor',
     timezone: 'America/New_York',
+    workforceGroupName: 'US',
   },
   platformAdmin: {
     id: 99,

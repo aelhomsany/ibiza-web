@@ -6,7 +6,6 @@
       "cancel": "Cancel"
     },
     "capabilityUnavailable": "Calendar visibility is not available for this organization yet. Contact support if you believe this is a mistake.",
-    "currentVersion": "Version {{number}}, in effect since {{date}}",
     "effectiveFrom": "Takes effect from",
     "effectiveFromHint": "Visibility changes start on a future date in your organization's operational timezone. Published changes apply to every view, including past absences.",
     "fields": {
@@ -39,7 +38,18 @@
     "relationshipsHeading": "Who is viewing",
     "subtitle": "Choose exactly what each kind of viewer sees on the Team Calendar and dashboard. The server enforces this — hidden detail is never sent to the browser.",
     "title": "Calendar visibility",
-    "usingDefaults": "Using the safe defaults. No version has been published yet."
+    "rail": {
+      "alwaysTitle": "Always visible",
+      "effectTitle": "Effect of this draft",
+      "effectHint": "How many of the {{total}} viewer types are allowed each detail.",
+      "versioningTitle": "Versioning",
+      "current": "Current",
+      "since": "In effect since",
+      "creates": "Publishing creates",
+      "defaults": "Safe defaults",
+      "version": "Version {{number}}",
+      "notPublished": "Not published yet"
+    }
   },
   "calendarSync": {
     "actions": {
@@ -70,7 +80,14 @@
       "retry": "Calendar sync retry queued"
     },
     "title": "Calendar Sync",
-    "loading": "Loading calendar sync…"
+    "loading": "Loading calendar sync…",
+    "rail": {
+      "syncsTitle": "What syncs",
+      "syncsApproved": "Only approved leave, and only for people who are still active.",
+      "syncsTitleField": "Each event is titled with the leave type and the person's name.",
+      "syncsOwnCalendar": "Events are written to the connected account's own calendar.",
+      "disconnectingTitle": "Disconnecting"
+    }
   },
   "categories": {
     "ariaLabel": "Settings categories",
@@ -184,7 +201,6 @@
     "loading": "Loading workforce groups…",
     "modalTitle": "Add Workforce Group",
     "namePlaceholder": "e.g. UK",
-    "none": "No workforce groups configured yet.",
     "saved": "Weekend pattern matches the saved policy.",
     "savedStatus": "{{name}} weekend pattern saved. Future calculations now use this policy.",
     "selectedLabel": "Selected",
@@ -192,7 +208,23 @@
     "title": "Workforce Groups",
     "unsaved": "Weekend pattern has unsaved changes.",
     "updated": "{{name}} weekend days updated",
-    "weekendLabel": "Weekend days —"
+    "weekendLabel": "Weekend days —",
+    "createdFirst": "“{{name}}” created. Your team is now on this working calendar — add more groups when people need different weekends or holidays.",
+    "empty": {
+      "action": "Create workforce group",
+      "body": "A workforce group defines the weekend days and public holidays that apply to a set of people. Create your first one to set your organization’s working calendar — you can add more later for other countries or offices.",
+      "title": "No workforce groups yet"
+    },
+    "firstModalTitle": "Create your first workforce group",
+    "railImpact": {
+      "title": "Impact",
+      "workingDays": "Working days / week",
+      "holidays": "Holidays in {{year}}"
+    },
+    "otherGroups": {
+      "title": "Other groups",
+      "switchHint": "Switch groups above to edit one of these."
+    }
   },
   "holidays": {
     "actions": {
@@ -269,7 +301,8 @@
       "deactivate": "Deactivate {{name}}",
       "reactivate": "Reactivate {{name}}",
       "configure": "Configure Policy: {{name}}",
-      "resume": "Resume Draft: {{name}}"
+      "resume": "Resume Draft: {{name}}",
+      "moreActions": "More actions: {{name}}"
     },
     "fields": {
       "name": "Name",
@@ -303,6 +336,24 @@
       "reorder": "Unable to reorder leave types",
       "draft": "Unable to open a policy draft",
       "overview": "Unable to load current policy drafts. Policy actions are unavailable."
+    },
+    "groups": {
+      "appearance": "Appearance",
+      "appearanceHint": "These colours are how this leave type appears on every shared calendar.",
+      "contrastFail": "Contrast {{ratio}}:1 — below the 4.5:1 minimum",
+      "contrastPass": "Contrast {{ratio}}:1 — meets the 4.5:1 minimum",
+      "previewPlaceholder": "Leave type"
+    },
+    "rail": {
+      "glanceTitle": "At a glance",
+      "active": "Active leave types",
+      "inactive": "Inactive",
+      "drafts": "Policies in draft",
+      "entitlementsTitle": "Default entitlements",
+      "presenceTitle": "Presence",
+      "presenceOff": "Counted as off",
+      "presenceWfh": "Work from home",
+      "presenceBody": "Presence is set per leave type and decides how the absence reads on the Team Calendar."
     }
   },
   "memberModal": {
@@ -334,7 +385,10 @@
       "reportsTo": "Reports to",
       "role": "Role",
       "selectGroup": "— Select group —",
-      "workforceGroup": "Workforce Group"
+      "workforceGroup": "Workforce Group",
+      "noGroups": "— No workforce groups yet —",
+      "noGroupsAction": "Create a workforce group",
+      "noGroupsHint": "Every team member belongs to a workforce group, which sets their weekend days and public holidays. Create one before you add people."
     },
     "plans": {
       "growth": "Growth",
@@ -369,7 +423,18 @@
     "aria": {
       "deactivate": "Deactivate {{name}}",
       "edit": "Edit {{name}}",
+      "moreActions": "More actions: {{name}}",
       "reactivate": "Reactivate {{name}}"
+    },
+    "columns": {
+      "actions": "Actions",
+      "department": "Department",
+      "empty": "—",
+      "group": "Workforce group",
+      "person": "Person",
+      "reportsTo": "Reports to",
+      "role": "Role",
+      "status": "Status"
     },
     "deactivateCopy": "{{name}} will lose access and stop counting toward the active seat limit. Historical records stay visible.",
     "deactivateTitle": "Deactivate Team Member",
@@ -391,7 +456,17 @@
       "deactivated": "{{name}} deactivated",
       "reactivated": "{{name}} reactivated"
     },
-    "title": "Team Members"
+    "title": "Team Members",
+    "rail": {
+      "compositionTitle": "Composition",
+      "deactivated": "Deactivated",
+      "byGroupTitle": "By workforce group",
+      "noGroup": "No group",
+      "approvalsTitle": "Approval chain",
+      "mostReports": "Most direct reports",
+      "noApprovers": "Nobody has an assigned approver yet.",
+      "concentrated": "{{name}} approves for more than half the organization. A second approver keeps requests moving while they are away."
+    }
   },
   "notifications": {
     "actions": {
@@ -428,7 +503,18 @@
       "muted": "Email notifications muted",
       "saved": "Notification preferences saved"
     },
-    "title": "Notification Preferences"
+    "title": "Notification Preferences",
+    "rail": {
+      "sentTitle": "What gets sent",
+      "sentApproval": "A request is waiting for your approval",
+      "sentDecision": "Your request was approved or declined",
+      "sentConcern": "A concern was recorded on your approved leave",
+      "sentComplete": "All approval evidence for your request is recorded",
+      "scopeTitle": "Scope",
+      "scopeYours": "These preferences are yours alone. They do not change what anyone else receives.",
+      "scopeRequired": "In-app workflow notifications are required and cannot be turned off or muted.",
+      "scopeMuteCap": "An email mute can run for at most 30 days."
+    }
   },
   "organization": {
     "fields": {
@@ -438,7 +524,19 @@
     "helper": "Identity and shared context available to organization members.",
     "notAvailable": "Not available",
     "planNote": "Seat-limit and upgrade guidance appears when you add people, where it is relevant to the task.",
-    "unknown": "Organization"
+    "unknown": "Organization",
+    "affects": {
+      "title": "What this affects",
+      "timezone": "The time zone anchors every accrual and cut-off date.",
+      "name": "The name appears in the app header and in every outgoing email.",
+      "groups": "Workforce groups drive weekends, schedules and calendar visibility."
+    },
+    "glance": {
+      "title": "At a glance",
+      "people": "People",
+      "groups": "Workforce groups",
+      "leaveTypes": "Leave types"
+    }
   },
   "policy": {
     "title": "Policy Settings",
@@ -583,7 +681,14 @@
         "create": "Could not create the work schedule. Try again.",
         "createVersion": "Could not create the new version. Try again."
       },
-      "versionSummary": "v{{versionNumber}}: {{days}}"
+      "versionSummary": "v{{versionNumber}}: {{days}}",
+      "columns": {
+        "name": "Schedule",
+        "workingDays": "Working days",
+        "actions": "Actions"
+      },
+      "cardDescription": "Weekly working-day patterns you can assign to groups or people.",
+      "versionLabel": "Version {{versionNumber}}"
     },
     "location": {
       "modalTitle": "New location",
@@ -597,7 +702,15 @@
       "errors": {
         "create": "Could not create the location. Try again.",
         "incomplete": "Fill in a name, timezone, and holiday source before saving."
-      }
+      },
+      "noGroups": "— No workforce groups yet —",
+      "noGroupsHint": "A location takes its public holidays from a workforce group, and none exist yet. Create one first, then come back to add the location.",
+      "noGroupsAction": "Create a workforce group",
+      "columns": {
+        "name": "Location",
+        "timezone": "Time zone"
+      },
+      "cardDescription": "Time zones that anchor each group's working day."
     },
     "assignment": {
       "modalTitle": "Assign schedule & location",
@@ -610,6 +723,13 @@
       "location": "Location",
       "selectLocation": "Select a location",
       "effectiveFrom": "Effective from",
+      "columns": {
+        "assignedTo": "Assigned to",
+        "location": "Location",
+        "membersAffected": "Members affected",
+        "schedule": "Schedule",
+        "scheduleValue": "{{schedule}} · v{{versionNumber}}"
+      },
       "previewTitle": "Impact",
       "previewEmpty": "Preview the assignment to see who it affects before confirming.",
       "previewing": "Previewing…",
@@ -642,7 +762,8 @@
       "previewShadowed_zero": "No members keep a more specific assignment",
       "previewShadowed_two": "{{count}} members keep a more specific assignment and are not affected",
       "previewShadowed_few": "{{count}} members keep a more specific assignment and are not affected",
-      "previewShadowed_many": "{{count}} members keep a more specific assignment and are not affected"
+      "previewShadowed_many": "{{count}} members keep a more specific assignment and are not affected",
+      "cardDescription": "Which schedule and location govern each workforce group."
     },
     "bulkAssignment": {
       "modalTitle": "Bulk assign schedule & location",
@@ -693,7 +814,21 @@
         "idempotencyConflict": "This confirmation could not be matched to the batch you previewed. Preview again before confirming."
       }
     },
-    "capabilityUnavailable": "Work schedules and locations are not available for this organization yet. Contact support if you believe this is a mistake."
+    "capabilityUnavailable": "Work schedules and locations are not available for this organization yet. Contact support if you believe this is a mistake.",
+    "coverage": {
+      "title": "Coverage",
+      "schedules": "Schedules",
+      "locations": "Locations",
+      "assignments": "Assignments",
+      "peopleCovered": "People covered",
+      "unassigned": "Unassigned",
+      "ofTotal": "{{covered}} of {{total}}"
+    },
+    "headsUp": {
+      "title": "Heads up",
+      "unassigned": "People with no assignment fall back to the organization-wide row, if there is one.",
+      "singleTimezone": "Every location resolves to {{timezone}}."
+    }
   },
   "subtitle": "Company policy, team, and leave entitlements",
   "title": "Settings",

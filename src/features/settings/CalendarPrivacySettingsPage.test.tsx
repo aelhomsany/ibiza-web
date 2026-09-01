@@ -143,6 +143,73 @@ describe('CalendarPrivacySettingsPage', () => {
     expect(await screen.findByTestId('calendar-privacy-preview-stale')).toBeInTheDocument()
   })
 
+  // The band above the matrix answers what the matrix makes you count. The matrix is read
+  // row-wise -- what can THIS viewer see? -- while the question people actually ask is
+  // column-wise: who can see a reason note? Counting six checkboxes by eye across a 30-cell
+  // grid is exactly the arithmetic the panel should be doing for the reader.
+  it('tallies each field down the column, not across the row', async () => {
+    vi.spyOn(apiClient, 'getCalendarPrivacy').mockResolvedValue(current)
+    vi.spyOn(apiClient, 'previewCalendarPrivacy').mockResolvedValue(preview)
+    renderPage()
+
+    // The matrix renders before the draft is seeded from the response, so the tallies start at
+    // zero for a tick — wait for the seeded values rather than the element.
+    // Identity is on every row; only the three full-access relationships carry REASON.
+    await waitFor(() => {
+      expect(screen.getByTestId('privacy-effect-IDENTITY')).toHaveTextContent('6')
+    })
+    expect(screen.getByTestId('privacy-effect-LEAVE_TYPE')).toHaveTextContent('4')
+    expect(screen.getByTestId('privacy-effect-STATUS')).toHaveTextContent('4')
+    expect(screen.getByTestId('privacy-effect-REASON')).toHaveTextContent('3')
+    expect(screen.getByTestId('privacy-effect-REQUEST_CONTEXT')).toHaveTextContent('4')
+  })
+
+  it('counts the tally off the draft, so it moves with an unpublished edit', async () => {
+    vi.spyOn(apiClient, 'getCalendarPrivacy').mockResolvedValue(current)
+    vi.spyOn(apiClient, 'previewCalendarPrivacy').mockResolvedValue(preview)
+    renderPage()
+
+    await screen.findByTestId('calendar-privacy-matrix')
+    await waitFor(() => {
+      expect(screen.getByTestId('privacy-effect-LEAVE_TYPE')).toHaveTextContent('4')
+    })
+
+    await userEvent.click(screen.getByTestId('calendar-privacy-ORGANIZATION_PEER-LEAVE_TYPE'))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('privacy-effect-LEAVE_TYPE')).toHaveTextContent('5')
+    })
+  })
+
+  // Publishing increments whatever is live, and the seeded defaults are version zero — so on an
+  // organization that has never published, the first publish really does create version 1.
+  it('names the version the next publish will create, counting defaults as none', async () => {
+    vi.spyOn(apiClient, 'getCalendarPrivacy').mockResolvedValue(current)
+    vi.spyOn(apiClient, 'previewCalendarPrivacy').mockResolvedValue(preview)
+    renderPage()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('privacy-version-current')).toHaveTextContent('Safe defaults')
+    })
+    expect(screen.getByTestId('privacy-version-next')).toHaveTextContent('Version 1')
+  })
+
+  it('counts up from the published version once one exists', async () => {
+    vi.spyOn(apiClient, 'getCalendarPrivacy').mockResolvedValue({
+      ...current,
+      usingDefaults: false,
+      versionNumber: 4,
+      effectiveFrom: '2026-01-01',
+    })
+    vi.spyOn(apiClient, 'previewCalendarPrivacy').mockResolvedValue(preview)
+    renderPage()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('privacy-version-current')).toHaveTextContent('Version 4')
+    })
+    expect(screen.getByTestId('privacy-version-next')).toHaveTextContent('Version 5')
+  })
+
   it('renders a plain-language sentence per relationship, not a bare field list (UX-DR74)', async () => {
     vi.spyOn(apiClient, 'getCalendarPrivacy').mockResolvedValue(current)
     vi.spyOn(apiClient, 'previewCalendarPrivacy').mockResolvedValue(preview)

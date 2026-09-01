@@ -18,6 +18,14 @@
   margin-block-end: 0;
 }
 
+/* At 375px viewports the two side-by-side date fields overflow the modal
+   (scrollWidth 344px vs 311px available) — stack them on narrow screens. */
+@media (max-width: 480px) {
+  .request-leave-modal .date-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .request-leave-modal .working-day-preview {
   margin-block-end: var(--space-lg);
 }

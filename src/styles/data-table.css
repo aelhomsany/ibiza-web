@@ -4,6 +4,13 @@
   min-width: 0;
   max-width: 100%;
   overflow-x: auto;
+  /* Containing block for the absolutely positioned .sr-only labels inside the cells. Without
+     it their containing block is the page, so a column heading's hidden label sits at its
+     document x -- past the right edge once the table is wider than the region -- and stretches
+     the document's scroll width even though overflow-x here clips what you can see. The
+     symptom is the whole page scrolling sideways ~170px beside a table that scrolls on its
+     own. Row menus are position: fixed and are unaffected by this. */
+  position: relative;
   background: var(--color-surface-card);
   border-radius: var(--radius-lg);
 }
@@ -48,10 +55,24 @@
   height: var(--table-row-compact);
 }
 
+/* A column heading is a label for the data, not a value in it. Setting it apart by case
+   and letterspacing rather than weight alone means a heading is never mistaken for the
+   first row -- which it was, at 13px in the same sentence case as the cells beneath. */
 .dashboard-table th {
   color: var(--color-text-secondary);
   font-size: var(--font-caption-size);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Arabic is cursive: letterspacing pulls apart glyphs that are meant to join, so the
+   heading reads as broken rather than as a label. `text-transform` is inert here too --
+   the script is caseless -- so in `ar` the separation rests on the weight (700 vs 400),
+   the caption size (12px vs 13px) and the `thead` tint. Not on colour: th and td both
+   resolve to --color-text-secondary, so colour distinguishes nothing here in any locale. */
+html[lang='ar'] .dashboard-table th {
+  letter-spacing: normal;
 }
 
 .dashboard-table td {

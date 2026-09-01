@@ -111,6 +111,12 @@ export function PolicySettingsPage() {
     queryKey: ["policy-settings-overview", orgId],
     queryFn: getPolicySettingsOverview,
   });
+  // Gate the WORKFORCE_GROUP scope on the organization actually having groups. Left ungated
+  // while the overview is still loading, so an in-flight query never hides a scope the admin
+  // is entitled to.
+  const hasWorkforceGroups =
+    !overviewQuery.isSuccess ||
+    (overviewQuery.data?.workforceGroups.length ?? 0) > 0;
   const historyQuery = useQuery({
     queryKey: ["policy-history", draftQuery.data?.policyPublicId],
     queryFn: () => getPolicyHistory(draftQuery.data!.policyPublicId),
@@ -498,9 +504,14 @@ export function PolicySettingsPage() {
               <option value="ORGANIZATION">
                 {t("policy.scopes.organization")}
               </option>
-              <option value="WORKFORCE_GROUP">
-                {t("policy.scopes.group")}
-              </option>
+              {/* A tenant is provisioned with no Workforce Groups -- the HR Admin creates
+                  them -- so offering this scope before then leads only to an empty subject
+                  list and a rejected save. */}
+              {hasWorkforceGroups && (
+                <option value="WORKFORCE_GROUP">
+                  {t("policy.scopes.group")}
+                </option>
+              )}
               <option value="USER">{t("policy.scopes.user")}</option>
             </select>
             {fieldErrors.scope && (

@@ -23,7 +23,8 @@ function renderGuard(
       <MemoryRouter initialEntries={[initialPath]}>
         <AuthTestProvider value={createMockAuthForRole(role)}>
           <Routes>
-          <Route path="/" element={<div data-testid="home-page">Home</div>} />
+          {/* getHomePath returns /calendar since the Dashboard merge (2026-09-01). */}
+          <Route path="/calendar" element={<div data-testid="home-page">Home</div>} />
           <Route path="/login" element={<div data-testid="login-page">Sign in</div>} />
           <Route element={<RoleGuard {...guardProps} />}>
             <Route path="/protected" element={<div data-testid="protected-page">Protected</div>} />

@@ -44,25 +44,12 @@ export function MyLeavesFilters({
     return () => window.clearTimeout(timer)
   }, [resultCount, t])
 
+  // Rendered inside the Leave History card since the Dashboard merge
+  // (2026-09-01): the visible "Find a request" heading became redundant next to
+  // the card's own header, and the result count moved up into that header. The
+  // section keeps an accessible name and the debounced live-region announcer.
   return (
-    <section
-      className="card my-leaves-filters"
-      aria-labelledby="my-leaves-filters-title"
-    >
-      <div className="my-leaves-filter-heading">
-        <div>
-          <p className="my-leaves-eyebrow">{t('leaves:filters.eyebrow')}</p>
-          <h2 id="my-leaves-filters-title" className="my-leaves-filter-title">
-            {t('leaves:filters.title')}
-          </h2>
-        </div>
-        {resultCount == null ? null : (
-          <p className="my-leaves-result-count" data-testid="my-leaves-result-count">
-            {t('leaves:filters.results', { count: resultCount })}
-          </p>
-        )}
-      </div>
-
+    <section className="my-leaves-filters" aria-label={t('leaves:filters.title')}>
       <p
         className="sr-only"
         role="status"

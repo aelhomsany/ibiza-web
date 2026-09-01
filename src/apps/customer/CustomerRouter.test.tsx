@@ -118,7 +118,7 @@ describe('CustomerRoutes', () => {
     // render. RoleGuard sends PLATFORM_ADMIN to getHomePath('PLATFORM_ADMIN') === '/login'.
     expect(await screen.findByTestId('login-page')).toBeInTheDocument()
     await waitFor(() => {
-      expect(screen.queryByTestId('dashboard-page')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('team-calendar-page')).not.toBeInTheDocument()
     })
     expect(screen.queryByTestId('admin-shell')).not.toBeInTheDocument()
   })
@@ -144,7 +144,11 @@ describe('CustomerRoutes', () => {
     it('[P0] redirects a manager away from the HR-only Report Center', async () => {
       renderCustomerRoutes(['/reports'], createMockAuthForRole('MANAGER'))
 
-      expect(await screen.findByTestId('dashboard-page')).toBeInTheDocument()
+      // RoleGuard sends forbidden roles to getHomePath — the Team Calendar
+      // since the Dashboard merge (2026-09-01).
+      expect(
+        await screen.findByTestId('team-calendar-page', undefined, { timeout: 3000 }),
+      ).toBeInTheDocument()
       expect(screen.queryByTestId('report-center-page')).not.toBeInTheDocument()
     })
   })

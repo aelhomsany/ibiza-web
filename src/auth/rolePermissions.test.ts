@@ -12,13 +12,14 @@ import {
 
 describe('rolePermissions', () => {
   describe('getOrgNavItems', () => {
-    it('returns 3 base items for EMPLOYEE', () => {
+    it('returns 2 base items for EMPLOYEE, Team Calendar first', () => {
+      // The Dashboard merged into My Leaves (2026-09-01); the calendar is the
+      // landing page, so it leads the nav.
       const items = getOrgNavItems('EMPLOYEE')
-      expect(items).toHaveLength(3)
+      expect(items).toHaveLength(2)
       expect(items.map((item) => item.label)).toEqual([
-        'Dashboard',
-        'My Leaves',
         'Team Calendar',
+        'My Leaves',
       ])
     })
 
@@ -26,16 +27,16 @@ describe('rolePermissions', () => {
       expect(getOrgNavItems('EMPLOYEE', true).map((item) => item.label)).toContain('Approvals')
     })
 
-    it('returns 4 items for MANAGER including Approvals', () => {
+    it('returns 3 items for MANAGER including Approvals', () => {
       const items = getOrgNavItems('MANAGER')
-      expect(items).toHaveLength(4)
+      expect(items).toHaveLength(3)
       expect(items.map((item) => item.label)).toContain('Approvals')
       expect(items.map((item) => item.label)).not.toContain('Settings')
     })
 
-    it('[P0] returns 8 items for HR_ADMIN including Reports, Data Import, Balance Corrections and Settings', () => {
+    it('[P0] returns 7 items for HR_ADMIN including Reports, Data Import, Balance Corrections and Settings', () => {
       const items = getOrgNavItems('HR_ADMIN')
-      expect(items).toHaveLength(8)
+      expect(items).toHaveLength(7)
       expect(items.map((item) => item.label)).toContain('Approvals')
       expect(items.map((item) => item.label)).toContain('Reports')
       expect(items.map((item) => item.label)).toContain('Data Import')
@@ -88,9 +89,8 @@ describe('rolePermissions', () => {
     it('includes stable E2E testids on nav items', () => {
       const items = getOrgNavItems('HR_ADMIN')
       expect(items.map((item) => item.testId)).toEqual([
-        'nav-dashboard',
-        'nav-my-leaves',
         'nav-calendar',
+        'nav-my-leaves',
         'nav-approvals',
         'nav-reports',
         'nav-import',
@@ -145,10 +145,12 @@ describe('rolePermissions', () => {
   })
 
   describe('home redirects', () => {
-    it('returns org dashboard for org roles', () => {
-      expect(getHomePath('EMPLOYEE')).toBe('/')
-      expect(getHomePath('MANAGER')).toBe('/')
-      expect(getHomePath('HR_ADMIN')).toBe('/')
+    it('returns the team calendar for org roles', () => {
+      // Landing page since the Dashboard merge (2026-09-01): anyone signing in
+      // sees who is off today first.
+      expect(getHomePath('EMPLOYEE')).toBe('/calendar')
+      expect(getHomePath('MANAGER')).toBe('/calendar')
+      expect(getHomePath('HR_ADMIN')).toBe('/calendar')
     })
 
     it('sends a platform admin to customer sign-in, not a platform route', () => {

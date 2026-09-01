@@ -263,7 +263,7 @@ test.describe(
 
         await expect(page).toHaveURL(/\/app-admin\/organizations/)
         await expect(page.getByTestId('admin-shell')).toBeVisible()
-        await expect(page.getByTestId('nav-dashboard')).toHaveCount(0)
+        await expect(page.getByTestId('nav-calendar')).toHaveCount(0)
         // Sign-out moved into the header user menu (WEB-VAL-020); the panel renders
         // only while open, so the trigger has to be clicked first.
         await page.getByTestId('user-menu-trigger').click()

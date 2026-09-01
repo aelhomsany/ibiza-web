@@ -55,12 +55,14 @@ describe('AppRouter page identity ATDD — Story 10.1', () => {
   })
 
   it(
-    '[P0] sets document.title to "{Page title} — Ibiza" on the dashboard route',
+    '[P0] sets document.title to "{Page title} — Ibiza" on the root route',
     async () => {
+      // '/' redirects to the Team Calendar landing page since the Dashboard
+      // merge (2026-09-01).
       renderAppRoutes(['/'], createMockAuthForRole('EMPLOYEE'))
 
-      await screen.findByTestId('dashboard-page')
-      expect(document.title).toBe('Dashboard — Ibiza')
+      await screen.findByTestId('team-calendar-page', undefined, { timeout: 3000 })
+      expect(document.title).toBe('Team Calendar — Ibiza')
     },
   )
 

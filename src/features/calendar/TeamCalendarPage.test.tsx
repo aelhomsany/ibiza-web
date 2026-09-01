@@ -5,7 +5,12 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
-import type { CalendarMonthResponse, WorkforceGroupResponse } from '../../api/generated/types'
+import type {
+  CalendarMonthResponse,
+  OutTodayResponse,
+  RecentRequestResponse,
+  WorkforceGroupResponse,
+} from '../../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
 import { TeamCalendarPage } from './TeamCalendarPage'
 import { mockCalendarMonth } from './calendarTestFixtures'
@@ -64,6 +69,10 @@ describe('TeamCalendarPage', () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-06-15T12:00:00Z') })
     vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue(workforceGroups)
+    // Landing-page additions (Dashboard merge, 2026-09-01): the out-today strip
+    // and the viewer's own pending-request overlay each fetch on mount.
+    vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue([])
   })
 
   afterEach(() => {
@@ -513,5 +522,187 @@ describe('TeamCalendarPage accessibility ATDD — Story 10.10', () => {
     await waitFor(() => {
       expect(screen.getByRole('region', { name: /agenda/i })).toBeInTheDocument()
     })
+  })
+})
+
+/**
+ * Landing-page additions from the Dashboard merge (2026-09-01): the out-today
+ * strip and the viewer's own pending-request overlay. Every figure asserted
+ * here traces to a mocked API response the page already fetches.
+ */
+describe('TeamCalendarPage landing additions — Dashboard merge (2026-09-01)', () => {
+  // An approved single-day OFF absence for a non-viewer colleague, cloned from
+  // the fixture's shape so the type stays CalendarAbsenceResponse.
+  const offOn = (requestId: number, userId: number, date: string) => ({
+    ...mockCalendarMonth.absences[0],
+    requestId,
+    userId,
+    userFullName: `Colleague ${userId}`,
+    userInitials: `C${userId}`,
+    dateFrom: date,
+    dateTo: date,
+    workingDays: 1,
+    workingDates: [date],
+  })
+
+  const pendingOwnRequest: RecentRequestResponse = {
+    id: 77,
+    leaveTypeId: 1,
+    leaveTypeName: 'Annual Leave',
+    leaveTypeIcon: 'leave',
+    dateFrom: '2026-06-16',
+    dateTo: '2026-06-17',
+    workingDays: 2,
+    status: 'PENDING',
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-06-15T12:00:00Z') })
+    vi.spyOn(apiClient, 'getWorkforceGroups').mockResolvedValue(workforceGroups)
+    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue(mockCalendarMonth)
+    vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue([])
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.restoreAllMocks()
+  })
+
+  it('[P1] renders out-today rows from the dashboard feed, with privacy fallbacks', async () => {
+    const outToday: OutTodayResponse[] = [
+      { userId: 11, fullName: 'Omar Fields', initials: 'OF', presence: 'OFF', leaveTypeName: 'Annual Leave' },
+      { userId: 12, fullName: 'Lena Waters', initials: 'LW', presence: 'WFH', leaveTypeName: 'Work From Home' },
+      // Story 16.2 projection: identity and Leave Type may be absent.
+      { userId: 13, presence: 'OFF' },
+    ]
+    vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue(outToday)
+
+    renderTeamCalendarPage()
+
+    const strip = screen.getByTestId('calendar-out-today')
+    await waitFor(() => {
+      expect(within(strip).getByTestId('calendar-out-today-11')).toBeInTheDocument()
+    })
+    expect(within(strip).getByText('Omar Fields')).toBeInTheDocument()
+    expect(within(strip).getByText('Annual Leave')).toBeInTheDocument()
+    expect(within(strip).getByText('Lena Waters')).toBeInTheDocument()
+    const redactedRow = within(strip).getByTestId('calendar-out-today-13')
+    expect(within(redactedRow).getByText('A teammate')).toBeInTheDocument()
+    expect(within(redactedRow).getByText('Details hidden')).toBeInTheDocument()
+  })
+
+  it('[P1] takes WFH vs Off from the presence enum, not the leave type name', async () => {
+    // PRESENCE-VAL-007 / DASH-VAL-011, re-homed from the deleted
+    // OutTodaySidebar.test.tsx. The third row is the regression this exists
+    // for: a leave type literally called "Work From Home" that the server
+    // classified as OFF must still read Off — presence is the API's decision,
+    // never a string match on the display name.
+    const outToday: OutTodayResponse[] = [
+      { userId: 11, fullName: 'Omar Fields', initials: 'OF', presence: 'OFF', leaveTypeName: 'Annual Leave' },
+      { userId: 12, fullName: 'Lena Waters', initials: 'LW', presence: 'WFH', leaveTypeName: 'Work From Home' },
+      { userId: 14, fullName: 'Nadia Rahman', initials: 'NR', presence: 'OFF', leaveTypeName: 'Work From Home' },
+    ]
+    vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue(outToday)
+
+    renderTeamCalendarPage()
+
+    const strip = screen.getByTestId('calendar-out-today')
+    await waitFor(() => {
+      expect(within(strip).getByTestId('calendar-out-today-11')).toBeInTheDocument()
+    })
+    const badgeOf = (userId: number) =>
+      within(strip).getByTestId(`calendar-out-today-${userId}`).querySelector('.badge')
+    expect(badgeOf(11)).toHaveTextContent('Off')
+    expect(badgeOf(11)).toHaveClass('badge-off')
+    expect(badgeOf(12)).toHaveTextContent('WFH')
+    expect(badgeOf(12)).toHaveClass('badge-wfh')
+    expect(badgeOf(14)).toHaveTextContent('Off')
+    expect(badgeOf(14)).toHaveClass('badge-off')
+  })
+
+  it('[P2] shows the everyone-in empty state when nobody is out', async () => {
+    renderTeamCalendarPage()
+
+    expect(await screen.findByTestId('calendar-out-today-empty')).toHaveTextContent(
+      'Everyone is in today!',
+    )
+  })
+
+  it('[P1] surfaces an inline out-today error and recovers on retry', async () => {
+    vi.spyOn(apiClient, 'getDashboardOutToday')
+      .mockRejectedValueOnce(new Error('out today unavailable'))
+      .mockResolvedValue([
+        { userId: 11, fullName: 'Omar Fields', initials: 'OF', presence: 'OFF', leaveTypeName: 'Annual Leave' },
+      ] satisfies OutTodayResponse[])
+    const user = userEvent.setup()
+
+    renderTeamCalendarPage()
+
+    const strip = screen.getByTestId('calendar-out-today')
+    await waitFor(() => {
+      expect(within(strip).getByText('Unable to load out today.')).toBeInTheDocument()
+    })
+
+    await user.click(within(strip).getByRole('button', { name: 'Retry' }))
+
+    expect(await within(strip).findByText('Omar Fields')).toBeInTheDocument()
+  })
+
+  it("[P0] overlays the viewer's own pending request as a dashed pending bar with its own accessible name", async () => {
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue([pendingOwnRequest])
+
+    renderTeamCalendarPage()
+
+    const bar = await screen.findByTestId('calendar-event-77')
+    expect(bar).toHaveClass('calendar-timeline-bar', 'calendar-timeline-bar--pending')
+    // The pending overlay always renders as OFF presence; the --pending rule
+    // must survive the .cal-event--off styling it stacks on.
+    expect(bar).toHaveClass('cal-event--off')
+    expect(bar).toHaveAccessibleName(
+      /^Open your pending Annual Leave request, /,
+    )
+    // The legend explains the dashed treatment only while one is on screen.
+    expect(screen.getByTestId('cal-legend-pending-own')).toHaveTextContent('Your pending request')
+  })
+
+  it('[P2] hides the pending legend item when the viewer has no pending request', async () => {
+    renderTeamCalendarPage()
+
+    await screen.findByTestId('calendar-timeline')
+    expect(screen.queryByTestId('cal-legend-pending-own')).not.toBeInTheDocument()
+  })
+
+  it('[P0] keeps the pending overlay out of the coverage alert', async () => {
+    // One approved colleague OFF on Wed Jun 17 plus the viewer's pending OFF on
+    // the same day: if pending leaked into coverage, awayPeople.size would hit
+    // the >=2 threshold and raise the alert.
+    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue({
+      ...mockCalendarMonth,
+      absences: [...mockCalendarMonth.absences, offOn(90, 4, '2026-06-17')],
+    })
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue([pendingOwnRequest])
+
+    renderTeamCalendarPage()
+
+    await screen.findByTestId('calendar-event-77')
+    expect(screen.queryByTestId('calendar-coverage-alert')).not.toBeInTheDocument()
+  })
+
+  it('[P1] still raises the coverage alert for two approved absences (control)', async () => {
+    // Positive control for the exclusion test above: proves the alert testid
+    // and threshold are live, so the previous assertion cannot pass vacuously.
+    vi.spyOn(apiClient, 'getCalendarMonth').mockResolvedValue({
+      ...mockCalendarMonth,
+      absences: [
+        ...mockCalendarMonth.absences,
+        offOn(90, 4, '2026-06-17'),
+        offOn(91, 6, '2026-06-17'),
+      ],
+    })
+
+    renderTeamCalendarPage()
+
+    expect(await screen.findByTestId('calendar-coverage-alert')).toBeInTheDocument()
   })
 })

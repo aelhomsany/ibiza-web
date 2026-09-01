@@ -152,6 +152,86 @@
   margin: calc(-1 * var(--space-md)) 0 var(--space-lg);
 }
 
+/* "Out today" strip (Dashboard merge, 2026-09-01): the calendar is the
+   post-login landing page now, so today's coverage answers itself above the
+   timeline instead of on the retired Dashboard sidebar. */
+.calendar-out-today {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-xl);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+}
+
+.calendar-out-today-title {
+  color: var(--color-muted);
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* Arabic is cursive: letterspacing pulls apart glyphs that are meant to join. */
+html[lang='ar'] .calendar-out-today-title {
+  letter-spacing: normal;
+}
+
+.calendar-out-today-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-lg);
+  list-style: none;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.calendar-out-today-person {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.calendar-out-today-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.calendar-out-today-name {
+  color: var(--color-teal);
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendar-out-today-type {
+  color: var(--color-muted);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calendar-out-today-empty {
+  color: var(--color-muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.calendar-out-today-error {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
 .cal-legend {
   align-items: center;
   display: flex;
@@ -193,6 +273,13 @@
 
 .cal-legend-presence--wfh {
   border-style: dashed;
+}
+
+.cal-legend-presence--pending {
+  background: var(--color-pending-bg);
+  border-color: var(--color-pending-fg);
+  border-style: dashed;
+  color: var(--color-pending-fg);
 }
 
 .cal-holiday-swatch {
@@ -299,6 +386,11 @@
   letter-spacing: 0.06em;
   padding-inline-start: var(--space-md);
   text-transform: uppercase;
+}
+
+/* Arabic is cursive: letterspacing pulls apart glyphs that are meant to join. */
+html[lang='ar'] .calendar-timeline-person-heading {
+  letter-spacing: normal;
 }
 
 .calendar-timeline-day {
@@ -437,6 +529,17 @@
 
 .calendar-timeline-bar.cal-event--off {
   border-style: solid;
+}
+
+/* Viewer's own pending request (Dashboard merge, 2026-09-01), synthesized
+   client-side — the feed is approved-only. Doubled class keeps this after
+   `.cal-event--off` at equal specificity so the dashed border wins: pending
+   bars carry presence OFF, whose rule above forces solid. */
+.calendar-timeline-bar.calendar-timeline-bar--pending {
+  background: color-mix(in srgb, var(--color-pending-bg) 60%, transparent);
+  border-color: var(--color-pending-fg);
+  border-style: dashed;
+  color: var(--color-pending-fg);
 }
 
 .cal-event--interactive {
@@ -706,6 +809,11 @@
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+/* Arabic is cursive: letterspacing pulls apart glyphs that are meant to join. */
+html[lang='ar'] .calendar-agenda-heading {
+  letter-spacing: normal;
 }
 
 .calendar-agenda-show-all {

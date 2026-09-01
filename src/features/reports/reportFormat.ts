@@ -120,7 +120,12 @@ export function formatValue(context: ReportFormatContext, value: unknown): strin
 }
 
 export type SummaryBreakdownPart = {
-  /** Empty for a flat map, where the row key already names the value. */
+  /** Metric key, for list identity; empty for a flat map's single value part. */
+  key: string
+  /**
+   * Empty when the row's own name already carries the meaning: a flat map's single
+   * value, and the nested count that leads its group ("Away 8", never "Away Rows 8").
+   */
   label: string
   value: string
 }
@@ -142,7 +147,9 @@ export type SummaryBreakdownRow = {
  * separators were ambiguous, because the comma between two presences read exactly like the
  * commas inside one. Structure has to survive as far as the markup to be readable.
  *
- * Still display-only — no key is dropped, reordered by value, or summed (AD-4).
+ * Still display-only — no value is dropped, reordered by value, or summed (AD-4). The one
+ * presentation liberty: a nested `rowCount` leads its group as an unlabelled headline
+ * number, so it cannot land between labelled metrics if the server reorders its keys.
  */
 export function summaryBreakdown(
   context: ReportFormatContext,
@@ -158,11 +165,17 @@ export function summaryBreakdown(
     presence: key === 'WFH' || key === 'OFF' ? key : null,
     parts:
       entry !== null && typeof entry === 'object' && !Array.isArray(entry)
-        ? Object.entries(entry as Record<string, unknown>).map(([metric, metricValue]) => ({
-            label: metricLabel(context, metric),
-            value: formatValue(context, metricValue),
-          }))
-        : [{ label: '', value: formatValue(context, entry) }],
+        ? Object.entries(entry as Record<string, unknown>)
+            .sort(([a], [b]) => (a === 'rowCount' ? -1 : b === 'rowCount' ? 1 : 0))
+            .map(([metric, metricValue]) => ({
+              key: metric,
+              // The count is the group's headline number: "Away 8", not "Away Rows 8" —
+              // a label next to the group's own name adds nothing. Its locale entries
+              // (`summary.metric.rowCount`) were removed in lockstep with this literal.
+              label: metric === 'rowCount' ? '' : metricLabel(context, metric),
+              value: formatValue(context, metricValue),
+            }))
+        : [{ key: '', label: '', value: formatValue(context, entry) }],
   }))
 }
 
@@ -170,7 +183,7 @@ export function summaryBreakdown(
  * Label one metric inside a nested summary map.
  *
  * These keys are camelCase, so `formatEnum` rejects them and they reached the page raw —
- * "rowCount: 2". Same fallback rule as everywhere else here: an unlabelled key is still
+ * "approvedUsage: 4". Same fallback rule as everywhere else here: an unlabelled key is still
  * evidence, so show it rather than let the missing-key handler blank it.
  */
 function metricLabel(context: ReportFormatContext, metric: string): string {

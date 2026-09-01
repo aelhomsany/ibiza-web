@@ -107,6 +107,7 @@ export function SettingsCategoryNav({
         describedById="settings-category-scroll-hint"
         labelledBy="settings-category-nav-label"
         testId="settings-category-nav"
+        hintKey="categoryRail.scrollHint"
       >
         <div
           className="settings-category-tabs"

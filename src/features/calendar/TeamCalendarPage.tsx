@@ -5,10 +5,12 @@ import { ApiError, getWorkforceGroups } from '../../api/client'
 import type { DayOfWeek } from '../../api/generated/types'
 import { useAuth } from '../../auth/useAuth'
 import { LoadingState } from '../../components/ui/LoadingState'
+import { useMyLeaveRequests } from '../my-leaves/useMyLeaveRequests'
 import { CalendarAgenda } from './CalendarAgenda'
 import { CalendarLegend } from './CalendarLegend'
 import { CalendarNav } from './CalendarNav'
-import { CalendarTimeline } from './CalendarTimeline'
+import { CalendarOutTodayStrip } from './CalendarOutTodayStrip'
+import { CalendarTimeline, type PendingOwnAbsence } from './CalendarTimeline'
 import {
   addDays,
   addMonths,
@@ -80,6 +82,11 @@ export function TeamCalendarPage() {
   const selectedGroupForWeekStart = workforceGroupsQuery.data?.find(
     (group) => group.id === workforceGroupId,
   )
+  // An organization is provisioned with no Workforce Groups -- the HR Admin creates them -- so
+  // until then this filter would be a select whose only choice is "All groups". Hide the dead
+  // control rather than showing a picker with nothing to pick.
+  const hasGroupFilter =
+    !workforceGroupsQuery.isSuccess || (workforceGroupsQuery.data?.length ?? 0) > 0
   const weekStart = startOfWeek(anchorDate, selectedGroupForWeekStart?.weekendDays ?? [])
   const requestedMonths = useMemo(
     () => view === 'timeline' ? monthsForWeek(weekStart) : [month],
@@ -116,6 +123,56 @@ export function TeamCalendarPage() {
     initializedFromServerToday.current = true
     return undefined
   }, [anchorDate, calendar])
+
+  // The viewer's own PENDING requests, overlaid on the Timeline as dashed bars.
+  // The calendar feed is approved-only, so these are synthesized from the
+  // self-scoped /leave-requests response the viewer is always allowed to see —
+  // no one else's pending requests can appear this way. Every figure (dates,
+  // stored workingDays) comes from that response as returned.
+  const myRequestsQuery = useMyLeaveRequests()
+  const pendingOwnAbsences = useMemo<PendingOwnAbsence[]>(() => {
+    const userId = user?.id
+    if (userId == null) {
+      return []
+    }
+    const feedRequestIds = new Set(
+      (calendar?.absences ?? []).map((absence) => absence.requestId),
+    )
+    return (myRequestsQuery.data ?? [])
+      .filter(
+        (request) =>
+          request.status === 'PENDING' &&
+          request.id != null &&
+          !feedRequestIds.has(request.id) &&
+          Boolean(request.dateFrom) &&
+          Boolean(request.dateTo),
+      )
+      .map((request) => ({
+        requestId: request.id as number,
+        userId,
+        userFullName: user?.fullName,
+        userInitials: user?.fullName
+          ?.split(/\s+/)
+          .map((part) => part[0])
+          .join('')
+          .slice(0, 2)
+          .toUpperCase(),
+        userColorKey: '',
+        userWorkforceGroupId: 0,
+        userWorkforceGroupName: user?.workforceGroupName ?? undefined,
+        leaveTypeId: request.leaveTypeId,
+        leaveTypeName: request.leaveTypeName,
+        leaveTypeIcon: request.leaveTypeIcon,
+        presence: 'OFF' as const,
+        dateFrom: request.dateFrom as string,
+        dateTo: request.dateTo as string,
+        workingDays: request.workingDays ?? 0,
+        workingDates: [],
+        canViewRequestContext: true,
+        viewerRelationship: 'SELF' as const,
+        pending: true as const,
+      }))
+  }, [calendar?.absences, myRequestsQuery.data, user])
 
   const locale = i18n.resolvedLanguage ?? i18n.language ?? 'en-US'
   const selectedGroup = selectedGroupForWeekStart
@@ -202,27 +259,31 @@ export function TeamCalendarPage() {
             ))}
           </div>
 
-          <label className="sr-only" htmlFor="calendar-workforce-group-filter">
-            {t('filter.label')}
-          </label>
-          <select
-            id="calendar-workforce-group-filter"
-            className="calendar-filter-select calendar-glass-control"
-            value={workforceGroupId ?? ''}
-            onChange={(event) => {
-              const nextValue = event.target.value
-              setWorkforceGroupId(nextValue === '' ? undefined : Number(nextValue))
-            }}
-            aria-label={t('filter.label')}
-            aria-invalid={workforceGroupsQuery.isError ? true : undefined}
-          >
-            <option value="">{t('filter.all')}</option>
-            {workforceGroupsQuery.data?.map((group) => (
-              <option key={group.id} value={group.id} dir="auto">
-                {group.name}
-              </option>
-            ))}
-          </select>
+          {hasGroupFilter && (
+            <>
+              <label className="sr-only" htmlFor="calendar-workforce-group-filter">
+                {t('filter.label')}
+              </label>
+              <select
+                id="calendar-workforce-group-filter"
+                className="calendar-filter-select calendar-glass-control"
+                value={workforceGroupId ?? ''}
+                onChange={(event) => {
+                  const nextValue = event.target.value
+                  setWorkforceGroupId(nextValue === '' ? undefined : Number(nextValue))
+                }}
+                aria-label={t('filter.label')}
+                aria-invalid={workforceGroupsQuery.isError ? true : undefined}
+              >
+                <option value="">{t('filter.all')}</option>
+                {workforceGroupsQuery.data?.map((group) => (
+                  <option key={group.id} value={group.id} dir="auto">
+                    {group.name}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
 
           <button
             type="button"
@@ -249,7 +310,9 @@ export function TeamCalendarPage() {
         </div>
       </header>
 
-      <CalendarLegend />
+      <CalendarOutTodayStrip />
+
+      <CalendarLegend showPendingOwn={pendingOwnAbsences.length > 0} />
 
       {workforceGroupsQuery.isError ? (
         <p className="calendar-filter-error" role="status">
@@ -316,6 +379,7 @@ export function TeamCalendarPage() {
           {view === 'timeline' ? (
             <CalendarTimeline
               calendar={calendar}
+              pendingOwnAbsences={pendingOwnAbsences}
               weekStart={weekStart}
               weekendDays={weekendDays}
               locale={locale}

@@ -26,15 +26,41 @@ test.describe(
       'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot dashboard data',
     )
 
+    // The Dashboard merged into My Leaves on 2026-09-01, splitting Story 11.1's one
+    // overflow-prone screen into two: the Team Calendar (the landing page, carrying a
+    // wide timeline grid) and My Leaves (carrying the history table and a 300px support
+    // rail that has to fit beside it). Both are checked at every width, because the
+    // rail/table pairing is exactly the composition this story exists to protect.
     for (const width of [768, 900, 1280, 1440] as const) {
       test(
-        `[P0] Dashboard has no page-level overflow at ${width}px`,
+        `[P0] Team Calendar has no page-level overflow at ${width}px`,
         async ({ page }) => {
           await loginViaUi(page, { email: 'sarah@company.com', password })
           await page.setViewportSize({ width, height: 900 })
-          await navigateInApp(page, '/')
+          await navigateInApp(page, '/calendar')
 
-          await expect(page.getByTestId('recent-requests-card')).toBeVisible()
+          // The Out Today strip renders in both views, so it is the width-independent
+          // proof the page actually loaded. The view itself is not: Story 11.6 opens
+          // the calendar in Agenda under `(max-width: 900px)` and Timeline above it, so
+          // asserting the timeline's scroll wrap at 768/900 would fail on a correct
+          // build. Each width asserts the container it genuinely renders.
+          await expect(page.getByTestId('calendar-out-today')).toBeVisible()
+          await expect(
+            page.getByTestId(width <= 900 ? 'calendar-agenda' : 'calendar-scroll-wrap'),
+          ).toBeVisible()
+          await expectPageDoesNotOverflow(page)
+        },
+      )
+
+      test(
+        `[P0] My Leaves has no page-level overflow at ${width}px`,
+        async ({ page }) => {
+          await loginViaUi(page, { email: 'sarah@company.com', password })
+          await page.setViewportSize({ width, height: 900 })
+          await navigateInApp(page, '/my-leaves')
+
+          await expect(page.getByTestId('my-leaves-history')).toBeVisible()
+          await expect(page.getByTestId('my-leaves-support-rail')).toBeVisible()
           await expectPageDoesNotOverflow(page)
         },
       )

@@ -61,7 +61,10 @@ export async function loginViaUi(page: Page, credentials: LoginCredentials): Pro
   await page.getByTestId('sign-in-email').fill(credentials.email)
   await page.getByTestId('sign-in-password').fill(credentials.password)
   await page.getByTestId('sign-in-submit').click()
-  await expect(page.getByTestId('nav-dashboard')).toBeVisible()
+  // Team Calendar leads the nav and is the post-login landing page since the
+  // Dashboard merged into My Leaves (2026-09-01). nav-dashboard no longer renders,
+  // so waiting on it here would time out every spec that signs in through the UI.
+  await expect(page.getByTestId('nav-calendar')).toBeVisible()
 }
 
 export async function logoutViaUi(page: Page): Promise<void> {

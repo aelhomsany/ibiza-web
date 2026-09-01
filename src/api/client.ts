@@ -84,6 +84,7 @@ import type {
   LocationContextResponse,
   ScheduleAssignmentRequest,
   ScheduleAssignmentResponse,
+  ScheduleAssignmentCoverageResponse,
   ScheduleAssignmentPreviewResponse,
   BulkScheduleAssignmentRequest,
   BulkScheduleAssignmentResult,
@@ -478,6 +479,7 @@ export const createLocationContext = (payload: CreateLocationContextRequest) => 
 export const previewScheduleAssignment = (payload: ScheduleAssignmentRequest) => request<ScheduleAssignmentPreviewResponse>('/api/v1/settings/schedule-assignments/preview', { method: 'POST', body: payload })
 export const commitScheduleAssignment = (payload: ScheduleAssignmentRequest) => request<ScheduleAssignmentResponse>('/api/v1/settings/schedule-assignments', { method: 'POST', body: payload })
 export const listScheduleAssignments = () => request<ScheduleAssignmentResponse[]>('/api/v1/settings/schedule-assignments', { method: 'GET' })
+export const getScheduleAssignmentCoverage = () => request<ScheduleAssignmentCoverageResponse>('/api/v1/settings/schedule-assignments/coverage', { method: 'GET' })
 
 // Story 16.4 — bulk (USER-scope only) schedule/location assignment.
 export const previewBulkScheduleAssignment = (payload: BulkScheduleAssignmentRequest) => request<BulkScheduleAssignmentPreviewResponse>('/api/v1/settings/schedule-assignments/bulk/preview', { method: 'POST', body: payload })
@@ -541,12 +543,21 @@ export async function commitImportJob(publicId: string): Promise<ImportJobRespon
   return request<ImportJobResponse>(`/api/v1/imports/${publicId}/commit`, { method: 'POST' })
 }
 
-export async function cancelImportJob(publicId: string): Promise<ImportJobResponse> {
-  return request<ImportJobResponse>(`/api/v1/imports/${publicId}/cancel`, { method: 'POST' })
-}
-
 export async function downloadImportArtifact(publicId: string): Promise<Blob> {
   return request<Blob>(`/api/v1/imports/${publicId}/artifact`, {
+    method: 'GET',
+    responseType: 'blob',
+  })
+}
+
+/**
+ * The empty `.xlsx` template for one import type: a single header row, exactly the columns the
+ * uploader checks for, every column pre-formatted as text so Excel leaves leading zeros and dates
+ * alone. Server-rendered rather than assembled here, so the file the HR Admin fills in and the
+ * header the validator compares against can never drift apart.
+ */
+export async function downloadImportTemplate(templateKey: ImportTemplateKey): Promise<Blob> {
+  return request<Blob>(`/api/v1/imports/templates/${templateKey}`, {
     method: 'GET',
     responseType: 'blob',
   })
@@ -1054,8 +1065,8 @@ export const apiClient = {
   listImportJobs,
   getImportRows,
   commitImportJob,
-  cancelImportJob,
   downloadImportArtifact,
+  downloadImportTemplate,
   recordBalanceCorrection,
   previewBalanceCorrection,
   compensateBalanceCorrection,

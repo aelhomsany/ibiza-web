@@ -9,6 +9,10 @@ type HorizontalScrollRegionProps = {
   describedById: string
   labelledBy: string
   testId?: string
+  /* Every caller but one wraps a table. The settings category rail does not, and a
+     screen reader announcing "scroll this table" for a list of tabs is simply wrong,
+     so a caller can name a different `layout` key for the hint. */
+  hintKey?: string
 }
 
 export function HorizontalScrollRegion({
@@ -17,6 +21,7 @@ export function HorizontalScrollRegion({
   describedById,
   labelledBy,
   testId,
+  hintKey = 'tableRegion.scrollHint',
 }: HorizontalScrollRegionProps) {
   const { t } = useTranslation('layout')
 
@@ -52,7 +57,7 @@ export function HorizontalScrollRegion({
     >
       {children}
       <span id={describedById} className="sr-only">
-        {t('tableRegion.scrollHint')}
+        {t(hintKey)}
       </span>
     </div>
   )

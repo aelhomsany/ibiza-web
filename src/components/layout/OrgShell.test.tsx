@@ -4,7 +4,9 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
-import { DashboardPage } from '../../features/dashboard/DashboardPage'
+// The Dashboard merged into My Leaves (2026-09-01); MyLeavesPage owns the
+// greeting the shell typography test asserts on.
+import { MyLeavesPage } from '../../features/my-leaves/MyLeavesPage'
 import {
   AuthTestProvider,
   createMockAuthForRole,
@@ -34,7 +36,7 @@ function renderOrgShell(
             <AuthTestProvider value={createMockAuthForRole(role)}>
               <Routes>
                 <Route element={<OrgShell />}>
-                  <Route path="/" element={<DashboardPage />} />
+                  <Route path="/" element={<MyLeavesPage />} />
                 </Route>
               </Routes>
             </AuthTestProvider>
@@ -51,6 +53,9 @@ describe('OrgShell', () => {
       canReviewApprovals: false,
     })
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([])
     vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 0 })
     vi.spyOn(apiClient, 'getUnreadNotificationCount').mockResolvedValue({ count: 0 })
   })
@@ -71,7 +76,7 @@ describe('OrgShell', () => {
             <AuthTestProvider>
               <Routes>
                 <Route element={<OrgShell />}>
-                  <Route path="/" element={<DashboardPage />} />
+                  <Route path="/" element={<MyLeavesPage />} />
                 </Route>
               </Routes>
             </AuthTestProvider>
@@ -91,9 +96,9 @@ describe('OrgShell', () => {
   it('shows only base nav items for EMPLOYEE', () => {
     renderOrgShell('EMPLOYEE')
 
-    expect(screen.getByTestId('nav-dashboard')).toBeInTheDocument()
-    expect(screen.getByTestId('nav-my-leaves')).toBeInTheDocument()
     expect(screen.getByTestId('nav-calendar')).toBeInTheDocument()
+    expect(screen.getByTestId('nav-my-leaves')).toBeInTheDocument()
+    expect(screen.queryByTestId('nav-dashboard')).not.toBeInTheDocument()
     expect(screen.queryByTestId('nav-approvals')).not.toBeInTheDocument()
     expect(screen.queryByTestId('nav-settings')).not.toBeInTheDocument()
   })
@@ -130,7 +135,7 @@ describe('OrgShell', () => {
             <AuthTestProvider value={createMockAuthForRole('PLATFORM_ADMIN')}>
               <Routes>
                 <Route element={<OrgShell />}>
-                  <Route path="/" element={<DashboardPage />} />
+                  <Route path="/" element={<MyLeavesPage />} />
                 </Route>
               </Routes>
             </AuthTestProvider>
@@ -139,7 +144,7 @@ describe('OrgShell', () => {
       </QueryClientProvider>,
     )
 
-    expect(screen.queryByTestId('nav-dashboard')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('nav-calendar')).not.toBeInTheDocument()
     expect(screen.queryByTestId('nav-approvals')).not.toBeInTheDocument()
   })
 
@@ -217,7 +222,8 @@ describe('OrgShell', () => {
   it('[P2] renders shell navigation labels through the translation layer', async () => {
     renderOrgShell('EMPLOYEE')
 
-    expect(screen.getByTestId('nav-dashboard')).toHaveTextContent('Dashboard')
+    // layout:nav.calendar, not the rolePermissions fallback label.
+    expect(screen.getByTestId('nav-calendar')).toHaveTextContent('Calendar')
     await userEvent.click(await screen.findByTestId('user-menu-trigger'))
     expect(screen.getByRole('menuitem', { name: 'Sign out' })).toBeInTheDocument()
   })
@@ -277,7 +283,7 @@ describe('OrgShell', () => {
             >
               <Routes>
                 <Route element={<OrgShell />}>
-                  <Route path="/" element={<DashboardPage />} />
+                  <Route path="/" element={<MyLeavesPage />} />
                 </Route>
               </Routes>
             </AuthTestProvider>
@@ -315,7 +321,7 @@ describe('OrgShell', () => {
       vi.spyOn(apiClient, 'listReportExports').mockResolvedValue([])
       renderOrgShell('HR_ADMIN')
 
-      await screen.findByTestId('nav-dashboard')
+      await screen.findByTestId('nav-calendar')
       await waitFor(() => {
         expect(screen.queryByTestId('nav-reports')).toBeNull()
       })

@@ -90,6 +90,11 @@ html[lang='ar'] .onboarding-card-eyebrow {
   color: var(--color-text-secondary);
 }
 
+/* Arabic is cursive: letterspacing pulls apart glyphs that are meant to join. */
+html[lang='ar'] .onboarding-progress-group-title {
+  letter-spacing: normal;
+}
+
 .onboarding-progress-group-note {
   font-size: var(--font-caption-size);
   color: var(--color-text-secondary);

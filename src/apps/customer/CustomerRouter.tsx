@@ -1,6 +1,7 @@
 import { Suspense, lazy, type ReactElement, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
+  Navigate,
   Route,
   RouterProvider,
   Routes,
@@ -15,11 +16,6 @@ import { usePageTitle } from '../../hooks/usePageTitle'
 import { ProtectedRoute } from '../../routes/ProtectedRoute'
 import { RoleGuard } from '../../routes/RoleGuard'
 
-const DashboardPage = lazy(() =>
-  import('../../features/dashboard/DashboardPage').then((module) => ({
-    default: module.DashboardPage,
-  })),
-)
 const MyLeavesPage = lazy(() =>
   import('../../features/my-leaves/MyLeavesPage').then((module) => ({
     default: module.MyLeavesPage,
@@ -140,7 +136,9 @@ export function CustomerRoutes() {
           </Route>
           <Route element={<RoleGuard shell="org" />}>
             <Route element={<OrgShell />}>
-              <Route path="/" element={titled('routes.dashboard', <DashboardPage />)} />
+              {/* The Dashboard merged into /my-leaves (2026-09-01); the Team Calendar is
+                  the landing screen. Keep '/' as a redirect so bookmarks still work. */}
+              <Route path="/" element={<Navigate to="/calendar" replace />} />
               <Route path="/my-leaves" element={titled('routes.myLeaves', <MyLeavesPage />)} />
               <Route
                 path="/leave-requests/:id"

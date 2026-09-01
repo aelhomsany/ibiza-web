@@ -169,4 +169,22 @@ describe('NotificationPreferencesSettings', () => {
     await waitFor(() => expect(onWarning).toHaveBeenCalled())
     expect(emailCheckbox).toBeChecked()
   })
+
+  // The panel is two checkboxes and a mute control; nothing on it says what a "workflow
+  // notification" IS, or that these choices are the reader's own. The rail carries the four
+  // NotificationType values the server actually sends, and the three limits it enforces.
+  it('names what workflow notifications cover and whose settings these are', async () => {
+    vi.spyOn(apiClient, 'getNotificationPreferences').mockResolvedValue(defaultPreferences)
+
+    renderCard()
+
+    const rail = await screen.findByRole('complementary')
+    const sent = within(rail).getByRole('list')
+    expect(within(sent).getAllByRole('listitem')).toHaveLength(4)
+
+    // The three rules the API enforces regardless of what this panel is set to.
+    expect(rail).toHaveTextContent(/These preferences are yours alone/)
+    expect(rail).toHaveTextContent(/In-app workflow notifications are required and cannot be turned off/)
+    expect(rail).toHaveTextContent(/An email mute can run for at most 30 days/)
+  })
 })

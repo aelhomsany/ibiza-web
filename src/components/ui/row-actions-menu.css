@@ -1,0 +1,99 @@
+/* Overflow menu for secondary row actions. Paired with RowActionsMenu.tsx. */
+
+.row-actions {
+  position: relative;
+  display: inline-flex;
+}
+
+.row-actions-trigger {
+  display: inline-flex;
+  width: var(--min-touch-target);
+  height: var(--min-touch-target);
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.row-actions-trigger:hover,
+.row-actions-trigger[aria-expanded='true'] {
+  border-color: var(--color-border-default);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-primary);
+}
+
+.row-actions-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.row-actions-panel {
+  /* Fixed, not absolute: a row menu inside a horizontally scrolling table would be
+     clipped by that region, since `overflow-x: auto` clips the block axis too. The
+     component measures the trigger and supplies the offsets. */
+  position: fixed;
+  z-index: 30;
+  min-width: 200px;
+  padding-block: var(--space-xs);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-card);
+  box-shadow: var(--shadow-notification-panel);
+}
+
+.row-actions-item {
+  display: flex;
+  width: 100%;
+  min-height: var(--min-touch-target);
+  align-items: center;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-lg);
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  text-align: start;
+}
+
+.row-actions-item:hover,
+.row-actions-item:focus-visible {
+  background: var(--color-surface-subtle);
+  outline: none;
+}
+
+.row-actions-item:focus-visible {
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.row-actions-item.is-destructive {
+  color: var(--color-error-fg);
+}
+
+.row-actions-item:disabled {
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.row-actions-item:disabled:hover {
+  background: transparent;
+}
+
+@media (forced-colors: active) {
+  .row-actions-trigger:focus-visible,
+  .row-actions-item:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+
+  .row-actions-panel {
+    border-color: CanvasText;
+  }
+}

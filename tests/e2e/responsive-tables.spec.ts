@@ -73,26 +73,13 @@ test.describe('Responsive tables — Story 10.3', { tag: [tags.regression, tags.
     'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot table data',
   )
 
-  test('[P0] Dashboard recent requests use task cards without page overflow at 375px', async ({
-    page,
-  }) => {
-    await loginViaUi(page, { email: 'sarah@company.com', password })
-    await viewPageAtMobileWidth(page, '/')
-
-    const card = page.getByTestId('recent-requests-card')
-    await expect(card).toBeVisible()
-
-    // Story 10.3 made this a horizontally scrollable table at mobile width; Story 11.2 replaced
-    // that with a task-card list, so `.recent-requests-table-view` is `display: none` under the
-    // 760px container query and `.table-wrap` cannot be visible here. The requirement is
-    // unchanged — recent requests stay usable at 375px with no page-level overflow — and this
-    // now asserts it against the design that actually ships, matching the My Leaves test below.
-    await expect(page.getByTestId('recent-requests-table-view')).toBeHidden()
-    const list = card.getByTestId('recent-request-card-list')
-    await expect(list).toBeVisible()
-    expect(await list.locator('.recent-request-card').count()).toBeGreaterThan(0)
-    await expectPageDoesNotOverflow(page)
-  })
+  // The Dashboard's "recent requests" table used to be checked here alongside My Leaves.
+  // Story 10.3 made it a horizontally scrollable table at mobile width; Story 11.2 replaced
+  // that with a task-card list; the Dashboard merge (2026-09-01) then dissolved the table
+  // into the My Leaves history below, which is the same list of the same requests. The
+  // requirement — a personal request list that stays usable at 375px with no page-level
+  // overflow — is unchanged and fully covered by the next test, so the duplicate is gone
+  // rather than retargeted at a second view of one table.
 
   test('[P0] My Leaves history uses task cards without page overflow at 375px', async ({
     page,

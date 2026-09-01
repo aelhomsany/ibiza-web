@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { isolate } from '../../i18n/bidi'
 import {
   ApiError,
@@ -10,6 +11,7 @@ import {
   getLocationContexts,
   createLocationContext,
   listScheduleAssignments,
+  getScheduleAssignmentCoverage,
   getPolicySettingsOverview,
 } from '../../api/client'
 import type { DayOfWeek } from '../../api/generated/types'
@@ -18,13 +20,15 @@ import { useAuth } from '../../auth/useAuth'
 import { useToast } from '../../components/ui/useToast'
 import { Modal } from '../../components/ui/Modal'
 import { PlusIcon, CloseIcon, CalendarIcon } from '../../components/ui/icons'
+import { HorizontalScrollRegion } from '../../components/ui/HorizontalScrollRegion'
 import { WEEKEND_DAYS_DISPLAY } from './weekendDays'
 import { ScheduleAssignmentModal, type ScheduleVersionOption } from './ScheduleAssignmentModal'
 import { BulkScheduleAssignmentModal } from './BulkScheduleAssignmentModal'
+import { WorkingDayStrip } from './WorkingDayStrip'
 import './team-members.css'
-// .weekend-chips/.weekend-chip and .settings-list-body live in these two files. They currently
-// resolve only because SettingsPage happens to load them first; importing them here keeps the
-// component styled wherever it renders (code review 2026-08-28).
+// .weekend-chips/.weekend-chip, .day-strip and .schedule-assignments-table live in these two
+// files. They currently resolve only because SettingsPage happens to load them first; importing
+// them here keeps the component styled wherever it renders (code review 2026-08-28).
 import './weekend-day-chips.css'
 import './group-tabs.css'
 
@@ -98,6 +102,15 @@ export function ScheduleLocationSettingsPage({
     queryFn: listScheduleAssignments,
     enabled: orgId != null,
   })
+  // Coverage is the one figure on this screen that is counted over users rather than over
+  // assignment rows, so it cannot be derived from assignmentsQuery: the three scopes overlap, and
+  // adding up each row's affectedMemberCount reports more covered people than the organization
+  // has. The server answers it as one distinct-member question.
+  const coverageQuery = useQuery({
+    queryKey: ['schedule-assignment-coverage', orgId] as const,
+    queryFn: getScheduleAssignmentCoverage,
+    enabled: orgId != null,
+  })
   // getPolicySettingsOverview is read purely for its generic users/workforceGroups NamedTarget
   // lists. It is keyed under this feature rather than reusing the Policy feature's key, so a
   // Policy-side invalidation cannot silently drive this page's cache (code review 2026-08-28).
@@ -110,6 +123,7 @@ export function ScheduleLocationSettingsPage({
   const schedules = schedulesQuery.data ?? []
   const locations = locationsQuery.data ?? []
   const assignments = assignmentsQuery.data ?? []
+  const coverage = coverageQuery.data
   const workforceGroups: NamedTarget[] = overviewQuery.data?.workforceGroups ?? []
   const users: NamedTarget[] = overviewQuery.data?.users ?? []
 
@@ -146,6 +160,21 @@ export function ScheduleLocationSettingsPage({
     void queryClient.invalidateQueries({ queryKey: ['work-schedules', orgId] })
     void queryClient.invalidateQueries({ queryKey: ['location-contexts', orgId] })
     void queryClient.invalidateQueries({ queryKey: ['schedule-assignments', orgId] })
+    void queryClient.invalidateQueries({ queryKey: ['schedule-assignment-coverage', orgId] })
+  }
+
+  // An assignment IS a schedule-and-location pairing, so a table that named only the location
+  // showed half of each record. The version matters as much as the schedule: assigning v1 and
+  // assigning v2 of the same schedule are different decisions.
+  function scheduleLabel(versionPublicId: string): string {
+    const version = versionOptions.find((option) => option.versionPublicId === versionPublicId)
+    if (!version) {
+      return versionPublicId
+    }
+    return t('settings:schedules.assignment.columns.scheduleValue', {
+      schedule: version.scheduleName,
+      versionNumber: version.versionNumber,
+    })
   }
 
   function locationName(locationPublicId: string): string {
@@ -160,166 +189,295 @@ export function ScheduleLocationSettingsPage({
     return pool.find((target) => target.publicId === subjectPublicId)?.name ?? subjectPublicId
   }
 
-  return (
-    <div className="settings-card">
-      <header className="card-header">
-        <h2 className="card-title">{t('settings:schedules.title')}</h2>
-        <p className="body-text">{t('settings:schedules.subtitle')}</p>
-      </header>
+  // The rail speaks only when it has something to say -- a card headed "Heads up" holding
+  // nothing is worse than no card. Both lines come from data already on this page.
+  const headsUp: string[] = []
+  if (coverage != null && coverage.unassignedMemberCount > 0) {
+    headsUp.push(t('settings:schedules.headsUp.unassigned'))
+  }
+  const distinctTimezones = new Set(locations.map((location) => location.ianaTimezone))
+  if (locations.length > 1 && distinctTimezones.size === 1) {
+    headsUp.push(
+      t('settings:schedules.headsUp.singleTimezone', {
+        timezone: isolate([...distinctTimezones][0]),
+      }),
+    )
+  }
 
+  return (
+    <div className="panel-stack">
       {capabilityUnavailable && (
         <p className="form-hint" role="alert" data-testid="schedules-capability-unavailable">
           {t('settings:schedules.capabilityUnavailable')}
         </p>
       )}
 
-      <section aria-labelledby="schedules-section-title">
-        <div className="card-section-header">
-          <h3 id="schedules-section-title" className="card-section-title">{t('settings:schedules.sections.schedules')}</h3>
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            data-testid="new-work-schedule"
-            disabled={capabilityUnavailable}
-            onClick={() => setScheduleModalOpen(true)}
-          >
-            <PlusIcon size={16} /> {t('settings:schedules.actions.newSchedule')}
-          </button>
-        </div>
-        {schedules.length === 0 ? (
-          <div className="dashboard-empty-state" data-testid="work-schedule-empty-state" role="status">
-            <span aria-hidden="true">
-              <CalendarIcon size={36} />
-            </span>
-            <p>{t('settings:schedules.empty.schedules')}</p>
-          </div>
-        ) : (
-          <div className="settings-list-body" data-testid="work-schedule-list">
-            {schedules.map((schedule) => (
-              <div key={schedule.schedulePublicId} className="settings-list-item">
-                <span dir="auto">{schedule.name}</span>
-                <span className="body-text">
-                  {schedule.versions
-                    .map((version) =>
-                      t('settings:schedules.schedule.versionSummary', {
-                        versionNumber: version.versionNumber,
-                        // Raw DayOfWeek names ("MONDAY, TUESDAY") reached the UI untranslated in
-                        // both locales; settings:days.* already carries them (code review
-                        // 2026-08-28).
-                        days: version.workingDays.map((day) => t(`settings:days.${day}`)).join(', '),
-                      }),
-                    )
-                    .join(' · ')}
-                </span>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  // The raw name, not isolate(): bidi isolation marks are for rendered text, and
-                  // in an accessible name they only pollute what a screen reader announces.
-                  aria-label={t('settings:schedules.actions.newVersionFor', {
-                    scheduleName: schedule.name,
-                  })}
-                  onClick={() => setVersionTargetSchedulePublicId(schedule.schedulePublicId)}
-                >
-                  {t('settings:schedules.actions.newVersion')}
-                </button>
+      {/* The panel carries its own supporting rail rather than adding a third track to the
+          Settings grid -- SettingsPage should not have to know which category wants one. At the
+          layout's 1280px cap the reading column is 1024px, so a 300px rail leaves 700px: enough
+          for these two record lists stacked, and not enough for them side by side once each row
+          holds a name, a day strip and an action. The assignments table spans both tracks
+          underneath, because its own 760px floor would scroll inside 700px. */}
+      <div className="panel-with-aside">
+        <div className="panel-stack">
+          <section className="settings-card" aria-labelledby="schedules-section-title">
+            <div className="card-header">
+              <div className="card-header-text">
+                <h3 id="schedules-section-title" className="card-title">
+                  {t('settings:schedules.sections.schedules')}
+                </h3>
+                <p className="card-description">{t('settings:schedules.schedule.cardDescription')}</p>
               </div>
-            ))}
-          </div>
-        )}
-      </section>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                data-testid="new-work-schedule"
+                disabled={capabilityUnavailable}
+                onClick={() => setScheduleModalOpen(true)}
+              >
+                <PlusIcon size={16} /> {t('settings:schedules.actions.newSchedule')}
+              </button>
+            </div>
+            {schedules.length === 0 ? (
+              <div className="dashboard-empty-state" data-testid="work-schedule-empty-state" role="status">
+                <span aria-hidden="true">
+                  <CalendarIcon size={36} />
+                </span>
+                <p>{t('settings:schedules.empty.schedules')}</p>
+              </div>
+            ) : (
+              <div className="settings-rows" data-testid="work-schedule-list">
+                {schedules.map((schedule) => {
+                  const versions = schedule.versions ?? []
+                  const latest = versions[versions.length - 1]
+                  return (
+                    <div className="settings-row" key={schedule.schedulePublicId}>
+                      <div className="settings-row-main">
+                        <div className="settings-row-title" dir="auto">
+                          {schedule.name}
+                        </div>
+                        {latest && (
+                          <div className="settings-row-meta">
+                            {t('settings:schedules.schedule.versionLabel', {
+                              versionNumber: latest.versionNumber,
+                            })}
+                          </div>
+                        )}
+                      </div>
+                      <div className="settings-row-actions">
+                        {latest && (
+                          <WorkingDayStrip
+                            workingDays={latest.workingDays}
+                            // Every version, not just the latest: the sentence is the strip's text
+                            // alternative and the only place the full history is readable. Raw
+                            // DayOfWeek names ("MONDAY, TUESDAY") reached the UI untranslated in both
+                            // locales; settings:days.* already carries them (code review 2026-08-28).
+                            label={versions
+                              .map((version) =>
+                                t('settings:schedules.schedule.versionSummary', {
+                                  versionNumber: version.versionNumber,
+                                  days: version.workingDays
+                                    .map((day) => t(`settings:days.${day}`))
+                                    .join(', '),
+                                }),
+                              )
+                              .join(' · ')}
+                          />
+                        )}
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-sm"
+                          // The raw name, not isolate(): bidi isolation marks are for rendered text, and
+                          // in an accessible name they only pollute what a screen reader announces.
+                          aria-label={t('settings:schedules.actions.newVersionFor', {
+                            scheduleName: schedule.name,
+                          })}
+                          onClick={() => setVersionTargetSchedulePublicId(schedule.schedulePublicId)}
+                        >
+                          {t('settings:schedules.actions.newVersion')}
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </section>
 
-      <section aria-labelledby="locations-section-title">
-        <div className="card-section-header">
-          <h3 id="locations-section-title" className="card-section-title">{t('settings:schedules.sections.locations')}</h3>
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            data-testid="new-location-context"
-            disabled={capabilityUnavailable}
-            onClick={() => setLocationModalOpen(true)}
-          >
-            <PlusIcon size={16} /> {t('settings:schedules.actions.newLocation')}
-          </button>
-        </div>
-        {locations.length === 0 ? (
-          <div className="dashboard-empty-state" data-testid="location-context-empty-state" role="status">
-            <span aria-hidden="true">
-              <CalendarIcon size={36} />
-            </span>
-            <p>{t('settings:schedules.empty.locations')}</p>
-          </div>
-        ) : (
-          <div className="settings-list-body" data-testid="location-context-list">
-            {locations.map((location) => (
-              <div key={location.locationPublicId} className="settings-list-item">
-                <span dir="auto">{location.name}</span>
-                <span className="body-text">{location.ianaTimezone}</span>
+          <section className="settings-card" aria-labelledby="locations-section-title">
+            <div className="card-header">
+              <div className="card-header-text">
+                <h3 id="locations-section-title" className="card-title">
+                  {t('settings:schedules.sections.locations')}
+                </h3>
+                <p className="card-description">{t('settings:schedules.location.cardDescription')}</p>
               </div>
-            ))}
-          </div>
-        )}
-      </section>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                data-testid="new-location-context"
+                disabled={capabilityUnavailable}
+                onClick={() => setLocationModalOpen(true)}
+              >
+                <PlusIcon size={16} /> {t('settings:schedules.actions.newLocation')}
+              </button>
+            </div>
+            {locations.length === 0 ? (
+              <div className="dashboard-empty-state" data-testid="location-context-empty-state" role="status">
+                <span aria-hidden="true">
+                  <CalendarIcon size={36} />
+                </span>
+                <p>{t('settings:schedules.empty.locations')}</p>
+              </div>
+            ) : (
+              <div className="settings-rows" data-testid="location-context-list">
+                {locations.map((location) => (
+                  <div className="settings-row" key={location.locationPublicId}>
+                    <div className="settings-row-main">
+                      <div className="settings-row-title" dir="auto">
+                        {location.name}
+                      </div>
+                      <div className="settings-row-meta">{location.ianaTimezone}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
 
-      <section aria-labelledby="assignments-section-title">
-        <div className="card-section-header">
-          <h3 id="assignments-section-title" className="card-section-title">{t('settings:schedules.sections.assignments')}</h3>
-          <button
-            type="button"
-            className="btn btn-primary btn-sm"
-            data-testid="new-schedule-assignment"
-            disabled={capabilityUnavailable || versionOptions.length === 0 || locations.length === 0}
-            onClick={() => setAssignmentModalOpen(true)}
-          >
-            <PlusIcon size={16} /> {t('settings:schedules.actions.newAssignment')}
-          </button>
-          {/* Story 16.4: bulk (USER-scope only) assignment. Same preconditions as the single
-              assignment above, plus at least one person to assign. */}
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            data-testid="new-bulk-schedule-assignment"
-            disabled={
-              capabilityUnavailable ||
-              versionOptions.length === 0 ||
-              locations.length === 0 ||
-              users.length === 0
-            }
-            onClick={() => setBulkAssignmentModalOpen(true)}
-          >
-            <PlusIcon size={16} /> {t('settings:schedules.actions.bulkAssignment')}
-          </button>
-        </div>
-        {assignments.length === 0 ? (
-          <div className="dashboard-empty-state" data-testid="schedule-assignment-empty-state" role="status">
-            <span aria-hidden="true">
-              <CalendarIcon size={36} />
-            </span>
-            <p>{t('settings:schedules.empty.assignments')}</p>
-          </div>
-        ) : (
-          <div className="settings-list-body" data-testid="schedule-assignment-list">
-            {assignments.map((assignment) => (
-              <div key={assignment.assignmentPublicId} className="settings-list-item">
-                <span dir="auto">{subjectLabel(assignment.scope, assignment.subjectPublicId)}</span>
-                <span className="body-text" dir="auto">{locationName(assignment.locationPublicId)}</span>
-                {/* L9: a status indicator carries a text label, and the date is formatted for the
-                    active locale rather than shown as a raw ISO string (code review 2026-08-28). */}
-                <span className="body-text">
-                  {t('settings:schedules.assignment.effectiveFromValue', {
-                    date: formatEffectiveFrom(assignment.effectiveFrom, i18n.language),
-                  })}
-                </span>
-                <span className="body-text">
-                  {t('settings:schedules.assignment.previewAffected', {
-                    count: assignment.affectedMemberCount,
-                  })}
-                </span>
+        <aside className="support-rail">
+          <section className="support-note" aria-labelledby="schedules-coverage-title">
+            <h3 className="support-note-title" id="schedules-coverage-title">
+              {t('settings:schedules.coverage.title')}
+            </h3>
+            <dl className="support-note-list">
+              <div className="support-note-kv">
+                <dt>{t('settings:schedules.coverage.peopleCovered')}</dt>
+                <dd data-testid="coverage-people-covered">
+                  {coverage
+                    ? t('settings:schedules.coverage.ofTotal', {
+                        covered: coverage.coveredMemberCount,
+                        total: coverage.activeMemberCount,
+                      })
+                    : '\u2014'}
+                </dd>
               </div>
-            ))}
+              <div className="support-note-kv">
+                <dt>{t('settings:schedules.coverage.unassigned')}</dt>
+                <dd data-testid="coverage-unassigned">
+                  {coverage ? coverage.unassignedMemberCount : '\u2014'}
+                </dd>
+              </div>
+              <div className="support-note-kv">
+                <dt>{t('settings:schedules.coverage.schedules')}</dt>
+                <dd>{schedules.length}</dd>
+              </div>
+              <div className="support-note-kv">
+                <dt>{t('settings:schedules.coverage.locations')}</dt>
+                <dd>{locations.length}</dd>
+              </div>
+              <div className="support-note-kv">
+                <dt>{t('settings:schedules.coverage.assignments')}</dt>
+                <dd>{assignments.length}</dd>
+              </div>
+            </dl>
+          </section>
+
+          {headsUp.length > 0 && (
+            <section className="support-note" aria-labelledby="schedules-heads-up-title">
+              <h3 className="support-note-title" id="schedules-heads-up-title">
+                {t('settings:schedules.headsUp.title')}
+              </h3>
+              {headsUp.map((line) => (
+                <p className="support-note-body" key={line}>
+                  {line}
+                </p>
+              ))}
+            </section>
+          )}
+        </aside>
+
+        <section className="settings-card panel-aside-wide" aria-labelledby="assignments-section-title">
+          <div className="card-header">
+            <div className="card-header-text">
+              <h3 id="assignments-section-title" className="card-title">
+                {t('settings:schedules.sections.assignments')}
+              </h3>
+              <p className="card-description">{t('settings:schedules.assignment.cardDescription')}</p>
+            </div>
+            <div className="card-section-actions">
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                data-testid="new-bulk-schedule-assignment"
+                disabled={
+                  capabilityUnavailable ||
+                  versionOptions.length === 0 ||
+                  locations.length === 0 ||
+                  users.length === 0
+                }
+                onClick={() => setBulkAssignmentModalOpen(true)}
+              >
+                {t('settings:schedules.actions.bulkAssignment')}
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                data-testid="new-schedule-assignment"
+                disabled={capabilityUnavailable || versionOptions.length === 0 || locations.length === 0}
+                onClick={() => setAssignmentModalOpen(true)}
+              >
+                <PlusIcon size={16} /> {t('settings:schedules.actions.newAssignment')}
+              </button>
+            </div>
           </div>
-        )}
-      </section>
+          {/* Each row was four unlabelled spans, so every line restated its own label --
+              "Effective from 3 Sep", "12 members affected" -- and nothing lined up between
+              rows. The labels are column headers now; the cells carry only values. */}
+          {assignments.length === 0 ? (
+            <div className="dashboard-empty-state" data-testid="schedule-assignment-empty-state" role="status">
+              <span aria-hidden="true">
+                <CalendarIcon size={36} />
+              </span>
+              <p>{t('settings:schedules.empty.assignments')}</p>
+            </div>
+          ) : (
+            <HorizontalScrollRegion
+              labelledBy="assignments-section-title"
+              describedById="schedule-assignments-scroll-hint"
+              testId="schedule-assignment-list"
+            >
+              <table className="dashboard-table schedule-assignments-table">
+                <thead>
+                  <tr>
+                    <th scope="col">{t('settings:schedules.assignment.columns.assignedTo')}</th>
+                    <th scope="col">{t('settings:schedules.assignment.columns.schedule')}</th>
+                    <th scope="col">{t('settings:schedules.assignment.columns.location')}</th>
+                    <th scope="col">{t('settings:schedules.assignment.effectiveFrom')}</th>
+                    <th scope="col" className="schedule-assignments-count">
+                      {t('settings:schedules.assignment.columns.membersAffected')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {assignments.map((assignment) => (
+                    <tr key={assignment.assignmentPublicId}>
+                      <td dir="auto">{subjectLabel(assignment.scope, assignment.subjectPublicId)}</td>
+                      <td dir="auto">{scheduleLabel(assignment.scheduleVersionPublicId)}</td>
+                      <td dir="auto">{locationName(assignment.locationPublicId)}</td>
+                      {/* L9: the date is formatted for the active locale rather than shown as a
+                          raw ISO string (code review 2026-08-28). */}
+                      <td>{formatEffectiveFrom(assignment.effectiveFrom, i18n.language)}</td>
+                      <td className="schedule-assignments-count">{assignment.affectedMemberCount ?? 0}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </HorizontalScrollRegion>
+          )}
+        </section>
+      </div>
 
       {scheduleModalOpen && (
         <NewWorkScheduleModal
@@ -347,6 +505,7 @@ export function ScheduleLocationSettingsPage({
       {locationModalOpen && (
         <NewLocationContextModal
           workforceGroups={workforceGroups}
+          groupsLoaded={overviewQuery.isSuccess}
           onClose={() => setLocationModalOpen(false)}
           onSuccess={(message) => {
             invalidateAfterWrite()
@@ -583,6 +742,9 @@ function NewWorkScheduleVersionModal({
 
 type NewLocationContextModalProps = {
   workforceGroups: NamedTarget[]
+  // Distinguishes "the organization has no Workforce Groups" from "the overview hasn't loaded".
+  // Only the former is a dead end worth explaining.
+  groupsLoaded: boolean
   onClose: () => void
   onSuccess: (message: string) => void
   onWarning?: (message: string) => void
@@ -590,15 +752,21 @@ type NewLocationContextModalProps = {
 
 function NewLocationContextModal({
   workforceGroups,
+  groupsLoaded,
   onClose,
   onSuccess,
   onWarning,
 }: NewLocationContextModalProps) {
   const { t } = useTranslation(['settings', 'common'])
+  const navigate = useNavigate()
   const [name, setName] = useState('')
   const [ianaTimezone, setIanaTimezone] = useState('')
   const [holidayWorkforceGroupPublicId, setHolidayWorkforceGroupPublicId] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  // A location borrows its public holidays from a Workforce Group, and a tenant now starts with
+  // none — the HR Admin creates them. Without this the holiday source is an empty required
+  // select above a permanently disabled button, with nothing saying why.
+  const noGroups = groupsLoaded && workforceGroups.length === 0
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -665,14 +833,38 @@ function NewLocationContextModal({
             value={holidayWorkforceGroupPublicId}
             onChange={(event) => setHolidayWorkforceGroupPublicId(event.target.value)}
             required
+            disabled={noGroups}
+            aria-describedby={noGroups ? 'location-holiday-source-hint' : undefined}
           >
-            <option value="">{t('settings:schedules.location.selectHolidaySource')}</option>
+            <option value="">
+              {noGroups
+                ? t('settings:schedules.location.noGroups')
+                : t('settings:schedules.location.selectHolidaySource')}
+            </option>
             {workforceGroups.map((group) => (
               <option key={group.publicId} value={group.publicId}>
                 {group.name}
               </option>
             ))}
           </select>
+          {noGroups && (
+            <div className="tm-no-groups" data-testid="location-no-groups-hint">
+              <p className="form-hint" id="location-holiday-source-hint" role="status">
+                {t('settings:schedules.location.noGroupsHint')}
+              </p>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                data-testid="location-create-group-link"
+                onClick={() => {
+                  onClose()
+                  navigate('/settings?category=working-calendars')
+                }}
+              >
+                {t('settings:schedules.location.noGroupsAction')}
+              </button>
+            </div>
+          )}
         </div>
         <div className="modal-actions">
           <button type="button" className="btn btn-outline" onClick={onClose} disabled={submitting}>

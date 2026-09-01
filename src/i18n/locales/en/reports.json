@@ -1,7 +1,7 @@
 {
   "eyebrow": "Decision evidence",
   "title": "Report Center",
-  "subtitle": "Explore fixed, tenant-safe operational views with the exact scope and provenance applied by the server.",
+  "subtitle": "Explore fixed, tenant-safe operational views with the exact scope applied by the server.",
   "loading": "Loading report evidence…",
   "notAvailable": "Not available",
   "asOf": "Evidence generated as of",
@@ -114,18 +114,8 @@
     "definition": "Report",
     "ordering": "Ordering"
   },
-  "provenance": {
-    "title": "Evidence provenance",
-    "basis": "Basis",
-    "completeness": "Completeness",
-    "complete": "Complete",
-    "incomplete": "Incomplete",
-    "uncertainty": "Uncertainty",
-    "excluded": "Excluded records",
-    "adjustmentsBasis": "Adjustments basis"
-  },
   "summary": {
-    "title": "Server summary",
+    "title": "Organization summary",
     "users": "Users",
     "requests": "Requests",
     "totalAllocation": "Total allocation",
@@ -148,7 +138,6 @@
     "chargedDaysByPresence": "Charged days by presence",
     "storedDaysByStatus": "Stored days by status",
     "metric": {
-      "rowCount": "Rows",
       "allocation": "Allocation",
       "approvedUsage": "Used",
       "remaining": "Remaining"
@@ -164,7 +153,7 @@
     "count_few": "{{count}} matching rows",
     "count_many": "{{count}} matching rows",
     "count_other": "{{count}} matching rows",
-    "emptyIncomplete": "Some records could not be included in this view, so this is not a confirmed zero. Read the evidence provenance above before treating it as one."
+    "emptyIncomplete": "Some records could not be included in this view, so this is not a confirmed zero."
   },
   "pagination": {
     "previous": "Previous Page",

@@ -23,6 +23,7 @@ import {
   type FirstUseProgress,
   type FirstUseStep,
 } from './firstUseStorage'
+import './first-use.css'
 
 type FirstUseCueProps = {
   user: UserSummaryResponse

@@ -21,8 +21,19 @@ import {
   uniqueBy,
 } from './calendarMonthUtils'
 
+/**
+ * The viewer's own pending request, synthesized by TeamCalendarPage from the
+ * self-scoped /leave-requests response (the calendar feed itself is
+ * approved-only). Rendered as a dashed outline bar; excluded from the
+ * coverage alert, which speaks only for approved absences.
+ */
+export type PendingOwnAbsence = CalendarAbsenceResponse & { pending: true }
+
+type TimelineAbsence = CalendarAbsenceResponse & { pending?: boolean }
+
 type CalendarTimelineProps = {
   calendar: CalendarMonthResponse
+  pendingOwnAbsences?: PendingOwnAbsence[]
   weekStart: string
   weekendDays: DayOfWeek[]
   locale: string
@@ -31,14 +42,14 @@ type CalendarTimelineProps = {
 }
 
 type PositionedAbsence = {
-  absence: CalendarAbsenceResponse
+  absence: TimelineAbsence
   startIndex: number
   endIndex: number
   lane: number
 }
 
 function positionAbsences(
-  absences: CalendarAbsenceResponse[],
+  absences: TimelineAbsence[],
   weekDates: string[],
 ): PositionedAbsence[] {
   const visibleAbsences = absences
@@ -70,6 +81,7 @@ function positionAbsences(
 
 export function CalendarTimeline({
   calendar,
+  pendingOwnAbsences = [],
   weekStart,
   weekendDays,
   locale,
@@ -88,6 +100,15 @@ export function CalendarTimeline({
   const weekAbsences = calendar.absences.filter((absence) => (
     rangesOverlap(absence.dateFrom, absence.dateTo, weekStart, weekEnd)
   ))
+  const weekPendingOwn = pendingOwnAbsences.filter((absence) => (
+    rangesOverlap(absence.dateFrom, absence.dateTo, weekStart, weekEnd)
+  ))
+  // Approved bars plus the viewer's own pending overlay. Coverage below stays
+  // on `weekAbsences` alone — an unapproved request must not raise the alert.
+  const weekDisplayAbsences: TimelineAbsence[] = [
+    ...weekAbsences,
+    ...weekPendingOwn,
+  ]
   // Story 16.2: identity is projected, so sort on the displayed label rather than assuming a
   // name is present. Redacted rows collate together under the fallback label.
   const displayName = (absence: { userFullName?: string }) =>
@@ -100,7 +121,7 @@ export function CalendarTimeline({
     absence.leaveTypeName ?? t('redacted.leaveType')
   const groupLabel = (person: { userWorkforceGroupName?: string }) =>
     person.userWorkforceGroupName ?? t('redacted.group')
-  const people = uniqueBy(weekAbsences, (absence) => absence.userId)
+  const people = uniqueBy(weekDisplayAbsences, (absence) => absence.userId)
     .sort((first, second) => displayName(first).localeCompare(displayName(second), locale))
   const todayIndex = weekDates.indexOf(calendar.today)
   const coverageDays = weekDates.filter((date) => {
@@ -208,7 +229,7 @@ export function CalendarTimeline({
             <div className="calendar-timeline-rows">
               {people.map((person) => {
                 const positionedAbsences = positionAbsences(
-                  weekAbsences.filter((absence) => absence.userId === person.userId),
+                  weekDisplayAbsences.filter((absence) => absence.userId === person.userId),
                   weekDates,
                 )
                 const laneCount = Math.max(
@@ -261,21 +282,30 @@ export function CalendarTimeline({
                       const presence = t(
                         absence.presence === 'WFH' ? 'legend.wfh' : 'legend.off',
                       )
-                      const accessibleName = t(
-                        absence.canViewRequestContext ? 'request.open' : 'request.info',
-                        {
-                          name: displayName(absence),
-                          type: leaveTypeLabel(absence),
-                          presence,
-                          range,
-                        },
-                      )
+                      const accessibleName = absence.pending
+                        ? t('request.pendingOpen', {
+                            type: leaveTypeLabel(absence),
+                            range,
+                          })
+                        : t(
+                            absence.canViewRequestContext ? 'request.open' : 'request.info',
+                            {
+                              name: displayName(absence),
+                              type: leaveTypeLabel(absence),
+                              presence,
+                              range,
+                            },
+                          )
 
                       return (
                         <CalendarEventChip
                           key={absence.requestId}
                           absence={absence}
-                          className="calendar-timeline-bar"
+                          className={
+                            absence.pending
+                              ? 'calendar-timeline-bar calendar-timeline-bar--pending'
+                              : 'calendar-timeline-bar'
+                          }
                           testId={`calendar-event-${absence.requestId}`}
                           title={`${displayName(absence)} — ${leaveTypeLabel(absence)} (${range})`}
                           accessibleName={accessibleName}

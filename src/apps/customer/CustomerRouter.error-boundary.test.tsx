@@ -17,9 +17,9 @@ import { CustomerRoutes } from './CustomerRouter'
  * which `CustomerRouter` mounts, so the behavior is real in the shipped bundle; only the
  * proof was pointed at a module that ships nowhere.
  */
-vi.mock('../../features/dashboard/DashboardPage', () => ({
-  DashboardPage: () => {
-    throw new Error('simulated dashboard render failure')
+vi.mock('../../features/my-leaves/MyLeavesPage', () => ({
+  MyLeavesPage: () => {
+    throw new Error('simulated my-leaves render failure')
   },
 }))
 
@@ -42,7 +42,7 @@ describe('CustomerRoutes error boundary', () => {
     render(
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
-          <MemoryRouter initialEntries={['/']}>
+          <MemoryRouter initialEntries={['/my-leaves']}>
             <AuthTestProvider value={createMockAuthForRole('EMPLOYEE')}>
               <CustomerRoutes />
             </AuthTestProvider>

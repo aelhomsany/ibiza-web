@@ -5,7 +5,6 @@ import {
   CalendarIcon,
   CheckCircleIcon,
   ClipboardListIcon,
-  DashboardIcon,
   InboxIcon,
   RefreshCwIcon,
   ReportIcon,
@@ -21,11 +20,13 @@ type NavCatalogItem = NavItem & {
 }
 
 const ORG_BASE: NavCatalogItem[] = [
+  // The Team Calendar is the landing screen (Dashboard merged into My Leaves,
+  // 2026-09-01), so it leads the nav the same way `getHomePath` leads to it.
   {
-    label: 'Dashboard',
-    path: '/',
-    icon: DashboardIcon,
-    testId: 'nav-dashboard',
+    label: 'Team Calendar',
+    path: '/calendar',
+    icon: CalendarIcon,
+    testId: 'nav-calendar',
     requiredRoles: [...ORG_ROLES],
   },
   {
@@ -33,13 +34,6 @@ const ORG_BASE: NavCatalogItem[] = [
     path: '/my-leaves',
     icon: ClipboardListIcon,
     testId: 'nav-my-leaves',
-    requiredRoles: [...ORG_ROLES],
-  },
-  {
-    label: 'Team Calendar',
-    path: '/calendar',
-    icon: CalendarIcon,
-    testId: 'nav-calendar',
     requiredRoles: [...ORG_ROLES],
   },
   {
@@ -88,7 +82,11 @@ export function getHomePath(role: UserRole): string {
   // sign in at /app-admin/login in the separate Admin artifact, and the API no longer
   // issues a customer token for one. Pointing this at /platform/organizations would
   // send them to a route the customer router no longer serves.
-  return role === 'PLATFORM_ADMIN' ? '/login' : '/'
+  //
+  // Org roles land on the Team Calendar: who is off today is the one answer every
+  // role needs first, and the Dashboard that used to live at '/' merged into
+  // /my-leaves. '/' still redirects here for bookmarks.
+  return role === 'PLATFORM_ADMIN' ? '/login' : '/calendar'
 }
 
 export function getForbiddenRedirect(role: UserRole): string {

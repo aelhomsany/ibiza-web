@@ -8,7 +8,12 @@ import { fileURLToPath } from 'node:url'
 import { vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import type { PreviewLeaveRequestResponse } from '../../api/generated/types'
-import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
+import {
+  AuthTestProvider,
+  createMockAuthForRole,
+  createMockAuthValue,
+  mockUsers,
+} from '../../test/authTestUtils'
 import { mockBackdropGeometry } from '../../test/backdropTestUtils'
 import { RequestLeaveModal } from './RequestLeaveModal'
 
@@ -257,5 +262,73 @@ describe('RequestLeaveModal — Story 3.4', () => {
         'Only 2 working days remaining for Annual Leave',
       )
     })
+  })
+})
+describe('RequestLeaveModal — viewer has no workforce group', () => {
+  beforeEach(() => {
+    vi.spyOn(apiClient, 'getLeaveTypes').mockResolvedValue(mockLeaveTypes)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  function renderUngroupedModal() {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+
+    return render(
+      <QueryClientProvider client={queryClient}>
+        <AuthTestProvider
+          value={createMockAuthValue({
+            user: { ...mockUsers.hrAdmin, workforceGroupName: null },
+          })}
+        >
+          <RequestLeaveModal open onClose={vi.fn()} />
+        </AuthTestProvider>
+      </QueryClientProvider>,
+    )
+  }
+
+  it('[P1] explains the missing group and blocks submit instead of previewing', async () => {
+    const previewSpy = vi
+      .spyOn(apiClient, 'previewLeaveRequest')
+      .mockResolvedValue(mockPreviewFiveDays)
+
+    renderUngroupedModal()
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: /Annual Leave/i })).toBeInTheDocument()
+    })
+    await setLeaveDates('2026-06-01', '2026-06-07')
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(/not in a workforce group yet/i)
+    })
+    expect(screen.getByRole('alert')).toHaveTextContent(/Working Calendars/i)
+    expect(screen.getByTestId('submit-request-btn')).toBeDisabled()
+    // Retrying a request that is a guaranteed 400 is a dead end, so no retry is offered.
+    expect(screen.queryByRole('button', { name: /retry/i })).not.toBeInTheDocument()
+    expect(previewSpy).not.toHaveBeenCalled()
+  })
+
+  it('[P1] previews as usual once the viewer belongs to a group', async () => {
+    const previewSpy = vi
+      .spyOn(apiClient, 'previewLeaveRequest')
+      .mockResolvedValue(mockPreviewFiveDays)
+
+    renderModal()
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: /Annual Leave/i })).toBeInTheDocument()
+    })
+    await setLeaveDates('2026-06-01', '2026-06-07')
+
+    await waitFor(() => expect(previewSpy).toHaveBeenCalled())
+    expect(screen.getByTestId('working-day-explainer')).not.toHaveAttribute(
+      'data-state',
+      'error',
+    )
   })
 })

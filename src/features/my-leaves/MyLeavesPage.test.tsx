@@ -8,8 +8,10 @@ import * as apiClient from '../../api/client'
 import type {
   BalanceCardResponse,
   LeaveTypeResponse,
+  OutTodayResponse,
   PreviewLeaveRequestResponse,
   RecentRequestResponse,
+  UpcomingAbsenceResponse,
   UserRole,
 } from '../../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole } from '../../test/authTestUtils'
@@ -224,19 +226,73 @@ describe('MyLeavesPage', () => {
     expect(screen.getByTestId('my-leaves-page')).toHaveClass('page', 'page-wide')
   })
 
-  it('[P0] renders balances, stored-result explainer, filters, and history in task order', async () => {
+  it('[P0] renders attention, balances, filters, history, and support rail in task order', async () => {
+    // The stored-result explainer dissolved into the support rail when the
+    // Dashboard merged into My Leaves (2026-09-01); the rail now closes the order.
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
     vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
 
     renderMyLeavesPage()
 
     const balanceGrid = await screen.findByTestId('my-leaves-balance-grid')
-    const explainer = screen.getByTestId('my-leaves-request-explainer')
+    const attention = screen.getByTestId('my-leaves-attention')
     const filters = screen.getByTestId('my-leaves-status-filter')
     const historyTable = await screen.findByTestId('my-leaves-history-table')
-    expect(balanceGrid.compareDocumentPosition(explainer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(explainer.compareDocumentPosition(filters) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const rail = screen.getByTestId('my-leaves-support-rail')
+    expect(attention.compareDocumentPosition(balanceGrid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(balanceGrid.compareDocumentPosition(filters) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(filters.compareDocumentPosition(historyTable) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(historyTable.compareDocumentPosition(rail) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('[P0] derives every rail figure from the feeds the page already fetches', async () => {
+    // Each number below is traceable to a mocked API response — one OFF and one
+    // WFH entry in the out-today feed, two upcoming rows, and mockHistory[0]'s
+    // workingDays for the latest-request line. No client-side summing of
+    // server-counted values.
+    const outToday: OutTodayResponse[] = [
+      { userId: 11, fullName: 'Omar Fields', initials: 'OF', presence: 'OFF', leaveTypeName: 'Annual Leave' },
+      { userId: 12, fullName: 'Lena Waters', initials: 'LW', presence: 'WFH', leaveTypeName: 'Work From Home' },
+    ]
+    const upcoming: UpcomingAbsenceResponse[] = [
+      { id: 41, userId: 11, fullName: 'Omar Fields', dateFrom: '2026-07-20', workingDays: 2 },
+      { id: 42, userId: 13, fullName: 'Sara Novak', dateFrom: '2026-07-22', workingDays: 5 },
+    ]
+    vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
+    vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue(outToday)
+    vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue(upcoming)
+
+    renderMyLeavesPage()
+
+    const rail = screen.getByTestId('my-leaves-support-rail')
+    await waitFor(() => {
+      expect(within(rail).getByTestId('my-leaves-rail-off-today')).toHaveTextContent(/^1$/)
+    })
+    expect(within(rail).getByTestId('my-leaves-rail-wfh-today')).toHaveTextContent(/^1$/)
+    expect(within(rail).getByTestId('my-leaves-rail-upcoming-count')).toHaveTextContent(/^2$/)
+    // mockHistory[0] (id 3) is the latest request: workingDays 3.
+    expect(within(rail).getByTestId('my-leaves-rail-working-days')).toHaveTextContent('3 working days')
+    expect(within(rail).getByText('Omar Fields')).toBeInTheDocument()
+    expect(within(rail).getByText('Sara Novak')).toBeInTheDocument()
+  })
+
+  it('[P1] falls back to redacted copy for privacy-projected upcoming rows', async () => {
+    // PRIV-UI-VAL-004 (Story 16.2): identity and leaveTypeIcon are projected away
+    // for viewers who may not see them. The name falls back to real copy and the
+    // decorative icon element is dropped rather than rendered empty.
+    vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
+    vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([
+      { id: 41, userId: 11, dateFrom: '2026-07-20', workingDays: 2 },
+    ] satisfies UpcomingAbsenceResponse[])
+
+    renderMyLeavesPage()
+
+    const rail = screen.getByTestId('my-leaves-support-rail')
+    expect(await within(rail).findByText('A teammate')).toBeInTheDocument()
+    expect(rail.querySelector('.upcoming-icon')).toBeNull()
   })
 
   it('[P1] renders mirrored balance grid and full personal history', async () => {
@@ -456,5 +512,121 @@ describe('MyLeavesPage', () => {
       expect(historySpy).toHaveBeenCalledTimes(2)
       expect(balanceSpy).toHaveBeenCalledTimes(2)
     })
+  })
+})
+
+/**
+ * Story 3.8 / 11.2 "Your next step" priority chain, re-homed from the deleted
+ * DashboardPage.test.tsx by the Dashboard merge (2026-09-01). The chain itself
+ * did not change — approvals outrank the viewer's own requests — so the merge
+ * must not be allowed to quietly drop its only proof. Covers DASH-VAL-014,
+ * LEAVE-VAL-040 and the UI half of LEAVE-VAL-042.
+ */
+describe('MyLeavesPage attention priority — Story 3.8 / 11.2', () => {
+  function renderForRole(role: UserRole) {
+    vi.spyOn(apiClient, 'getApprovalCapability').mockResolvedValue({
+      canReviewApprovals: role === 'MANAGER' || role === 'HR_ADMIN',
+    })
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    })
+
+    return {
+      queryClient,
+      ...render(
+        <MemoryRouter initialEntries={['/my-leaves']}>
+          <QueryClientProvider client={queryClient}>
+            <ToastProvider>
+              <AuthTestProvider value={createMockAuthForRole(role)}>
+                <MyLeavesPage />
+              </AuthTestProvider>
+            </ToastProvider>
+          </QueryClientProvider>
+        </MemoryRouter>,
+      ),
+    }
+  }
+
+  beforeEach(() => {
+    vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
+    vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 0 })
+  })
+
+  afterEach(async () => {
+    vi.restoreAllMocks()
+    if (i18n.language !== 'en') {
+      await act(() => i18n.changeLanguage('en'))
+    }
+  })
+
+  it.each<UserRole>(['MANAGER', 'HR_ADMIN'])(
+    '[P0] prioritizes pending approvals over the viewer own request for %s',
+    async (role) => {
+      vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 2 })
+
+      renderForRole(role)
+
+      const attention = await screen.findByTestId('dashboard-attention')
+      await waitFor(() => {
+        expect(attention).toHaveTextContent('2 pending approvals')
+      })
+      expect(screen.getByRole('link', { name: 'Review Now' })).toHaveAttribute(
+        'href',
+        '/approvals',
+      )
+      // mockHistory carries the viewer's own PENDING request (id 1); the
+      // approvals branch must outrank it rather than merely coexist.
+      expect(attention).not.toHaveTextContent('Request awaiting approval')
+    },
+  )
+
+  it('[P0] falls through to the viewer own request when the approval queue is empty', async () => {
+    renderForRole('MANAGER')
+
+    const attention = await screen.findByTestId('dashboard-attention')
+    await waitFor(() => {
+      expect(attention).toHaveTextContent('Request awaiting approval')
+    })
+    expect(screen.queryByRole('link', { name: 'Review Now' })).not.toBeInTheDocument()
+  })
+
+  it('[P0] never offers the approvals branch to an Employee', async () => {
+    // The count endpoint is disabled for non-reviewers, but mock it non-zero so
+    // the assertion proves the capability gate rather than an empty response.
+    vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 4 })
+
+    renderForRole('EMPLOYEE')
+
+    const attention = await screen.findByTestId('dashboard-attention')
+    await waitFor(() => {
+      expect(attention).toHaveTextContent('Request awaiting approval')
+    })
+    expect(attention).not.toHaveTextContent('4 pending approvals')
+    expect(screen.queryByRole('link', { name: 'Review Now' })).not.toBeInTheDocument()
+  })
+
+  it('[P1] replaces approval priority with the calm state after a zero refetch', async () => {
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue([])
+    vi.spyOn(apiClient, 'getPendingApprovalCount')
+      .mockResolvedValueOnce({ count: 2 })
+      .mockResolvedValue({ count: 0 })
+
+    const { queryClient } = renderForRole('MANAGER')
+
+    expect(await screen.findByText('2 pending approvals')).toBeInTheDocument()
+    // mockUsers.manager.id — the pending-count key is scoped per user.
+    await act(() =>
+      queryClient.invalidateQueries({ queryKey: ['approvals', 'pending-count', 1] }),
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('dashboard-attention')).toHaveTextContent(
+        'Nothing needs your attention',
+      )
+    })
+    expect(screen.queryByRole('link', { name: 'Review Now' })).not.toBeInTheDocument()
   })
 })

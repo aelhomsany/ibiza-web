@@ -12,7 +12,9 @@ import * as apiClient from '../api/client'
 import type { UserRole } from '../api/generated/types'
 import { AuthTestProvider, createMockAuthForRole, createMockAuthValue, mockUsers } from '../test/authTestUtils'
 import { ToastProvider } from '../components/ui/ToastProvider'
-import { DashboardPage } from '../features/dashboard/DashboardPage'
+// The Dashboard merged into My Leaves (2026-09-01); its Arabic-chrome
+// guarantees carry over to MyLeavesPage.
+import { MyLeavesPage } from '../features/my-leaves/MyLeavesPage'
 import { ApprovalsPage } from '../features/approvals/ApprovalsPage'
 import { SettingsPage } from '../features/settings/SettingsPage'
 import { ProfilePage } from '../features/profile/ProfilePage'
@@ -51,10 +53,13 @@ async function activateArabic() {
 
 function stubDashboardApis() {
   vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue([])
-  vi.spyOn(apiClient, 'getDashboardRecentRequests').mockResolvedValue([])
+  vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue([])
   vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
   vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([])
   vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 0 })
+  vi.spyOn(apiClient, 'getApprovalCapability').mockResolvedValue({
+    canReviewApprovals: false,
+  })
 }
 
 describe('Story 9.5 ATDD — feature translation coverage', () => {
@@ -69,7 +74,7 @@ describe('Story 9.5 ATDD — feature translation coverage', () => {
     async () => {
       stubDashboardApis()
       await activateArabic()
-      wrap(<DashboardPage />)
+      wrap(<MyLeavesPage />)
 
       await waitFor(() => expect(screen.getByTestId('request-leave-btn')).toBeInTheDocument())
       const btn = screen.getByTestId('request-leave-btn')
@@ -187,9 +192,9 @@ describe('Story 9.5 ATDD — feature translation coverage', () => {
         },
       ])
       await activateArabic()
-      wrap(<DashboardPage />)
+      wrap(<MyLeavesPage />)
 
-      await waitFor(() => expect(screen.getByTestId('balance-grid')).toBeInTheDocument())
+      await waitFor(() => expect(screen.getByTestId('my-leaves-balance-grid')).toBeInTheDocument())
       // Business content from API must stay English product data (not wrapped in t())
       expect(screen.getByText('Annual Leave')).toBeInTheDocument()
     },

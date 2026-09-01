@@ -10,6 +10,12 @@ import './team-members.css'
 import './weekend-day-chips.css'
 
 type WorkforceGroupModalProps = {
+  /**
+   * True when the organization has no Workforce Groups yet. Tenants are provisioned with none, so
+   * this is the founding HR Admin's first calendar: the server adopts every still-ungrouped user
+   * into it, and the copy says so instead of the neutral "group created".
+   */
+  isFirstGroup?: boolean
   onClose: () => void
   onSuccess: (message: string, newGroupId: number) => void
   onWarning?: (message: string) => void
@@ -17,7 +23,12 @@ type WorkforceGroupModalProps = {
 
 const DEFAULT_WEEKEND_DAYS: DayOfWeek[] = ['FRIDAY', 'SATURDAY']
 
-export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: WorkforceGroupModalProps) {
+export function WorkforceGroupModal({
+  isFirstGroup = false,
+  onClose,
+  onSuccess,
+  onWarning,
+}: WorkforceGroupModalProps) {
   const { t } = useTranslation(['settings', 'common'])
   const [name, setName] = useState('')
   const [weekendDays, setWeekendDays] = useState<DayOfWeek[]>(DEFAULT_WEEKEND_DAYS)
@@ -59,7 +70,13 @@ export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: Workforce
       const groupId = created.id
       try {
         await putWorkforceGroupWeekendDays(groupId, weekendDays)
-        onSuccess(t('settings:groups.created', { name: isolate(trimmedName) }), groupId)
+        onSuccess(
+          t(
+            isFirstGroup ? 'settings:groups.createdFirst' : 'settings:groups.created',
+            { name: isolate(trimmedName) },
+          ),
+          groupId,
+        )
       } catch {
         onSuccess(t('settings:groups.createdPartial'), groupId)
         onWarning?.(t('settings:groups.errors.saveWeekend'))
@@ -76,7 +93,7 @@ export function WorkforceGroupModal({ onClose, onSuccess, onWarning }: Workforce
     <Modal labelledBy="group-modal-title" onClose={onClose} testId="workforce-group-modal">
         <div className="modal-header">
           <span className="modal-title" id="group-modal-title">
-            {t('settings:groups.modalTitle')}
+            {isFirstGroup ? t('settings:groups.firstModalTitle') : t('settings:groups.modalTitle')}
           </span>
           <button type="button" className="modal-close" onClick={onClose} aria-label={t('common:actions.close')}>
             <CloseIcon size={18} />

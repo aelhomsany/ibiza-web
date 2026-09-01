@@ -1,10 +1,20 @@
+/* Settings runs full-bleed (.page-wide) so the rail can hug the shell, but the
+   reading column still needs an end: past ~1600px the cards stretch into
+   unreadable line lengths on a wide display. Cap and centre both the header and
+   the grid together so they stay aligned. */
+.settings-ia-layout,
+.settings-page-header {
+  max-width: var(--settings-ia-max-width);
+  margin-inline: auto;
+}
+
 .settings-page-header {
   margin-block-end: var(--space-2xl);
 }
 
 .settings-ia-layout {
   display: grid;
-  grid-template-columns: minmax(180px, 232px) minmax(0, 1fr);
+  grid-template-columns: var(--settings-ia-rail-width) minmax(0, 1fr);
   gap: var(--space-2xl);
   align-items: start;
 }
@@ -112,7 +122,58 @@
   flex-wrap: wrap;
   gap: var(--space-sm);
   margin-inline-start: auto;
+  align-items: center;
   justify-content: flex-end;
+}
+
+/* Reordering is a pair of nudges, not a decision — a segmented icon control so
+   the row's one primary action is the only thing wearing a button's weight. */
+.leave-type-reorder {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+
+.leave-type-reorder-btn {
+  display: inline-flex;
+  inline-size: 36px;
+  /* Narrow, but the full control height — it lines up with the row's buttons and
+     stays a real touch target. */
+  min-block-size: var(--min-touch-target);
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: var(--color-surface-card);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.leave-type-reorder-btn + .leave-type-reorder-btn {
+  border-inline-start: 1px solid var(--color-border-default);
+}
+
+.leave-type-reorder-btn:hover:not(:disabled) {
+  background: var(--color-surface-subtle);
+  color: var(--color-text-primary);
+}
+
+.leave-type-reorder-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.leave-type-reorder-btn:disabled {
+  color: var(--color-border-default);
+  cursor: not-allowed;
+}
+
+@media (forced-colors: active) {
+  .leave-type-reorder-btn:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: -2px;
+  }
 }
 
 .organization-settings-card {

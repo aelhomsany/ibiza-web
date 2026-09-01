@@ -36,7 +36,6 @@ test.describe('Platform admin authentication', { tag: [tags.regression, tags.api
     await expect(page.getByTestId('nav-organizations')).toBeVisible()
 
     // UX-DR28 — the admin shell must never expose workforce leave surfaces.
-    await expect(page.getByTestId('nav-dashboard')).toHaveCount(0)
     await expect(page.getByTestId('nav-my-leaves')).toHaveCount(0)
     await expect(page.getByTestId('nav-calendar')).toHaveCount(0)
     await expect(page.getByTestId('nav-approvals')).toHaveCount(0)

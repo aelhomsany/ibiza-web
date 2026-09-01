@@ -51,7 +51,8 @@
     "off": "خارج العمل",
     "wfh": "عمل من المنزل",
     "holiday": "عطلة",
-    "leave": "إجازة"
+    "leave": "إجازة",
+    "pendingOwn": "طلبك المعلّق"
   },
   "loadError": "تعذر تحميل تقويم الفريق.",
   "loading": "جارٍ تحميل تقويم الفريق",
@@ -88,7 +89,8 @@
   },
   "request": {
     "open": "فتح تفاصيل طلب {{name}}، {{type}}، {{presence}}، {{range}}",
-    "info": "{{name}}، {{type}}، {{presence}}، {{range}}"
+    "info": "{{name}}، {{type}}، {{presence}}، {{range}}",
+    "pendingOpen": "افتح طلبك المعلّق: {{type}}، {{range}}"
   },
   "subtitle": "تغطية الإجازات والعطلات على مستوى المؤسسة",
   "timeline": {

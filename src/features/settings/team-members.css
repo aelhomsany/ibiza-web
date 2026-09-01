@@ -61,6 +61,12 @@
   border-bottom: none;
 }
 
+/* Without this the button starts wherever the row's text happens to end, so no two
+   rows agree on where their action is. */
+.settings-list-item-action {
+  margin-inline-start: auto;
+}
+
 .settings-list-item-muted .member-avatar {
   background: var(--color-muted);
 }
@@ -131,6 +137,106 @@
   min-width: 0;
 }
 
+/* ---- People table ----
+   The list packed name, email, department and manager into one sentence joined
+   by middots, so nothing lined up between rows and scanning one attribute down
+   the column was impossible. Each attribute now owns a column. */
+/* The identity cell alone wants ~240px, and that minimum used to be spelled as a 840px
+   floor on the whole table -- 2px wider than the card it sits in, so the region grew a
+   permanent horizontal scrollbar for 13px of content that fits. The floor belongs on the
+   cell that needs it. The six attribute columns then collapse onto their values and the
+   identity column takes the slack, which is also what stops a name and its department
+   drifting to opposite ends of the row. Below the shared 760px floor it still scrolls
+   rather than crushing every column. */
+.team-members-table th:not(:first-child),
+.team-members-table td:not(:first-child) {
+  width: 1%;
+}
+
+/* Values collapse; headings stay wrappable. Pinning the headings too made "Workforce
+   group" claim 135px on one line and pushed the table 99px past the card. */
+.team-members-table td:not(:first-child) {
+  white-space: nowrap;
+}
+
+.team-members-table th:first-child,
+.team-members-table td:first-child {
+  min-width: 240px;
+}
+
+/* Seven columns is the widest table in the app, and at the shared 20px gutter their
+   content alone came to 886px inside an 838px card -- so it scrolled sideways no matter
+   how the width was divided. The gutter is the only slack that isn't someone's data:
+   taking it to 12px returns 112px, which is enough for every column to hold its content
+   and leave the identity cell wider than the 240px it asks for. */
+.team-members-table th,
+.team-members-table td {
+  padding-inline: var(--space-md);
+}
+
+.team-members-table td {
+  color: var(--color-text-primary);
+}
+
+.member-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.member-identity-text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.member-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* An address is one unbreakable token, so it sets the Person column's minimum on its own:
+   a 32-character address held this seven-column table 11px wider than the panel and put a
+   full-width horizontal scrollbar under every row. `anywhere` -- not `break-word` -- is the
+   value that lowers the intrinsic minimum as well as wrapping the rendered line. */
+.member-email {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+/* The roster bleeds to the card's own edges. Seven columns need 849px and the card offers
+   878px of interior, but the shared list body spends 40px of that on side padding -- which
+   left the table 11px short and hung a permanent horizontal scrollbar under every row. The
+   inset moves onto the outer cells instead, so the Person heading still starts level with the
+   card header above it and the Actions column still clears the right edge. */
+/* Both classes, because `.settings-list-body` sets padding as a shorthand at the same
+   specificity and group-tabs.css happens to load after this file. */
+.settings-list-body.team-members-list-body {
+  padding-inline: 0;
+}
+
+.team-members-table th:first-child,
+.team-members-table td:first-child {
+  padding-inline-start: 20px;
+}
+
+.team-members-table th:last-child,
+.team-members-table td:last-child {
+  padding-inline-end: 20px;
+}
+
+.member-row-actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: flex-end;
+}
+
+/* Deactivated rows read as background until acted on, but the name stays legible. */
+.team-members-table tr.settings-list-item-muted td {
+  color: var(--color-text-secondary);
+}
+
 .member-status-badge {
   display: inline-flex;
   align-items: center;
@@ -180,9 +286,13 @@
   text-align: end;
 }
 
+/* One approver per row. Three columns inside a 560px dialog left each select
+   about 140px wide, which truncated most real names ("Jordan Lee — HR" became
+   "Jordan Le…") — and the truncated part is exactly the part that
+   distinguishes two approvers. Full width costs two rows and reads. */
 .approval-chain-fields {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-md);
   margin: 0 0 var(--space-lg);
   padding: var(--space-lg);
@@ -265,4 +375,77 @@
   .approval-chain-fields {
     grid-template-columns: 1fr;
   }
+}
+
+/* --- Leave type appearance group (create + edit dialogs) ---------------- */
+
+.leave-type-appearance {
+  min-width: 0;
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle);
+}
+
+.leave-type-appearance > legend {
+  padding-inline: var(--space-sm);
+  margin-inline-start: calc(var(--space-sm) * -1);
+  color: var(--color-text-primary);
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+}
+
+/* Three colour wells on one row — they are one decision, not three. */
+.leave-type-swatches {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+@media (max-width: 560px) {
+  .leave-type-swatches {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.leave-type-preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+  padding-block-start: var(--space-md);
+  margin-block-start: var(--space-md);
+  border-block-start: 1px solid var(--color-border-default);
+}
+
+.leave-type-preview-badge {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: var(--space-xs);
+  padding-block: var(--space-xs);
+  padding-inline: var(--space-md);
+  border: 1px solid;
+  border-radius: var(--radius-full);
+  font-size: var(--font-body-sm-size);
+  font-weight: var(--font-label-weight);
+}
+
+.leave-type-preview-badge bdi {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leave-type-contrast {
+  font-size: var(--font-caption-size);
+  font-variant-numeric: tabular-nums;
+}
+
+.leave-type-contrast.is-pass {
+  color: var(--color-approved-fg);
+}
+
+.leave-type-contrast.is-fail {
+  color: var(--color-error-fg);
 }

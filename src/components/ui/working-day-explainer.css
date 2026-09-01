@@ -24,6 +24,13 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The metric token is negative tracking, which crowds Arabic's joined glyphs. This label
+   is translated copy around a number ("3 working days"), not a bare numeral, so it needs
+   the reset; global.css guards the shared `.metric` class, which this selector is not. */
+html[lang='ar'] .working-day-result-label {
+  letter-spacing: normal;
+}
+
 .working-day-state-message,
 .working-day-zero-message,
 .working-day-error p,

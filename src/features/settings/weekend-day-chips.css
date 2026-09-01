@@ -1,24 +1,76 @@
+/* One column per weekday. Wrapping produced a ragged 4+3 split with a single
+   orphaned day on the second line, which read as a layout bug rather than a
+   week; a 7-track grid keeps the row aligned and scannable as a week. */
 .weekend-chips {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
   padding: 16px 20px;
 }
 
+/* Too narrow for seven legible columns — fall back to two rows of matched
+   width rather than an uneven wrap. */
+@media (max-width: 560px) {
+  .weekend-chips {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Opt the chips' own wrapper in as a query container wherever they sit inside a form.
+   Scoped with :has() rather than applied to every .form-group: containment makes an
+   element the containing block for position: fixed descendants, and the row-actions
+   menu relies on escaping to the viewport. Only groups that hold chips are affected. */
+.form-group:has(> .weekend-chips) {
+  container-type: inline-size;
+}
+
+/* Same fallback, keyed to the space the chips actually have. Measured against the
+   longest English label: a chip holding "Wed" wants 74px (20px padding + an 18px
+   tick-box + a 6px gap + 30px of text), so a week is 7x74 + six 8px gaps + the row's
+   own 40px padding = 606px. Below that a 7-track grid does not narrow the row, it
+   just breaks "Sun" into three stacked letters -- the earlier 520px threshold counted
+   the chips but not the gaps or the padding, so a 539px column stayed on seven tracks
+   and wrapped every label. The extra room over 606px absorbs font-metric drift.
+   Arabic labels are longer still and are meant to wrap: overflow-wrap below handles
+   those, and the grid keeps the wrapped chips aligned. This applies only where an
+   ancestor opts in as a query container, so the 7-across default holds everywhere
+   else. */
+@container (max-width: 620px) {
+  .weekend-chips {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .weekend-chip {
   display: flex;
+  min-width: 0;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 8px 12px;
+  padding: 8px 10px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: 13px;
   cursor: pointer;
   color: var(--color-foreground);
+  text-align: center;
+  /* Arabic day names run to eight characters where English runs to three, so
+     they wrap inside the cell instead of overflowing it. Grid stretches every
+     chip in the row to the tallest, so a wrapped label stays aligned. */
+  overflow-wrap: anywhere;
 }
 
-.weekend-chip input {
+/* form-fields.css now excludes checkboxes from the text-field sizing that used to
+   stretch these to 66x44 inside a modal's .form-group, so this only has to hold the
+   chip's own layout: no flex growth, and the shared tick-box size rather than the
+   13px UA default the chips were left with. */
+.weekend-chip input[type='checkbox'] {
+  flex: none;
   accent-color: var(--color-teal);
+  inline-size: var(--control-checkbox-size);
+  min-inline-size: 0;
+  block-size: var(--control-checkbox-size);
+  min-block-size: 0;
 }
 
 .weekend-chip.active {
@@ -34,4 +86,34 @@
 .weekend-chip:focus-within {
   outline: 2px solid var(--color-teal);
   outline-offset: 2px;
+}
+
+/* --- Read-only working-day strip ---------------------------------------------- */
+
+/* A schedule's working days were a middot-joined sentence -- "v1: Mon, Tue, Wed, Thu,
+   Sun" -- which ran to a different length in every row and had to be read word by word
+   to answer "does this group work Fridays?". Seven fixed cells answer it by shape, and
+   two schedules can be compared without reading either. The cells are 24px with 12px
+   letters rather than the canvas's 22/10, because 12px is this project's text floor. */
+.day-strip {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.day-strip-day {
+  inline-size: 24px;
+  block-size: 24px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  background: var(--color-working-excluded);
+  color: var(--color-text-disabled);
+  font-size: var(--font-caption-size);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.day-strip-day.is-working {
+  background: var(--color-working-charged);
+  color: var(--color-white);
 }

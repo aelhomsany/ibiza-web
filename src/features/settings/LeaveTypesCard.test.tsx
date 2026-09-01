@@ -1,7 +1,7 @@
 import { LEAVE_TYPE_DEFAULT_PRESENTATION } from "./leaveTypeDefaults";
 import { isolate } from "../../i18n/bidi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import * as apiClient from "../../api/client";
@@ -70,6 +70,21 @@ function LocationProbe() {
   return <output data-testid="location">{useLocation().pathname}</output>;
 }
 
+/**
+ * Edit and deactivate/reactivate sit behind the row's overflow menu, so a test
+ * that wants one has to open the menu the way a user would.
+ */
+async function openRowMenu(
+  user: ReturnType<typeof userEvent.setup>,
+  typeName: string,
+) {
+  await user.click(
+    await screen.findByRole("button", {
+      name: `More actions: ${isolate(typeName)}`,
+    }),
+  );
+}
+
 function renderLeaveTypesCard(onWarning = vi.fn(), onSuccess = vi.fn()) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -119,12 +134,15 @@ describe("LeaveTypesCard", () => {
       expect(screen.getByTestId("leave-types-list")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Annual Leave")).toBeInTheDocument();
-    expect(screen.getByText("20 days default")).toBeInTheDocument();
-    expect(screen.getByText("Sick Leave")).toBeInTheDocument();
-    expect(screen.getByText("10 days default")).toBeInTheDocument();
-    expect(screen.getByText("Unpaid Leave")).toBeInTheDocument();
-    expect(screen.getByText("Unlimited / custom")).toBeInTheDocument();
+    // Scoped to the list: the supporting rail restates every active type's name and default
+    // entitlement, so an unscoped getByText now matches twice by design.
+    const list = within(screen.getByTestId("leave-types-list"));
+    expect(list.getByText("Annual Leave")).toBeInTheDocument();
+    expect(list.getByText("20 days default")).toBeInTheDocument();
+    expect(list.getByText("Sick Leave")).toBeInTheDocument();
+    expect(list.getByText("10 days default")).toBeInTheDocument();
+    expect(list.getByText("Unpaid Leave")).toBeInTheDocument();
+    expect(list.getByText("Unlimited / custom")).toBeInTheDocument();
     expect(screen.getAllByTestId(/^leave-type-row-/)).toHaveLength(5);
   });
 
@@ -170,8 +188,9 @@ describe("LeaveTypesCard", () => {
 
     renderLeaveTypesCard();
 
+    await openRowMenu(user, "Annual Leave");
     await user.click(
-      await screen.findByRole("button", { name: `Deactivate ${isolate("Annual Leave")}` }),
+      screen.getByRole("menuitem", { name: `Deactivate ${isolate("Annual Leave")}` }),
     );
     expect(await screen.findByRole("dialog")).toHaveTextContent("Annual Leave");
     await user.click(
@@ -257,8 +276,9 @@ describe("LeaveTypesCard", () => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
     );
 
+    await openRowMenu(user, "Annual Leave");
     await user.click(
-      screen.getByRole("button", { name: `Edit ${isolate("Annual Leave")}` }),
+      screen.getByRole("menuitem", { name: `Edit ${isolate("Annual Leave")}` }),
     );
     const name = screen.getByLabelText(/^name$/i);
     await user.clear(name);
@@ -343,8 +363,9 @@ describe("LeaveTypesCard", () => {
     expect(screen.getAllByTestId(/^leave-type-row-/)[0]).toHaveTextContent(
       "Annual Leave",
     );
+    await openRowMenu(user, "Annual Leave");
     await user.click(
-      screen.getByRole("button", { name: `Deactivate ${isolate("Annual Leave")}` }),
+      screen.getByRole("menuitem", { name: `Deactivate ${isolate("Annual Leave")}` }),
     );
     await user.click(
       screen.getByRole("button", { name: /confirm deactivation/i }),
@@ -355,8 +376,9 @@ describe("LeaveTypesCard", () => {
     await waitFor(() =>
       expect(onSuccess).toHaveBeenCalledWith("Annual Leave deactivated"),
     );
+    await openRowMenu(user, "Sick Leave");
     await user.click(
-      screen.getByRole("button", { name: `Reactivate ${isolate("Sick Leave")}` }),
+      screen.getByRole("menuitem", { name: `Reactivate ${isolate("Sick Leave")}` }),
     );
     await user.click(
       screen.getByRole("button", { name: /confirm reactivation/i }),
@@ -432,8 +454,12 @@ describe("LeaveTypesCard", () => {
         expect.objectContaining({ leaveTypePublicId: "public-2" }),
       ),
     );
-    expect(screen.getByTestId("location")).toHaveTextContent(
-      "/settings/leave-policies/new-draft",
+    // Navigation happens in the mutation's onSuccess, so the waitFor above -- which only
+    // proves the request was issued -- can pass while the promise is still pending.
+    await waitFor(() =>
+      expect(screen.getByTestId("location")).toHaveTextContent(
+        "/settings/leave-policies/new-draft",
+      ),
     );
   });
 
@@ -512,5 +538,80 @@ describe("LeaveTypesCard", () => {
         "Configurable policies are not yet available for this organization.",
       ),
     );
+  });
+
+  // The rail answers what the list makes you count. Every figure here is one a reader would
+  // otherwise get by scanning rows: status and entitlement live on each row, and whether a type
+  // still has an unfinished policy draft is only visible as Configure vs Resume on its button.
+  describe("supporting rail", () => {
+    const withPresence: LeaveTypeResponse[] = [
+      { ...mockLeaveTypes[0], presenceType: "OFF" },
+      { ...mockLeaveTypes[1], presenceType: "OFF" },
+      { ...mockLeaveTypes[2], presenceType: "WFH" },
+      { ...mockLeaveTypes[3], presenceType: "OFF", active: false },
+      { ...mockLeaveTypes[4], presenceType: "OFF" },
+    ];
+
+    it("counts a type with no active flag as active, and splits presence off from WFH", async () => {
+      vi.spyOn(apiClient, "getManagedLeaveTypes").mockResolvedValue(withPresence);
+      vi.spyOn(apiClient, "getPolicySettingsOverview").mockResolvedValue({
+        leaveTypes: [],
+        users: [],
+        workforceGroups: [],
+      });
+
+      renderLeaveTypesCard();
+
+      // `active` is optional in the schema, and an absent flag has always meant active here —
+      // four of the five carry no flag at all, and only the explicit `false` is inactive.
+      expect(
+        await screen.findByTestId("leave-types-glance-active"),
+      ).toHaveTextContent("4");
+      expect(screen.getByTestId("leave-types-glance-inactive")).toHaveTextContent(
+        "1",
+      );
+
+      // Work From Home is presence, not absence: it must never be counted with the types that
+      // take somebody off the calendar. The deactivated type is out of both figures.
+      expect(screen.getByTestId("leave-types-presence-wfh")).toHaveTextContent("1");
+      expect(screen.getByTestId("leave-types-presence-off")).toHaveTextContent("3");
+    });
+
+    it("shows an em dash for drafts when the overview call fails, not zero", async () => {
+      vi.spyOn(apiClient, "getManagedLeaveTypes").mockResolvedValue(withPresence);
+      vi.spyOn(apiClient, "getPolicySettingsOverview").mockRejectedValue(
+        new Error("overview unavailable"),
+      );
+
+      renderLeaveTypesCard();
+
+      // "No drafts" is a different claim from "we could not find out" — the card already renders
+      // its own retry for this call, so the rail must not quietly answer zero on its behalf.
+      expect(
+        await screen.findByTestId("leave-types-glance-drafts"),
+      ).toHaveTextContent("—");
+    });
+
+    it("counts the leave types that still carry an unfinished policy draft", async () => {
+      vi.spyOn(apiClient, "getManagedLeaveTypes").mockResolvedValue(withPresence);
+      vi.spyOn(apiClient, "getPolicySettingsOverview").mockResolvedValue({
+        leaveTypes: [
+          { leaveTypePublicId: "lt-1", name: "Annual Leave" },
+          {
+            leaveTypePublicId: "lt-2",
+            name: "Sick Leave",
+            latestDraft: { draftPublicId: "draft-1", revision: 3 },
+          },
+        ],
+        users: [],
+        workforceGroups: [],
+      });
+
+      renderLeaveTypesCard();
+
+      expect(
+        await screen.findByTestId("leave-types-glance-drafts"),
+      ).toHaveTextContent("1");
+    });
   });
 });

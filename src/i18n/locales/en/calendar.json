@@ -51,7 +51,8 @@
     "off": "Off",
     "wfh": "WFH",
     "holiday": "Holiday",
-    "leave": "Leave"
+    "leave": "Leave",
+    "pendingOwn": "Your pending request"
   },
   "loadError": "Unable to load the team calendar.",
   "loading": "Loading team calendar",
@@ -88,7 +89,8 @@
   },
   "request": {
     "open": "Open request context for {{name}}, {{type}}, {{presence}}, {{range}}",
-    "info": "{{name}}, {{type}}, {{presence}}, {{range}}"
+    "info": "{{name}}, {{type}}, {{presence}}, {{range}}",
+    "pendingOpen": "Open your pending {{type}} request, {{range}}"
   },
   "subtitle": "Org-wide leave coverage and holidays",
   "timeline": {

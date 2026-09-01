@@ -43,20 +43,28 @@ describe('tenant-generic group/user colors ATDD — Story 10.5', () => {
     expect(css).toMatch(/\.calendar-person-avatar[^-\w][\s\S]*?var\(--chip-bg[,)]/)
   })
 
+  // OutTodaySidebar dissolved into MyLeavesSupportRail and CalendarOutTodayStrip
+  // when the Dashboard merged into My Leaves (2026-09-01); the AUD-07 guarantees
+  // transfer to both successors.
   it('[P1] --color-group-us / --color-group-egypt tokens are removed and consumers migrated', () => {
     expect(read('src/styles/tokens.css')).not.toMatch(/--color-group-(us|egypt)/)
 
     expect(read('src/styles/global.css')).not.toMatch(/--color-group-egypt/)
     expect(read('src/features/platform/organizations-page.css')).not.toMatch(/--color-group-/)
-    expect(read('src/features/dashboard/OutTodaySidebar.tsx')).not.toMatch(/--color-group-egypt/)
+    expect(read('src/features/my-leaves/MyLeavesSupportRail.tsx')).not.toMatch(/--color-group-egypt/)
+    expect(read('src/features/calendar/CalendarOutTodayStrip.tsx')).not.toMatch(/--color-group-egypt/)
   })
 
-  it('[P2] OutTodaySidebar avatars use the shared entityColor utility, not a local palette', () => {
-    const sidebar = read('src/features/dashboard/OutTodaySidebar.tsx')
-
-    expect(sidebar).toMatch(/from\s+['"]\.\.\/\.\.\/utils\/entityColor['"]/)
-    expect(sidebar).toMatch(/chipColorStyle\(/)
-    expect(sidebar).not.toMatch(/function\s+avatarColor/)
+  it('[P2] out-today avatars use the shared entityColor utility, not a local palette', () => {
+    for (const successor of [
+      'src/features/my-leaves/MyLeavesSupportRail.tsx',
+      'src/features/calendar/CalendarOutTodayStrip.tsx',
+    ]) {
+      const source = read(successor)
+      expect(source, successor).toMatch(/from\s+['"]\.\.\/\.\.\/utils\/entityColor['"]/)
+      expect(source, successor).toMatch(/chipColorStyle\(/)
+      expect(source, successor).not.toMatch(/function\s+avatarColor/)
+    }
   })
 
   it('[P1] the legacy Story 7.6 scaffold no longer pins US/Egypt name-keyed assertions', () => {

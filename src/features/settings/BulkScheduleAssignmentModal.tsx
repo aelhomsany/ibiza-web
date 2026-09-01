@@ -8,9 +8,10 @@ import { CloseIcon } from '../../components/ui/icons'
 import { DateField } from '../../components/DateField'
 import { isolate } from '../../i18n/bidi'
 import './team-members.css'
-// .settings-card / .form-group come from team-members.css above; the modal chrome is the shared
-// Modal's own stylesheet -- imported explicitly for the same reason as ScheduleAssignmentModal
-// (code review 2026-08-28 on the sibling modal).
+// .settings-card / .form-group / .checkbox-list are global (card.css, form-fields.css); the
+// team-members import above is for this modal's own feature rules. The modal chrome is the
+// shared Modal's own stylesheet -- imported explicitly for the same reason as
+// ScheduleAssignmentModal (code review 2026-08-28 on the sibling modal).
 import '../../components/ui/modal.css'
 
 type NamedTarget = components['schemas']['NamedTarget']
@@ -187,7 +188,7 @@ export function BulkScheduleAssignmentModal({
         <ul
           aria-labelledby="bulk-assignment-subjects-label"
           data-testid="bulk-assignment-subjects-list"
-          className="settings-card"
+          className="checkbox-list"
         >
           {users.map((target) => (
             <li key={target.publicId}>
@@ -203,7 +204,7 @@ export function BulkScheduleAssignmentModal({
             </li>
           ))}
         </ul>
-        <p data-testid="bulk-assignment-selected-count">
+        <p className="form-hint" data-testid="bulk-assignment-selected-count">
           {t('settings:schedules.bulkAssignment.selectedCount', { count: selectedSubjectIds.length })}
         </p>
         {overCap && (

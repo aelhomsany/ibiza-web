@@ -67,7 +67,16 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
 
   const clientDateInvalid =
     dateFrom !== '' && dateTo !== '' && dateTo < dateFrom
+  // An organization is provisioned with no Workforce Groups; the founding HR Admin is created
+  // ungrouped and is adopted into the first group they create. Until then every working-day
+  // calculation for them is a guaranteed 400, so the preview is skipped and the explainer says
+  // what to do instead of echoing the server's untranslated "no workforce group assigned".
+  // Only that one account can ever be in this state: team members always carry a group, and an
+  // update cannot clear one.
+  const viewerUngrouped = user != null && user.workforceGroupName == null
+
   const previewEnabled =
+    !viewerUngrouped &&
     user?.id != null &&
     debouncedFrom !== '' &&
     debouncedTo !== '' &&
@@ -84,7 +93,9 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
         ? t('dashboard:request.errors.preview')
         : null
 
-  const previewState: WorkingDayExplainerState = clientDateInvalid
+  const previewState: WorkingDayExplainerState = viewerUngrouped
+    ? 'error'
+    : clientDateInvalid
     ? 'error'
     : !previewEnabled
       ? 'before-dates'
@@ -100,8 +111,9 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
                 : 'valid'
             : 'loading'
 
-  const previewStateMessage =
-    previewState === 'error'
+  const previewStateMessage = viewerUngrouped
+    ? t('dashboard:request.errors.noWorkforceGroup')
+    : previewState === 'error'
       ? clientDateInvalid
         ? t('dashboard:request.preview.dateRange')
         : previewErrorMessage ?? t('dashboard:request.errors.preview')
@@ -114,6 +126,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
             : ''
 
   const submitDisabled =
+    viewerUngrouped ||
     leaveTypeId === '' ||
     !previewEnabled ||
     clientDateInvalid ||
@@ -323,12 +336,12 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
                   : undefined
               }
               retryLabel={
-                previewState === 'error' && !clientDateInvalid
+                previewState === 'error' && !clientDateInvalid && !viewerUngrouped
                   ? t('common:actions.retry')
                   : undefined
               }
               onRetry={
-                previewState === 'error' && !clientDateInvalid
+                previewState === 'error' && !clientDateInvalid && !viewerUngrouped
                   ? () => void previewQuery.refetch()
                   : undefined
               }

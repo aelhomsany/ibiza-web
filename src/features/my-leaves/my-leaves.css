@@ -1,29 +1,55 @@
-.my-leaves-balances {
-  min-width: 0;
-}
+/* Merged Dashboard + My Leaves page (2026-09-01). The attention callout, the
+   balances section heading, and the supporting rail all moved here from the
+   deleted dashboard feature; layout comes from the shared support-rail
+   vocabulary (.panel-with-aside / .support-rail / .support-note). */
 
-.my-leaves-section-title {
-  color: var(--color-foreground);
-  font-size: var(--font-card-title-size);
-  font-weight: var(--font-card-title-weight);
-  margin: 0;
-  margin-block-end: var(--space-md);
-}
-
-.my-leaves-summary {
+.my-leaves-attention {
   min-width: 0;
   display: grid;
-  gap: var(--space-section-gap);
   margin-block-end: var(--space-section-gap);
 }
 
-.my-leaves-request-explainer {
+.my-leaves-balances {
   min-width: 0;
+  margin-block-end: var(--space-section-gap);
+}
+
+.my-leaves-section-heading {
+  min-width: 0;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-xl);
+  margin-block-end: var(--space-lg);
+}
+
+.my-leaves-section-title {
+  margin: 0;
+  margin-block-start: var(--space-xs);
+  color: var(--color-text-primary);
+  font-size: var(--font-section-title-size);
+  font-weight: var(--font-section-title-weight);
+  line-height: var(--font-section-title-line-height);
+  letter-spacing: var(--font-section-title-letter-spacing);
+}
+
+/* The section-title token is negative tracking, which in Arabic crowds glyphs that are
+   already joined. global.css guards the shared `.section-title` class, but this is its
+   own selector setting the token directly, so the guard there does not reach it. */
+html[lang='ar'] .my-leaves-section-title {
+  letter-spacing: normal;
+}
+
+.my-leaves-section-summary {
+  margin: 0;
+  max-width: 440px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+  text-align: end;
 }
 
 .my-leaves-eyebrow,
-.my-leaves-explainer-title,
-.my-leaves-explainer-context,
 .my-leaves-result-count {
   margin: 0;
 }
@@ -35,56 +61,32 @@
   line-height: var(--font-caption-line-height);
 }
 
-.my-leaves-explainer-title,
-.my-leaves-filter-title {
-  margin-block-start: var(--space-xs);
-  color: var(--color-text-primary);
-  font-size: var(--font-section-title-size);
-  font-weight: var(--font-section-title-weight);
-  line-height: var(--font-section-title-line-height);
-  letter-spacing: var(--font-section-title-letter-spacing);
+/* Was the Dashboard's balance skeleton; the class name is kept so existing
+   loading-state tests and the shared LoadingState wiring stay unchanged. It
+   lived in dashboard.css, which this page never loaded — the skeletons
+   rendered unstyled here until the merge moved the rule in. */
+.dashboard-skeleton-card {
+  min-height: 148px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-selected);
 }
 
-.my-leaves-explainer-context {
-  margin-block-start: var(--space-sm);
+.my-leaves-region-empty {
+  margin: 0;
+  padding: var(--space-card-padding);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
   color: var(--color-text-secondary);
-  font-size: var(--font-body-sm-size);
-  line-height: var(--font-body-sm-line-height);
+  background: var(--color-surface-card);
 }
 
-.my-leaves-request-explainer .working-day-explainer {
-  margin-block-start: var(--space-md);
-}
-
-.my-leaves-explainer-status {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-sm);
-  color: var(--color-text-secondary);
-  font-size: var(--font-body-sm-size);
-  line-height: var(--font-body-sm-line-height);
-}
-
+/* Embedded in the Leave History card between its header and the table — a
+   toolbar row, not a card of its own. */
 .my-leaves-filters {
   min-width: 0;
-  padding: var(--space-card-padding);
-  margin-block-end: var(--space-section-gap);
-}
-
-.my-leaves-filter-heading {
-  min-width: 0;
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--space-md);
-  margin-block-end: var(--space-lg);
-}
-
-.my-leaves-filter-title {
-  margin-block-end: 0;
+  padding: var(--space-lg) var(--space-card-padding);
+  border-block-end: 1px solid var(--color-border-default);
 }
 
 .my-leaves-result-count {
@@ -121,13 +123,15 @@
   min-width: 0;
   max-width: 100%;
   display: flex;
+  /* Wrap instead of overflow-x: auto — at 375px the scrolling strip pushed the
+     card edge to 379px (measured in the Phase 1 audit) and hid the last
+     segment behind sideways discovery. Wrapping keeps every status visible. */
+  flex-wrap: wrap;
   gap: var(--space-xs);
-  overflow-x: auto;
   padding: var(--space-xs);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   background: var(--color-surface-subtle);
-  scrollbar-gutter: stable;
 }
 
 .my-leaves-status-segment {
@@ -334,6 +338,72 @@
   margin-block-start: var(--space-lg);
 }
 
+/* --- Supporting rail (Team coverage / Upcoming / Working-day clarity) -------
+   Person-row anatomy carried over from the deleted Dashboard sidebar; the
+   my-leaves rail is its only owner now. */
+
+.coverage-people {
+  display: grid;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.person-row {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.person-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--chip-bg, var(--color-action-primary));
+  color: var(--chip-fg, var(--color-text-inverse));
+  font-weight: var(--font-label-weight);
+  font-size: var(--font-caption-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.person-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.person-name {
+  color: var(--color-text-primary);
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+  line-height: var(--font-label-line-height);
+}
+
+.person-sub {
+  margin-block-start: 2px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
+  line-height: var(--font-caption-line-height);
+}
+
+.upcoming-icon {
+  flex-shrink: 0;
+  font-size: var(--font-section-title-size);
+}
+
+.my-leaves-rail-retry {
+  margin-block-start: var(--space-sm);
+}
+
+.my-leaves-rail-result {
+  font-weight: var(--font-label-weight);
+  color: var(--color-working-policy);
+}
+
 @media (forced-colors: active) {
   .my-leaves-status-segment:focus-visible,
   .my-leaves-request-card[data-focused='true'] {
@@ -382,9 +452,15 @@
     display: grid;
   }
 
-  .my-leaves-filter-heading {
+  .my-leaves-section-heading {
     align-items: start;
     flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .my-leaves-section-summary {
+    max-width: none;
+    text-align: start;
   }
 
   .my-leaves-result-count {

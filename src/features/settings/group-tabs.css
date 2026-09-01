@@ -120,9 +120,17 @@
   color: var(--color-danger);
 }
 
+/* Weekends holds a seven-across week -- a control with a hard minimum width -- while public
+   holidays is a vertical list that reflows at any size. The split asks the CONTAINER rather than
+   the viewport: a viewport-keyed two-column rule was correct until this panel grew a 300px
+   supporting rail, after which the viewport was still 1440 while the body was 539, and the week
+   was handed 310px and crushed every chip's label onto three lines -- the exact failure the old
+   0.85/1.15 split had been written to fix. Below the floor the two stack and the week takes the
+   card's full width, which is also how the design canvas arranges them. */
 .settings-card-body {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  align-items: stretch;
 }
 
 .working-calendars-card-header {
@@ -269,6 +277,18 @@
   padding-inline: var(--space-card-padding);
 }
 
+/* Flex items shrink by default, and the status text beside it was winning: the button
+   collapsed to 142px and wrapped its own label over three lines. The label is the
+   affordance -- the sentence next to it is what should reflow. */
+.working-calendars-save-row .btn {
+  flex: none;
+}
+
+.working-calendars-save-row .working-calendars-validation,
+.working-calendars-save-row .working-calendars-draft-state {
+  min-width: 0;
+}
+
 .working-calendars-validation,
 .working-calendars-draft-state {
   margin: 0;
@@ -297,7 +317,15 @@
 }
 
 .settings-col-weekends {
-  padding-bottom: 8px;
+  /* The rule between the week and the holidays list. It follows the stack: an inline-end border
+     would draw a vertical line down the middle of a full-width block once the two columns
+     collapse, and they now collapse on any panel that carries a supporting rail. */
+  border-block-end: 1px solid var(--color-border-light);
+  padding-bottom: 20px;
+  /* The chips sit in a half-width column, so viewport width says nothing about the
+     room they have: at 1400px the viewport is wide and this column is 350px. Query
+     the column instead. Safe to contain here -- nothing inside is position: fixed. */
+  container-type: inline-size;
 }
 
 @media (max-width: 900px) {
@@ -321,14 +349,44 @@
   }
 }
 
-@media (min-width: 901px) {
-  .settings-card-body {
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-    align-items: stretch;
-  }
 
-  .settings-col-weekends {
-    border-inline-end: 1px solid var(--color-border-light);
-    padding-bottom: 20px;
-  }
+/* Schedule assignments read as a table -- five values per row that only mean something
+   against a header. */
+.schedule-assignments-table {
+  min-width: 720px;
+}
+
+.schedule-assignments-table .schedule-assignments-count {
+  font-variant-numeric: tabular-nums;
+  /* Scoped to the table because the class on its own loses to `.dashboard-table td`. */
+  text-align: end;
+}
+
+/* Stretching five columns evenly gave a date 348px and a single digit 420px, so the count
+   ended up marooned half a screen from the column beside it. The date and the count are fixed
+   in shape, so `width: 1%` collapses them onto their content; the slack then splits between the
+   three columns that hold user-entered names, which are the ones that can actually use it.
+   Handing it all to a single column instead is no better -- it puts a group name 384px from its
+   own schedule, the same defect drawn horizontally. `width: auto` on the table is not the way
+   out: a percentage column width has nothing to resolve against without a definite table width,
+   so the table silently fills its container anyway. */
+.schedule-assignments-table th:nth-child(4),
+.schedule-assignments-table td:nth-child(4),
+.schedule-assignments-table th:nth-child(5),
+.schedule-assignments-table td:nth-child(5) {
+  width: 1%;
+}
+
+/* Values collapse; headings stay wrappable. Pinning the headings too makes a two-word heading
+   claim a line's width of its own and pushes the table past its card. */
+.schedule-assignments-table td:nth-child(4),
+.schedule-assignments-table td:nth-child(5) {
+  white-space: nowrap;
+}
+
+/* Values collapse; headings stay wrappable. Pinning the headings too makes a two-word
+   heading claim a line's width of its own and pushes the table past its card (which is
+   what the People table's identity column had to be widened to undo). */
+.schedule-assignments-table td:not(:first-child) {
+  white-space: nowrap;
 }

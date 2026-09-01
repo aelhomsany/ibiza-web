@@ -2,9 +2,27 @@
    The matrix reuses the shared .table-wrap / .dashboard-table chrome; everything here is the
    part that is specific to a relationship x field grid of checkboxes. */
 
+/* The panel is a `.settings-card` like every other settings category, so these two
+   regions carry the card's padding; the matrix between them stays full-bleed, which
+   is how the other categories' tables sit in their card. */
+.calendar-privacy-intro,
+.calendar-privacy-publish {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-block: var(--space-lg);
+  padding-inline: var(--space-card-padding);
+}
+
+.calendar-privacy-publish {
+  gap: var(--space-sm);
+}
+
+/* Rules top and bottom only: the card already draws the left and right edges, and a
+   second inset border inside them read as a box floating in a box. */
 .calendar-privacy-matrix-wrap {
-  margin-block: var(--space-lg);
-  border: 1px solid var(--color-border-light);
+  border-block: 1px solid var(--color-border-light);
+  border-radius: 0;
 }
 
 /* The shared table sets a 760px floor for text columns. Six narrow checkbox columns need far
@@ -14,6 +32,15 @@
 }
 
 .calendar-privacy-matrix th[scope='colgroup'] {
+  text-align: center;
+}
+
+/* Every field column holds one centred tick box, so its heading is centred over it.
+   The shared table starts all headings, which left five labels hugging the left edge
+   of columns whose content sat in the middle -- "Reason or decision note" was 81px
+   off its own checkboxes. The first heading names the row labels underneath it and
+   stays where the shared table put it. */
+.calendar-privacy-matrix thead th[scope='col']:not(:first-child) {
   text-align: center;
 }
 
@@ -28,7 +55,7 @@
   padding-block: 0;
 }
 
-/* UX-DR75: the label is the 44px hit target, not the ~13px native box inside it. */
+/* UX-DR75: the label is the 44px hit target, not the tick box inside it. */
 .calendar-privacy-cell {
   display: flex;
   align-items: center;
@@ -39,8 +66,8 @@
 }
 
 .calendar-privacy-cell input[type='checkbox'] {
-  width: 20px;
-  height: 20px;
+  width: var(--control-checkbox-size);
+  height: var(--control-checkbox-size);
   accent-color: var(--color-primary);
   cursor: pointer;
 }
@@ -59,7 +86,6 @@
   align-items: flex-end;
   gap: var(--space-lg);
   flex-wrap: wrap;
-  margin-block: var(--space-lg);
 }
 
 .calendar-privacy-preview-list {

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, test, vi } from 'vitest'
@@ -130,6 +130,57 @@ describe('NotificationBell ATDD — Story 10.7 focus management', () => {
       expect(screen.queryByTestId('notification-panel')).not.toBeInTheDocument()
       expect(bell).toHaveFocus()
     })
+  })
+
+  test('[P0] leaves focus on the outside control the dismissing click moved it to', async () => {
+    const user = userEvent.setup()
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    })
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/']}>
+          <AuthTestProvider value={createMockAuthForRole('EMPLOYEE')}>
+            <Routes>
+              <Route
+                path="*"
+                element={
+                  <>
+                    <NotificationBell />
+                    <button type="button" data-testid="outside-control">
+                      Account
+                    </button>
+                  </>
+                }
+              />
+            </Routes>
+          </AuthTestProvider>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    )
+
+    const bell = await screen.findByTestId('notification-bell')
+    await user.click(bell)
+    await screen.findByTestId('notification-panel')
+
+    const outside = screen.getByTestId('outside-control')
+    await user.click(outside)
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('notification-panel')).not.toBeInTheDocument()
+    })
+
+    // The restore is scheduled on the dismissing pointerdown and runs a frame later, so the
+    // click can resolve before it lands. Waiting the frame out is the whole point: an
+    // unconditional restore pulls focus off whatever the user just clicked, and on the header
+    // that blurs -- and so closes -- the user menu the same click had opened.
+    await act(async () => {
+      await new Promise((resolve) => requestAnimationFrame(resolve))
+    })
+
+    expect(outside).toHaveFocus()
+    expect(bell).not.toHaveFocus()
   })
 
   test('[P0] returns focus to the bell when the panel closes after item navigation', async () => {
