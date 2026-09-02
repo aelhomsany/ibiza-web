@@ -804,6 +804,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/chat-webhooks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the organization's chat channels (HR Admin) */
+        get: operations["list_3"];
+        put?: never;
+        /** Connect a Slack or Teams channel through its incoming webhook (HR Admin) */
+        post: operations["create_7"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chat-webhooks/{id}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post a test message to a chat channel (HR Admin) */
+        post: operations["test"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/calendar-sync/{provider}/retry": {
         parameters: {
             query?: never;
@@ -1087,7 +1122,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["create_7"];
+        post: operations["create_8"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1324,6 +1359,24 @@ export interface paths {
         patch: operations["update_4"];
         trace?: never;
     };
+    "/api/v1/chat-webhooks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a chat channel (HR Admin) */
+        delete: operations["delete_2"];
+        options?: never;
+        head?: never;
+        /** Edit a chat channel's label, schedule, toggles, or webhook URL (HR Admin) */
+        patch: operations["update_5"];
+        trace?: never;
+    };
     "/api/v1/users/me/profile-image/content": {
         parameters: {
             query?: never;
@@ -1399,7 +1452,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["list_3"];
+        get: operations["list_4"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1579,7 +1632,7 @@ export interface paths {
             cookie?: never;
         };
         /** List the caller's in-app notifications */
-        get: operations["list_4"];
+        get: operations["list_5"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1613,7 +1666,7 @@ export interface paths {
             cookie?: never;
         };
         /** List leave types for the current organization */
-        get: operations["list_5"];
+        get: operations["list_6"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3030,6 +3083,30 @@ export interface components {
             analytics?: string;
             locale?: string;
             subject?: string;
+        };
+        ChatWebhookUpsertRequest: {
+            provider?: string;
+            label?: string;
+            url?: string;
+            postDailyDigest?: boolean;
+            digestLocalTime?: string;
+            postApprovals?: boolean;
+        };
+        ChatWebhookResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** @enum {string} */
+            provider?: "SLACK" | "TEAMS";
+            label?: string;
+            urlHost?: string;
+            postDailyDigest?: boolean;
+            digestLocalTime?: string;
+            postApprovals?: boolean;
+            /** @enum {string} */
+            status?: "ACTIVE" | "ERROR" | "DISABLED";
+            lastErrorCategory?: string;
+            /** Format: date-time */
+            lastPostedAt?: string;
         };
         CalendarSyncConnectResponse: {
             provider?: string;
@@ -5459,6 +5536,70 @@ export interface operations {
             };
         };
     };
+    list_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ChatWebhookResponse"][];
+                };
+            };
+        };
+    };
+    create_7: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatWebhookUpsertRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ChatWebhookResponse"];
+                };
+            };
+        };
+    };
+    test: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     retry_1: {
         parameters: {
             query?: never;
@@ -5964,7 +6105,7 @@ export interface operations {
             };
         };
     };
-    create_7: {
+    create_8: {
         parameters: {
             query?: never;
             header?: {
@@ -6440,6 +6581,52 @@ export interface operations {
             };
         };
     };
+    delete_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    update_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatWebhookUpsertRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ChatWebhookResponse"];
+                };
+            };
+        };
+    };
     getProfileImageContent: {
         parameters: {
             query?: never;
@@ -6522,7 +6709,7 @@ export interface operations {
             };
         };
     };
-    list_3: {
+    list_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -6761,7 +6948,7 @@ export interface operations {
             };
         };
     };
-    list_4: {
+    list_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -6801,7 +6988,7 @@ export interface operations {
             };
         };
     };
-    list_5: {
+    list_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -7410,6 +7597,8 @@ export type BalanceCardResponse = RequiredSchema<"BalanceCardResponse">;
 // Story 16.2: privacy-redacted fields are ABSENT from the response, not blanked, so they must be
 // optional here. RequiredSchema<> would type them as always-present and let a component read
 // `absence.leaveTypeName` with no guard — the compile error is the point.
+export type ChatWebhookResponse = RequiredSchema<"ChatWebhookResponse">;
+export type ChatWebhookUpsertRequest = components["schemas"]["ChatWebhookUpsertRequest"];
 export type CalendarAbsenceResponse = Omit<
     RequiredSchema<"CalendarAbsenceResponse">,
     "userFullName" | "userInitials" | "userWorkforceGroupName" | "leaveTypeId" | "leaveTypeName"

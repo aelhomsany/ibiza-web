@@ -840,5 +840,71 @@
     "copy": "You have changes that have not been saved. Discard them before moving to another Settings section.",
     "discard": "Discard Changes",
     "title": "Discard unsaved changes?"
+  },
+  "chat": {
+    "title": "Chat notifications",
+    "loading": "Loading chat channels…",
+    "empty": "No chat channels connected yet.",
+    "providers": {
+      "SLACK": "Slack",
+      "TEAMS": "Microsoft Teams"
+    },
+    "status": {
+      "ACTIVE": "Active",
+      "ERROR": "Needs attention",
+      "DISABLED": "Paused"
+    },
+    "statusWarning": "Posting stopped. Error category: {{category}}. Paste a new webhook URL to resume.",
+    "digestAt": "Daily digest at {{time}}",
+    "digestOff": "Daily digest off",
+    "approvalsOn": "Announces approved leave",
+    "lastPosted": "Last posted {{when}}",
+    "neverPosted": "Nothing posted yet",
+    "actions": {
+      "add": "Add channel",
+      "test": "Send test",
+      "edit": "Edit",
+      "remove": "Remove",
+      "confirmRemove": "Remove channel"
+    },
+    "form": {
+      "addTitle": "Add chat channel",
+      "editTitle": "Edit chat channel",
+      "provider": "Provider",
+      "label": "Channel label",
+      "labelPlaceholder": "#people-ops",
+      "url": "Incoming webhook URL",
+      "urlHint": "Paste the https:// webhook URL from Slack or Teams. It is stored encrypted and never shown again.",
+      "urlKeepHint": "Leave blank to keep the current URL.",
+      "postDailyDigest": "Post the daily \"Who's out\" digest",
+      "digestLocalTime": "Digest time (organization local time)",
+      "postApprovals": "Announce approved leave",
+      "errors": {
+        "https": "Webhook URL must start with https://",
+        "label": "Channel label is required"
+      }
+    },
+    "removeTitle": "Remove chat channel",
+    "removeCopy": "Ibiza will stop posting to {{label}}. Messages already in the channel are left unchanged.",
+    "success": {
+      "created": "Chat channel added",
+      "updated": "Chat channel updated",
+      "removed": "Chat channel removed",
+      "test": "Test message sent"
+    },
+    "errors": {
+      "load": "Unable to load chat channels.",
+      "save": "Unable to save chat channel",
+      "remove": "Unable to remove chat channel",
+      "test": "Test message failed"
+    },
+    "rail": {
+      "postsTitle": "What gets posted",
+      "postsPeerOnly": "Only what every member of your organization can already see on the calendar: names, and leave types only if your privacy settings share them with everyone.",
+      "postsWfh": "Work from home is listed as presence, never as absence.",
+      "postsSecret": "The webhook URL is stored encrypted and is never returned or logged.",
+      "digestTitle": "The daily digest",
+      "digestCopy": "Posted once per day at the chosen time in your organization's operational timezone. A day with nobody away still posts \"Everyone is in\"."
+    }
   }
 }

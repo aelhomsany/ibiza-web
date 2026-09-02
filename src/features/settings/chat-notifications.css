@@ -1,0 +1,126 @@
+.chat-channels-body {
+  padding: 16px 20px 20px;
+}
+
+.chat-channels-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.chat-channels-copy {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.chat-channels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chat-channel-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.chat-channel-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-teal-tint);
+  color: var(--color-teal);
+}
+
+.chat-channel-title {
+  margin: 0;
+  color: var(--color-foreground);
+  font-size: 14px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.chat-channel-meta,
+.chat-channel-warning,
+.chat-channel-modal-copy {
+  margin: 4px 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.chat-channel-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.chat-channel-status--error {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.chat-channel-warning {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.chat-channel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.chat-channel-actions .btn,
+.chat-channels-intro .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-channel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chat-channel-form .checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.chat-channel-form-error {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .chat-channel-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .chat-channel-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}

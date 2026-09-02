@@ -40,6 +40,8 @@ import type {
   CalendarMonthResponse,
   CalendarSyncConnectResponse,
   CalendarSyncStatusResponse,
+  ChatWebhookResponse,
+  ChatWebhookUpsertRequest,
   NotificationPreferenceResponse,
   UpdateNotificationPreferenceRequest,
   CheckoutSessionResponse,
@@ -864,6 +866,31 @@ export async function disconnectCalendarSync(
   })
 }
 
+// Plan PUENTE B5: chat channels (Slack / Teams incoming webhooks). HR Admin only; the webhook URL
+// is write-only — responses carry the host, never the URL.
+export async function getChatWebhooks(): Promise<ChatWebhookResponse[]> {
+  return request<ChatWebhookResponse[]>('/api/v1/chat-webhooks', { method: 'GET' })
+}
+
+export async function createChatWebhook(body: ChatWebhookUpsertRequest): Promise<ChatWebhookResponse> {
+  return request<ChatWebhookResponse>('/api/v1/chat-webhooks', { method: 'POST', body })
+}
+
+export async function updateChatWebhook(
+  id: number,
+  body: ChatWebhookUpsertRequest,
+): Promise<ChatWebhookResponse> {
+  return request<ChatWebhookResponse>(`/api/v1/chat-webhooks/${id}`, { method: 'PATCH', body })
+}
+
+export async function deleteChatWebhook(id: number): Promise<void> {
+  return request<void>(`/api/v1/chat-webhooks/${id}`, { method: 'DELETE' })
+}
+
+export async function testChatWebhook(id: number): Promise<void> {
+  return request<void>(`/api/v1/chat-webhooks/${id}/test`, { method: 'POST' })
+}
+
 export async function getNotificationPreferences(): Promise<
   NotificationPreferenceResponse[]
 > {
@@ -1101,6 +1128,11 @@ export const apiClient = {
   connectCalendarSync,
   retryCalendarSync,
   disconnectCalendarSync,
+  getChatWebhooks,
+  createChatWebhook,
+  updateChatWebhook,
+  deleteChatWebhook,
+  testChatWebhook,
   getPlatformOrganizations,
   createPlatformOrganization,
   updatePlatformOrganizationSubscription,

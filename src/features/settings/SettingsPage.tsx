@@ -23,6 +23,7 @@ import { WorkforceGroupsWeekendsCard } from './WorkforceGroupsWeekendsCard'
 import { ScheduleLocationSettingsPage } from './ScheduleLocationSettingsPage'
 import { CalendarPrivacySettingsPage } from './CalendarPrivacySettingsPage'
 import { CalendarSyncSettings } from './CalendarSyncSettings'
+import { ChatNotificationsSettings } from './ChatNotificationsSettings'
 import { NotificationPreferencesSettings } from './NotificationPreferencesSettings'
 import { OrganizationSettingsCard } from './OrganizationSettingsCard'
 import {
@@ -468,10 +469,16 @@ export function SettingsPage() {
             )}
 
             {activeCategory === 'integrations' && (
-              <CalendarSyncSettings
-                onSuccess={showSuccessToast}
-                onWarning={showWarningToast}
-              />
+              <>
+                <CalendarSyncSettings
+                  onSuccess={showSuccessToast}
+                  onWarning={showWarningToast}
+                />
+                <ChatNotificationsSettings
+                  onSuccess={showSuccessToast}
+                  onWarning={showWarningToast}
+                />
+              </>
             )}
           </div>
         </main>
