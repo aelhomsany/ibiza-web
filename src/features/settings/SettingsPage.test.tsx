@@ -134,6 +134,45 @@ describe('SettingsPage', () => {
     vi.restoreAllMocks()
   })
 
+  it('announces a completed Google Calendar connection once after the OAuth callback redirect', async () => {
+    renderSettingsPage('/settings?category=integrations&calendarSync=connected')
+
+    expect(
+      await screen.findByText(
+        'Google Calendar connected. Approved leave will now appear on your calendar.',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      screen.getAllByText(
+        'Google Calendar connected. Approved leave will now appear on your calendar.',
+      ),
+    ).toHaveLength(1)
+  })
+
+  it('warns when the user declined Google consent on the OAuth callback', async () => {
+    renderSettingsPage(
+      '/settings?category=integrations&calendarSync=error&reason=access_denied',
+    )
+
+    expect(
+      await screen.findByText(
+        'Google Calendar connection was cancelled before access was granted.',
+      ),
+    ).toBeInTheDocument()
+  })
+
+  it('falls back to a generic warning for other callback failures', async () => {
+    renderSettingsPage(
+      '/settings?category=integrations&calendarSync=error&reason=invalid_state',
+    )
+
+    expect(
+      await screen.findByText(
+        'Google Calendar connection could not be completed. Try connecting again.',
+      ),
+    ).toBeInTheDocument()
+  })
+
   it('[P0] renders eight categories with Working calendars as the focused default', async () => {
     renderSettingsPage()
 

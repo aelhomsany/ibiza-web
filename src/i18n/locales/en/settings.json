@@ -58,6 +58,11 @@
       "disconnect": "Disconnect",
       "retry": "Retry"
     },
+    "callback": {
+      "connected": "Google Calendar connected. Approved leave will now appear on your calendar.",
+      "accessDenied": "Google Calendar connection was cancelled before access was granted.",
+      "failed": "Google Calendar connection could not be completed. Try connecting again."
+    },
     "connected": "Connected",
     "connectedError": "Connected with sync error",
     "disconnectCopy": "Future approved leave will stop syncing to {{provider}}. Existing external calendar events are left unchanged.",

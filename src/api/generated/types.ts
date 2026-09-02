@@ -1816,7 +1816,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Complete provider OAuth connection */
+        /** Complete provider OAuth connection (browser redirect target) */
         get: operations["callback"];
         put?: never;
         post?: never;
@@ -7154,6 +7154,7 @@ export interface operations {
             query?: {
                 code?: string;
                 state?: string;
+                error?: string;
             };
             header?: never;
             path: {

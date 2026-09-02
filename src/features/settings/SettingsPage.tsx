@@ -190,6 +190,7 @@ export function SettingsPage() {
   // only reliable "currently active group" for the requestGroup no-op check.
   const [resolvedGroupId, setResolvedGroupId] = useState<number | null>(null)
   const suppressNextBlockRef = useRef(false)
+  const calendarSyncAnnouncedRef = useRef(false)
 
   const categoryValue = searchParams.get('category')
   const activeCategory = categoryFromSearchParam(categoryValue)
@@ -250,6 +251,34 @@ export function SettingsPage() {
       { replace: true },
     )
   }, [activeCategory, categoryValue, searchParams, updateSearch])
+
+  // Google sends the browser back through the API's OAuth callback, which
+  // redirects here with `?calendarSync=connected|error(&reason=...)`. Announce
+  // it once as a toast and strip it so a reload never re-announces it.
+  useEffect(() => {
+    const outcome = searchParams.get('calendarSync')
+    if (outcome == null || calendarSyncAnnouncedRef.current) {
+      return
+    }
+    calendarSyncAnnouncedRef.current = true
+    if (outcome === 'connected') {
+      showSuccessToast(t('calendarSync.callback.connected'))
+    } else {
+      showWarningToast(
+        searchParams.get('reason') === 'access_denied'
+          ? t('calendarSync.callback.accessDenied')
+          : t('calendarSync.callback.failed'),
+      )
+    }
+    suppressNextBlockRef.current = true
+    updateSearch(
+      (next) => {
+        next.delete('calendarSync')
+        next.delete('reason')
+      },
+      { replace: true },
+    )
+  }, [searchParams, showSuccessToast, showWarningToast, t, updateSearch])
 
   useBeforeUnload(
     useCallback(
