@@ -43,7 +43,9 @@ test.describe(
         await page.goto('/register?plan=FREE&intendedCount=3&locale=en')
 
         await expect(page.getByTestId('register-plan-summary')).toContainText(/free/i)
-        await expect(page.getByTestId('register-intended-count')).toHaveValue('3')
+        // Free reports its own ceiling whatever the entry link carried, and cannot be edited.
+        await expect(page.getByTestId('register-intended-count')).toHaveValue('5')
+        await expect(page.getByTestId('register-intended-count')).toHaveAttribute('readonly', '')
         await expect(page.getByText(/enter card|Stripe|trial ends/i)).toHaveCount(0)
 
         await page.getByTestId('register-email').fill(`jordan+${Date.now()}@example.com`)

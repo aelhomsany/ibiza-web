@@ -411,7 +411,7 @@
         "@story-12-2"
       ],
       "tests": [
-        "[P0] Given intended-user counts at band boundaries, When Pricing renders recommendations, Then Free/Growth/Contact Sales routes are exact"
+        "[P0] Given the published plan comparison, When Pricing renders, Then every plan routes exactly and its CTA shares one baseline"
       ]
     },
     "contact-sales.spec.ts::Contact Sales handoff \u2014 Story 12.2": {

@@ -236,12 +236,12 @@ function DistributedTeamsPage({
         <h2>{copy.distributedTeams.comparisonTitle}</h2>
         <div className="public-policy-grid">
           <article>
-            <h3>{copy.distributedTeams.egyptTitle}</h3>
-            <p>{copy.distributedTeams.egyptBody}</p>
+            <h3>{copy.distributedTeams.groupOneTitle}</h3>
+            <p>{copy.distributedTeams.groupOneBody}</p>
           </article>
           <article>
-            <h3>{copy.distributedTeams.usTitle}</h3>
-            <p>{copy.distributedTeams.usBody}</p>
+            <h3>{copy.distributedTeams.groupTwoTitle}</h3>
+            <p>{copy.distributedTeams.groupTwoBody}</p>
           </article>
         </div>
       </section>

@@ -7,7 +7,6 @@ const publicBaseUrl = process.env.PUBLIC_BASE_URL ??
     : process.env.BASE_URL ?? 'http://localhost:5173')
 
 function catalog(count: number) {
-  const recommendedPlan = count <= 5 ? 'FREE' : count <= 200 ? 'GROWTH' : 'CONTACT_SALES'
   const plan = (
     code: string,
     minimumActiveUsers: number,
@@ -38,7 +37,7 @@ function catalog(count: number) {
   return {
     intendedCount: count,
     locale: 'en',
-    recommendedPlan,
+    recommendedPlan: 'FREE',
     registrationEnabled: false,
     plans: [
       plan('FREE', 1, 5, '1-5 active Users', 0, '$0 forever', false, 'Start Free'),
@@ -51,8 +50,8 @@ function catalog(count: number) {
 /**
  * Story 12.2 — sparse Pricing E2E (SALES-VAL-005/007/012).
  * Band truth and capability availability stay API-authoritative; this suite only
- * proves visible routing, preserved plan/count/locale in fallback, keyboard reach,
- * and no workspace-created belief.
+ * proves the visible comparison, CTAs that share one baseline, preserved
+ * plan/count/locale in fallback, keyboard reach, and no workspace-created belief.
  */
 test.describe(
   'Pricing plan routing — Story 12.2',
@@ -66,7 +65,7 @@ test.describe(
     )
 
     test(
-      '[P0] Given intended-user counts at band boundaries, When Pricing renders recommendations, Then Free/Growth/Contact Sales routes are exact',
+      '[P0] Given the published plan comparison, When Pricing renders, Then every plan routes exactly and its CTA shares one baseline',
       async ({ browser, browserName }) => {
         const context = await browser.newContext({ baseURL: publicBaseUrl })
         await context.route('**/api/v1/public/plans**', async (route) => {
@@ -74,34 +73,45 @@ test.describe(
           await route.fulfill({ json: catalog(count) })
         })
         const pricingPage = await context.newPage()
-        await pricingPage.goto('/pricing')
+        // The count survives as a handoff value on the entry link; the page itself asks nothing.
+        await pricingPage.goto('/pricing?intendedCount=50')
+        await pricingPage.setViewportSize({ width: 1280, height: 900 })
 
-        const cases: Array<{ count: string; plan: string; cta: string }> = [
-          { count: '1', plan: 'plan-card-free', cta: 'cta-start-free' },
-          { count: '5', plan: 'plan-card-free', cta: 'cta-start-free' },
-          { count: '6', plan: 'plan-card-growth', cta: 'cta-choose-growth' },
-          { count: '200', plan: 'plan-card-growth', cta: 'cta-choose-growth' },
-          { count: '201', plan: 'plan-card-contact-sales', cta: 'cta-contact-sales' },
-        ]
+        const ctaIds = ['cta-start-free', 'cta-choose-growth', 'cta-contact-sales']
+        for (const [index, plan] of ['plan-card-free', 'plan-card-growth', 'plan-card-contact-sales'].entries()) {
+          await expect(pricingPage.getByTestId(plan)).toBeVisible()
+          await expect(pricingPage.getByTestId(ctaIds[index])).toBeVisible()
+        }
+        await expect(pricingPage.getByText(/workspace (was )?created/i)).toHaveCount(0)
+        await expect(pricingPage.locator('body')).not.toContainText('INTERNAL')
 
-        for (const { count, plan, cta } of cases) {
-          await pricingPage.getByTestId('pricing-intended-count').fill(count)
-          await expect(pricingPage.getByTestId(plan)).toHaveAttribute('data-recommended', 'true')
-          await expect(pricingPage.getByTestId(cta)).toBeVisible()
-          await expect(pricingPage.getByText(/workspace (was )?created/i)).toHaveCount(0)
+        // Nothing is asked of the visitor: no intended-count field, no complex-needs question.
+        await expect(pricingPage.locator('input[type="number"]')).toHaveCount(0)
+        await expect(pricingPage.locator('.pricing-experience input[type="checkbox"]')).toHaveCount(0)
+
+        // Uneven capability lists must not stagger the CTAs: each sits on its card's bottom edge.
+        const ctaBottoms = await Promise.all(
+          ctaIds.map(async (id) => {
+            const box = await pricingPage.getByTestId(id).boundingBox()
+            if (!box) throw new Error(`${id} has no box`)
+            return box.y + box.height
+          }),
+        )
+        for (const bottom of ctaBottoms) {
+          expect(Math.abs(bottom - ctaBottoms[0])).toBeLessThanOrEqual(1)
         }
 
         // Registration-disabled fallback must preserve plan, count, and locale.
-        await pricingPage.getByTestId('pricing-intended-count').fill('50')
+        await pricingPage.getByTestId('cta-choose-growth').click()
         const fallback = pricingPage.getByTestId('pricing-availability-fallback')
         await expect(fallback).toBeVisible()
         await expect(fallback).toHaveAttribute('data-plan', /GROWTH/i)
         await expect(fallback).toHaveAttribute('data-intended-count', '50')
         await expect(fallback).toHaveAttribute('data-locale', 'en')
-        await expect(pricingPage.locator('body')).not.toContainText('INTERNAL')
 
-        // Sparse keyboard proof: Tab can reach the recommended CTA; Enter activates.
-        await pricingPage.getByTestId('pricing-intended-count').focus()
+        // Sparse keyboard proof: Tab can reach a plan CTA; Enter activates.
+        await pricingPage.reload()
+        await pricingPage.getByTestId('plan-card-growth').waitFor()
         let reachedCta = false
         for (let i = 0; i < 24; i++) {
           // macOS WebKit follows Safari's Option+Tab convention for links/buttons.
