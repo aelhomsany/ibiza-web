@@ -34,46 +34,38 @@ function safePlans(catalog: PublicPlanCatalog | null): PublicPlan[] {
     .sort((left, right) => left.minimumActiveUsers - right.minimumActiveUsers)
 }
 
+/**
+ * The visitor sizes themselves against the published bands on each card; the page asks for
+ * nothing. The count survives only as a handoff value — an entry link may carry
+ * `?intendedCount=`, and whatever it says is preserved into the register and Contact Sales
+ * URLs so the next step starts where the visitor did.
+ */
 export function PricingRecommendation({
   locale = 'en',
   registrationEnabled,
   initialIntendedCount = 5,
 }: PricingRecommendationProps) {
   const copy = locale === 'ar' ? ar.pricing : en.pricing
-  const [countInput, setCountInput] = useState(String(Math.max(1, initialIntendedCount)))
-  const [complexNeeds, setComplexNeeds] = useState(false)
+  const [count, setCount] = useState(Math.max(1, initialIntendedCount))
   const [catalog, setCatalog] = useState<PublicPlanCatalog | null>(null)
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState(false)
   const [fallbackPlan, setFallbackPlan] = useState<PublicPlanCode | null>(null)
-  const count = Number(countInput)
 
   useEffect(() => {
     const queryCount = Number(new URLSearchParams(window.location.search).get('intendedCount'))
     if (Number.isInteger(queryCount) && queryCount >= 1) {
-      setCountInput(String(queryCount))
+      setCount(queryCount)
     }
   }, [])
 
-  const countIsValid = Number.isInteger(count) && count >= 1
-
   useEffect(() => {
-    // An unusable count must clear the previous answer rather than leave a confident
-    // recommendation standing against a blank or nonsensical field.
-    if (!countIsValid) {
-      setCatalog(null)
-      setFallbackPlan(null)
-      setLoading(false)
-      setFailed(false)
-      return
-    }
     const controller = new AbortController()
     setLoading(true)
     setFailed(false)
-    void loadPublicPlans(count, locale, complexNeeds, controller.signal)
+    void loadPublicPlans(count, locale, controller.signal)
       .then((next) => {
         setCatalog(next)
-        setFallbackPlan(null)
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === 'AbortError') return
@@ -84,18 +76,13 @@ export function PricingRecommendation({
         if (!controller.signal.aborted) setLoading(false)
       })
     return () => controller.abort()
-  }, [complexNeeds, count, countIsValid, locale])
+  }, [count, locale])
 
   const plans = useMemo(() => safePlans(catalog), [catalog])
-  const recommended = catalog?.recommendedPlan ?? null
-  // Show the catalog's localized plan name, never the raw enum code.
-  const recommendedName =
-    plans.find((plan) => plan.code === recommended)?.name ?? null
   const canRegister =
     (registrationEnabled ?? catalog?.registrationEnabled ?? false) && isRegisterRouteAvailable()
-  const currentFallback = fallbackPlan ?? (!canRegister && recommended !== 'CONTACT_SALES' ? recommended : null)
-  const fallbackIntent = currentFallback
-    ? createPublicPlanIntent(currentFallback, count, locale)
+  const fallbackIntent = fallbackPlan
+    ? createPublicPlanIntent(fallbackPlan, count, locale)
     : null
 
   function recordSelection(plan: PublicPlanCode) {
@@ -113,46 +100,11 @@ export function PricingRecommendation({
 
   return (
     <section className="pricing-experience" aria-labelledby="pricing-comparison-title">
-      <div className="pricing-controls">
-        <div>
-          <label htmlFor="pricing-intended-count">{copy.countLabel}</label>
-          <p id="pricing-count-help">{copy.countHelp}</p>
-        </div>
-        <input
-          id="pricing-intended-count"
-          data-testid="pricing-intended-count"
-          type="number"
-          min="1"
-          step="1"
-          inputMode="numeric"
-          aria-describedby="pricing-count-help"
-          value={countInput}
-          onChange={(event) => setCountInput(event.currentTarget.value)}
-        />
-        <label className="pricing-complex-choice">
-          <input
-            type="checkbox"
-            checked={complexNeeds}
-            onChange={(event) => setComplexNeeds(event.currentTarget.checked)}
-          />
-          <span>{copy.complexNeeds}</span>
-        </label>
-      </div>
-
       <div className="pricing-status" aria-live="polite">
         {loading ? <p>{copy.loading}</p> : null}
-        {!countIsValid ? <p>{copy.countInvalid}</p> : null}
-        {recommended && recommendedName ? (
-          <p>
-            {copy.recommendedLabel}{' '}
-            <strong data-testid="pricing-recommended-plan" data-plan={recommended}>
-              <bdi>{recommendedName}</bdi>
-            </strong>
-          </p>
-        ) : null}
       </div>
 
-      {!catalog && !failed && countIsValid ? (
+      {!catalog && !failed ? (
         <div className="pricing-recovery" role="status">
           <p>{copy.loadingFallback}</p>
           <a className="btn btn-outline" href={localePath(locale, '/contact-sales')}>
@@ -175,7 +127,6 @@ export function PricingRecommendation({
         <div className="pricing-grid" aria-labelledby="pricing-comparison-title">
           <h2 id="pricing-comparison-title" className="sr-only">{copy.comparisonLabel}</h2>
           {plans.map((plan) => {
-            const isRecommended = plan.code === recommended
             const availableCapabilities = plan.capabilities.filter(
               (capability) => capability.availability === 'AVAILABLE',
             )
@@ -195,13 +146,7 @@ export function PricingRecommendation({
             const registerHref = `/register?${intentQuery(intent)}`
 
             return (
-              <article
-                className={`pricing-card${isRecommended ? ' pricing-card--recommended' : ''}`}
-                data-testid={testId}
-                data-recommended={String(isRecommended)}
-                key={plan.code}
-              >
-                {isRecommended ? <p className="pricing-card__recommendation">{copy.recommended}</p> : null}
+              <article className="pricing-card" data-testid={testId} key={plan.code}>
                 <h3><bdi>{plan.name}</bdi></h3>
                 <p className="pricing-card__band">{plan.userBand}</p>
                 <p className="pricing-card__price"><bdi>{plan.priceBasis}</bdi></p>

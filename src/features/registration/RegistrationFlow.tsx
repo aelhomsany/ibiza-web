@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import {
   PublicApiError,
   loadRegistration,
+  loadVisitorCountry,
   provisionRegistration,
   recoverRegistration,
   resendRegistration,
@@ -15,6 +16,7 @@ import { getBrowserTimezone } from '../../auth/timezone'
 import ar from '../../i18n/locales/ar/public.json'
 import en from '../../i18n/locales/en/public.json'
 import { emitApprovedPublicEvent } from '../public-site/analyticsGateway'
+import { countryOptions, inferCountryCode } from './countries'
 import { useTurnstileWidget } from './useTurnstileWidget'
 
 type RegistrationRoute = '/register' | '/register/verify' | '/register/recovery'
@@ -53,6 +55,13 @@ const PAID_UNPROVISIONED = new Set<RegistrationState['status']>([
 ])
 
 /** Replaces every occurrence — a template repeating a placeholder must substitute them all. */
+/**
+ * Active users each plan includes. The registration form states the ceiling rather than asking
+ * for an estimate: Free discards the number server-side, and Growth reconciles the billed
+ * quantity to the users actually activated, so nothing downstream depends on a guess made here.
+ */
+const PLAN_INCLUDED_USERS = { FREE: 5, GROWTH: 200 } as const
+
 function interpolate(template: string, values: Record<string, string | number>) {
   return Object.entries(values).reduce(
     (result, [key, value]) => result.split(`{{${key}}}`).join(String(value)),
@@ -78,7 +87,10 @@ export function RegistrationFlow({ locale, route }: Props) {
 	const recoveryKey = useRef<string | null>(null)
 	const checkoutKey = useRef<string | null>(null)
 	const [selectedPlan, setSelectedPlan] = useState<'FREE' | 'GROWTH'>('FREE')
-	const [intendedCount, setIntendedCount] = useState(1)
+	const [intendedCount, setIntendedCount] = useState<number>(PLAN_INCLUDED_USERS.FREE)
+	const [country, setCountry] = useState('EG')
+	const countryTouched = useRef(false)
+	const countries = useMemo(() => countryOptions(locale), [locale])
 	const [planResolved, setPlanResolved] = useState(route !== '/register')
 
   // One widget per phase, each rendered explicitly when its phase is on screen.
@@ -100,6 +112,27 @@ export function RegistrationFlow({ locale, route }: Props) {
 		})
 	}, [locale, planResolved, route, selectedPlan])
 
+  // Country resolution runs in two steps, strongest signal last.
+  //
+  // Prerendered markup cannot know where the reader is, so the local guess — time zone, then
+  // declared languages — runs first, at hydration, and the field is never empty or wrong-looking
+  // while the network is in flight. The edge's own answer then supersedes it if it arrives:
+  // CF-IPCountry reflects the address the request actually came from, which a time zone only
+  // approximates. A visitor who has already picked a country keeps their pick; a failed or absent
+  // lookup simply leaves the local guess standing, which is why nothing here surfaces an error.
+  useEffect(() => {
+    setCountry((current) => inferCountryCode(current))
+
+    const controller = new AbortController()
+    void loadVisitorCountry(controller.signal)
+      .then((resolved) => {
+        if (controller.signal.aborted || !resolved) return
+        setCountry((current) => (countryTouched.current ? current : resolved))
+      })
+      .catch(() => undefined)
+    return () => controller.abort()
+  }, [])
+
   useEffect(() => {
     if (seconds <= 0) return
     const timer = window.setInterval(() => setSeconds((value) => Math.max(0, value - 1)), 1_000)
@@ -113,10 +146,10 @@ export function RegistrationFlow({ locale, route }: Props) {
 	// email — falls through to Free rather than erroring on a retired code.
 	const plan = queryPlan === 'GROWTH' ? queryPlan : 'FREE'
 	setSelectedPlan(plan)
-    const count = Number(new URLSearchParams(window.location.search).get('intendedCount'))
-		const [minimum, maximum] = plan === 'FREE' ? [1, 5] : [1, 200]
-		setIntendedCount(Number.isInteger(count)
-			? Math.min(maximum, Math.max(minimum, count)) : minimum)
+		// An `?intendedCount=` on the link is no longer read here. The number is the plan's own
+		// ceiling, so an entry link cannot land a Growth visitor on Free's 5 — which is what the
+		// Pricing CTA used to carry.
+		setIntendedCount(PLAN_INCLUDED_USERS[plan])
 		setPlanResolved(true)
 	}, [route])
 
@@ -380,10 +413,45 @@ export function RegistrationFlow({ locale, route }: Props) {
           <form onSubmit={(event) => void start(event)}>
 			<p className="public-lede">{selectedPlan === 'FREE' ? copy.intro : copy.paid.intro}</p>
             {planSummary('register-plan-summary')}
-			<label>{copy.count}<input data-testid="register-intended-count" name="intendedCount" type="number" min={1} max={selectedPlan === 'FREE' ? 5 : 200} value={intendedCount} onChange={(event) => setIntendedCount(Number(event.target.value))} required /></label>
+            {/* Read-only on both plans: the field reports what the chosen plan includes rather
+                than asking for an estimate, so it is shown filled and dimmed. */}
+            <label>
+              {copy.count}
+              <input
+                data-testid="register-intended-count"
+                name="intendedCount"
+                type="number"
+                min={1}
+                max={PLAN_INCLUDED_USERS[selectedPlan]}
+                value={intendedCount}
+                readOnly
+                aria-describedby="register-count-note"
+                required
+              />
+              <small id="register-count-note">
+                {interpolate(copy.countPlanNote, { count: PLAN_INCLUDED_USERS[selectedPlan] })}
+              </small>
+            </label>
             <label>{copy.email}<input data-testid="register-email" name="administratorEmail" type="email" dir="ltr" autoComplete="email" required /></label>
             <label>{copy.organization}<input data-testid="register-org-name" name="organizationName" autoComplete="organization" maxLength={160} required /></label>
-            <label>{copy.country}<input name="country" dir="ltr" defaultValue="EG" pattern="[A-Za-z]{2}" maxLength={2} required /></label>
+            <label>
+              {copy.country}
+              <select
+                data-testid="register-country"
+                name="country"
+                autoComplete="country"
+                value={country}
+                onChange={(event) => {
+                  countryTouched.current = true
+                  setCountry(event.target.value)
+                }}
+                required
+              >
+                {countries.map((option) => (
+                  <option key={option.code} value={option.code}>{option.name}</option>
+                ))}
+              </select>
+            </label>
             <div ref={startTurnstileRef} data-action="registration" />
             <p className="registration-terms">{copy.terms}</p>
             <button className="btn btn-primary" data-testid="register-submit" disabled={submitting}>{submitting ? copy.working : copy.start}</button>

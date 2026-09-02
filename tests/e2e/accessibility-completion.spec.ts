@@ -250,6 +250,37 @@ async function expectContentWithinViewport(page: Page, label: string): Promise<v
   ).toEqual([])
 }
 
+/**
+ * The Turnstile widget is injected by a third-party script after first paint, and it is the
+ * widest thing the registration form contains. Measuring reflow before it lands measures a form
+ * that is missing its largest child: that is precisely how this assertion passed locally, where
+ * the fetch to Cloudflare lost the race, while failing in CI where it won — the layout defect was
+ * real the whole time and the suite reported it only on the faster network.
+ *
+ * Bounded and tolerant on purpose. A surface without a widget returns at once, and a run that
+ * cannot reach Cloudflare proceeds rather than turning an unreachable third party into an
+ * accessibility failure.
+ */
+async function settleTurnstile(page: Page): Promise<void> {
+  const holder = page.locator('[data-action="registration"]')
+  if ((await holder.count()) === 0) return
+  // Waiting for the child element to attach is NOT enough: render() inserts an empty wrapper
+  // synchronously and the widget takes its size a frame or more later, so an attachment wait
+  // still measures a 0x0 box — which the offender scan skips, passing on the very layout it
+  // exists to catch. Height becoming non-zero is the first moment the widget occupies space.
+  await holder.first().evaluate(
+    (element) =>
+      new Promise<void>((resolve) => {
+        const deadline = Date.now() + 5_000
+        const poll = () => {
+          if (element.getBoundingClientRect().height > 0 || Date.now() > deadline) resolve()
+          else requestAnimationFrame(poll)
+        }
+        poll()
+      }),
+  )
+}
+
 for (const surface of surfaces) {
   test.describe(
     surface.suite,
@@ -341,6 +372,7 @@ for (const surface of surfaces) {
               zoomPage.getByTestId(surface.primaryAction),
               `${surface.what} at ${label}: the primary action was lost`,
             ).toBeVisible()
+            await settleTurnstile(zoomPage)
             await expectNoHorizontalOverflow(zoomPage, `${surface.what} at ${label}`)
             await expectContentWithinViewport(zoomPage, `${surface.what} at ${label}`)
             await zoomContext.close()

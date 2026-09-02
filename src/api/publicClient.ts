@@ -150,13 +150,11 @@ async function requireJson<T>(response: Response): Promise<T> {
 export async function loadPublicPlans(
   intendedCount: number,
   locale: 'en' | 'ar',
-  complexNeeds: boolean,
   signal?: AbortSignal,
 ): Promise<PublicPlanCatalog> {
   const params = new URLSearchParams({
     intendedCount: String(intendedCount),
     locale,
-    complexNeeds: String(complexNeeds),
   })
   const response = await fetch(`${apiBaseUrl()}/api/v1/public/plans?${params}`, {
     credentials: 'omit',
@@ -164,6 +162,22 @@ export async function loadPublicPlans(
     signal: withTimeout(signal),
   })
   return requireJson<PublicPlanCatalog>(response)
+}
+
+/**
+ * The country the CDN in front of the API resolved for this request, or null when it did not say.
+ *
+ * Advisory only: it preselects a field the visitor can change, and the header behind it is
+ * forgeable by anyone reaching the origin directly, so nothing may be authorised on it.
+ */
+export async function loadVisitorCountry(signal?: AbortSignal): Promise<string | null> {
+  const response = await fetch(`${apiBaseUrl()}/api/v1/public/visitor-geo`, {
+    credentials: 'omit',
+    headers: { Accept: 'application/json' },
+    signal: withTimeout(signal),
+  })
+  const body = await requireJson<{ country?: string | null }>(response)
+  return body.country ?? null
 }
 
 export async function submitContactSales(

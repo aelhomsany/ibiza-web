@@ -37,7 +37,10 @@ describe('Registration Free UX — Story 12.3', () => {
 
     expect(screen.getByTestId('register-plan-summary')).toHaveTextContent(/Free.*5 active users.*no card/i)
     expect(screen.queryByText(/enter card|Stripe|trial ends/i)).not.toBeInTheDocument()
-    await waitFor(() => expect(screen.getByTestId('register-intended-count')).toHaveValue(3))
+    // The link carries 3, but the field reports what Free includes and is not an input.
+    const count = await waitFor(() => screen.getByTestId('register-intended-count'))
+    expect(count).toHaveValue(5)
+    expect(count).toHaveAttribute('readonly')
     await user.type(screen.getByTestId('register-email'), 'jordan@example.com')
     await user.type(screen.getByTestId('register-org-name'), 'Jordan Free')
     await user.click(screen.getByTestId('register-submit'))
@@ -45,7 +48,7 @@ describe('Registration Free UX — Story 12.3', () => {
     expect(await screen.findByTestId('verification-masked-email')).toHaveTextContent('j*****@example.com')
     expect(screen.getByTestId('verification-resend')).toBeDisabled()
     expect(publicClient.startRegistration).toHaveBeenCalledWith(expect.objectContaining({
-      selectedPlan: 'FREE', intendedCount: 3, safeReturnPath: '/',
+      selectedPlan: 'FREE', intendedCount: 5, safeReturnPath: '/',
     }), expect.any(String))
     expect(publicClient.startRegistration).toHaveBeenCalledWith(
       expect.not.objectContaining({ organizationId: expect.anything(), role: expect.anything(), billingStatus: expect.anything() }),

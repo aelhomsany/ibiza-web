@@ -1456,6 +1456,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/visitor-geo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["visitorGeo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/plans": {
         parameters: {
             query?: never;
@@ -3417,6 +3433,9 @@ export interface components {
             leaveTypes?: components["schemas"]["LeaveTypePolicySummary"][];
             users?: components["schemas"]["NamedTarget"][];
             workforceGroups?: components["schemas"]["NamedTarget"][];
+        };
+        PublicVisitorGeoResponse: {
+            country?: string;
         };
         PublicCapabilityResponse: {
             code?: string;
@@ -6591,6 +6610,26 @@ export interface operations {
             };
         };
     };
+    visitorGeo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PublicVisitorGeoResponse"];
+                };
+            };
+        };
+    };
     catalog: {
         parameters: {
             query?: {
@@ -7359,6 +7398,7 @@ export interface operations {
 type WithRequired<T, K extends keyof T> = T & {
     [P in K]-?: T[P];
 };
+
 // Ibiza keeps these schema aliases for feature code ergonomics, even though
 // openapi-typescript exposes schemas through components["schemas"].
 type RequiredSchema<K extends keyof components["schemas"]> = Required<components["schemas"][K]>;

@@ -328,7 +328,9 @@ async function startAndVerifyGrowthRegistration(
 
   // The route opens on the start form, so the commitment review is not on screen yet.
   await expect(page.getByTestId('register-plan-summary')).toContainText(/growth/i)
-  await expect(page.getByTestId('register-intended-count')).toHaveValue('34')
+  // Growth reports its own ceiling; the Pricing CTA's 5 no longer leaks onto the paid form.
+  await expect(page.getByTestId('register-intended-count')).toHaveValue('200')
+  await expect(page.getByTestId('register-intended-count')).toHaveAttribute('readonly', '')
   await expect(page.getByTestId('paid-commitment-review')).toHaveCount(0)
 
   await page.getByTestId('register-email').fill(email)

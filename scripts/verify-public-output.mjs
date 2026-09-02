@@ -62,7 +62,7 @@ for (const locale of locales) {
     check(
       /data-testid="working-day-proof"/.test(html) ||
         /security|privacy|terms/.test(route) ||
-        (route === 'pricing' && /pricing-intended-count/.test(html)) ||
+        (route === 'pricing' && /pricing-experience/.test(html)) ||
         (route === 'contact-sales' && /contact-sales-follow-up-consent/.test(html)),
       `${path}: evidence absent`,
     )
@@ -118,7 +118,9 @@ function walk(directory) {
 
 const assets = walk(join(root, 'assets'))
 const budgets = {
-  '.js': 75 * 1024,
+  // Raised from 75 KiB for the tzdata zone table that resolves a visitor's country from
+  // their time zone on the registration form: 418 zone/country pairs, 2.8 KiB compressed.
+  '.js': 80 * 1024,
   '.css': 24 * 1024,
   '.woff': 0,
   '.woff2': 0,

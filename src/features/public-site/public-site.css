@@ -37,11 +37,45 @@
 
 .registration-card form {
   gap: var(--space-lg);
+  /* An implicit grid column is sized to its widest item's min-content, and grid items do not
+     shrink below that by default. One child asking for more width than the card has — the
+     third-party Turnstile widget, which asks for 300px — therefore set the column width for the
+     whole form and pushed every field out to 300px, past the 246px content box at 320px, where
+     `.public-site { overflow-x: clip }` cut them out of reach rather than letting the page
+     scroll to them. An explicit minmax(0, 1fr) lets the track shrink below its contents, so a
+     wide child is confined to itself. useTurnstileWidget also picks a size that fits; this is
+     the half that keeps the rest of the form in the card whatever lands here next. */
+  grid-template-columns: minmax(0, 1fr);
 }
 
-.registration-card input {
+/* Without a padding box of their own these fields inherited the user-agent default, which sets
+   the text hard against the border on the inline-start edge. The values now sit on the same
+   inset as every other public form field — `.contact-sales-field` uses the same four
+   declarations, so the two public forms read as one system. */
+.registration-card input,
+.registration-card select {
   min-block-size: var(--min-touch-target);
   inline-size: 100%;
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-card);
+  color: var(--color-text-primary);
+  font: inherit;
+}
+
+/* A read-only field still has to clear the 4.5:1 floor — dimming here is the surface and border,
+   not the value, so the number the visitor is about to submit stays fully legible. */
+.registration-card input[readonly] {
+  border-color: var(--color-border-default);
+  background: var(--color-surface-subtle);
+  cursor: default;
+}
+
+.registration-card label small {
+  color: var(--color-text-secondary);
+  font-size: var(--font-caption-size);
 }
 
 .registration-plan {
@@ -451,6 +485,10 @@ html[lang='ar'] .public-availability h2 {
 .public-principles h3 {
   margin-block-start: var(--space-lg);
   font-size: var(--font-section-title-size);
+  /* Cards in a row lay out independently, so a title that wrapped to a second line pushed only
+     its own body down and broke the row's shared baseline. Two lines of the heading's own
+     line-height are reserved for every card, whichever titles the locale file carries. */
+  min-block-size: 2lh;
 }
 
 .public-steps p,
@@ -464,8 +502,12 @@ html[lang='ar'] .public-availability h2 {
   line-height: 1.7;
 }
 
-.public-prose,
-.public-legal {
+/* `.public-prose` and `.public-legal` are applied to the same element as `.public-container`, so
+   capping the block itself left the container's `margin-inline: auto` to re-centre the narrower
+   box, and the section started 170px inside the left rail the rest of the page shares. Capping the
+   content instead keeps the 840px reading measure and the rail. */
+.public-prose > *,
+.public-legal > * {
   max-inline-size: 840px;
 }
 
@@ -586,26 +628,12 @@ html[lang='ar'] .public-availability h2 {
   padding-block-end: 64px;
 }
 
-.pricing-controls {
-  padding: var(--space-2xl);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(160px, 240px) minmax(220px, .8fr);
-  gap: var(--space-xl);
-  align-items: center;
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-xl);
-  background: var(--color-surface-card);
-  box-shadow: var(--shadow-card);
-}
-
-.pricing-controls label,
 .contact-sales-field label {
   color: var(--color-text-primary);
   font-size: var(--font-label-size);
   font-weight: var(--font-label-weight);
 }
 
-.pricing-controls p,
 .contact-sales-field small {
   margin-block-start: var(--space-xs);
   display: block;
@@ -613,7 +641,6 @@ html[lang='ar'] .public-availability h2 {
   font-size: var(--font-caption-size);
 }
 
-.pricing-controls input[type='number'],
 .contact-sales-field input,
 .contact-sales-field textarea {
   inline-size: 100%;
@@ -632,7 +659,6 @@ html[lang='ar'] .public-availability h2 {
   resize: vertical;
 }
 
-.pricing-complex-choice,
 .contact-sales-consent label {
   min-block-size: var(--min-touch-target);
   display: flex;
@@ -641,7 +667,6 @@ html[lang='ar'] .public-availability h2 {
   cursor: pointer;
 }
 
-.pricing-complex-choice input,
 .contact-sales-consent input {
   inline-size: var(--space-xl);
   block-size: var(--space-xl);
@@ -651,13 +676,13 @@ html[lang='ar'] .public-availability h2 {
 }
 
 .pricing-status {
-  min-block-size: var(--min-touch-target);
-  padding-block: var(--space-lg);
   color: var(--color-text-secondary);
 }
 
-.pricing-status strong {
-  color: var(--color-text-primary);
+/* Kept in the tree while empty so the live region can announce; the padding rides on the
+   message so an idle region adds no gap above the grid. */
+.pricing-status p {
+  padding-block: var(--space-lg);
 }
 
 .pricing-grid {
@@ -677,22 +702,6 @@ html[lang='ar'] .public-availability h2 {
   box-shadow: var(--shadow-card);
 }
 
-.pricing-card--recommended {
-  border-color: var(--color-action-primary);
-  box-shadow: var(--shadow-decision);
-}
-
-.pricing-card__recommendation {
-  align-self: flex-start;
-  margin-block-end: var(--space-sm);
-  padding-block: var(--space-xs);
-  padding-inline: var(--space-sm);
-  border-radius: var(--radius-full);
-  background: var(--color-action-secondary);
-  color: var(--color-action-secondary-foreground);
-  font-size: var(--font-caption-size);
-  font-weight: 700;
-}
 
 .pricing-card h3 {
   font-size: var(--font-section-title-size);
@@ -754,9 +763,16 @@ html[lang='ar'] .public-availability h2 {
   color: var(--color-text-primary);
 }
 
+/* The cards are equal-height grid items, so the auto margin lands every CTA on the same
+   baseline no matter how many capability or term rows a plan carries above it. The terms list
+   owns the minimum gap, which the collapsed auto margin cannot supply. */
+.pricing-card__terms {
+  margin-block-end: var(--space-2xl);
+}
+
 .pricing-card__cta {
   inline-size: 100%;
-  margin-block-start: var(--space-2xl);
+  margin-block-start: auto;
   text-decoration: none;
 }
 
@@ -972,7 +988,6 @@ html[lang='ar'] .public-availability h2 {
     gap: var(--space-2xl);
   }
 
-  .pricing-controls,
   .contact-sales-layout,
   .contact-sales-form__grid {
     grid-template-columns: minmax(0, 1fr);

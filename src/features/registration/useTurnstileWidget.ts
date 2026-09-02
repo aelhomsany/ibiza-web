@@ -3,7 +3,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 type TurnstileApi = {
   render: (
     container: HTMLElement,
-    options: { sitekey: string; action?: string; 'error-callback'?: () => void },
+    options: {
+      sitekey: string
+      action?: string
+      size?: 'normal' | 'compact'
+      'error-callback'?: () => void
+    },
   ) => string
   reset: (widgetId?: string) => void
   remove: (widgetId?: string) => void
@@ -12,6 +17,28 @@ type TurnstileApi = {
 
 function turnstile(): TurnstileApi | undefined {
   return (window as unknown as { turnstile?: TurnstileApi }).turnstile
+}
+
+/**
+ * Turnstile's `normal` widget asks for 300px, and on this form that request used to win: the
+ * form's implicit grid column is sized to its widest item's min-content, so the widget set the
+ * column width and dragged every sibling field out to 300px with it. At WCAG 1.4.10's 320px
+ * floor the card's content box is 246px, so the whole form was laid out past the card edge and
+ * `.public-site { overflow-x: clip }` cut it out of reach instead of letting the page scroll.
+ *
+ * The explicit grid track in public-site.css is what stops the siblings following. This stops
+ * the widget itself being squeezed into a box narrower than the size it was built for: `compact`
+ * is 150px. Measured against the space the container was actually given rather than against the
+ * viewport, so the rule follows the surface rather than assuming one.
+ */
+const NORMAL_WIDGET_INLINE_SIZE = 300
+
+function sizeFor(container: HTMLElement): 'normal' | 'compact' {
+  const available = container.getBoundingClientRect().width
+  // A container that has not been laid out yet measures 0; `normal` is the right default there,
+  // because a compact widget on a wide form would be a regression for every desktop visitor.
+  if (available === 0) return 'normal'
+  return available < NORMAL_WIDGET_INLINE_SIZE ? 'compact' : 'normal'
 }
 
 /**
@@ -69,6 +96,7 @@ export function useTurnstileWidget(enabled: boolean) {
         widgetIdRef.current = api.render(containerRef.current, {
           sitekey: siteKey,
           action: containerRef.current.dataset.action ?? 'registration',
+          size: sizeFor(containerRef.current),
           'error-callback': () => setUnavailable(true),
         })
       } catch {
