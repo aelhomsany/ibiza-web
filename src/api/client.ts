@@ -40,6 +40,8 @@ import type {
   CalendarMonthResponse,
   CalendarSyncConnectResponse,
   CalendarSyncStatusResponse,
+  CalendarFeedLinkResponse,
+  CalendarFeedStatusResponse,
   ChatWebhookResponse,
   ChatWebhookUpsertRequest,
   NotificationPreferenceResponse,
@@ -867,6 +869,20 @@ export async function disconnectCalendarSync(
   })
 }
 
+// Plan PUENTE B4: private ICS subscription feed. The URL comes back from create exactly once;
+// status never repeats it, so the card can only ever show what the server just minted.
+export async function getCalendarFeed(): Promise<CalendarFeedStatusResponse> {
+  return request<CalendarFeedStatusResponse>('/api/v1/calendar-feeds/me')
+}
+
+export async function createCalendarFeed(): Promise<CalendarFeedLinkResponse> {
+  return request<CalendarFeedLinkResponse>('/api/v1/calendar-feeds', { method: 'POST' })
+}
+
+export async function deleteCalendarFeed(): Promise<void> {
+  return request<void>('/api/v1/calendar-feeds', { method: 'DELETE' })
+}
+
 // Plan PUENTE B5: chat channels (Slack / Teams incoming webhooks). HR Admin only; the webhook URL
 // is write-only — responses carry the host, never the URL.
 export async function getChatWebhooks(): Promise<ChatWebhookResponse[]> {
@@ -1129,6 +1145,9 @@ export const apiClient = {
   connectCalendarSync,
   retryCalendarSync,
   disconnectCalendarSync,
+  getCalendarFeed,
+  createCalendarFeed,
+  deleteCalendarFeed,
   getChatWebhooks,
   createChatWebhook,
   updateChatWebhook,

@@ -1,0 +1,76 @@
+.calendar-feed-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 20px 20px;
+}
+
+.calendar-feed-link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  margin: 0 20px 20px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.calendar-feed-link-copy {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.calendar-feed-url {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+}
+
+.calendar-feed-link .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.calendar-feed-steps {
+  margin: 8px 0 0;
+  padding-inline-start: 18px;
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.calendar-feed-steps li + li {
+  margin-top: 6px;
+}
+
+.calendar-feed-steps strong {
+  color: var(--color-foreground);
+}
+
+@media (max-width: 900px) {
+  .calendar-feed-body {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .calendar-feed-body .calendar-sync-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .calendar-feed-link {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

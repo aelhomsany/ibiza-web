@@ -873,6 +873,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/calendar-feeds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create or rotate the caller's private calendar-feed link (URL returned once) */
+        post: operations["create_8"];
+        /** Revoke the caller's calendar-feed link */
+        delete: operations["revoke"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/billing/stripe/webhook": {
         parameters: {
             query?: never;
@@ -1122,7 +1140,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["create_8"];
+        post: operations["create_9"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1896,6 +1914,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/calendar-feeds/{token}.ics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The ICS feed a calendar client subscribes to (public; the token is the credential) */
+        get: operations["feed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/calendar-feeds/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Whether the caller has a calendar-feed link (never the link itself) */
+        get: operations["me_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/billing/subscription": {
         parameters: {
             query?: never;
@@ -1953,7 +2005,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get current authenticated user */
-        get: operations["me_1"];
+        get: operations["me_2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3112,6 +3164,9 @@ export interface components {
             provider?: string;
             authorizationUrl?: string;
         };
+        CalendarFeedLinkResponse: {
+            url?: string;
+        };
         ScheduleDowngradeRequest: {
             /** @enum {string} */
             targetPlan: "FREE" | "GROWTH" | "INTERNAL";
@@ -3803,6 +3858,13 @@ export interface components {
             pendingEventCount?: number;
             /** Format: int32 */
             failedEventCount?: number;
+        };
+        CalendarFeedStatusResponse: {
+            active?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            lastAccessedAt?: string;
         };
         Access: {
             capability?: string;
@@ -5646,6 +5708,44 @@ export interface operations {
             };
         };
     };
+    create_8: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarFeedLinkResponse"];
+                };
+            };
+        };
+    };
+    revoke: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     receiveStripeWebhook: {
         parameters: {
             query?: never;
@@ -6109,7 +6209,7 @@ export interface operations {
             };
         };
     };
-    create_8: {
+    create_9: {
         parameters: {
             query?: never;
             header?: {
@@ -7384,6 +7484,48 @@ export interface operations {
             };
         };
     };
+    feed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/calendar": string;
+                };
+            };
+        };
+    };
+    me_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarFeedStatusResponse"];
+                };
+            };
+        };
+    };
     subscription: {
         parameters: {
             query?: never;
@@ -7466,7 +7608,7 @@ export interface operations {
             };
         };
     };
-    me_1: {
+    me_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -7771,6 +7913,14 @@ export type CalendarSyncStatusResponse = {
     nextRetryAt?: string | null;
     pendingEventCount: number;
     failedEventCount: number;
+};
+export type CalendarFeedStatusResponse = {
+    active: boolean;
+    createdAt?: string | null;
+    lastAccessedAt?: string | null;
+};
+export type CalendarFeedLinkResponse = {
+    url: string;
 };
 export type CalendarSyncConnectResponse = {
     provider: "GOOGLE" | "MICROSOFT";

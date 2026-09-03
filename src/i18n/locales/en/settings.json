@@ -108,6 +108,57 @@
     "failedEvents_other": "{{count}} events failed to sync",
     "retryHint": "Retry re-queues failed events; the next sync pass picks them up within a minute."
   },
+  "calendarFeed": {
+    "title": "Calendar Feed",
+    "loading": "Loading calendar feed…",
+    "linkTitle": "Private subscription link",
+    "notCreated": "Not created",
+    "active": "Active since {{since}}",
+    "lastFetched": "last fetched {{when}}",
+    "neverFetched": "not fetched yet",
+    "shownOnce": "Copy this link now. For your privacy it is shown only once; you can always create a new one.",
+    "urlLabel": "Calendar feed URL",
+    "rotateTitle": "Create a new link?",
+    "rotateCopy": "The current link stops working immediately. Any calendar subscribed to it will stop updating until you paste the new link.",
+    "removeTitle": "Remove the calendar feed?",
+    "removeCopy": "The link stops working immediately and calendars subscribed to it will no longer update. You can create a new link at any time.",
+    "actions": {
+      "create": "Create link",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "rotate": "New link",
+      "remove": "Remove",
+      "confirmRotate": "Create new link",
+      "confirmRemove": "Remove feed"
+    },
+    "success": {
+      "created": "Calendar feed link created",
+      "rotated": "New calendar feed link created. The previous link no longer works.",
+      "removed": "Calendar feed removed",
+      "copied": "Link copied to clipboard"
+    },
+    "errors": {
+      "load": "Unable to load calendar feed status.",
+      "create": "Unable to create calendar feed link",
+      "remove": "Unable to remove calendar feed",
+      "copy": "Could not copy automatically. The link is selected — press Ctrl+C or ⌘C."
+    },
+    "rail": {
+      "showsTitle": "What the feed shows",
+      "showsTeam": "Approved absences across the team, exactly as you see them on the Team Calendar. Details hidden from you there are hidden here too.",
+      "showsHolidays": "Public holidays for every Workforce Group.",
+      "showsWindow": "Last month through six months ahead. Work-from-home days are not included.",
+      "showsSecret": "The link is your password to this data. Anyone who has it can read the feed, so keep it private and create a new one if it leaks.",
+      "subscribeTitle": "How to subscribe",
+      "google": "Google Calendar:",
+      "googleSteps": "Other calendars → + → From URL, paste the link.",
+      "outlook": "Outlook:",
+      "outlookSteps": "Add calendar → Subscribe from web, paste the link.",
+      "apple": "Apple Calendar:",
+      "appleSteps": "File → New Calendar Subscription, paste the link.",
+      "refreshNote": "Calendar apps refresh subscriptions on their own schedule — Google can take several hours to show a change."
+    }
+  },
   "categories": {
     "ariaLabel": "Settings categories",
     "items": {
