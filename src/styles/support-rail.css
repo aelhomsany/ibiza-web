@@ -127,10 +127,21 @@ html[lang='ar'] .support-note-title {
   inset-block-start: var(--space-lg);
 }
 
-/* A rail that runs beside a whole stack of cards is taller than the viewport; sticking it
-   would pin its top and hide everything below the fold. Let it flow with the page instead. */
-.support-rail-flow {
-  position: static;
+/* A card and the notes that explain it, kept together: the notes sit as a band directly
+   beneath their own card rather than in a rail beside the whole stack. A rail beside four
+   short cards runs three times their height, so the note that matches a card is well below
+   it and the reader scrolls to pair them. The band is as wide as the card, so each note is
+   a short column, and the gap inside the group is tighter than the stack's so the pair
+   reads as one item. */
+.panel-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+.panel-group > .settings-card-spaced {
+  margin-block-start: 0;
 }
 
 /* Grid rows align on their start edge, so a card here cannot carry a top margin of its own.

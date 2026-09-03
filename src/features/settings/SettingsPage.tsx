@@ -503,31 +503,43 @@ export function SettingsPage() {
                  its own rail, and a rail is taller than its card here, so every card started
                  a rail-height below the one above it. The rail is not sticky: four cards' notes
                  are taller than a viewport, and a stuck rail would hide its lower half. */
-              <div className="panel-with-aside" data-testid="integrations-panel">
-                <div className="panel-stack">
+              <div className="panel-stack" data-testid="integrations-panel">
+                <div className="panel-group">
                   <CalendarSyncSettings
                     onSuccess={showSuccessToast}
                     onWarning={showWarningToast}
                   />
+                  <div className="support-band">
+                    <CalendarSyncNotes />
+                  </div>
+                </div>
+                <div className="panel-group">
                   <CalendarFeedSettings
                     onSuccess={showSuccessToast}
                     onWarning={showWarningToast}
                   />
+                  <div className="support-band">
+                    <CalendarFeedNotes />
+                  </div>
+                </div>
+                <div className="panel-group">
                   <ChatNotificationsSettings
                     onSuccess={showSuccessToast}
                     onWarning={showWarningToast}
                   />
+                  <div className="support-band">
+                    <ChatNotificationsNotes />
+                  </div>
+                </div>
+                <div className="panel-group">
                   <SlackWorkspaceSettings
                     onSuccess={showSuccessToast}
                     onWarning={showWarningToast}
                   />
+                  <div className="support-band">
+                    <SlackWorkspaceNotes />
+                  </div>
                 </div>
-                <aside className="support-rail support-rail-flow">
-                  <CalendarSyncNotes />
-                  <CalendarFeedNotes />
-                  <ChatNotificationsNotes />
-                  <SlackWorkspaceNotes />
-                </aside>
               </div>
             )}
           </div>
