@@ -91,8 +91,22 @@
       "syncsApproved": "Only approved leave, and only for people who are still active.",
       "syncsTitleField": "Each event is titled with the leave type and the person's name.",
       "syncsOwnCalendar": "Events are written to the connected account's own calendar.",
-      "disconnectingTitle": "Disconnecting"
-    }
+      "disconnectingTitle": "Disconnecting",
+      "syncsDeclineRemoves": "Declined requests are removed from the calendar again."
+    },
+    "pendingEvents_zero": "No events waiting to retry",
+    "pendingEvents_one": "{{count}} event waiting to retry",
+    "pendingEvents_two": "{{count}} events waiting to retry",
+    "pendingEvents_few": "{{count}} events waiting to retry",
+    "pendingEvents_many": "{{count}} events waiting to retry",
+    "pendingEvents_other": "{{count}} events waiting to retry",
+    "failedEvents_zero": "No events failed to sync",
+    "failedEvents_one": "{{count}} event failed to sync",
+    "failedEvents_two": "{{count}} events failed to sync",
+    "failedEvents_few": "{{count}} events failed to sync",
+    "failedEvents_many": "{{count}} events failed to sync",
+    "failedEvents_other": "{{count}} events failed to sync",
+    "retryHint": "Retry re-queues failed events; the next sync pass picks them up within a minute."
   },
   "categories": {
     "ariaLabel": "Settings categories",

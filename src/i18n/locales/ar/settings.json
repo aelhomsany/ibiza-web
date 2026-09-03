@@ -91,8 +91,22 @@
       "syncsApproved": "الإجازات المعتمدة فقط، ولمن ما زال نشطًا فقط.",
       "syncsTitleField": "يحمل كل حدث اسم نوع الإجازة واسم الشخص في عنوانه.",
       "syncsOwnCalendar": "تُكتب الأحداث في تقويم الحساب المرتبط نفسه.",
-      "disconnectingTitle": "قطع الاتصال"
-    }
+      "disconnectingTitle": "قطع الاتصال",
+      "syncsDeclineRemoves": "تُحذف الطلبات المرفوضة من التقويم مرة أخرى."
+    },
+    "pendingEvents_zero": "لا توجد أحداث بانتظار إعادة المحاولة",
+    "pendingEvents_one": "حدث واحد بانتظار إعادة المحاولة",
+    "pendingEvents_two": "حدثان بانتظار إعادة المحاولة",
+    "pendingEvents_few": "{{count}} أحداث بانتظار إعادة المحاولة",
+    "pendingEvents_many": "{{count}} حدثًا بانتظار إعادة المحاولة",
+    "pendingEvents_other": "{{count}} حدث بانتظار إعادة المحاولة",
+    "failedEvents_zero": "لم تفشل مزامنة أي حدث",
+    "failedEvents_one": "فشلت مزامنة حدث واحد",
+    "failedEvents_two": "فشلت مزامنة حدثين",
+    "failedEvents_few": "فشلت مزامنة {{count}} أحداث",
+    "failedEvents_many": "فشلت مزامنة {{count}} حدثًا",
+    "failedEvents_other": "فشلت مزامنة {{count}} حدث",
+    "retryHint": "تعيد إعادة المحاولة جدولة الأحداث الفاشلة، وتلتقطها دورة المزامنة التالية خلال دقيقة."
   },
   "categories": {
     "ariaLabel": "فئات الإعدادات",

@@ -835,8 +835,9 @@ export async function getCalendarMonth(
   })
 }
 
-export async function getCalendarSyncStatus(): Promise<CalendarSyncStatusResponse> {
-  return request<CalendarSyncStatusResponse>('/api/v1/calendar-sync/status', {
+/** One entry per provider Ibiza can sync to (Plan PUENTE B2); DISCONNECTED rows are included. */
+export async function getCalendarSyncStatus(): Promise<CalendarSyncStatusResponse[]> {
+  return request<CalendarSyncStatusResponse[]>('/api/v1/calendar-sync/status', {
     method: 'GET',
   })
 }

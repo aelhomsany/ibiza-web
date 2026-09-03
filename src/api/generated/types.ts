@@ -3799,6 +3799,10 @@ export interface components {
             lastSyncedAt?: string;
             /** Format: date-time */
             nextRetryAt?: string;
+            /** Format: int32 */
+            pendingEventCount?: number;
+            /** Format: int32 */
+            failedEventCount?: number;
         };
         Access: {
             capability?: string;
@@ -7375,7 +7379,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["CalendarSyncStatusResponse"];
+                    "*/*": components["schemas"]["CalendarSyncStatusResponse"][];
                 };
             };
         };
@@ -7765,6 +7769,8 @@ export type CalendarSyncStatusResponse = {
     lastErrorCategory?: string | null;
     lastSyncedAt?: string | null;
     nextRetryAt?: string | null;
+    pendingEventCount: number;
+    failedEventCount: number;
 };
 export type CalendarSyncConnectResponse = {
     provider: "GOOGLE" | "MICROSOFT";

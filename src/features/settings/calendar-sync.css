@@ -1,9 +1,27 @@
+.calendar-sync-rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .calendar-sync-body {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 16px;
   align-items: center;
   padding: 16px 20px 20px;
+}
+
+.calendar-sync-rows .calendar-sync-body + .calendar-sync-body {
+  border-top: 1px solid var(--color-border);
+}
+
+.calendar-sync-meta {
+  margin: 4px 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
 }
 
 .calendar-sync-icon {

@@ -81,15 +81,19 @@ function mockSettingsApis() {
   vi.spyOn(apiClient, 'getLocationContexts').mockResolvedValue([])
   vi.spyOn(apiClient, 'listScheduleAssignments').mockResolvedValue([])
   vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(mockTeamMembers)
-  vi.spyOn(apiClient, 'getCalendarSyncStatus').mockResolvedValue({
-    provider: 'GOOGLE',
-    connected: false,
-    accountEmail: null,
-    status: 'DISCONNECTED',
-    lastErrorCategory: null,
-    lastSyncedAt: null,
-    nextRetryAt: null,
-  })
+  vi.spyOn(apiClient, 'getCalendarSyncStatus').mockResolvedValue([
+    {
+      provider: 'GOOGLE',
+      connected: false,
+      accountEmail: null,
+      status: 'DISCONNECTED',
+      lastErrorCategory: null,
+      lastSyncedAt: null,
+      nextRetryAt: null,
+      pendingEventCount: 0,
+      failedEventCount: 0,
+    },
+  ])
   vi.spyOn(apiClient, 'getNotificationPreferences').mockResolvedValue([
     {
       channel: 'IN_APP',
