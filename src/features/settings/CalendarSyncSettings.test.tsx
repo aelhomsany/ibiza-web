@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as apiClient from '../../api/client'
 import type { CalendarSyncStatusResponse } from '../../api/generated/types'
-import { CalendarSyncSettings } from './CalendarSyncSettings'
+import { CalendarSyncNotes, CalendarSyncSettings } from './CalendarSyncSettings'
 
 const disconnected: CalendarSyncStatusResponse = {
   provider: 'GOOGLE',
@@ -30,13 +30,18 @@ const connected: CalendarSyncStatusResponse = {
   failedEventCount: 0,
 }
 
-function renderCard(onSuccess = vi.fn(), onWarning = vi.fn()) {
+function renderCard(onSuccess = vi.fn(), onWarning = vi.fn(), withNotes = false) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   })
   return render(
     <QueryClientProvider client={queryClient}>
       <CalendarSyncSettings onSuccess={onSuccess} onWarning={onWarning} />
+      {withNotes ? (
+        <aside className="support-rail">
+          <CalendarSyncNotes />
+        </aside>
+      ) : null}
     </QueryClientProvider>,
   )
 }
@@ -174,7 +179,7 @@ describe('CalendarSyncSettings', () => {
   it('says what the connection writes, and claims no privacy filtering it does not do', async () => {
     vi.spyOn(apiClient, 'getCalendarSyncStatus').mockResolvedValue([disconnected])
 
-    renderCard()
+    renderCard(vi.fn(), vi.fn(), true)
 
     const rail = await screen.findByRole('complementary')
     expect(rail).toHaveTextContent(/Only approved leave, and only for people who are still active/)

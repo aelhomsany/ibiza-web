@@ -88,14 +88,14 @@ export function CalendarSyncSettings({
 
   if (statusQuery.isPending) {
     return (
-      <section className="settings-card settings-card-spaced" data-testid="calendar-sync-settings">
-        <div className="card-section-header">
-          <span className="card-section-title">{t('settings:calendarSync.title')}</span>
-        </div>
-        <p className="settings-card-loading-inline">{t('settings:calendarSync.loading')}</p>
-      </section>
-    )
-  }
+    <section className="settings-card settings-card-spaced" data-testid="calendar-sync-settings">
+      <div className="card-section-header">
+        <span className="card-section-title">{t('settings:calendarSync.title')}</span>
+      </div>
+      <p className="settings-card-loading-inline">{t('settings:calendarSync.loading')}</p>
+    </section>
+  )
+}
 
   if (statusQuery.isError) {
     return (
@@ -109,177 +109,189 @@ export function CalendarSyncSettings({
   }
 
   const providers = statusQuery.data
-  const railProvider = providers[0]?.provider ?? 'GOOGLE'
 
   return (
-    <div className="panel-with-aside">
-      <section className="settings-card settings-card-spaced" data-testid="calendar-sync-settings">
-        <div className="card-section-header">
-          <span className="card-section-title">{t('settings:calendarSync.title')}</span>
-        </div>
-        <ul className="calendar-sync-rows">
-          {providers.map((status) => {
-            const provider = status.provider
-            const id = provider.toLowerCase()
-            const disconnected = status.status === 'DISCONNECTED'
-            const needsReconnect = status.status === 'REVOKED'
-            const canRetry = status.status === 'ERROR' || status.failedEventCount > 0
-            const hasError = status.status === 'ERROR' || needsReconnect
-            const busy =
-              (connectMutation.isPending && connectMutation.variables === provider) ||
-              (retryMutation.isPending && retryMutation.variables === provider)
-            return (
-              <li className="calendar-sync-body" key={provider} data-testid={`calendar-sync-row-${id}`}>
-                <div className="calendar-sync-icon" aria-hidden="true">
-                  <CalendarIcon size={20} />
-                </div>
-                <div className="calendar-sync-copy">
-                  <p className="calendar-sync-title">{t(`settings:${providerKey(provider)}`)}</p>
-                  <p className="calendar-sync-status" data-testid={`calendar-sync-status-${id}`}>
-                    {t(`settings:${statusKey(status)}`)}
-                    {status.accountEmail ? ` · ${status.accountEmail}` : ''}
+    <section className="settings-card settings-card-spaced" data-testid="calendar-sync-settings">
+      <div className="card-section-header">
+        <span className="card-section-title">{t('settings:calendarSync.title')}</span>
+      </div>
+      <ul className="calendar-sync-rows">
+        {providers.map((status) => {
+          const provider = status.provider
+          const id = provider.toLowerCase()
+          const disconnected = status.status === 'DISCONNECTED'
+          const needsReconnect = status.status === 'REVOKED'
+          const canRetry = status.status === 'ERROR' || status.failedEventCount > 0
+          const hasError = status.status === 'ERROR' || needsReconnect
+          const busy =
+            (connectMutation.isPending && connectMutation.variables === provider) ||
+            (retryMutation.isPending && retryMutation.variables === provider)
+          return (
+            <li className="calendar-sync-body" key={provider} data-testid={`calendar-sync-row-${id}`}>
+              <div className="calendar-sync-icon" aria-hidden="true">
+                <CalendarIcon size={20} />
+              </div>
+              <div className="calendar-sync-copy">
+                <p className="calendar-sync-title">{t(`settings:${providerKey(provider)}`)}</p>
+                <p className="calendar-sync-status" data-testid={`calendar-sync-status-${id}`}>
+                  {t(`settings:${statusKey(status)}`)}
+                  {status.accountEmail ? ` · ${status.accountEmail}` : ''}
+                </p>
+                {hasError && (
+                  <p className="calendar-sync-warning">
+                    {t('settings:calendarSync.statusWarning', {
+                      category: status.lastErrorCategory ?? t('common:unknown'),
+                    })}
                   </p>
-                  {hasError && (
-                    <p className="calendar-sync-warning">
-                      {t('settings:calendarSync.statusWarning', {
-                        category: status.lastErrorCategory ?? t('common:unknown'),
-                      })}
-                    </p>
-                  )}
-                  {status.pendingEventCount > 0 && (
-                    <p className="calendar-sync-meta" data-testid={`calendar-sync-pending-${id}`}>
-                      {t('settings:calendarSync.pendingEvents', { count: status.pendingEventCount })}
-                    </p>
-                  )}
-                  {status.failedEventCount > 0 && (
-                    <p className="calendar-sync-warning" data-testid={`calendar-sync-failed-${id}`}>
-                      {t('settings:calendarSync.failedEvents', { count: status.failedEventCount })}
-                    </p>
-                  )}
-                </div>
-                <div className="calendar-sync-actions">
-                  {(disconnected || needsReconnect) && (
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      onClick={() => connectMutation.mutate(provider)}
-                      disabled={busy}
-                      data-busy={busy ? 'true' : undefined}
-                      data-testid={`calendar-sync-connect-${id}`}
-                    >
-                      <CalendarIcon size={14} /> {t('settings:calendarSync.actions.connect')}
-                    </button>
-                  )}
-                  {!disconnected && canRetry && (
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-sm"
-                      onClick={() => retryMutation.mutate(provider)}
-                      disabled={busy}
-                      data-busy={busy ? 'true' : undefined}
-                      data-testid={`calendar-sync-retry-${id}`}
-                    >
-                      <RefreshCwIcon size={14} /> {t('settings:calendarSync.actions.retry')}
-                    </button>
-                  )}
-                  {!disconnected && (
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-sm"
-                      onClick={() => setDisconnectTarget(provider)}
-                      disabled={disconnectMutation.isPending}
-                      data-testid={`calendar-sync-disconnect-${id}`}
-                    >
-                      <CloseIcon size={14} /> {t('settings:calendarSync.actions.disconnect')}
-                    </button>
-                  )}
-                </div>
-              </li>
-            )
-          })}
-        </ul>
+                )}
+                {status.pendingEventCount > 0 && (
+                  <p className="calendar-sync-meta" data-testid={`calendar-sync-pending-${id}`}>
+                    {t('settings:calendarSync.pendingEvents', { count: status.pendingEventCount })}
+                  </p>
+                )}
+                {status.failedEventCount > 0 && (
+                  <p className="calendar-sync-warning" data-testid={`calendar-sync-failed-${id}`}>
+                    {t('settings:calendarSync.failedEvents', { count: status.failedEventCount })}
+                  </p>
+                )}
+              </div>
+              <div className="calendar-sync-actions">
+                {(disconnected || needsReconnect) && (
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={() => connectMutation.mutate(provider)}
+                    disabled={busy}
+                    data-busy={busy ? 'true' : undefined}
+                    data-testid={`calendar-sync-connect-${id}`}
+                  >
+                    <CalendarIcon size={14} /> {t('settings:calendarSync.actions.connect')}
+                  </button>
+                )}
+                {!disconnected && canRetry && (
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    onClick={() => retryMutation.mutate(provider)}
+                    disabled={busy}
+                    data-busy={busy ? 'true' : undefined}
+                    data-testid={`calendar-sync-retry-${id}`}
+                  >
+                    <RefreshCwIcon size={14} /> {t('settings:calendarSync.actions.retry')}
+                  </button>
+                )}
+                {!disconnected && (
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    onClick={() => setDisconnectTarget(provider)}
+                    disabled={disconnectMutation.isPending}
+                    data-testid={`calendar-sync-disconnect-${id}`}
+                  >
+                    <CloseIcon size={14} /> {t('settings:calendarSync.actions.disconnect')}
+                  </button>
+                )}
+              </div>
+            </li>
+          )
+        })}
+      </ul>
 
-        {disconnectTarget && (
-          <Modal
-            labelledBy="calendar-sync-disconnect-title"
-            onClose={() => setDisconnectTarget(null)}
-            closeOnBackdrop={false}
-            testId="calendar-sync-disconnect-modal"
-          >
-            <div className="modal-header">
-              <h2 className="modal-title" id="calendar-sync-disconnect-title">
-                {t('settings:calendarSync.disconnectTitle')}
-              </h2>
-              <button
-                type="button"
-                className="modal-close"
-                onClick={() => setDisconnectTarget(null)}
-                aria-label={t('common:actions.close')}
-                disabled={disconnectMutation.isPending}
-              >
-                <CloseIcon size={18} />
-              </button>
-            </div>
-            <p className="calendar-sync-modal-copy">
-              {t('settings:calendarSync.disconnectCopy', {
-                provider: t(`settings:${providerKey(disconnectTarget)}`),
-              })}
-            </p>
-            <div className="modal-actions">
-              <button
-                type="button"
-                className="btn btn-outline"
-                onClick={() => setDisconnectTarget(null)}
-                disabled={disconnectMutation.isPending}
-              >
-                {t('common:actions.cancel')}
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => disconnectMutation.mutate(disconnectTarget)}
-                disabled={disconnectMutation.isPending}
-                data-busy={disconnectMutation.isPending ? 'true' : undefined}
-              >
-                {t('settings:calendarSync.actions.confirmDisconnect')}
-              </button>
-            </div>
-          </Modal>
-        )}
-      </section>
-
-      <aside className="support-rail">
-        {/* Connect is an outward-facing OAuth grant, so what the connection then writes belongs
-            next to the button rather than behind it. Each bullet is what CalendarSyncWorker
-            actually does: approved leave only, active people only, one event titled
-            "<leave type> - <person>" on the connected account's own calendar, removed again
-            when the request is declined (Plan PUENTE D-2). */}
-        <section className="support-note" aria-labelledby="calendar-sync-syncs-title">
-          <h3 className="support-note-title" id="calendar-sync-syncs-title">
-            {t('settings:calendarSync.rail.syncsTitle')}
-          </h3>
-          <ul className="support-note-bullets">
-            <li>{t('settings:calendarSync.rail.syncsApproved')}</li>
-            <li>{t('settings:calendarSync.rail.syncsTitleField')}</li>
-            <li>{t('settings:calendarSync.rail.syncsOwnCalendar')}</li>
-            <li>{t('settings:calendarSync.rail.syncsDeclineRemoves')}</li>
-          </ul>
-        </section>
-
-        {/* The same sentence the disconnect dialog shows — it is the answer to "what do I lose?",
-            which is a question asked before connecting, not only while disconnecting. */}
-        <section className="support-note" aria-labelledby="calendar-sync-disconnect-title-note">
-          <h3 className="support-note-title" id="calendar-sync-disconnect-title-note">
-            {t('settings:calendarSync.rail.disconnectingTitle')}
-          </h3>
-          <p className="support-note-body">
+      {disconnectTarget && (
+        <Modal
+          labelledBy="calendar-sync-disconnect-title"
+          onClose={() => setDisconnectTarget(null)}
+          closeOnBackdrop={false}
+          testId="calendar-sync-disconnect-modal"
+        >
+          <div className="modal-header">
+            <h2 className="modal-title" id="calendar-sync-disconnect-title">
+              {t('settings:calendarSync.disconnectTitle')}
+            </h2>
+            <button
+              type="button"
+              className="modal-close"
+              onClick={() => setDisconnectTarget(null)}
+              aria-label={t('common:actions.close')}
+              disabled={disconnectMutation.isPending}
+            >
+              <CloseIcon size={18} />
+            </button>
+          </div>
+          <p className="calendar-sync-modal-copy">
             {t('settings:calendarSync.disconnectCopy', {
-              provider: t(`settings:${providerKey(railProvider)}`),
+              provider: t(`settings:${providerKey(disconnectTarget)}`),
             })}
           </p>
-          <p className="support-note-body">{t('settings:calendarSync.retryHint')}</p>
-        </section>
-      </aside>
-    </div>
+          <div className="modal-actions">
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => setDisconnectTarget(null)}
+              disabled={disconnectMutation.isPending}
+            >
+              {t('common:actions.cancel')}
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => disconnectMutation.mutate(disconnectTarget)}
+              disabled={disconnectMutation.isPending}
+              data-busy={disconnectMutation.isPending ? 'true' : undefined}
+            >
+              {t('settings:calendarSync.actions.confirmDisconnect')}
+            </button>
+          </div>
+        </Modal>
+      )}
+    </section>
+  )
+}
+
+/**
+ * The supporting notes for the Calendar Sync card. Rendered by SettingsPage in the one rail that
+ * runs beside the whole Integrations stack, so the cards sit directly beneath each other instead
+ * of each card being pushed down by the notes of the card above it.
+ */
+export function CalendarSyncNotes() {
+  const { t } = useTranslation(['settings', 'common'])
+  // Same key as the card, so React Query serves the cached status and the copy names the
+  // provider a person actually sees first in the card.
+  const statusQuery = useQuery({ queryKey: ['calendar-sync', 'status'] as const, queryFn: getCalendarSyncStatus })
+  const railProvider: Provider = statusQuery.data?.[0]?.provider ?? 'GOOGLE'
+
+  return (
+    <>
+    {/* Connect is an outward-facing OAuth grant, so what the connection then writes belongs
+        next to the button rather than behind it. Each bullet is what CalendarSyncWorker
+        actually does: approved leave only, active people only, one event titled
+        "<leave type> - <person>" on the connected account's own calendar, removed again
+        when the request is declined (Plan PUENTE D-2). */}
+    <section className="support-note" aria-labelledby="calendar-sync-syncs-title">
+      <h3 className="support-note-title" id="calendar-sync-syncs-title">
+        {t('settings:calendarSync.rail.syncsTitle')}
+      </h3>
+      <ul className="support-note-bullets">
+        <li>{t('settings:calendarSync.rail.syncsApproved')}</li>
+        <li>{t('settings:calendarSync.rail.syncsTitleField')}</li>
+        <li>{t('settings:calendarSync.rail.syncsOwnCalendar')}</li>
+        <li>{t('settings:calendarSync.rail.syncsDeclineRemoves')}</li>
+      </ul>
+    </section>
+
+    {/* The same sentence the disconnect dialog shows — it is the answer to "what do I lose?",
+        which is a question asked before connecting, not only while disconnecting. */}
+    <section className="support-note" aria-labelledby="calendar-sync-disconnect-title-note">
+      <h3 className="support-note-title" id="calendar-sync-disconnect-title-note">
+        {t('settings:calendarSync.rail.disconnectingTitle')}
+      </h3>
+      <p className="support-note-body">
+        {t('settings:calendarSync.disconnectCopy', {
+          provider: t(`settings:${providerKey(railProvider)}`),
+        })}
+      </p>
+      <p className="support-note-body">{t('settings:calendarSync.retryHint')}</p>
+    </section>
+    </>
   )
 }

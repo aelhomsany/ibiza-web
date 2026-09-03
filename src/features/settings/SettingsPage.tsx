@@ -22,10 +22,10 @@ import { TeamMembersCard } from './TeamMembersCard'
 import { WorkforceGroupsWeekendsCard } from './WorkforceGroupsWeekendsCard'
 import { ScheduleLocationSettingsPage } from './ScheduleLocationSettingsPage'
 import { CalendarPrivacySettingsPage } from './CalendarPrivacySettingsPage'
-import { CalendarFeedSettings } from './CalendarFeedSettings'
-import { CalendarSyncSettings } from './CalendarSyncSettings'
-import { ChatNotificationsSettings } from './ChatNotificationsSettings'
-import { SlackWorkspaceSettings } from './SlackWorkspaceSettings'
+import { CalendarFeedNotes, CalendarFeedSettings } from './CalendarFeedSettings'
+import { CalendarSyncNotes, CalendarSyncSettings } from './CalendarSyncSettings'
+import { ChatNotificationsNotes, ChatNotificationsSettings } from './ChatNotificationsSettings'
+import { SlackWorkspaceNotes, SlackWorkspaceSettings } from './SlackWorkspaceSettings'
 import { NotificationPreferencesSettings } from './NotificationPreferencesSettings'
 import { OrganizationSettingsCard } from './OrganizationSettingsCard'
 import {
@@ -499,24 +499,36 @@ export function SettingsPage() {
             )}
 
             {activeCategory === 'integrations' && (
-              <>
-                <CalendarSyncSettings
-                  onSuccess={showSuccessToast}
-                  onWarning={showWarningToast}
-                />
-                <CalendarFeedSettings
-                  onSuccess={showSuccessToast}
-                  onWarning={showWarningToast}
-                />
-                <ChatNotificationsSettings
-                  onSuccess={showSuccessToast}
-                  onWarning={showWarningToast}
-                />
-                <SlackWorkspaceSettings
-                  onSuccess={showSuccessToast}
-                  onWarning={showWarningToast}
-                />
-              </>
+              /* One reading column and one rail for the whole category. Each card used to carry
+                 its own rail, and a rail is taller than its card here, so every card started
+                 a rail-height below the one above it. The rail is not sticky: four cards' notes
+                 are taller than a viewport, and a stuck rail would hide its lower half. */
+              <div className="panel-with-aside" data-testid="integrations-panel">
+                <div className="panel-stack">
+                  <CalendarSyncSettings
+                    onSuccess={showSuccessToast}
+                    onWarning={showWarningToast}
+                  />
+                  <CalendarFeedSettings
+                    onSuccess={showSuccessToast}
+                    onWarning={showWarningToast}
+                  />
+                  <ChatNotificationsSettings
+                    onSuccess={showSuccessToast}
+                    onWarning={showWarningToast}
+                  />
+                  <SlackWorkspaceSettings
+                    onSuccess={showSuccessToast}
+                    onWarning={showWarningToast}
+                  />
+                </div>
+                <aside className="support-rail support-rail-flow">
+                  <CalendarSyncNotes />
+                  <CalendarFeedNotes />
+                  <ChatNotificationsNotes />
+                  <SlackWorkspaceNotes />
+                </aside>
+              </div>
             )}
           </div>
         </main>

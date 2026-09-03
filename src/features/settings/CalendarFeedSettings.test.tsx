@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as apiClient from '../../api/client'
-import { CalendarFeedSettings } from './CalendarFeedSettings'
+import { CalendarFeedNotes, CalendarFeedSettings } from './CalendarFeedSettings'
 
 const FEED_URL = 'http://localhost:8080/api/v1/calendar-feeds/opaque-token.ics'
 
@@ -34,6 +34,7 @@ describe('CalendarFeedSettings', () => {
     expect(screen.queryByTestId('calendar-feed-rotate')).not.toBeInTheDocument()
     expect(screen.queryByTestId('calendar-feed-remove')).not.toBeInTheDocument()
     expect(screen.queryByTestId('calendar-feed-link')).not.toBeInTheDocument()
+    render(<CalendarFeedNotes />)
     expect(screen.getByText('How to subscribe')).toBeInTheDocument()
   })
 

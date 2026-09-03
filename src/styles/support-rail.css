@@ -127,6 +127,12 @@ html[lang='ar'] .support-note-title {
   inset-block-start: var(--space-lg);
 }
 
+/* A rail that runs beside a whole stack of cards is taller than the viewport; sticking it
+   would pin its top and hide everything below the fold. Let it flow with the page instead. */
+.support-rail-flow {
+  position: static;
+}
+
 /* Grid rows align on their start edge, so a card here cannot carry a top margin of its own.
    `.settings-card-spaced` holds the 24px that separates stacked cards, and `.settings-panel`
    already zeroes it on a card that sits directly in the panel -- wrapping that card in this

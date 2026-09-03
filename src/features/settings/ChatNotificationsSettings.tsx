@@ -87,12 +87,12 @@ export function ChatNotificationsSettings({ onSuccess, onWarning }: ChatNotifica
 
   if (listQuery.isPending) {
     return (
-      <section className="settings-card settings-card-spaced" data-testid="chat-notifications-settings">
-        {header}
-        <p className="settings-card-loading-inline">{t('settings:chat.loading')}</p>
-      </section>
-    )
-  }
+    <section className="settings-card settings-card-spaced" data-testid="chat-notifications-settings">
+      {header}
+      <p className="settings-card-loading-inline">{t('settings:chat.loading')}</p>
+    </section>
+  )
+}
 
   if (listQuery.isError) {
     return (
@@ -106,192 +106,171 @@ export function ChatNotificationsSettings({ onSuccess, onWarning }: ChatNotifica
   const webhooks = listQuery.data ?? []
 
   return (
-    <div className="panel-with-aside">
-      <section className="settings-card settings-card-spaced" data-testid="chat-notifications-settings">
-        {header}
-        <div className="chat-channels-body">
-          <div className="chat-channels-intro">
-            <p className="chat-channels-copy">
-              {webhooks.length === 0 ? t('settings:chat.empty') : t('settings:chat.rail.postsPeerOnly')}
-            </p>
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => setEditing('new')}
-              data-testid="chat-webhook-add"
-            >
-              <PlusIcon size={14} /> {t('settings:chat.actions.add')}
-            </button>
-          </div>
-
-          {webhooks.length > 0 && (
-            <ul className="chat-channels-list" data-testid="chat-webhook-list">
-              {webhooks.map((webhook) => {
-                const hasError = webhook.status === 'ERROR'
-                return (
-                  <li key={webhook.id} className="chat-channel-row" data-testid={`chat-webhook-${webhook.id}`}>
-                    <div className="chat-channel-icon" aria-hidden="true">
-                      <MessageSquareIcon size={20} />
-                    </div>
-                    <div className="chat-channel-copy">
-                      <p className="chat-channel-title" dir="auto">
-                        {webhook.label}
-                      </p>
-                      <p className="chat-channel-meta">
-                        <span>{t(`settings:chat.providers.${webhook.provider}`)}</span>
-                        <span>·</span>
-                        <span data-testid={`chat-webhook-host-${webhook.id}`}>{webhook.urlHost}</span>
-                        <span>·</span>
-                        <span
-                          className={hasError ? 'chat-channel-status--error' : undefined}
-                          data-testid={`chat-webhook-status-${webhook.id}`}
-                        >
-                          {t(`settings:chat.status.${webhook.status}`)}
-                        </span>
-                      </p>
-                      <p className="chat-channel-meta">
-                        <span>
-                          {webhook.postDailyDigest
-                            ? t('settings:chat.digestAt', { time: webhook.digestLocalTime })
-                            : t('settings:chat.digestOff')}
-                        </span>
-                        {webhook.postApprovals && (
-                          <>
-                            <span>·</span>
-                            <span>{t('settings:chat.approvalsOn')}</span>
-                          </>
-                        )}
-                        <span>·</span>
-                        <span>
-                          {webhook.lastPostedAt
-                            ? t('settings:chat.lastPosted', {
-                                when: new Date(webhook.lastPostedAt).toLocaleString(i18n.language),
-                              })
-                            : t('settings:chat.neverPosted')}
-                        </span>
-                      </p>
-                      {hasError && (
-                        <p className="chat-channel-warning">
-                          {t('settings:chat.statusWarning', {
-                            category: webhook.lastErrorCategory ?? t('common:unknown'),
-                          })}
-                        </p>
-                      )}
-                    </div>
-                    <div className="chat-channel-actions">
-                      <button
-                        type="button"
-                        className="btn btn-outline btn-sm"
-                        onClick={() => testMutation.mutate(webhook.id)}
-                        disabled={testMutation.isPending}
-                        data-busy={testMutation.isPending ? 'true' : undefined}
-                        data-testid={`chat-webhook-test-${webhook.id}`}
-                      >
-                        {t('settings:chat.actions.test')}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-outline btn-sm"
-                        onClick={() => setEditing(webhook)}
-                        data-testid={`chat-webhook-edit-${webhook.id}`}
-                      >
-                        {t('settings:chat.actions.edit')}
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-outline btn-sm"
-                        onClick={() => setRemoving(webhook)}
-                        data-testid={`chat-webhook-remove-${webhook.id}`}
-                      >
-                        {t('settings:chat.actions.remove')}
-                      </button>
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
+    <section className="settings-card settings-card-spaced" data-testid="chat-notifications-settings">
+      {header}
+      <div className="chat-channels-body">
+        <div className="chat-channels-intro">
+          <p className="chat-channels-copy">
+            {webhooks.length === 0 ? t('settings:chat.empty') : t('settings:chat.rail.postsPeerOnly')}
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => setEditing('new')}
+            data-testid="chat-webhook-add"
+          >
+            <PlusIcon size={14} /> {t('settings:chat.actions.add')}
+          </button>
         </div>
 
-        {editing !== null && (
-          <ChatWebhookFormModal
-            webhook={editing === 'new' ? null : editing}
-            onClose={() => setEditing(null)}
-            onSaved={(created) => {
-              setEditing(null)
-              void queryClient.invalidateQueries({ queryKey: QUERY_KEY })
-              onSuccess?.(t(created ? 'settings:chat.success.created' : 'settings:chat.success.updated'))
-            }}
-          />
-        )}
-
-        {removing && (
-          <Modal
-            labelledBy="chat-webhook-remove-title"
-            onClose={() => setRemoving(null)}
-            closeOnBackdrop={false}
-            testId="chat-webhook-remove-modal"
-          >
-            <div className="modal-header">
-              <h2 className="modal-title" id="chat-webhook-remove-title">
-                {t('settings:chat.removeTitle')}
-              </h2>
-              <button
-                type="button"
-                className="modal-close"
-                onClick={() => setRemoving(null)}
-                aria-label={t('common:actions.close')}
-                disabled={removeMutation.isPending}
-              >
-                <CloseIcon size={18} />
-              </button>
-            </div>
-            <p className="chat-channel-modal-copy">
-              {t('settings:chat.removeCopy', { label: removing.label })}
-            </p>
-            <div className="modal-actions">
-              <button
-                type="button"
-                className="btn btn-outline"
-                onClick={() => setRemoving(null)}
-                disabled={removeMutation.isPending}
-              >
-                {t('common:actions.cancel')}
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => removeMutation.mutate(removing.id)}
-                disabled={removeMutation.isPending}
-                data-busy={removeMutation.isPending ? 'true' : undefined}
-                data-testid="chat-webhook-confirm-remove"
-              >
-                {t('settings:chat.actions.confirmRemove')}
-              </button>
-            </div>
-          </Modal>
-        )}
-      </section>
-
-      <aside className="support-rail">
-        <section className="support-note" aria-labelledby="chat-posts-title">
-          <h3 className="support-note-title" id="chat-posts-title">
-            {t('settings:chat.rail.postsTitle')}
-          </h3>
-          <ul className="support-note-bullets">
-            <li>{t('settings:chat.rail.postsPeerOnly')}</li>
-            <li>{t('settings:chat.rail.postsWfh')}</li>
-            <li>{t('settings:chat.rail.postsSecret')}</li>
+        {webhooks.length > 0 && (
+          <ul className="chat-channels-list" data-testid="chat-webhook-list">
+            {webhooks.map((webhook) => {
+              const hasError = webhook.status === 'ERROR'
+              return (
+                <li key={webhook.id} className="chat-channel-row" data-testid={`chat-webhook-${webhook.id}`}>
+                  <div className="chat-channel-icon" aria-hidden="true">
+                    <MessageSquareIcon size={20} />
+                  </div>
+                  <div className="chat-channel-copy">
+                    <p className="chat-channel-title" dir="auto">
+                      {webhook.label}
+                    </p>
+                    <p className="chat-channel-meta">
+                      <span>{t(`settings:chat.providers.${webhook.provider}`)}</span>
+                      <span>·</span>
+                      <span data-testid={`chat-webhook-host-${webhook.id}`}>{webhook.urlHost}</span>
+                      <span>·</span>
+                      <span
+                        className={hasError ? 'chat-channel-status--error' : undefined}
+                        data-testid={`chat-webhook-status-${webhook.id}`}
+                      >
+                        {t(`settings:chat.status.${webhook.status}`)}
+                      </span>
+                    </p>
+                    <p className="chat-channel-meta">
+                      <span>
+                        {webhook.postDailyDigest
+                          ? t('settings:chat.digestAt', { time: webhook.digestLocalTime })
+                          : t('settings:chat.digestOff')}
+                      </span>
+                      {webhook.postApprovals && (
+                        <>
+                          <span>·</span>
+                          <span>{t('settings:chat.approvalsOn')}</span>
+                        </>
+                      )}
+                      <span>·</span>
+                      <span>
+                        {webhook.lastPostedAt
+                          ? t('settings:chat.lastPosted', {
+                              when: new Date(webhook.lastPostedAt).toLocaleString(i18n.language),
+                            })
+                          : t('settings:chat.neverPosted')}
+                      </span>
+                    </p>
+                    {hasError && (
+                      <p className="chat-channel-warning">
+                        {t('settings:chat.statusWarning', {
+                          category: webhook.lastErrorCategory ?? t('common:unknown'),
+                        })}
+                      </p>
+                    )}
+                  </div>
+                  <div className="chat-channel-actions">
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm"
+                      onClick={() => testMutation.mutate(webhook.id)}
+                      disabled={testMutation.isPending}
+                      data-busy={testMutation.isPending ? 'true' : undefined}
+                      data-testid={`chat-webhook-test-${webhook.id}`}
+                    >
+                      {t('settings:chat.actions.test')}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm"
+                      onClick={() => setEditing(webhook)}
+                      data-testid={`chat-webhook-edit-${webhook.id}`}
+                    >
+                      {t('settings:chat.actions.edit')}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm"
+                      onClick={() => setRemoving(webhook)}
+                      data-testid={`chat-webhook-remove-${webhook.id}`}
+                    >
+                      {t('settings:chat.actions.remove')}
+                    </button>
+                  </div>
+                </li>
+              )
+            })}
           </ul>
-        </section>
-        <section className="support-note" aria-labelledby="chat-digest-title">
-          <h3 className="support-note-title" id="chat-digest-title">
-            {t('settings:chat.rail.digestTitle')}
-          </h3>
-          <p className="support-note-body">{t('settings:chat.rail.digestCopy')}</p>
-        </section>
-      </aside>
-    </div>
+        )}
+      </div>
+
+      {editing !== null && (
+        <ChatWebhookFormModal
+          webhook={editing === 'new' ? null : editing}
+          onClose={() => setEditing(null)}
+          onSaved={(created) => {
+            setEditing(null)
+            void queryClient.invalidateQueries({ queryKey: QUERY_KEY })
+            onSuccess?.(t(created ? 'settings:chat.success.created' : 'settings:chat.success.updated'))
+          }}
+        />
+      )}
+
+      {removing && (
+        <Modal
+          labelledBy="chat-webhook-remove-title"
+          onClose={() => setRemoving(null)}
+          closeOnBackdrop={false}
+          testId="chat-webhook-remove-modal"
+        >
+          <div className="modal-header">
+            <h2 className="modal-title" id="chat-webhook-remove-title">
+              {t('settings:chat.removeTitle')}
+            </h2>
+            <button
+              type="button"
+              className="modal-close"
+              onClick={() => setRemoving(null)}
+              aria-label={t('common:actions.close')}
+              disabled={removeMutation.isPending}
+            >
+              <CloseIcon size={18} />
+            </button>
+          </div>
+          <p className="chat-channel-modal-copy">
+            {t('settings:chat.removeCopy', { label: removing.label })}
+          </p>
+          <div className="modal-actions">
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() => setRemoving(null)}
+              disabled={removeMutation.isPending}
+            >
+              {t('common:actions.cancel')}
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => removeMutation.mutate(removing.id)}
+              disabled={removeMutation.isPending}
+              data-busy={removeMutation.isPending ? 'true' : undefined}
+              data-testid="chat-webhook-confirm-remove"
+            >
+              {t('settings:chat.actions.confirmRemove')}
+            </button>
+          </div>
+        </Modal>
+      )}
+    </section>
   )
 }
 
@@ -475,5 +454,39 @@ function ChatWebhookFormModal({ webhook, onClose, onSaved }: ChatWebhookFormModa
         </div>
       </form>
     </Modal>
+  )
+}
+
+/**
+ * The supporting notes for the Chat notifications card. Rendered by SettingsPage in the one rail that
+ * runs beside the whole Integrations stack, so the cards sit directly beneath each other instead
+ * of each card being pushed down by the notes of the card above it.
+ */
+export function ChatNotificationsNotes() {
+  const { t } = useTranslation(['settings', 'common'])
+  const { user } = useAuth()
+  if (user?.role !== 'HR_ADMIN') {
+    return null
+  }
+
+  return (
+    <>
+    <section className="support-note" aria-labelledby="chat-posts-title">
+      <h3 className="support-note-title" id="chat-posts-title">
+        {t('settings:chat.rail.postsTitle')}
+      </h3>
+      <ul className="support-note-bullets">
+        <li>{t('settings:chat.rail.postsPeerOnly')}</li>
+        <li>{t('settings:chat.rail.postsWfh')}</li>
+        <li>{t('settings:chat.rail.postsSecret')}</li>
+      </ul>
+    </section>
+    <section className="support-note" aria-labelledby="chat-digest-title">
+      <h3 className="support-note-title" id="chat-digest-title">
+        {t('settings:chat.rail.digestTitle')}
+      </h3>
+      <p className="support-note-body">{t('settings:chat.rail.digestCopy')}</p>
+    </section>
+    </>
   )
 }

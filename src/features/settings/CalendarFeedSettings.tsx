@@ -85,12 +85,12 @@ export function CalendarFeedSettings({ onSuccess, onWarning }: CalendarFeedSetti
 
   if (statusQuery.isPending) {
     return (
-      <section className="settings-card settings-card-spaced" data-testid="calendar-feed-settings">
-        {header}
-        <p className="settings-card-loading-inline">{t('settings:calendarFeed.loading')}</p>
-      </section>
-    )
-  }
+    <section className="settings-card settings-card-spaced" data-testid="calendar-feed-settings">
+      {header}
+      <p className="settings-card-loading-inline">{t('settings:calendarFeed.loading')}</p>
+    </section>
+  )
+}
 
   if (statusQuery.isError) {
     return (
@@ -117,166 +117,175 @@ export function CalendarFeedSettings({ onSuccess, onWarning }: CalendarFeedSetti
     : null
 
   return (
-    <div className="panel-with-aside">
-      <section className="settings-card settings-card-spaced" data-testid="calendar-feed-settings">
-        {header}
-        <div className="calendar-sync-body calendar-feed-body">
-          <div className="calendar-sync-icon" aria-hidden="true">
-            <CalendarIcon size={20} />
-          </div>
-          <div className="calendar-sync-copy">
-            <p className="calendar-sync-title">{t('settings:calendarFeed.linkTitle')}</p>
-            <p className="calendar-sync-status" data-testid="calendar-feed-status">
-              {statusText}
-              {fetchedText ? ` · ${fetchedText}` : ''}
-            </p>
-          </div>
-          <div className="calendar-sync-actions">
-            {!status.active && (
-              <button
-                type="button"
-                className="btn btn-primary btn-sm"
-                onClick={() => createMutation.mutate()}
-                disabled={busy}
-                data-busy={createMutation.isPending ? 'true' : undefined}
-                data-testid="calendar-feed-create"
-              >
-                <CalendarIcon size={14} /> {t('settings:calendarFeed.actions.create')}
-              </button>
-            )}
-            {status.active && (
-              <>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  onClick={() => setConfirm('rotate')}
-                  disabled={busy}
-                  data-testid="calendar-feed-rotate"
-                >
-                  <RefreshCwIcon size={14} /> {t('settings:calendarFeed.actions.rotate')}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-outline btn-sm"
-                  onClick={() => setConfirm('remove')}
-                  disabled={busy}
-                  data-testid="calendar-feed-remove"
-                >
-                  <CloseIcon size={14} /> {t('settings:calendarFeed.actions.remove')}
-                </button>
-              </>
-            )}
-          </div>
+    <section className="settings-card settings-card-spaced" data-testid="calendar-feed-settings">
+      {header}
+      <div className="calendar-sync-body calendar-feed-body">
+        <div className="calendar-sync-icon" aria-hidden="true">
+          <CalendarIcon size={20} />
         </div>
-
-        {freshUrl && (
-          <div className="calendar-feed-link" data-testid="calendar-feed-link">
-            <p className="calendar-feed-link-copy">{t('settings:calendarFeed.shownOnce')}</p>
-            <input
-              ref={urlInputRef}
-              className="calendar-feed-url"
-              type="text"
-              readOnly
-              value={freshUrl}
-              aria-label={t('settings:calendarFeed.urlLabel')}
-              onFocus={(event) => event.currentTarget.select()}
-              data-testid="calendar-feed-url"
-            />
+        <div className="calendar-sync-copy">
+          <p className="calendar-sync-title">{t('settings:calendarFeed.linkTitle')}</p>
+          <p className="calendar-sync-status" data-testid="calendar-feed-status">
+            {statusText}
+            {fetchedText ? ` · ${fetchedText}` : ''}
+          </p>
+        </div>
+        <div className="calendar-sync-actions">
+          {!status.active && (
             <button
               type="button"
               className="btn btn-primary btn-sm"
-              onClick={() => void copyUrl()}
-              data-testid="calendar-feed-copy"
+              onClick={() => createMutation.mutate()}
+              disabled={busy}
+              data-busy={createMutation.isPending ? 'true' : undefined}
+              data-testid="calendar-feed-create"
             >
-              {copied ? <CheckIcon size={14} /> : null}{' '}
-              {t(copied ? 'settings:calendarFeed.actions.copied' : 'settings:calendarFeed.actions.copy')}
+              <CalendarIcon size={14} /> {t('settings:calendarFeed.actions.create')}
+            </button>
+          )}
+          {status.active && (
+            <>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => setConfirm('rotate')}
+                disabled={busy}
+                data-testid="calendar-feed-rotate"
+              >
+                <RefreshCwIcon size={14} /> {t('settings:calendarFeed.actions.rotate')}
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={() => setConfirm('remove')}
+                disabled={busy}
+                data-testid="calendar-feed-remove"
+              >
+                <CloseIcon size={14} /> {t('settings:calendarFeed.actions.remove')}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {freshUrl && (
+        <div className="calendar-feed-link" data-testid="calendar-feed-link">
+          <p className="calendar-feed-link-copy">{t('settings:calendarFeed.shownOnce')}</p>
+          <input
+            ref={urlInputRef}
+            className="calendar-feed-url"
+            type="text"
+            readOnly
+            value={freshUrl}
+            aria-label={t('settings:calendarFeed.urlLabel')}
+            onFocus={(event) => event.currentTarget.select()}
+            data-testid="calendar-feed-url"
+          />
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => void copyUrl()}
+            data-testid="calendar-feed-copy"
+          >
+            {copied ? <CheckIcon size={14} /> : null}{' '}
+            {t(copied ? 'settings:calendarFeed.actions.copied' : 'settings:calendarFeed.actions.copy')}
+          </button>
+        </div>
+      )}
+
+      {confirm && (
+        <Modal
+          labelledBy="calendar-feed-confirm-title"
+          onClose={() => setConfirm(null)}
+          closeOnBackdrop={false}
+          testId="calendar-feed-confirm-modal"
+        >
+          <div className="modal-header">
+            <h2 className="modal-title" id="calendar-feed-confirm-title">
+              {t(confirm === 'rotate' ? 'settings:calendarFeed.rotateTitle' : 'settings:calendarFeed.removeTitle')}
+            </h2>
+            <button
+              type="button"
+              className="modal-close"
+              onClick={() => setConfirm(null)}
+              aria-label={t('common:actions.close')}
+              disabled={busy}
+            >
+              <CloseIcon size={18} />
             </button>
           </div>
-        )}
+          <p className="calendar-sync-modal-copy">
+            {t(confirm === 'rotate' ? 'settings:calendarFeed.rotateCopy' : 'settings:calendarFeed.removeCopy')}
+          </p>
+          <div className="modal-actions">
+            <button type="button" className="btn btn-outline" onClick={() => setConfirm(null)} disabled={busy}>
+              {t('common:actions.cancel')}
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => (confirm === 'rotate' ? createMutation.mutate() : deleteMutation.mutate())}
+              disabled={busy}
+              data-busy={busy ? 'true' : undefined}
+              data-testid="calendar-feed-confirm"
+            >
+              {t(
+                confirm === 'rotate'
+                  ? 'settings:calendarFeed.actions.confirmRotate'
+                  : 'settings:calendarFeed.actions.confirmRemove',
+              )}
+            </button>
+          </div>
+        </Modal>
+      )}
+    </section>
+  )
+}
 
-        {confirm && (
-          <Modal
-            labelledBy="calendar-feed-confirm-title"
-            onClose={() => setConfirm(null)}
-            closeOnBackdrop={false}
-            testId="calendar-feed-confirm-modal"
-          >
-            <div className="modal-header">
-              <h2 className="modal-title" id="calendar-feed-confirm-title">
-                {t(confirm === 'rotate' ? 'settings:calendarFeed.rotateTitle' : 'settings:calendarFeed.removeTitle')}
-              </h2>
-              <button
-                type="button"
-                className="modal-close"
-                onClick={() => setConfirm(null)}
-                aria-label={t('common:actions.close')}
-                disabled={busy}
-              >
-                <CloseIcon size={18} />
-              </button>
-            </div>
-            <p className="calendar-sync-modal-copy">
-              {t(confirm === 'rotate' ? 'settings:calendarFeed.rotateCopy' : 'settings:calendarFeed.removeCopy')}
-            </p>
-            <div className="modal-actions">
-              <button type="button" className="btn btn-outline" onClick={() => setConfirm(null)} disabled={busy}>
-                {t('common:actions.cancel')}
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => (confirm === 'rotate' ? createMutation.mutate() : deleteMutation.mutate())}
-                disabled={busy}
-                data-busy={busy ? 'true' : undefined}
-                data-testid="calendar-feed-confirm"
-              >
-                {t(
-                  confirm === 'rotate'
-                    ? 'settings:calendarFeed.actions.confirmRotate'
-                    : 'settings:calendarFeed.actions.confirmRemove',
-                )}
-              </button>
-            </div>
-          </Modal>
-        )}
-      </section>
+/**
+ * The supporting notes for the Calendar Feed card. Rendered by SettingsPage in the one rail that
+ * runs beside the whole Integrations stack, so the cards sit directly beneath each other instead
+ * of each card being pushed down by the notes of the card above it.
+ */
+export function CalendarFeedNotes() {
+  const { t } = useTranslation(['settings', 'common'])
 
-      <aside className="support-rail">
-        {/* What the link exposes is the Team Calendar as this user sees it (D-6) — the rail says
-            that in the user's terms, because "private URL" alone reads as "nobody can see it". */}
-        <section className="support-note" aria-labelledby="calendar-feed-shows-title">
-          <h3 className="support-note-title" id="calendar-feed-shows-title">
-            {t('settings:calendarFeed.rail.showsTitle')}
-          </h3>
-          <ul className="support-note-bullets">
-            <li>{t('settings:calendarFeed.rail.showsTeam')}</li>
-            <li>{t('settings:calendarFeed.rail.showsHolidays')}</li>
-            <li>{t('settings:calendarFeed.rail.showsWindow')}</li>
-            <li>{t('settings:calendarFeed.rail.showsSecret')}</li>
-          </ul>
-        </section>
+  return (
+    <>
+    {/* What the link exposes is the Team Calendar as this user sees it (D-6) — the rail says
+        that in the user's terms, because "private URL" alone reads as "nobody can see it". */}
+    <section className="support-note" aria-labelledby="calendar-feed-shows-title">
+      <h3 className="support-note-title" id="calendar-feed-shows-title">
+        {t('settings:calendarFeed.rail.showsTitle')}
+      </h3>
+      <ul className="support-note-bullets">
+        <li>{t('settings:calendarFeed.rail.showsTeam')}</li>
+        <li>{t('settings:calendarFeed.rail.showsHolidays')}</li>
+        <li>{t('settings:calendarFeed.rail.showsWindow')}</li>
+        <li>{t('settings:calendarFeed.rail.showsSecret')}</li>
+      </ul>
+    </section>
 
-        <section className="support-note" aria-labelledby="calendar-feed-subscribe-title">
-          <h3 className="support-note-title" id="calendar-feed-subscribe-title">
-            {t('settings:calendarFeed.rail.subscribeTitle')}
-          </h3>
-          <ol className="calendar-feed-steps">
-            <li>
-              <strong>{t('settings:calendarFeed.rail.google')}</strong>{' '}
-              {t('settings:calendarFeed.rail.googleSteps')}
-            </li>
-            <li>
-              <strong>{t('settings:calendarFeed.rail.outlook')}</strong>{' '}
-              {t('settings:calendarFeed.rail.outlookSteps')}
-            </li>
-            <li>
-              <strong>{t('settings:calendarFeed.rail.apple')}</strong>{' '}
-              {t('settings:calendarFeed.rail.appleSteps')}
-            </li>
-          </ol>
-          <p className="support-note-body">{t('settings:calendarFeed.rail.refreshNote')}</p>
-        </section>
-      </aside>
-    </div>
+    <section className="support-note" aria-labelledby="calendar-feed-subscribe-title">
+      <h3 className="support-note-title" id="calendar-feed-subscribe-title">
+        {t('settings:calendarFeed.rail.subscribeTitle')}
+      </h3>
+      <ol className="calendar-feed-steps">
+        <li>
+          <strong>{t('settings:calendarFeed.rail.google')}</strong>{' '}
+          {t('settings:calendarFeed.rail.googleSteps')}
+        </li>
+        <li>
+          <strong>{t('settings:calendarFeed.rail.outlook')}</strong>{' '}
+          {t('settings:calendarFeed.rail.outlookSteps')}
+        </li>
+        <li>
+          <strong>{t('settings:calendarFeed.rail.apple')}</strong>{' '}
+          {t('settings:calendarFeed.rail.appleSteps')}
+        </li>
+      </ol>
+      <p className="support-note-body">{t('settings:calendarFeed.rail.refreshNote')}</p>
+    </section>
+    </>
   )
 }
