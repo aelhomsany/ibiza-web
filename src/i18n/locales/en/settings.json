@@ -540,7 +540,10 @@
     "actions": {
       "clearMute": "Clear Mute",
       "mute": "Mute Email",
-      "save": "Save Preferences"
+      "save": "Save Preferences",
+      "muteSlack": "Mute Slack",
+      "clearSlackMute": "Clear Slack Mute",
+      "saveSlack": "Save Slack Preferences"
     },
     "badges": {
       "optional": "Optional",
@@ -569,7 +572,9 @@
     "success": {
       "cleared": "Email mute cleared",
       "muted": "Email notifications muted",
-      "saved": "Notification preferences saved"
+      "saved": "Notification preferences saved",
+      "slackMuted": "Slack messages muted",
+      "slackCleared": "Slack mute cleared"
     },
     "title": "Notification Preferences",
     "rail": {
@@ -581,7 +586,15 @@
       "scopeTitle": "Scope",
       "scopeYours": "These preferences are yours alone. They do not change what anyone else receives.",
       "scopeRequired": "In-app workflow notifications are required and cannot be turned off or muted.",
-      "scopeMuteCap": "An email mute can run for at most 30 days."
+      "scopeMuteCap": "An email mute can run for at most 30 days.",
+      "scopeSlack": "Slack direct messages appear here only once your HR admin has connected the Slack app. They reach you only if your Slack email matches your Ibiza email."
+    },
+    "slack": "Slack direct messages",
+    "muteSlackFor": "Mute Slack messages for",
+    "slackStatus": {
+      "muted": "Slack direct messages are muted until {{date}}.",
+      "off": "Slack direct messages are turned off.",
+      "on": "Slack direct messages are on."
     }
   },
   "organization": {
@@ -970,6 +983,62 @@
       "postsSecret": "The webhook URL is stored encrypted and is never returned or logged.",
       "digestTitle": "The daily digest",
       "digestCopy": "Posted once per day at the chosen time in your organization's operational timezone. A day with nobody away still posts \"Everyone is in\"."
+    }
+  },
+  "slack": {
+    "title": "Slack app",
+    "loading": "Loading Slack status…",
+    "notConnected": "Not connected. Install the Ibiza app in your Slack workspace so approvers and requesters get workflow updates as direct messages.",
+    "notConnectedMember": "Your HR admin has not connected the Slack app yet. Once it is connected, workflow updates can reach you as Slack direct messages.",
+    "connectedIntro": "Workflow updates are sent as Slack direct messages to everyone whose Slack email matches their Ibiza email.",
+    "connectedTo": "Connected to {{team}}",
+    "installedOn": "Installed {{when}}",
+    "status": {
+      "CONNECTED": "Connected",
+      "REVOKED": "Access revoked"
+    },
+    "revoked": "Slack revoked the app's access ({{category}}). Direct messages are paused until you reconnect it.",
+    "revokedMember": "Slack revoked the app's access. Direct messages are paused until your HR admin reconnects it.",
+    "me": {
+      "title": "Your Slack",
+      "LINKED": "Linked. Workflow updates reach you as direct messages.",
+      "NOT_FOUND": "Not linked — your Slack email differs from your Ibiza email. Ask your Slack admin to match them, then check again.",
+      "UNCHECKED": "Not checked yet. Ibiza matches your Ibiza email to your Slack account the first time it has something to send you."
+    },
+    "actions": {
+      "install": "Add to Slack",
+      "reconnect": "Reconnect",
+      "disconnect": "Disconnect",
+      "confirmDisconnect": "Disconnect Slack",
+      "checkAgain": "Check again",
+      "checkNow": "Check now"
+    },
+    "disconnectTitle": "Disconnect Slack",
+    "disconnectCopy": "Ibiza will uninstall its app from {{team}} and stop sending direct messages. Chat channels (webhooks) are not affected.",
+    "callback": {
+      "connected": "Slack app connected. Workflow updates can now be sent as direct messages.",
+      "accessDenied": "Slack installation was cancelled before access was granted.",
+      "failed": "Slack installation could not be completed. Try adding the app again."
+    },
+    "success": {
+      "disconnected": "Slack app disconnected",
+      "linked": "Your Slack account is linked",
+      "notFound": "No Slack account matches your Ibiza email"
+    },
+    "errors": {
+      "load": "Unable to load Slack status.",
+      "install": "Unable to start the Slack installation",
+      "disconnect": "Unable to disconnect Slack",
+      "link": "Unable to check your Slack account"
+    },
+    "rail": {
+      "sentTitle": "What gets sent",
+      "sentCopy": "The same workflow updates as email: a request waiting for your approval, a decision on your request, a concern recorded on approved leave, and approval evidence complete.",
+      "matchTitle": "How you are matched",
+      "matchCopy": "Ibiza looks up your Ibiza email in the Slack workspace. Nothing is sent to anyone whose email does not match.",
+      "optOutTitle": "Turning it off",
+      "optOutCopy": "Each person can turn Slack direct messages off or mute them under Notification preferences.",
+      "secret": "The app token is stored encrypted and is never returned or logged."
     }
   }
 }

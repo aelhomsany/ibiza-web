@@ -804,6 +804,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/chat/slack/link-me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Re-check whether the caller's Ibiza email matches a Slack member */
+        post: operations["linkMe"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chat/slack/install": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start the "Add to Slack" install for the organization (HR Admin) */
+        post: operations["install"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/chat-webhooks": {
         parameters: {
             query?: never;
@@ -1863,6 +1897,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/chat/slack/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Slack app status for the organization and the caller's own email match */
+        get: operations["status_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chat/slack/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Complete the Slack app install (browser redirect target) */
+        get: operations["callback"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/calendar": {
         parameters: {
             query?: never;
@@ -1888,7 +1956,7 @@ export interface paths {
             cookie?: never;
         };
         /** Complete provider OAuth connection (browser redirect target) */
-        get: operations["callback"];
+        get: operations["callback_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1905,7 +1973,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get calendar sync connection status */
-        get: operations["status_1"];
+        get: operations["status_2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2082,6 +2150,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/chat/slack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Uninstall the Slack app and forget every cached match (HR Admin) */
+        delete: operations["disconnect"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/calendar-sync/{provider}": {
         parameters: {
             query?: never;
@@ -2093,7 +2178,7 @@ export interface paths {
         put?: never;
         post?: never;
         /** Disconnect provider calendar sync */
-        delete: operations["disconnect"];
+        delete: operations["disconnect_1"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3136,6 +3221,13 @@ export interface components {
             locale?: string;
             subject?: string;
         };
+        SlackLinkResponse: {
+            linked?: boolean;
+            status?: string;
+        };
+        SlackInstallResponse: {
+            authorizationUrl?: string;
+        };
         ChatWebhookUpsertRequest: {
             provider?: string;
             label?: string;
@@ -3484,7 +3576,7 @@ export interface components {
         };
         UpdateNotificationPreferenceRequest: {
             /** @enum {string} */
-            channel: "IN_APP" | "EMAIL";
+            channel: "IN_APP" | "EMAIL" | "SLACK";
             /** @enum {string} */
             scope: "WORKFLOW";
             enabled: boolean;
@@ -3493,7 +3585,7 @@ export interface components {
         };
         NotificationPreferenceResponse: {
             /** @enum {string} */
-            channel?: "IN_APP" | "EMAIL";
+            channel?: "IN_APP" | "EMAIL" | "SLACK";
             /** @enum {string} */
             scope?: "WORKFLOW";
             mandatory?: boolean;
@@ -3789,6 +3881,15 @@ export interface components {
              * @description Remaining working days; null when uncapped.
              */
             remainingDays?: number | null;
+        };
+        SlackStatusResponse: {
+            workspaceConnected?: boolean;
+            status?: string;
+            teamName?: string;
+            /** Format: date-time */
+            installedAt?: string;
+            lastErrorCategory?: string;
+            me?: components["schemas"]["SlackLinkResponse"];
         };
         CalendarAbsenceResponse: {
             /** Format: int64 */
@@ -5598,6 +5699,46 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ConsentReceiptResponse"];
+                };
+            };
+        };
+    };
+    linkMe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SlackLinkResponse"];
+                };
+            };
+        };
+    };
+    install: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SlackInstallResponse"];
                 };
             };
         };
@@ -7417,6 +7558,48 @@ export interface operations {
             };
         };
     };
+    status_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SlackStatusResponse"];
+                };
+            };
+        };
+    };
+    callback: {
+        parameters: {
+            query?: {
+                code?: string;
+                state?: string;
+                error?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getCalendar: {
         parameters: {
             query?: {
@@ -7440,7 +7623,7 @@ export interface operations {
             };
         };
     };
-    callback: {
+    callback_1: {
         parameters: {
             query?: {
                 code?: string;
@@ -7464,7 +7647,7 @@ export interface operations {
             };
         };
     };
-    status_1: {
+    status_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -7712,6 +7895,24 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    disconnect_1: {
+        parameters: {
+            query?: never;
+            header?: never;
             path: {
                 provider: string;
             };
@@ -7926,7 +8127,16 @@ export type CalendarSyncConnectResponse = {
     provider: "GOOGLE" | "MICROSOFT";
     authorizationUrl: string;
 };
-export type NotificationChannel = "IN_APP" | "EMAIL";
+export type SlackInstallResponse = RequiredSchema<"SlackInstallResponse">;
+export type SlackLinkResponse = RequiredSchema<"SlackLinkResponse">;
+export type SlackStatusResponse = Omit<RequiredSchema<"SlackStatusResponse">, "me" | "status" | "teamName" | "installedAt" | "lastErrorCategory"> & {
+    status?: "CONNECTED" | "REVOKED" | null;
+    teamName?: string | null;
+    installedAt?: string | null;
+    lastErrorCategory?: string | null;
+    me: SlackLinkResponse;
+};
+export type NotificationChannel = "IN_APP" | "EMAIL" | "SLACK";
 export type NotificationScope = "WORKFLOW";
 export type NotificationPreferenceResponse = {
     channel: NotificationChannel;

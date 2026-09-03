@@ -1,9 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as apiClient from '../../api/client'
-import type { NotificationPreferenceResponse } from '../../api/generated/types'
+import type { NotificationPreferenceResponse, SlackStatusResponse } from '../../api/generated/types'
 import { NotificationPreferencesSettings } from './NotificationPreferencesSettings'
 
 const defaultPreferences: NotificationPreferenceResponse[] = [
@@ -23,7 +23,32 @@ const defaultPreferences: NotificationPreferenceResponse[] = [
     mutedUntil: null,
     effectiveEnabledNow: true,
   },
+  {
+    channel: 'SLACK',
+    scope: 'WORKFLOW',
+    mandatory: false,
+    enabled: true,
+    mutedUntil: null,
+    effectiveEnabledNow: true,
+  },
 ]
+
+const slackNotConnected: SlackStatusResponse = {
+  workspaceConnected: false,
+  status: null,
+  teamName: null,
+  installedAt: null,
+  lastErrorCategory: null,
+  me: { linked: false, status: 'UNCHECKED' },
+}
+
+const slackConnected: SlackStatusResponse = {
+  ...slackNotConnected,
+  workspaceConnected: true,
+  status: 'CONNECTED',
+  teamName: 'Acme Workspace',
+  me: { linked: true, status: 'LINKED' },
+}
 
 function renderCard(onSuccess = vi.fn(), onWarning = vi.fn()) {
   const queryClient = new QueryClient({
@@ -37,8 +62,83 @@ function renderCard(onSuccess = vi.fn(), onWarning = vi.fn()) {
 }
 
 describe('NotificationPreferencesSettings', () => {
+  beforeEach(() => {
+    vi.spyOn(apiClient, 'getSlackStatus').mockResolvedValue(slackNotConnected)
+  })
+
   afterEach(() => {
     vi.restoreAllMocks()
+  })
+
+  it('hides the Slack row while the organization has no Slack app connected', async () => {
+    vi.spyOn(apiClient, 'getNotificationPreferences').mockResolvedValue(defaultPreferences)
+
+    renderCard()
+
+    await screen.findByTestId('notification-preference-email-workflow')
+    await waitFor(() => expect(apiClient.getSlackStatus).toHaveBeenCalled())
+    expect(screen.queryByTestId('notification-preference-slack-workflow')).not.toBeInTheDocument()
+  })
+
+  it('offers Slack direct messages as an optional channel once the Slack app is connected', async () => {
+    const user = userEvent.setup()
+    const onSuccess = vi.fn()
+    vi.spyOn(apiClient, 'getSlackStatus').mockResolvedValue(slackConnected)
+    vi.spyOn(apiClient, 'getNotificationPreferences').mockResolvedValue(defaultPreferences)
+    const updateSpy = vi
+      .spyOn(apiClient, 'updateNotificationPreference')
+      .mockResolvedValue([
+        defaultPreferences[0],
+        defaultPreferences[1],
+        { ...defaultPreferences[2], enabled: false, effectiveEnabledNow: false },
+      ])
+
+    renderCard(onSuccess)
+
+    const slackRow = await screen.findByTestId('notification-preference-slack-workflow')
+    expect(within(slackRow).getByText(/optional/i)).toBeInTheDocument()
+    expect(within(slackRow).getByTestId('notification-preference-slack-status')).toHaveTextContent(
+      'Slack direct messages are on.',
+    )
+
+    await user.click(within(slackRow).getByRole('checkbox', { name: /slack direct messages/i }))
+    await user.click(within(slackRow).getByRole('button', { name: 'Save Slack Preferences' }))
+
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith({
+        channel: 'SLACK',
+        scope: 'WORKFLOW',
+        enabled: false,
+        mutedUntil: null,
+      })
+      expect(onSuccess).toHaveBeenCalledWith('Notification preferences saved')
+    })
+    expect(within(slackRow).getByTestId('notification-preference-slack-status')).toHaveTextContent(
+      'Slack direct messages are turned off.',
+    )
+    // The email row is untouched by a Slack save.
+    expect(screen.getByRole('checkbox', { name: /email workflow/i })).toBeChecked()
+  })
+
+  it('mutes Slack direct messages independently of email', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(apiClient, 'getSlackStatus').mockResolvedValue(slackConnected)
+    vi.spyOn(apiClient, 'getNotificationPreferences').mockResolvedValue(defaultPreferences)
+    const updateSpy = vi
+      .spyOn(apiClient, 'updateNotificationPreference')
+      .mockResolvedValue(defaultPreferences)
+
+    renderCard()
+
+    await user.selectOptions(await screen.findByLabelText(/mute slack messages/i), '1_WEEK')
+    await user.click(screen.getByRole('button', { name: 'Mute Slack' }))
+
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ channel: 'SLACK', scope: 'WORKFLOW', enabled: true, mutedUntil: expect.any(String) }),
+      )
+    })
+    expect(updateSpy).not.toHaveBeenCalledWith(expect.objectContaining({ channel: 'EMAIL' }))
   })
 
   it('labels mandatory in-app workflow delivery and keeps it locked', async () => {

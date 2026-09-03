@@ -43,6 +43,9 @@ import type {
   CalendarFeedLinkResponse,
   CalendarFeedStatusResponse,
   ChatWebhookResponse,
+  SlackInstallResponse,
+  SlackLinkResponse,
+  SlackStatusResponse,
   ChatWebhookUpsertRequest,
   NotificationPreferenceResponse,
   UpdateNotificationPreferenceRequest,
@@ -906,6 +909,24 @@ export async function deleteChatWebhook(id: number): Promise<void> {
 
 export async function testChatWebhook(id: number): Promise<void> {
   return request<void>(`/api/v1/chat-webhooks/${id}/test`, { method: 'POST' })
+}
+
+// Plan PUENTE B6: the organization's Slack app (personal DMs). Install/uninstall are HR Admin
+// only; status and link-me are for everyone. The bot token never reaches the browser.
+export async function getSlackStatus(): Promise<SlackStatusResponse> {
+  return request<SlackStatusResponse>('/api/v1/chat/slack/status', { method: 'GET' })
+}
+
+export async function installSlack(): Promise<SlackInstallResponse> {
+  return request<SlackInstallResponse>('/api/v1/chat/slack/install', { method: 'POST' })
+}
+
+export async function disconnectSlack(): Promise<void> {
+  return request<void>('/api/v1/chat/slack', { method: 'DELETE' })
+}
+
+export async function linkMeToSlack(): Promise<SlackLinkResponse> {
+  return request<SlackLinkResponse>('/api/v1/chat/slack/link-me', { method: 'POST' })
 }
 
 export async function getNotificationPreferences(): Promise<

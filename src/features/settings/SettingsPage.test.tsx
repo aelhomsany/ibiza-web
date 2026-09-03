@@ -93,6 +93,14 @@ function mockSettingsApis() {
   vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(mockTeamMembers)
   vi.spyOn(apiClient, 'getChatWebhooks').mockResolvedValue([])
   vi.spyOn(apiClient, 'getCalendarFeed').mockResolvedValue({ active: false })
+  vi.spyOn(apiClient, 'getSlackStatus').mockResolvedValue({
+    workspaceConnected: false,
+    status: null,
+    teamName: null,
+    installedAt: null,
+    lastErrorCategory: null,
+    me: { linked: false, status: 'UNCHECKED' },
+  })
   vi.spyOn(apiClient, 'getCalendarSyncStatus').mockResolvedValue([
     {
       provider: 'GOOGLE',
@@ -176,6 +184,25 @@ describe('SettingsPage', () => {
       await screen.findByText(
         'Calendar connection could not be completed. Try connecting again.',
       ),
+    ).toBeInTheDocument()
+  })
+
+  it('announces a completed Slack app installation once after the OAuth callback redirect', async () => {
+    renderSettingsPage('/settings?category=integrations&slack=connected')
+
+    expect(
+      await screen.findByText('Slack app connected. Workflow updates can now be sent as direct messages.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getAllByText('Slack app connected. Workflow updates can now be sent as direct messages.'),
+    ).toHaveLength(1)
+  })
+
+  it('warns when the Slack installation was refused or failed on the callback', async () => {
+    renderSettingsPage('/settings?category=integrations&slack=error&reason=invalid_state')
+
+    expect(
+      await screen.findByText('Slack installation could not be completed. Try adding the app again.'),
     ).toBeInTheDocument()
   })
 

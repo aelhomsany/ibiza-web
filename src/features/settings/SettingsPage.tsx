@@ -25,6 +25,7 @@ import { CalendarPrivacySettingsPage } from './CalendarPrivacySettingsPage'
 import { CalendarFeedSettings } from './CalendarFeedSettings'
 import { CalendarSyncSettings } from './CalendarSyncSettings'
 import { ChatNotificationsSettings } from './ChatNotificationsSettings'
+import { SlackWorkspaceSettings } from './SlackWorkspaceSettings'
 import { NotificationPreferencesSettings } from './NotificationPreferencesSettings'
 import { OrganizationSettingsCard } from './OrganizationSettingsCard'
 import {
@@ -193,6 +194,7 @@ export function SettingsPage() {
   const [resolvedGroupId, setResolvedGroupId] = useState<number | null>(null)
   const suppressNextBlockRef = useRef(false)
   const calendarSyncAnnouncedRef = useRef(false)
+  const slackAnnouncedRef = useRef(false)
 
   const categoryValue = searchParams.get('category')
   const activeCategory = categoryFromSearchParam(categoryValue)
@@ -276,6 +278,33 @@ export function SettingsPage() {
     updateSearch(
       (next) => {
         next.delete('calendarSync')
+        next.delete('reason')
+      },
+      { replace: true },
+    )
+  }, [searchParams, showSuccessToast, showWarningToast, t, updateSearch])
+
+  // Same shape for the Slack app install (Plan PUENTE B6): the API's OAuth callback
+  // redirects here with `?slack=connected|error(&reason=...)`.
+  useEffect(() => {
+    const outcome = searchParams.get('slack')
+    if (outcome == null || slackAnnouncedRef.current) {
+      return
+    }
+    slackAnnouncedRef.current = true
+    if (outcome === 'connected') {
+      showSuccessToast(t('slack.callback.connected'))
+    } else {
+      showWarningToast(
+        searchParams.get('reason') === 'access_denied'
+          ? t('slack.callback.accessDenied')
+          : t('slack.callback.failed'),
+      )
+    }
+    suppressNextBlockRef.current = true
+    updateSearch(
+      (next) => {
+        next.delete('slack')
         next.delete('reason')
       },
       { replace: true },
@@ -480,6 +509,10 @@ export function SettingsPage() {
                   onWarning={showWarningToast}
                 />
                 <ChatNotificationsSettings
+                  onSuccess={showSuccessToast}
+                  onWarning={showWarningToast}
+                />
+                <SlackWorkspaceSettings
                   onSuccess={showSuccessToast}
                   onWarning={showWarningToast}
                 />

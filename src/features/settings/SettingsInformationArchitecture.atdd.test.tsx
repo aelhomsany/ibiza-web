@@ -82,6 +82,14 @@ function mockSettingsApis() {
   vi.spyOn(apiClient, 'listScheduleAssignments').mockResolvedValue([])
   vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(mockTeamMembers)
   vi.spyOn(apiClient, 'getCalendarFeed').mockResolvedValue({ active: false })
+  vi.spyOn(apiClient, 'getSlackStatus').mockResolvedValue({
+    workspaceConnected: false,
+    status: null,
+    teamName: null,
+    installedAt: null,
+    lastErrorCategory: null,
+    me: { linked: false, status: 'UNCHECKED' },
+  })
   vi.spyOn(apiClient, 'getCalendarSyncStatus').mockResolvedValue([
     {
       provider: 'GOOGLE',
