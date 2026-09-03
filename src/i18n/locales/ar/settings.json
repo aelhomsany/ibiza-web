@@ -59,9 +59,9 @@
       "retry": "إعادة المحاولة"
     },
     "callback": {
-      "connected": "تم ربط تقويم Google. ستظهر الإجازات المعتمدة الآن في تقويمك.",
-      "accessDenied": "تم إلغاء ربط تقويم Google قبل منح الصلاحية.",
-      "failed": "تعذر إكمال ربط تقويم Google. حاول الربط مرة أخرى."
+      "connected": "تم ربط التقويم. ستظهر الإجازات المعتمدة الآن في تقويمك.",
+      "accessDenied": "تم إلغاء ربط التقويم قبل منح الصلاحية.",
+      "failed": "تعذر إكمال ربط التقويم. حاول الربط مرة أخرى."
     },
     "connected": "متصل",
     "connectedError": "متصل مع وجود خطأ في المزامنة",
@@ -77,7 +77,7 @@
     "notConnected": "غير متصل",
     "providers": {
       "google": "تقويم Google",
-      "microsoft": "Microsoft Outlook"
+      "microsoft": "Outlook / Microsoft 365"
     },
     "statusWarning": "المزامنة تحتاج إلى مراجعة. فئة الخطأ: {{category}}",
     "success": {

@@ -145,12 +145,12 @@ describe('SettingsPage', () => {
 
     expect(
       await screen.findByText(
-        'Google Calendar connected. Approved leave will now appear on your calendar.',
+        'Calendar connected. Approved leave will now appear on your calendar.',
       ),
     ).toBeInTheDocument()
     expect(
       screen.getAllByText(
-        'Google Calendar connected. Approved leave will now appear on your calendar.',
+        'Calendar connected. Approved leave will now appear on your calendar.',
       ),
     ).toHaveLength(1)
   })
@@ -162,7 +162,7 @@ describe('SettingsPage', () => {
 
     expect(
       await screen.findByText(
-        'Google Calendar connection was cancelled before access was granted.',
+        'Calendar connection was cancelled before access was granted.',
       ),
     ).toBeInTheDocument()
   })
@@ -174,7 +174,7 @@ describe('SettingsPage', () => {
 
     expect(
       await screen.findByText(
-        'Google Calendar connection could not be completed. Try connecting again.',
+        'Calendar connection could not be completed. Try connecting again.',
       ),
     ).toBeInTheDocument()
   })

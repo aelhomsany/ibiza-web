@@ -79,7 +79,7 @@ describe('CalendarSyncSettings', () => {
 
     expect(await screen.findByTestId('calendar-sync-row-google')).toHaveTextContent('Google Calendar')
     expect(screen.getByTestId('calendar-sync-status-google')).toHaveTextContent('Connected · calendar-user@example.com')
-    expect(screen.getByTestId('calendar-sync-row-microsoft')).toHaveTextContent('Microsoft Outlook')
+    expect(screen.getByTestId('calendar-sync-row-microsoft')).toHaveTextContent('Outlook / Microsoft 365')
     expect(screen.getByTestId('calendar-sync-status-microsoft')).toHaveTextContent('Not connected')
     expect(screen.getByTestId('calendar-sync-connect-microsoft')).toBeInTheDocument()
     expect(screen.queryByTestId('calendar-sync-connect-google')).not.toBeInTheDocument()

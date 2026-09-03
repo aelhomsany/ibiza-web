@@ -59,9 +59,9 @@
       "retry": "Retry"
     },
     "callback": {
-      "connected": "Google Calendar connected. Approved leave will now appear on your calendar.",
-      "accessDenied": "Google Calendar connection was cancelled before access was granted.",
-      "failed": "Google Calendar connection could not be completed. Try connecting again."
+      "connected": "Calendar connected. Approved leave will now appear on your calendar.",
+      "accessDenied": "Calendar connection was cancelled before access was granted.",
+      "failed": "Calendar connection could not be completed. Try connecting again."
     },
     "connected": "Connected",
     "connectedError": "Connected with sync error",
@@ -77,7 +77,7 @@
     "notConnected": "Not connected",
     "providers": {
       "google": "Google Calendar",
-      "microsoft": "Microsoft Outlook"
+      "microsoft": "Outlook / Microsoft 365"
     },
     "statusWarning": "Sync needs attention. Error category: {{category}}",
     "success": {
