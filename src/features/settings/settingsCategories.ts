@@ -5,7 +5,6 @@ export const SETTINGS_CATEGORIES = [
   'calendar-privacy',
   'leave-policies',
   'people',
-  'notifications',
   'integrations',
 ] as const
 

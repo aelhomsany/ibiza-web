@@ -148,45 +148,6 @@ describe('SettingsPage', () => {
     vi.restoreAllMocks()
   })
 
-  it('announces a completed Google Calendar connection once after the OAuth callback redirect', async () => {
-    renderSettingsPage('/settings?category=integrations&calendarSync=connected')
-
-    expect(
-      await screen.findByText(
-        'Calendar connected. Approved leave will now appear on your calendar.',
-      ),
-    ).toBeInTheDocument()
-    expect(
-      screen.getAllByText(
-        'Calendar connected. Approved leave will now appear on your calendar.',
-      ),
-    ).toHaveLength(1)
-  })
-
-  it('warns when the user declined Google consent on the OAuth callback', async () => {
-    renderSettingsPage(
-      '/settings?category=integrations&calendarSync=error&reason=access_denied',
-    )
-
-    expect(
-      await screen.findByText(
-        'Calendar connection was cancelled before access was granted.',
-      ),
-    ).toBeInTheDocument()
-  })
-
-  it('falls back to a generic warning for other callback failures', async () => {
-    renderSettingsPage(
-      '/settings?category=integrations&calendarSync=error&reason=invalid_state',
-    )
-
-    expect(
-      await screen.findByText(
-        'Calendar connection could not be completed. Try connecting again.',
-      ),
-    ).toBeInTheDocument()
-  })
-
   it('announces a completed Slack app installation once after the OAuth callback redirect', async () => {
     renderSettingsPage('/settings?category=integrations&slack=connected')
 
@@ -206,13 +167,14 @@ describe('SettingsPage', () => {
     ).toBeInTheDocument()
   })
 
-  it('[P0] renders eight categories with Working calendars as the focused default', async () => {
+  it('[P0] renders seven categories with Working calendars as the focused default', async () => {
     renderSettingsPage()
 
     expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument()
     const nav = screen.getByTestId('settings-category-nav')
-    // Story 16.2 added 'calendar-privacy' (7 -> 8).
-    expect(within(nav).getAllByRole('tab')).toHaveLength(8)
+    // Story 16.2 added 'calendar-privacy' (7 -> 8); Plan PUENTE D-12 moved Notifications
+    // to the Profile page (8 -> 7).
+    expect(within(nav).getAllByRole('tab')).toHaveLength(7)
 
     await waitFor(() => {
       expect(screen.getByRole('tab', { name: 'US' })).toBeInTheDocument()
@@ -266,18 +228,13 @@ describe('SettingsPage', () => {
     expect(screen.queryByTestId('leave-types-card')).not.toBeInTheDocument()
   })
 
-  it('[P1] maps Notifications to the existing preference card', async () => {
-    const user = userEvent.setup()
-    renderSettingsPage('/settings?category=working-calendars')
+  it('[P1] no longer offers a Notifications category — preferences live on the Profile page (D-12)', async () => {
+    renderSettingsPage('/settings?category=notifications')
 
-    await screen.findByTestId('workforce-groups-weekends-card')
-    await user.click(screen.getByTestId('settings-category-notifications'))
-
-    expect(
-      await screen.findByTestId('notification-preferences-settings'),
-    ).toBeInTheDocument()
-    expect(screen.queryByTestId('calendar-sync-settings')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('team-members-card')).not.toBeInTheDocument()
+    // An unknown category falls back to the default one.
+    expect(await screen.findByTestId('settings-panel-working-calendars')).toBeInTheDocument()
+    expect(screen.queryByTestId('settings-category-notifications')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('notification-preferences-settings')).not.toBeInTheDocument()
   })
 
   it('[P1] maps Leave policies to the read-first leave type list', async () => {
@@ -291,7 +248,11 @@ describe('SettingsPage', () => {
     expect(within(list).getByText('Unlimited / custom')).toBeInTheDocument()
 
     await user.click(screen.getByTestId('settings-category-integrations'))
-    expect(await screen.findByTestId('calendar-sync-settings')).toBeInTheDocument()
+    // Organization-wide cards only; the per-user calendar and Slack cards are on the Profile page.
+    expect(await screen.findByTestId('chat-notifications-settings')).toBeInTheDocument()
+    expect(screen.getByTestId('slack-workspace-settings')).toBeInTheDocument()
+    expect(screen.queryByTestId('calendar-sync-settings')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('calendar-feed-settings')).not.toBeInTheDocument()
   })
 
   it('[P2] progressively discloses infrequent group creation', async () => {

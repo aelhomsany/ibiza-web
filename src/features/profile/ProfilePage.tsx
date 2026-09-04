@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import '../../i18n/config'
 import { ApiError, removeProfileImage, uploadProfileImage } from '../../api/client'
 import { useAuth } from '../../auth/useAuth'
@@ -7,21 +8,64 @@ import { Modal } from '../../components/ui/Modal'
 import { CloseIcon } from '../../components/ui/icons'
 import { useToast } from '../../components/ui/useToast'
 import { isSupportedLocale } from '../../i18n/documentLanguage'
+import { CalendarFeedNotes, CalendarFeedSettings } from '../settings/CalendarFeedSettings'
+import { CalendarSyncNotes, CalendarSyncSettings } from '../settings/CalendarSyncSettings'
+import { NotificationPreferencesSettings } from '../settings/NotificationPreferencesSettings'
+import { SlackLinkNotes, SlackLinkSettings } from '../settings/SlackLinkSettings'
 import { ProfileAvatar } from './ProfileAvatar'
 import './profile-page.css'
 
 export function ProfilePage() {
-  const { t } = useTranslation(['profile', 'layout', 'common'])
+  const { t } = useTranslation(['profile', 'layout', 'common', 'settings'])
   const { user, refreshUser } = useAuth()
   const { showToast } = useToast()
+  const [searchParams, setSearchParams] = useSearchParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const calendarSyncAnnouncedRef = useRef(false)
   const [removeOpen, setRemoveOpen] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [isRemoving, setIsRemoving] = useState(false)
 
+  const showSuccessToast = useCallback(
+    (message: string) => showToast(message, 'success'),
+    [showToast],
+  )
+  const showWarningToast = useCallback(
+    (message: string) => showToast(message, 'warning'),
+    [showToast],
+  )
+
+  // Google/Microsoft send the browser back through the API's OAuth callback, which redirects
+  // here with `?calendarSync=connected|error(&reason=...)` (Plan PUENTE D-12: the personal
+  // integrations live on the Profile page so every role can reach them). Announce it once as
+  // a toast and strip it so a reload never re-announces it.
+  useEffect(() => {
+    const outcome = searchParams.get('calendarSync')
+    if (outcome == null || calendarSyncAnnouncedRef.current) {
+      return
+    }
+    calendarSyncAnnouncedRef.current = true
+    if (outcome === 'connected') {
+      showSuccessToast(t('settings:calendarSync.callback.connected'))
+    } else {
+      showWarningToast(
+        searchParams.get('reason') === 'access_denied'
+          ? t('settings:calendarSync.callback.accessDenied')
+          : t('settings:calendarSync.callback.failed'),
+      )
+    }
+    const next = new URLSearchParams(searchParams)
+    next.delete('calendarSync')
+    next.delete('reason')
+    setSearchParams(next, { replace: true })
+  }, [searchParams, setSearchParams, showSuccessToast, showWarningToast, t])
+
   if (!user) {
     return null
   }
+
+  // Platform Admins have no leave workflow, calendar, or Slack of their own.
+  const showPersonalSections = user.role !== 'PLATFORM_ADMIN'
 
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
@@ -154,6 +198,55 @@ export function ProfilePage() {
         </section>
       </div>
 
+      {showPersonalSections ? (
+        <>
+          <section
+            className="profile-section"
+            aria-labelledby="profile-notifications-title"
+            data-testid="profile-notifications-section"
+          >
+            <header className="profile-section-header">
+              <h2 className="profile-section-title" id="profile-notifications-title">
+                {t('profile:sections.notifications.title')}
+              </h2>
+              <p className="profile-section-subtitle">{t('profile:sections.notifications.subtitle')}</p>
+            </header>
+            <NotificationPreferencesSettings
+              onSuccess={showSuccessToast}
+              onWarning={showWarningToast}
+            />
+          </section>
+
+          <section
+            className="profile-section"
+            aria-labelledby="profile-integrations-title"
+            data-testid="profile-integrations-section"
+          >
+            <header className="profile-section-header">
+              <h2 className="profile-section-title" id="profile-integrations-title">
+                {t('profile:sections.integrations.title')}
+              </h2>
+              <p className="profile-section-subtitle">{t('profile:sections.integrations.subtitle')}</p>
+            </header>
+            <div className="panel-stack" data-testid="profile-integrations-panel">
+              <div className="panel-group">
+                <CalendarSyncSettings onSuccess={showSuccessToast} onWarning={showWarningToast} />
+                <div className="support-band">
+                  <CalendarSyncNotes />
+                </div>
+              </div>
+              <div className="panel-group">
+                <CalendarFeedSettings onSuccess={showSuccessToast} onWarning={showWarningToast} />
+                <div className="support-band">
+                  <CalendarFeedNotes />
+                </div>
+              </div>
+              <SlackLinkGroup onSuccess={showSuccessToast} onWarning={showWarningToast} />
+            </div>
+          </section>
+        </>
+      ) : null}
+
       {removeOpen ? (
         <Modal
           labelledBy="profile-remove-title"
@@ -202,6 +295,26 @@ export function ProfilePage() {
       ) : null}
 
     </div>
+  )
+}
+
+/**
+ * The personal Slack card and its notes as one group, so the notes disappear together with the
+ * card when the organization has no Slack workspace connected.
+ */
+function SlackLinkGroup({
+  onSuccess,
+  onWarning,
+}: {
+  onSuccess: (message: string) => void
+  onWarning: (message: string) => void
+}) {
+  return (
+    <SlackLinkSettings onSuccess={onSuccess} onWarning={onWarning}>
+      <div className="support-band">
+        <SlackLinkNotes />
+      </div>
+    </SlackLinkSettings>
   )
 }
 

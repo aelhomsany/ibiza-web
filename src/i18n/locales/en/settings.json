@@ -169,18 +169,13 @@
       },
       "integrations": {
         "label": "Integrations",
-        "subtitle": "Connect Ibiza to the tools your organization already uses.",
+        "subtitle": "Connect Ibiza to the tools your organization already uses. Personal connections — your calendar and your Slack — live on your Profile.",
         "title": "Integrations"
       },
       "leave-policies": {
         "label": "Leave policies",
         "subtitle": "Review configured leave types and their default annual entitlements.",
         "title": "Leave policies"
-      },
-      "notifications": {
-        "label": "Notifications",
-        "subtitle": "Choose how leave workflow updates reach your organization.",
-        "title": "Notifications"
       },
       "organization": {
         "label": "Organization",
@@ -1003,7 +998,8 @@
       "title": "Your Slack",
       "LINKED": "Linked. Workflow updates reach you as direct messages.",
       "NOT_FOUND": "Not linked — your Slack email differs from your Ibiza email. Ask your Slack admin to match them, then check again.",
-      "UNCHECKED": "Not checked yet. Ibiza matches your Ibiza email to your Slack account the first time it has something to send you."
+      "UNCHECKED": "Not checked yet. Ibiza matches your Ibiza email to your Slack account the first time it has something to send you.",
+      "intro": "Your organization's Slack app is connected to {{team}}. Ibiza matches your Ibiza email to your Slack account so workflow updates can reach you as direct messages."
     },
     "actions": {
       "install": "Add to Slack",

@@ -199,7 +199,8 @@ describe('SettingsInformationArchitecture ATDD — Story 11.5', () => {
       expect(within(nav).getByTestId('settings-category-working-calendars')).toBeInTheDocument()
       expect(within(nav).getByTestId('settings-category-leave-policies')).toBeInTheDocument()
       expect(within(nav).getByTestId('settings-category-people')).toBeInTheDocument()
-      expect(within(nav).getByTestId('settings-category-notifications')).toBeInTheDocument()
+      // Notifications moved to the Profile page (Plan PUENTE D-12).
+      expect(within(nav).queryByTestId('settings-category-notifications')).not.toBeInTheDocument()
       expect(within(nav).getByTestId('settings-category-integrations')).toBeInTheDocument()
 
       expect(screen.getByTestId('settings-category-working-calendars')).toHaveAttribute(
@@ -544,28 +545,6 @@ describe('SettingsInformationArchitecture ATDD — Story 11.5', () => {
       await user.click(await screen.findByTestId('settings-unsaved-discard-btn'))
 
       expect(await screen.findByTestId('route-after-settings')).toBeInTheDocument()
-    },
-  )
-
-  it(
-    '[P1] Given unsaved Notification preferences, When switching category, Then edit context is guarded',
-    async () => {
-      mockSettingsApis()
-      const user = userEvent.setup()
-      renderSettings('/settings?category=notifications')
-
-      await user.click(
-        await screen.findByRole('checkbox', {
-          name: /email workflow notifications/i,
-        }),
-      )
-      await user.click(screen.getByTestId('settings-category-people'))
-
-      expect(screen.getByTestId('settings-unsaved-discard-modal')).toBeInTheDocument()
-      expect(screen.getByTestId('settings-panel-notifications')).toBeInTheDocument()
-
-      await user.click(screen.getByTestId('settings-unsaved-discard-btn'))
-      expect(await screen.findByTestId('settings-panel-people')).toBeInTheDocument()
     },
   )
 })

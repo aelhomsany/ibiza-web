@@ -88,8 +88,8 @@ describe('SlackWorkspaceSettings', () => {
 
     expect(await screen.findByTestId('slack-workspace-team')).toHaveTextContent('Connected to Acme Workspace')
     expect(screen.getByTestId('slack-workspace-status')).toHaveTextContent('Connected')
-    expect(screen.getByTestId('slack-me-status')).toHaveTextContent('Linked.')
-    expect(screen.queryByTestId('slack-me-check')).not.toBeInTheDocument()
+    // The personal "Your Slack" row lives on the Profile page (SlackLinkSettings), not here.
+    expect(screen.queryByTestId('slack-me-row')).not.toBeInTheDocument()
 
     await user.click(screen.getByTestId('slack-workspace-disconnect'))
     expect(screen.getByTestId('slack-disconnect-modal')).toHaveTextContent(
@@ -102,49 +102,6 @@ describe('SlackWorkspaceSettings', () => {
     await waitFor(() => {
       expect(disconnect).toHaveBeenCalledTimes(1)
       expect(onSuccess).toHaveBeenCalledWith('Slack app disconnected')
-    })
-  })
-
-  it('explains an unmatched email to a member and re-checks on request, never showing Slack ids', async () => {
-    const user = userEvent.setup()
-    const onSuccess = vi.fn()
-    const notFound: SlackStatusResponse = { ...connected, me: { linked: false, status: 'NOT_FOUND' } }
-    const status = vi.spyOn(apiClient, 'getSlackStatus').mockResolvedValue(notFound)
-    const link = vi.spyOn(apiClient, 'linkMeToSlack').mockResolvedValue({ linked: true, status: 'LINKED' })
-
-    renderCard('EMPLOYEE', onSuccess)
-
-    expect(await screen.findByTestId('slack-me-status')).toHaveTextContent(
-      'Not linked — your Slack email differs from your Ibiza email',
-    )
-    expect(screen.queryByTestId('slack-workspace-disconnect')).not.toBeInTheDocument()
-
-    status.mockResolvedValue(connected)
-    await user.click(screen.getByRole('button', { name: 'Check again' }))
-
-    await waitFor(() => {
-      expect(link).toHaveBeenCalledTimes(1)
-      expect(onSuccess).toHaveBeenCalledWith('Your Slack account is linked')
-      expect(screen.getByTestId('slack-me-status')).toHaveTextContent('Linked.')
-    })
-    expect(document.body.textContent).not.toMatch(/U0[A-Z0-9]{6,}|T0[A-Z0-9]{6,}|xoxb-/)
-  })
-
-  it('warns the member when the re-check still finds no matching Slack account', async () => {
-    const user = userEvent.setup()
-    const onWarning = vi.fn()
-    vi.spyOn(apiClient, 'getSlackStatus').mockResolvedValue({
-      ...connected,
-      me: { linked: false, status: 'UNCHECKED' },
-    })
-    vi.spyOn(apiClient, 'linkMeToSlack').mockResolvedValue({ linked: false, status: 'NOT_FOUND' })
-
-    renderCard('MANAGER', vi.fn(), onWarning)
-
-    await user.click(await screen.findByRole('button', { name: 'Check now' }))
-
-    await waitFor(() => {
-      expect(onWarning).toHaveBeenCalledWith('No Slack account matches your Ibiza email')
     })
   })
 

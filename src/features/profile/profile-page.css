@@ -49,6 +49,36 @@
   gap: var(--space-sm);
 }
 
+/* Plan PUENTE D-12: the personal Notifications and My integrations sections sit beneath the
+   two account cards. Each is one labelled region with a small header and the same card stack
+   used by Settings (`.panel-stack` / `.panel-group` / `.support-band` from support-rail.css). */
+.profile-section {
+  margin-block-start: var(--space-section-gap);
+  min-width: 0;
+}
+
+.profile-section-header {
+  margin-block-end: var(--space-md);
+}
+
+.profile-section-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+.profile-section-subtitle {
+  margin: var(--space-xs) 0 0;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.profile-section > .settings-card-spaced,
+.profile-section > .panel-with-aside {
+  margin-block-start: 0;
+}
+
 @media (max-width: 900px) {
   .profile-layout {
     grid-template-columns: 1fr;

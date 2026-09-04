@@ -22,11 +22,8 @@ import { TeamMembersCard } from './TeamMembersCard'
 import { WorkforceGroupsWeekendsCard } from './WorkforceGroupsWeekendsCard'
 import { ScheduleLocationSettingsPage } from './ScheduleLocationSettingsPage'
 import { CalendarPrivacySettingsPage } from './CalendarPrivacySettingsPage'
-import { CalendarFeedNotes, CalendarFeedSettings } from './CalendarFeedSettings'
-import { CalendarSyncNotes, CalendarSyncSettings } from './CalendarSyncSettings'
 import { ChatNotificationsNotes, ChatNotificationsSettings } from './ChatNotificationsSettings'
 import { SlackWorkspaceNotes, SlackWorkspaceSettings } from './SlackWorkspaceSettings'
-import { NotificationPreferencesSettings } from './NotificationPreferencesSettings'
 import { OrganizationSettingsCard } from './OrganizationSettingsCard'
 import {
   SettingsCategoryNav,
@@ -182,7 +179,6 @@ export function SettingsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const dataRouterContext = useContext(UNSAFE_DataRouterContext)
   const [workingCalendarsDirty, setWorkingCalendarsDirty] = useState(false)
-  const [notificationsDirty, setNotificationsDirty] = useState(false)
   const [peopleDirty, setPeopleDirty] = useState(false)
   const [leavePoliciesDirty, setLeavePoliciesDirty] = useState(false)
   const [discardSignal, setDiscardSignal] = useState(0)
@@ -193,13 +189,12 @@ export function SettingsPage() {
   // only reliable "currently active group" for the requestGroup no-op check.
   const [resolvedGroupId, setResolvedGroupId] = useState<number | null>(null)
   const suppressNextBlockRef = useRef(false)
-  const calendarSyncAnnouncedRef = useRef(false)
   const slackAnnouncedRef = useRef(false)
 
   const categoryValue = searchParams.get('category')
   const activeCategory = categoryFromSearchParam(categoryValue)
   const requestedGroupId = groupFromSearchParam(searchParams.get('group'))
-  const isDirty = workingCalendarsDirty || notificationsDirty || peopleDirty || leavePoliciesDirty
+  const isDirty = workingCalendarsDirty || peopleDirty || leavePoliciesDirty
 
   const showSuccessToast = useCallback(
     (message: string) => showToast(message, 'success'),
@@ -256,36 +251,10 @@ export function SettingsPage() {
     )
   }, [activeCategory, categoryValue, searchParams, updateSearch])
 
-  // Google sends the browser back through the API's OAuth callback, which
-  // redirects here with `?calendarSync=connected|error(&reason=...)`. Announce
-  // it once as a toast and strip it so a reload never re-announces it.
-  useEffect(() => {
-    const outcome = searchParams.get('calendarSync')
-    if (outcome == null || calendarSyncAnnouncedRef.current) {
-      return
-    }
-    calendarSyncAnnouncedRef.current = true
-    if (outcome === 'connected') {
-      showSuccessToast(t('calendarSync.callback.connected'))
-    } else {
-      showWarningToast(
-        searchParams.get('reason') === 'access_denied'
-          ? t('calendarSync.callback.accessDenied')
-          : t('calendarSync.callback.failed'),
-      )
-    }
-    suppressNextBlockRef.current = true
-    updateSearch(
-      (next) => {
-        next.delete('calendarSync')
-        next.delete('reason')
-      },
-      { replace: true },
-    )
-  }, [searchParams, showSuccessToast, showWarningToast, t, updateSearch])
-
-  // Same shape for the Slack app install (Plan PUENTE B6): the API's OAuth callback
-  // redirects here with `?slack=connected|error(&reason=...)`.
+  // Slack sends the browser back through the API's OAuth callback (Plan PUENTE B6), which
+  // redirects here with `?slack=connected|error(&reason=...)`. Announce it once as a toast and
+  // strip it so a reload never re-announces it. (The per-user calendar callback lands on the
+  // Profile page instead — D-12.)
   useEffect(() => {
     const outcome = searchParams.get('slack')
     if (outcome == null || slackAnnouncedRef.current) {
@@ -373,7 +342,6 @@ export function SettingsPage() {
 
   const discardAllDrafts = useCallback(() => {
     setWorkingCalendarsDirty(false)
-    setNotificationsDirty(false)
     setPeopleDirty(false)
     setLeavePoliciesDirty(false)
     setDiscardSignal((value) => value + 1)
@@ -489,39 +457,11 @@ export function SettingsPage() {
               />
             )}
 
-            {activeCategory === 'notifications' && (
-              <NotificationPreferencesSettings
-                discardSignal={discardSignal}
-                onDirtyChange={setNotificationsDirty}
-                onSuccess={showSuccessToast}
-                onWarning={showWarningToast}
-              />
-            )}
-
             {activeCategory === 'integrations' && (
-              /* One reading column and one rail for the whole category. Each card used to carry
-                 its own rail, and a rail is taller than its card here, so every card started
-                 a rail-height below the one above it. The rail is not sticky: four cards' notes
-                 are taller than a viewport, and a stuck rail would hide its lower half. */
+              /* Organization-wide integrations only (HR Admin). The per-user cards — calendar
+                 sync, calendar feed, "Your Slack" — moved to the Profile page so every role can
+                 reach them (Plan PUENTE D-12). Each card keeps its notes in a band beneath it. */
               <div className="panel-stack" data-testid="integrations-panel">
-                <div className="panel-group">
-                  <CalendarSyncSettings
-                    onSuccess={showSuccessToast}
-                    onWarning={showWarningToast}
-                  />
-                  <div className="support-band">
-                    <CalendarSyncNotes />
-                  </div>
-                </div>
-                <div className="panel-group">
-                  <CalendarFeedSettings
-                    onSuccess={showSuccessToast}
-                    onWarning={showWarningToast}
-                  />
-                  <div className="support-band">
-                    <CalendarFeedNotes />
-                  </div>
-                </div>
                 <div className="panel-group">
                   <ChatNotificationsSettings
                     onSuccess={showSuccessToast}

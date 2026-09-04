@@ -24,10 +24,20 @@
     "title": "Profile Photo"
   },
   "summary": "Profile summary",
-  "subtitle": "Your account information and profile photo",
+  "subtitle": "Your account information, notifications, and personal integrations",
   "success": {
     "removed": "Profile photo removed.",
     "updated": "Profile photo updated."
   },
-  "title": "Profile details"
+  "title": "Profile details",
+  "sections": {
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Choose how leave workflow updates reach you."
+    },
+    "integrations": {
+      "title": "My integrations",
+      "subtitle": "Connect your own calendar and Slack account. Organization-wide integrations are managed by your HR admin under Settings."
+    }
+  }
 }

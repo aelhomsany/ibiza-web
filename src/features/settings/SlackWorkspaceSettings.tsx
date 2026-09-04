@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ApiError, disconnectSlack, getSlackStatus, installSlack, linkMeToSlack } from '../../api/client'
+import { ApiError, disconnectSlack, getSlackStatus, installSlack } from '../../api/client'
 import { useAuth } from '../../auth/useAuth'
 import { Modal } from '../../components/ui/Modal'
 import { CloseIcon, MessageSquareIcon } from '../../components/ui/icons'
@@ -24,9 +24,9 @@ function mutationMessage(error: unknown, fallback: string) {
 
 /**
  * Plan PUENTE B6 — Settings → Integrations card for the organization's Slack app (personal DMs).
- * Everyone sees whether the workspace is connected and whether their own Slack account was matched;
- * only HR Admins can install, reconnect, or disconnect. The bot token never reaches the browser and
- * no Slack user ids are shown — the API only reports "linked" / "not linked".
+ * Shows whether the workspace is connected; HR Admins can install, reconnect, or disconnect it.
+ * Each person's own match ("Your Slack") lives on the Profile page (`SlackLinkSettings`, D-12) so
+ * that every role can reach it. The bot token never reaches the browser.
  */
 export function SlackWorkspaceSettings({ onSuccess, onWarning }: SlackWorkspaceSettingsProps) {
   const { t, i18n } = useTranslation(['settings', 'common'])
@@ -59,19 +59,6 @@ export function SlackWorkspaceSettings({ onSuccess, onWarning }: SlackWorkspaceS
     onError: (error) => onWarning?.(mutationMessage(error, t('settings:slack.errors.disconnect'))),
   })
 
-  const linkMutation = useMutation({
-    mutationFn: linkMeToSlack,
-    onSuccess: (link) => {
-      void queryClient.invalidateQueries({ queryKey: SLACK_STATUS_QUERY_KEY })
-      if (link.linked) {
-        onSuccess?.(t('settings:slack.success.linked'))
-      } else {
-        onWarning?.(t('settings:slack.success.notFound'))
-      }
-    },
-    onError: (error) => onWarning?.(mutationMessage(error, t('settings:slack.errors.link'))),
-  })
-
   const header = (
     <div className="card-section-header">
       <span className="card-section-title">{t('settings:slack.title')}</span>
@@ -100,7 +87,7 @@ export function SlackWorkspaceSettings({ onSuccess, onWarning }: SlackWorkspaceS
   const connected = status.workspaceConnected
   const revoked = !connected && status.status === 'REVOKED'
   const teamName = status.teamName ?? t('common:unknown')
-  const busy = installMutation.isPending || disconnectMutation.isPending || linkMutation.isPending
+  const busy = installMutation.isPending || disconnectMutation.isPending
 
   return (
     <section className="settings-card settings-card-spaced" data-testid="slack-workspace-settings">
@@ -173,41 +160,6 @@ export function SlackWorkspaceSettings({ onSuccess, onWarning }: SlackWorkspaceS
                 </div>
               )}
             </li>
-
-            {connected && (
-              <li className="chat-channel-row" data-testid="slack-me-row">
-                <div className="chat-channel-icon" aria-hidden="true">
-                  <MessageSquareIcon size={20} />
-                </div>
-                <div className="chat-channel-copy">
-                  <p className="chat-channel-title">{t('settings:slack.me.title')}</p>
-                  <p
-                    className={status.me.linked ? 'chat-channel-meta' : 'chat-channel-warning'}
-                    data-testid="slack-me-status"
-                  >
-                    {t(`settings:slack.me.${status.me.status}`)}
-                  </p>
-                </div>
-                {!status.me.linked && (
-                  <div className="chat-channel-actions">
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-sm"
-                      onClick={() => linkMutation.mutate()}
-                      disabled={busy}
-                      data-busy={linkMutation.isPending ? 'true' : undefined}
-                      data-testid="slack-me-check"
-                    >
-                      {t(
-                        status.me.status === 'NOT_FOUND'
-                          ? 'settings:slack.actions.checkAgain'
-                          : 'settings:slack.actions.checkNow',
-                      )}
-                    </button>
-                  </div>
-                )}
-              </li>
-            )}
           </ul>
         )}
       </div>
