@@ -68,7 +68,8 @@
     "resetPassword": "Reset password",
     "settings": "Settings",
     "policySettings": "Policy Settings",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "mySettings": "My settings"
   },
   "status": {
     "active": "Active",

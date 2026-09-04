@@ -12,14 +12,16 @@ import {
 
 describe('rolePermissions', () => {
   describe('getOrgNavItems', () => {
-    it('returns 2 base items for EMPLOYEE, Team Calendar first', () => {
+    it('returns 3 base items for EMPLOYEE, Team Calendar first', () => {
       // The Dashboard merged into My Leaves (2026-09-01); the calendar is the
-      // landing page, so it leads the nav.
+      // landing page, so it leads the nav. My settings (Plan PUENTE D-12) holds
+      // the personal cards every role needs.
       const items = getOrgNavItems('EMPLOYEE')
-      expect(items).toHaveLength(2)
+      expect(items).toHaveLength(3)
       expect(items.map((item) => item.label)).toEqual([
         'Team Calendar',
         'My Leaves',
+        'My settings',
       ])
     })
 
@@ -27,16 +29,16 @@ describe('rolePermissions', () => {
       expect(getOrgNavItems('EMPLOYEE', true).map((item) => item.label)).toContain('Approvals')
     })
 
-    it('returns 3 items for MANAGER including Approvals', () => {
+    it('returns 4 items for MANAGER including Approvals', () => {
       const items = getOrgNavItems('MANAGER')
-      expect(items).toHaveLength(3)
+      expect(items).toHaveLength(4)
       expect(items.map((item) => item.label)).toContain('Approvals')
       expect(items.map((item) => item.label)).not.toContain('Settings')
     })
 
-    it('[P0] returns 7 items for HR_ADMIN including Reports, Data Import, Balance Corrections and Settings', () => {
+    it('[P0] returns 8 items for HR_ADMIN including Reports, Data Import, Balance Corrections and Settings', () => {
       const items = getOrgNavItems('HR_ADMIN')
-      expect(items).toHaveLength(7)
+      expect(items).toHaveLength(8)
       expect(items.map((item) => item.label)).toContain('Approvals')
       expect(items.map((item) => item.label)).toContain('Reports')
       expect(items.map((item) => item.label)).toContain('Data Import')
@@ -80,7 +82,8 @@ describe('rolePermissions', () => {
       const ar = layoutFor('ar')
       for (const item of getOrgNavItems('HR_ADMIN')) {
         const source = item.testId?.replace('nav-', '') ?? ''
-        const key = source === 'my-leaves' ? 'myLeaves' : source
+        // Same kebab -> camel rule OrgShell applies (my-leaves -> myLeaves, my-settings -> mySettings).
+        const key = source.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase())
         expect(en.nav[key], `en layout:nav.${key}`).toBeTruthy()
         expect(ar.nav[key], `ar layout:nav.${key}`).toBeTruthy()
       }
@@ -91,6 +94,7 @@ describe('rolePermissions', () => {
       expect(items.map((item) => item.testId)).toEqual([
         'nav-calendar',
         'nav-my-leaves',
+        'nav-my-settings',
         'nav-approvals',
         'nav-reports',
         'nav-import',

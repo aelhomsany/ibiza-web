@@ -17,6 +17,7 @@ test.describe('Role-based navigation', { tag: [tags.regression, tags.api] }, () 
     // the Team Calendar (now the post-login landing page) and My Leaves.
     await expect(page.getByTestId('nav-calendar')).toBeVisible()
     await expect(page.getByTestId('nav-my-leaves')).toBeVisible()
+    await expect(page.getByTestId('nav-my-settings')).toBeVisible()
     await expect(page.getByTestId('nav-dashboard')).toHaveCount(0)
     await expect(page.getByTestId('nav-approvals')).toHaveCount(0)
     await expect(page.getByTestId('nav-settings')).toHaveCount(0)

@@ -37,6 +37,15 @@ const ORG_BASE: NavCatalogItem[] = [
     requiredRoles: [...ORG_ROLES],
   },
   {
+    // Plan PUENTE D-12: the personal cards (notification preferences, calendar sync/feed,
+    // "Your Slack") for every org role — org Settings below is HR_ADMIN only.
+    label: 'My settings',
+    path: '/my-settings',
+    icon: SettingsIcon,
+    testId: 'nav-my-settings',
+    requiredRoles: [...ORG_ROLES],
+  },
+  {
     label: 'Approvals',
     path: '/approvals',
     icon: CheckCircleIcon,

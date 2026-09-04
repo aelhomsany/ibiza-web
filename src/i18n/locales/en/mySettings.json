@@ -1,0 +1,14 @@
+{
+  "title": "My settings",
+  "subtitle": "Your notifications and personal integrations",
+  "sections": {
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Choose how leave workflow updates reach you."
+    },
+    "integrations": {
+      "title": "My integrations",
+      "subtitle": "Connect your own calendar and Slack account. Organization-wide integrations are managed by your HR admin under Settings."
+    }
+  }
+}

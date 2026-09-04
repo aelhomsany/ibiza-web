@@ -1,0 +1,32 @@
+/* Plan PUENTE D-12: "My settings" — the personal Notifications and My integrations sections.
+   Each is one labelled region with a small header and the same card stack used by
+   Settings → Integrations (`.panel-stack` / `.panel-group` / `.support-band`, support-rail.css). */
+.my-settings-section {
+  min-width: 0;
+}
+
+.my-settings-section + .my-settings-section {
+  margin-block-start: var(--space-section-gap);
+}
+
+.my-settings-section-header {
+  margin-block-end: var(--space-md);
+}
+
+.my-settings-section-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+.my-settings-section-subtitle {
+  margin: var(--space-xs) 0 0;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.my-settings-section > .settings-card-spaced,
+.my-settings-section > .panel-with-aside {
+  margin-block-start: 0;
+}

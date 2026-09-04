@@ -10,6 +10,7 @@ import enLeaves from './locales/en/leaves.json'
 import enApprovals from './locales/en/approvals.json'
 import enSettings from './locales/en/settings.json'
 import enProfile from './locales/en/profile.json'
+import enMySettings from './locales/en/mySettings.json'
 import enAuth from './locales/en/auth.json'
 import enPlatform from './locales/en/platform.json'
 import enPlatformAuth from './locales/en/platformAuth.json'
@@ -28,6 +29,7 @@ import arLeaves from './locales/ar/leaves.json'
 import arApprovals from './locales/ar/approvals.json'
 import arSettings from './locales/ar/settings.json'
 import arProfile from './locales/ar/profile.json'
+import arMySettings from './locales/ar/mySettings.json'
 import arAuth from './locales/ar/auth.json'
 import arPlatform from './locales/ar/platform.json'
 import arPlatformAuth from './locales/ar/platformAuth.json'
@@ -59,6 +61,7 @@ void i18n.use(initReactI18next).init({
       platform: enPlatform,
       platformAuth: enPlatformAuth,
       profile: enProfile,
+      mySettings: enMySettings,
       public: enPublic,
       reports: enReports,
       settings: enSettings,
@@ -79,6 +82,7 @@ void i18n.use(initReactI18next).init({
       platform: arPlatform,
       platformAuth: arPlatformAuth,
       profile: arProfile,
+      mySettings: arMySettings,
       public: arPublic,
       reports: arReports,
       settings: arSettings,

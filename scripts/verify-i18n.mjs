@@ -16,6 +16,7 @@ const enabledNamespaces = [
   'reports',
   'settings',
   'profile',
+  'mySettings',
   'auth',
   'billing',
   'onboarding',

@@ -56,6 +56,9 @@ const SettingsPage = lazy(() =>
 const ProfilePage = lazy(() =>
   import('../features/profile/ProfilePage').then((m) => ({ default: m.ProfilePage })),
 )
+const MySettingsPage = lazy(() =>
+  import('../features/my-settings/MySettingsPage').then((m) => ({ default: m.MySettingsPage })),
+)
 const ApprovalsPage = lazy(() =>
   import('../features/approvals/ApprovalsPage').then((m) => ({ default: m.ApprovalsPage })),
 )
@@ -115,6 +118,7 @@ export function AppRoutes() {
                   the landing screen. Keep '/' as a redirect so bookmarks still work. */}
               <Route path="/" element={<Navigate to="/calendar" replace />} />
               <Route path="/my-leaves" element={withPageTitle('routes.myLeaves', <MyLeavesPage />)} />
+              <Route path="/my-settings" element={withPageTitle('routes.mySettings', <MySettingsPage />)} />
               <Route
                 path="/leave-requests/:id"
                 element={withPageTitle('routes.requestDetails', <RequestContextPage />)}

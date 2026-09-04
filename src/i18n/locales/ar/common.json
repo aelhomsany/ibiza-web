@@ -68,7 +68,8 @@
     "resetPassword": "إعادة تعيين كلمة المرور",
     "settings": "الإعدادات",
     "policySettings": "إعدادات السياسة",
-    "signIn": "تسجيل الدخول"
+    "signIn": "تسجيل الدخول",
+    "mySettings": "إعداداتي"
   },
   "status": {
     "active": "نشط",

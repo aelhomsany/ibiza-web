@@ -39,7 +39,7 @@ export function OrgShell() {
 
   const navItems = getOrgNavItems(role, canReviewApprovals, canAccessReports).map((item) => {
     const sourceKey = item.testId?.replace('nav-', '') ?? ''
-    const key = sourceKey === 'my-leaves' ? 'myLeaves' : sourceKey
+    const key = sourceKey.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase())
     const label = i18n.exists(`layout:nav.${key}`) ? t(`nav.${key}`) : item.label
     return item.path === '/approvals' && pendingCount > 0
       ? { ...item, label, badge: pendingCount }

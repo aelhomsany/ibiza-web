@@ -61,6 +61,11 @@ const ProfilePage = lazy(() =>
     default: module.ProfilePage,
   })),
 )
+const MySettingsPage = lazy(() =>
+  import('../../features/my-settings/MySettingsPage').then((module) => ({
+    default: module.MySettingsPage,
+  })),
+)
 const ApprovalsPage = lazy(() =>
   import('../../features/approvals/ApprovalsPage').then((module) => ({
     default: module.ApprovalsPage,
@@ -140,6 +145,7 @@ export function CustomerRoutes() {
                   the landing screen. Keep '/' as a redirect so bookmarks still work. */}
               <Route path="/" element={<Navigate to="/calendar" replace />} />
               <Route path="/my-leaves" element={titled('routes.myLeaves', <MyLeavesPage />)} />
+              <Route path="/my-settings" element={titled('routes.mySettings', <MySettingsPage />)} />
               <Route
                 path="/leave-requests/:id"
                 element={titled('routes.requestDetails', <RequestContextPage />)}
