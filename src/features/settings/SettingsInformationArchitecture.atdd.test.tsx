@@ -199,7 +199,7 @@ describe('SettingsInformationArchitecture ATDD — Story 11.5', () => {
       expect(within(nav).getByTestId('settings-category-working-calendars')).toBeInTheDocument()
       expect(within(nav).getByTestId('settings-category-leave-policies')).toBeInTheDocument()
       expect(within(nav).getByTestId('settings-category-people')).toBeInTheDocument()
-      // Notifications moved to the Profile page (Plan PUENTE D-12).
+      // Notifications moved to the My settings page (Plan PUENTE D-12).
       expect(within(nav).queryByTestId('settings-category-notifications')).not.toBeInTheDocument()
       expect(within(nav).getByTestId('settings-category-integrations')).toBeInTheDocument()
 

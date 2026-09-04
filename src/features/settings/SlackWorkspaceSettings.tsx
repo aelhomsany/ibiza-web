@@ -25,7 +25,7 @@ function mutationMessage(error: unknown, fallback: string) {
 /**
  * Plan PUENTE B6 — Settings → Integrations card for the organization's Slack app (personal DMs).
  * Shows whether the workspace is connected; HR Admins can install, reconnect, or disconnect it.
- * Each person's own match ("Your Slack") lives on the Profile page (`SlackLinkSettings`, D-12) so
+ * Each person's own match ("Your Slack") lives on the My settings page (`SlackLinkSettings`, D-12) so
  * that every role can reach it. The bot token never reaches the browser.
  */
 export function SlackWorkspaceSettings({ onSuccess, onWarning }: SlackWorkspaceSettingsProps) {

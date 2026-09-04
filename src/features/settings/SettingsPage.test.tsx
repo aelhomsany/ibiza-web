@@ -173,7 +173,7 @@ describe('SettingsPage', () => {
     expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument()
     const nav = screen.getByTestId('settings-category-nav')
     // Story 16.2 added 'calendar-privacy' (7 -> 8); Plan PUENTE D-12 moved Notifications
-    // to the Profile page (8 -> 7).
+    // to the My settings page (8 -> 7).
     expect(within(nav).getAllByRole('tab')).toHaveLength(7)
 
     await waitFor(() => {
@@ -228,7 +228,7 @@ describe('SettingsPage', () => {
     expect(screen.queryByTestId('leave-types-card')).not.toBeInTheDocument()
   })
 
-  it('[P1] no longer offers a Notifications category — preferences live on the Profile page (D-12)', async () => {
+  it('[P1] no longer offers a Notifications category — preferences live on the My settings page (D-12)', async () => {
     renderSettingsPage('/settings?category=notifications')
 
     // An unknown category falls back to the default one.
@@ -248,7 +248,7 @@ describe('SettingsPage', () => {
     expect(within(list).getByText('Unlimited / custom')).toBeInTheDocument()
 
     await user.click(screen.getByTestId('settings-category-integrations'))
-    // Organization-wide cards only; the per-user calendar and Slack cards are on the Profile page.
+    // Organization-wide cards only; the per-user calendar and Slack cards are on the My settings page.
     expect(await screen.findByTestId('chat-notifications-settings')).toBeInTheDocument()
     expect(screen.getByTestId('slack-workspace-settings')).toBeInTheDocument()
     expect(screen.queryByTestId('calendar-sync-settings')).not.toBeInTheDocument()

@@ -88,7 +88,7 @@ describe('SlackWorkspaceSettings', () => {
 
     expect(await screen.findByTestId('slack-workspace-team')).toHaveTextContent('Connected to Acme Workspace')
     expect(screen.getByTestId('slack-workspace-status')).toHaveTextContent('Connected')
-    // The personal "Your Slack" row lives on the Profile page (SlackLinkSettings), not here.
+    // The personal "Your Slack" row lives on the My settings page (SlackLinkSettings), not here.
     expect(screen.queryByTestId('slack-me-row')).not.toBeInTheDocument()
 
     await user.click(screen.getByTestId('slack-workspace-disconnect'))

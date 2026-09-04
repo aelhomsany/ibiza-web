@@ -254,7 +254,7 @@ export function SettingsPage() {
   // Slack sends the browser back through the API's OAuth callback (Plan PUENTE B6), which
   // redirects here with `?slack=connected|error(&reason=...)`. Announce it once as a toast and
   // strip it so a reload never re-announces it. (The per-user calendar callback lands on the
-  // Profile page instead — D-12.)
+  // My settings page instead — D-12.)
   useEffect(() => {
     const outcome = searchParams.get('slack')
     if (outcome == null || slackAnnouncedRef.current) {
@@ -459,8 +459,8 @@ export function SettingsPage() {
 
             {activeCategory === 'integrations' && (
               /* Organization-wide integrations only (HR Admin). The per-user cards — calendar
-                 sync, calendar feed, "Your Slack" — moved to the Profile page so every role can
-                 reach them (Plan PUENTE D-12). Each card keeps its notes in a band beneath it. */
+                 sync, calendar feed, "Your Slack" — moved to the My settings page (/my-settings) so every
+                 role can reach them (Plan PUENTE D-12). Each card keeps its notes in a band beneath it. */
               <div className="panel-stack" data-testid="integrations-panel">
                 <div className="panel-group">
                   <ChatNotificationsSettings
