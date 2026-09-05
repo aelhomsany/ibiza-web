@@ -45,8 +45,8 @@ describe('AdminShell', () => {
     const sidebar = screen.getByTestId('sidebar')
     expect(sidebar).toHaveClass('sidebar--admin')
 
-    // 'Ibiza Admin' appears in both the sidebar logo and the app header brand.
-    expect(within(sidebar).getByText('Ibiza Admin')).toBeInTheDocument()
+    // 'Leaveo Admin' appears in both the sidebar logo and the app header brand.
+    expect(within(sidebar).getByText('Leaveo Admin')).toBeInTheDocument()
     expect(within(sidebar).getByText('Platform Console')).toBeInTheDocument()
     expect(screen.getByTestId('app-header-context')).toHaveTextContent('Platform Admin')
     expect(screen.getByRole('link', { name: /organizations/i })).toBeInTheDocument()

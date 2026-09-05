@@ -107,7 +107,7 @@ describe('MySettingsPage (Plan PUENTE D-12)', () => {
     const card = await screen.findByTestId('slack-link-settings')
     expect(within(card).getByTestId('slack-link-copy')).toHaveTextContent('connected to Acme Workspace')
     expect(within(card).getByTestId('slack-me-status')).toHaveTextContent(
-      'Not linked — your Slack email differs from your Ibiza email',
+      'Not linked — your Slack email differs from your Leaveo email',
     )
     expect(screen.getByText('How you are matched')).toBeInTheDocument()
 

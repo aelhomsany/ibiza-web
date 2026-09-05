@@ -1,6 +1,6 @@
 # ibiza-web
 
-React SPA for Ibiza leave management.
+React SPA for Leaveo leave management.
 
 ## Stack
 

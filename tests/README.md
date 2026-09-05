@@ -1,4 +1,4 @@
-# Ibiza E2E Tests (Playwright)
+# Leaveo E2E Tests (Playwright)
 
 End-to-end tests for the `ibiza-web` SPA against the local Vite dev server (and optionally `ibiza-api`).
 

@@ -56,7 +56,7 @@ function registrationState(
  * browser parameters, provisioning is legible as its own state, and paid-but-unprovisioned offers
  * exactly one non-duplicating recovery action.
  *
- * The two P0 journeys below are `@api` and stub nothing. They previously stubbed every Ibiza
+ * The two P0 journeys below are `@api` and stub nothing. They previously stubbed every Leaveo
  * endpoint and justified it with "the authoritative states can only be produced by a signed Stripe
  * webhook, so no runner can seed them" — which was false. A Stripe signature is HMAC-SHA256 over
  * `"{unixSeconds}.{rawBody}"`; `tests/support/helpers/stripe-webhook.ts` mints one from the secret

@@ -7,7 +7,7 @@ describe('AppHeader i18n Layout ATDD — Story 9.4', () => {
     render(
       <AppHeader
         variant="org"
-        title="Ibiza"
+        title="Leaveo"
         navOpen={false}
         onToggleNav={vi.fn()}
         actions={

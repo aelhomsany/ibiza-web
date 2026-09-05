@@ -57,7 +57,7 @@ describe('AdminRoutes', () => {
     renderAt('/app-admin/profile')
 
     await screen.findByTestId('platform-profile-page')
-    expect(document.title).toBe('Operator Profile | Platform Admin | Ibiza')
+    expect(document.title).toBe('Operator Profile | Platform Admin | Leaveo')
   })
 
   it('[P1] redirects a signed-out operator away from the profile route', async () => {

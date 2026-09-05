@@ -8,7 +8,7 @@ describe('AppHeader', () => {
     render(
       <AppHeader
         variant="org"
-        title="Ibiza"
+        title="Leaveo"
         contextLabel="Nile Harbor"
         navOpen={false}
         onToggleNav={vi.fn()}
@@ -24,7 +24,7 @@ describe('AppHeader', () => {
     render(
       <AppHeader
         variant="org"
-        title="Ibiza"
+        title="Leaveo"
         contextLabel={null}
         navOpen={false}
         onToggleNav={vi.fn()}
@@ -38,7 +38,7 @@ describe('AppHeader', () => {
     render(
       <AppHeader
         variant="org"
-        title="Ibiza"
+        title="Leaveo"
         actions={<button type="button">Bell</button>}
         navOpen={false}
         onToggleNav={vi.fn()}
@@ -53,7 +53,7 @@ describe('AppHeader', () => {
     render(
       <AppHeader
         variant="admin"
-        title="Ibiza Admin"
+        title="Leaveo Admin"
         contextLabel="Platform Admin"
         navOpen={false}
         onToggleNav={onToggleNav}
@@ -71,7 +71,7 @@ describe('AppHeader', () => {
 
   it('labels the hamburger as close navigation while the drawer is open', () => {
     render(
-      <AppHeader variant="org" title="Ibiza" navOpen onToggleNav={vi.fn()} />,
+      <AppHeader variant="org" title="Leaveo" navOpen onToggleNav={vi.fn()} />,
     )
 
     const menu = screen.getByTestId('shell-topbar-menu')

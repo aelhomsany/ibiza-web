@@ -55,29 +55,29 @@ describe('AppRouter page identity ATDD — Story 10.1', () => {
   })
 
   it(
-    '[P0] sets document.title to "{Page title} — Ibiza" on the root route',
+    '[P0] sets document.title to "{Page title} — Leaveo" on the root route',
     async () => {
       // '/' redirects to the Team Calendar landing page since the Dashboard
       // merge (2026-09-01).
       renderAppRoutes(['/'], createMockAuthForRole('EMPLOYEE'))
 
       await screen.findByTestId('team-calendar-page', undefined, { timeout: 3000 })
-      expect(document.title).toBe('Team Calendar — Ibiza')
+      expect(document.title).toBe('Team Calendar — Leaveo')
     },
   )
 
   it(
-    '[P0] sets document.title to "{Page title} — Ibiza" on the settings route',
+    '[P0] sets document.title to "{Page title} — Leaveo" on the settings route',
     async () => {
       renderAppRoutes(['/settings'], createMockAuthForRole('HR_ADMIN'))
 
       await screen.findByRole('heading', { name: 'Settings' })
-      expect(document.title).toBe('Settings — Ibiza')
+      expect(document.title).toBe('Settings — Leaveo')
     },
   )
 
   it(
-    '[P0] sets document.title to "{Page title} — Ibiza" on the login route',
+    '[P0] sets document.title to "{Page title} — Leaveo" on the login route',
     async () => {
       renderAppRoutes(
         ['/login'],
@@ -89,7 +89,7 @@ describe('AppRouter page identity ATDD — Story 10.1', () => {
       )
 
       expect(await screen.findByTestId('login-page')).toBeInTheDocument()
-      expect(document.title).toBe('Sign in — Ibiza')
+      expect(document.title).toBe('Sign in — Leaveo')
     },
   )
 
@@ -98,7 +98,7 @@ describe('AppRouter page identity ATDD — Story 10.1', () => {
     '[P0] index.html exposes the static product title before React boots',
     () => {
       const html = readFileSync(indexHtmlPath, 'utf-8')
-      expect(html).toContain('<title>Ibiza — Team Leave Management</title>')
+      expect(html).toContain('<title>Leaveo — Team Leave Management</title>')
     },
   )
 })
