@@ -35,8 +35,12 @@ test.describe(
       test(
         `[P0] Team Calendar has no page-level overflow at ${width}px`,
         async ({ page }) => {
-          await loginViaUi(page, { email: 'sarah@company.com', password })
+          // Viewport first: the Team Calendar is the landing page and decides Agenda vs
+          // Timeline once, when it mounts. Sign-in already renders it, and navigating to the
+          // route it is on does not remount it, so a later resize would leave the desktop
+          // Timeline in place at 768/900.
           await page.setViewportSize({ width, height: 900 })
+          await loginViaUi(page, { email: 'sarah@company.com', password })
           await navigateInApp(page, '/calendar')
 
           // The Out Today strip renders in both views, so it is the width-independent

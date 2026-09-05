@@ -38,7 +38,10 @@ test.describe('HR Settings page', { tag: [tags.smoke, tags.regression, tags.api]
     await navigateInApp(page, '/settings?category=leave-policies')
 
     await expect(page.getByTestId('leave-types-card')).toBeVisible()
-    await expect(page.getByText('Annual Leave')).toBeVisible()
-    await expect(page.getByText('20 days default')).toBeVisible()
+    // The card's "Default entitlements" support note repeats every type name and entitlement,
+    // so the assertions are scoped to the list itself.
+    const list = page.getByTestId('leave-types-list')
+    await expect(list.getByText('Annual Leave')).toBeVisible()
+    await expect(list.getByText('20 days default')).toBeVisible()
   })
 })

@@ -35,9 +35,12 @@ test.describe('Platform create organization', { tag: [tags.regression, tags.api]
       .click()
 
     await expect(page.getByRole('dialog', { name: 'Create Organization' })).toHaveCount(0)
-    await expect(page.getByText(orgName)).toBeVisible()
-    await expect(page.getByText(`Fatima Hassan · ${hrEmail}`)).toBeVisible()
-    await expect(page.getByText('Growth')).toBeVisible()
-    await expect(page.getByText('1 / 200')).toBeVisible()
+    // Scoped to the new Organization's row: every other Growth tenant in the list carries the
+    // same plan badge and, when it has one user, the same "1 / 200" seat count.
+    const row = page.getByRole('row').filter({ hasText: orgName })
+    await expect(row).toBeVisible()
+    await expect(row.getByText(`Fatima Hassan · ${hrEmail}`)).toBeVisible()
+    await expect(row.getByText('Growth')).toBeVisible()
+    await expect(row.getByText('1 / 200')).toBeVisible()
   })
 })

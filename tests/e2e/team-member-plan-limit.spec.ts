@@ -81,13 +81,16 @@ test.describe('Team member plan limit', { tag: [tags.regression, tags.api] }, ()
     const hrCredentials = { email: hrEmail, password: HR_PASSWORD, timezone: 'America/New_York' }
     const { accessToken: hrToken } = await loginViaApi(request, hrCredentials)
 
-    const groups = await apiRequest<Array<{ id: number; name: string }>>({
+    // A tenant is provisioned with no Workforce Groups — the HR Admin creates them — so the
+    // members seeded below need one to belong to, and the modal's group select needs an option.
+    const group = await apiRequest<{ id: number; name: string }>({
       request,
-      method: 'GET',
+      method: 'POST',
       path: '/api/v1/workforce-groups',
       token: hrToken,
+      data: { name: 'US' },
     })
-    const groupId = groups[0]?.id
+    const groupId = group.id
     expect(groupId).toBeTruthy()
 
     // Four members plus the HR Admin puts this Organization exactly on the FREE(5) cap, so the
@@ -106,7 +109,9 @@ test.describe('Team member plan limit', { tag: [tags.regression, tags.api] }, ()
     await page.getByLabel(/Full name/i).fill('Sixth User')
     await page.getByLabel(/Email/i).fill(`sixth.${suffix}@example.com`)
     await page.getByLabel(/Department/i).fill('Ops')
-    await page.getByLabel(/Workforce Group/i).selectOption({ index: 1 })
+    // The support rail's "By workforce group" region is also labelled /Workforce Group/, so
+    // getByLabel resolves to two elements; the <select> is the only combobox.
+    await page.getByRole('combobox', { name: /Workforce Group/i }).selectOption({ index: 1 })
     await page.getByRole('button', { name: /Save/i }).click()
 
     // The refusal renders inside the modal as `plan-limit-banner` (role="alert", focused), not as

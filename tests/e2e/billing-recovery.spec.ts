@@ -119,7 +119,9 @@ test.describe(
         await page.getByLabel(/Full name/i).fill('Blocked Hire')
         await page.getByLabel(/Email/i).fill(`blocked+${Date.now()}@example.com`)
         await page.getByLabel(/Department/i).fill('Ops')
-        await page.getByLabel(/Workforce Group/i).selectOption({ index: 1 })
+        // The support rail's "By workforce group" region is also labelled /Workforce Group/, so
+        // getByLabel resolves to two elements; the <select> is the only combobox.
+        await page.getByRole('combobox', { name: /Workforce Group/i }).selectOption({ index: 1 })
         await page.getByRole('button', { name: /Save/i }).click()
 
         // The server refused it — not a client-side guard that a stubbed run could not tell apart.

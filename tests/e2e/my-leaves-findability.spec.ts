@@ -91,13 +91,24 @@ test.describe(
         await page.setViewportSize({ width: 390, height: 900 })
         const statusFilter = page.getByTestId('my-leaves-status-filter')
         await expect(statusFilter).toBeVisible()
+        // The status segments wrap at narrow widths rather than scrolling sideways — the
+        // scrolling strip pushed the card edge past a 375px viewport and hid the last segment
+        // (my-leaves.css). So: no sideways overflow, and every segment inside the filter's box.
         await expect
           .poll(() =>
-            statusFilter.evaluate(
-              (element) =>
-                window.getComputedStyle(element).overflowX === 'auto' &&
-                element.scrollWidth > element.clientWidth,
-            ),
+            statusFilter.evaluate((element) => {
+              const box = element.getBoundingClientRect()
+              const segments = Array.from(element.querySelectorAll('button'))
+              return (
+                window.getComputedStyle(element).flexWrap === 'wrap' &&
+                element.scrollWidth <= element.clientWidth &&
+                segments.length > 0 &&
+                segments.every((segment) => {
+                  const rect = segment.getBoundingClientRect()
+                  return rect.left >= box.left - 1 && rect.right <= box.right + 1
+                })
+              )
+            }),
           )
           .toBe(true)
         await expect(page.getByTestId('my-leaves-search')).toBeVisible()

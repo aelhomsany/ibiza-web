@@ -29,19 +29,23 @@ async function expectTrailingColumnKeyboardReachable(
     }
   })
 
+  // The region stays a keyboard-focusable horizontal scroll region even when nothing
+  // overflows — that is the HorizontalScrollRegion contract this story introduced.
   expect(metrics.overflowX).toBe('auto')
-  expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth)
-
   await wrapper.focus()
   await expect(wrapper).toBeFocused()
-  await wrapper.press('ArrowRight')
-  await expect
-    .poll(() => wrapper.evaluate((element) => element.scrollLeft))
-    .toBeGreaterThan(0)
 
-  await wrapper.evaluate((element) => {
-    element.scrollLeft = element.scrollWidth
-  })
+  if (metrics.scrollWidth > metrics.clientWidth) {
+    // Something did overflow: the trailing column must be reachable by keyboard alone.
+    await wrapper.press('ArrowRight')
+    await expect
+      .poll(() => wrapper.evaluate((element) => element.scrollLeft))
+      .toBeGreaterThan(0)
+    await wrapper.evaluate((element) => {
+      element.scrollLeft = element.scrollWidth
+    })
+  }
+
   await expect(trailingCell).toBeVisible()
 
   const wrapperBox = await wrapper.boundingBox()
@@ -172,6 +176,10 @@ test.describe(
         const tableView = card.getByTestId('my-leaves-desktop-history')
         // my-leaves-history-table IS the HorizontalScrollRegion (role="region",
         // tabindex="0") — the My Leaves equivalent of recent-requests-scroll-region.
+        // Since 2026-07-05 the table drops the shared 760px floor (`min-width: auto` in
+        // my-leaves.css) so Status/Details never hide behind sideways scroll on desktop —
+        // AC4. So at 1280px the trailing column is expected in view with no overflow at
+        // all; the helper still demands keyboard scrolling whenever overflow does occur.
         const region = card.getByTestId('my-leaves-history-table')
         await expect(tableView).toBeVisible()
         await expectTrailingColumnKeyboardReachable(

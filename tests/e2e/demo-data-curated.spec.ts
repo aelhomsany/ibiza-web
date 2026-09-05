@@ -50,8 +50,14 @@ test.describe(
       await expect(page.getByRole('tab', { name: 'US', exact: true })).toBeVisible()
       await expect(page.getByRole('tab', { name: 'Egypt', exact: true })).toBeVisible()
       await page.getByTestId('settings-category-people').click()
-      await expect(page.getByTestId('team-members-list').getByText('Jordan Lee')).toBeVisible()
-      await expect(page.getByTestId('team-members-list').getByText('Alex Johnson')).toBeVisible()
+      const members = page.getByTestId('team-members-list')
+      await expect(members.getByText('Jordan Lee')).toBeVisible()
+      // Alex manages the rest of the seeded team, so his name also appears on their rows.
+      // Find his own row by email and assert the name cell there.
+      const alexRow = members
+        .locator('[data-testid^="team-member-row-"]')
+        .filter({ hasText: 'alex@company.com' })
+      await expect(alexRow.locator('.member-name')).toHaveText('Alex Johnson')
       await expect(page.getByText(/pilot-demo:/i)).toHaveCount(0)
 
       await logoutViaUi(page)

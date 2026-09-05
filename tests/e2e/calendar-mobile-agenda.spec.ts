@@ -29,8 +29,12 @@ test.describe(
     test(
       '[P1] Given viewport 390px, When /calendar loads, Then Agenda is default without page overflow',
       async ({ page }) => {
-        await loginViaUi(page, { email: 'sarah@company.com', password })
+        // Viewport first: the Team Calendar is the landing page and decides Agenda vs Timeline
+        // once, when it mounts (Story 11.6: Agenda under 900px). Sign-in already renders it, and
+        // navigating to the route it is on does not remount it, so a later resize would leave the
+        // desktop Timeline in place.
         await page.setViewportSize({ width: 390, height: 844 })
+        await loginViaUi(page, { email: 'sarah@company.com', password })
         await navigateInApp(page, '/calendar')
 
         await expect(page.getByTestId('team-calendar-page')).toBeVisible()

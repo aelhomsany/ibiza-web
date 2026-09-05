@@ -47,11 +47,14 @@ test.describe('Settings unified UI — Story 2.7', { tag: [tags.regression, tags
     await navigateInApp(page, '/settings?category=leave-policies')
 
     await expect(page.getByTestId('leave-types-card')).toBeVisible()
-    await expect(page.getByTestId('leave-types-list')).toBeVisible()
-    await expect(page.getByText('Annual Leave')).toBeVisible()
-    await expect(page.getByText('20 days default')).toBeVisible()
-    await expect(page.getByText('Unpaid Leave')).toBeVisible()
-    await expect(page.getByText('Unlimited / custom')).toBeVisible()
+    // The card's "Default entitlements" support note repeats every type name and entitlement,
+    // so the assertions are scoped to the list itself.
+    const list = page.getByTestId('leave-types-list')
+    await expect(list).toBeVisible()
+    await expect(list.getByText('Annual Leave')).toBeVisible()
+    await expect(list.getByText('20 days default')).toBeVisible()
+    await expect(list.getByText('Unpaid Leave')).toBeVisible()
+    await expect(list.getByText('Unlimited / custom')).toBeVisible()
   })
 
   test('[P1] + Add Group creates a new workforce group tab', async ({ page }) => {
