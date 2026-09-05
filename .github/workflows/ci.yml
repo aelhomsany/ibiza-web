@@ -145,6 +145,11 @@ jobs:
         working-directory: ibiza-web
         run: npx playwright install --with-deps chromium
 
+      # The environment below mirrors ibiza-web/scripts/run-e2e-with-api.sh, which is the
+      # documented way to run this suite and the source of truth for what the API needs.
+      # Only the DB_* values differ (the MySQL service container above). Keep the two in
+      # step: the first time this job ever reached the tests (2026-09-05, run 33969001876)
+      # it failed billing-recovery on a missing STRIPE_WEBHOOK_SECRET that the script exports.
       - name: Start ibiza-api
         working-directory: ibiza-api
         env:
@@ -156,7 +161,19 @@ jobs:
           DB_PASSWORD: root
           JWT_SECRET: ci-jwt-secret-must-be-at-least-32-characters
           CORS_ALLOWED_ORIGINS: http://localhost:5173
+          PUBLIC_CORS_ALLOWED_ORIGINS: http://localhost:5173
+          PLATFORM_CORS_ALLOWED_ORIGINS: http://localhost:5173
           IBIZA_WEB_BASE_URL: http://localhost:5173
+          PUBLIC_WEB_BASE_URL: http://localhost:5173
+          PUBLIC_REGISTRATION_ENABLED: 'true'
+          PAID_REGISTRATION_ENABLED: 'true'
+          FREE_PROVISIONING_ENABLED: 'true'
+          STRIPE_SIMULATED_PROVIDER: 'true'
+          STRIPE_WEBHOOK_SECRET: whsec_e2e_local_secret
+          STRIPE_PRICE_STARTER: price_e2e_starter
+          STRIPE_PRICE_GROWTH: price_e2e_growth
+          DEV_MAIL_SINK_ENABLED: 'true'
+          IBIZA_DEMO_RESET: 'true'
         run: |
           ./mvnw -B -q spring-boot:run \
             -Dspring-boot.run.jvmArguments="-Dspring.profiles.active=dev" &
@@ -189,6 +206,9 @@ jobs:
           E2E_API_AVAILABLE: 'true'
           E2E_USER_EMAIL: alex@company.com
           E2E_USER_PASSWORD: PilotDev123!
+          # tests/support/helpers/stripe-webhook.ts signs simulated webhooks with this; it
+          # must equal the value the API was started with above.
+          STRIPE_WEBHOOK_SECRET: whsec_e2e_local_secret
         run: npm run test:e2e:regression:ci
 
       - name: Stop ibiza-api
