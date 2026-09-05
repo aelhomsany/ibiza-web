@@ -7,7 +7,7 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 test.describe('Role-based navigation', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for role navigation checks',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for role navigation checks',
   )
 
   test('Employee sees base nav only', async ({ page }) => {

@@ -7,7 +7,7 @@ set -euo pipefail
 # This exists because none of that is reachable from a plain `npm run dev` + an API started from
 # the IDE. Two reasons, both silent:
 #
-#   1. ibiza-api does not read ibiza-api/.env. PUBLIC_REGISTRATION_ENABLED, PAID_REGISTRATION_ENABLED
+#   1. leaveo-api does not read leaveo-api/.env. PUBLIC_REGISTRATION_ENABLED, PAID_REGISTRATION_ENABLED
 #      and FREE_PROVISIONING_ENABLED all default to false in application.yml, so an API launched
 #      without these exported answers GET /api/v1/public/plans with "registrationEnabled": false and
 #      refuses every registration and checkout — while /actuator/health stays UP and the customer
@@ -22,13 +22,13 @@ set -euo pipefail
 # the demo tenants. This one runs against the developer's own database and touches no data.
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-API_DIR="${LEAVEO_API_DIR:-$(cd "$ROOT/../ibiza-api" && pwd)}"
+API_DIR="${LEAVEO_API_DIR:-$(cd "$ROOT/../leaveo-api" && pwd)}"
 API_PORT="${API_PORT:-8080}"
 WEB_PORT="${WEB_PORT:-5173}"
 PUBLIC_PORT="${PUBLIC_PORT:-4174}"
 
 if [[ ! -f "$API_DIR/pom.xml" ]]; then
-  echo "ibiza-api not found at $API_DIR (set LEAVEO_API_DIR)" >&2
+  echo "leaveo-api not found at $API_DIR (set LEAVEO_API_DIR)" >&2
   exit 1
 fi
 
@@ -59,7 +59,7 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-# Database and mail credentials come from the developer's own ibiza-api/.env — including DB_NAME,
+# Database and mail credentials come from the developer's own leaveo-api/.env — including DB_NAME,
 # unlike the E2E runner. The point of this script is to sign up into the database you already
 # work in. Only KEY=VALUE lines are read: the file also contains prose, so it cannot be sourced.
 if [[ -f "$API_DIR/.env" ]]; then
@@ -80,7 +80,7 @@ export FREE_PROVISIONING_ENABLED="${FREE_PROVISIONING_ENABLED:-true}"
 export PAID_REGISTRATION_ENABLED="${PAID_REGISTRATION_ENABLED:-true}"
 
 # Creating a hosted Checkout Session is an outbound call to Stripe, so a local run needs either
-# real test keys or the simulator. The simulator is the default *even when ibiza-api/.env supplies
+# real test keys or the simulator. The simulator is the default *even when leaveo-api/.env supplies
 # real sk_test_ keys*, because real Checkout also needs Stripe to reach a webhook endpoint on this
 # machine (`stripe listen` or a tunnel) — without that the journey stops dead at Confirming
 # Payment. SimulatedStripeGateway answers only the outbound calls, still verifies webhook
@@ -95,7 +95,7 @@ export STRIPE_PRICE_STARTER="${STRIPE_PRICE_STARTER:-price_dev_starter}"
 export STRIPE_PRICE_GROWTH="${STRIPE_PRICE_GROWTH:-price_dev_growth}"
 export STRIPE_WEBHOOK_SECRET="${STRIPE_WEBHOOK_SECRET:-whsec_dev_local_secret}"
 
-# ibiza-api/.env sets EMAIL_PROVIDER=resend with a live RESEND_API_KEY, so inheriting it would
+# leaveo-api/.env sets EMAIL_PROVIDER=resend with a live RESEND_API_KEY, so inheriting it would
 # send every verification and welcome mail of every local sign-up through the real provider — to
 # whatever address was typed into the form. The journey is driven from the in-memory sink instead,
 # which is also the only provider the sink can read. Export EMAIL_PROVIDER yourself to override.
@@ -119,7 +119,7 @@ export LEAVEO_PUBLIC_EXPERIENCE_PUBLIC_BASE_URL="http://localhost:${PUBLIC_PORT}
 
 API_PID=""
 if [[ "$REUSE_API" == "false" ]]; then
-  echo "Starting ibiza-api on :${API_PORT} (registration + paid checkout enabled)…"
+  echo "Starting leaveo-api on :${API_PORT} (registration + paid checkout enabled)…"
   (cd "$API_DIR" && ./mvnw -q spring-boot:run \
     -Dspring-boot.run.arguments="--server.port=${API_PORT}" \
     -Dspring-boot.run.jvmArguments="-Dspring.profiles.active=dev") &

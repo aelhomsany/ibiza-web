@@ -9,7 +9,7 @@ const platformAdminCredentials = {
 test.describe('Platform edit subscription', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running with platform admin seed',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running with platform admin seed',
   )
 
   test('[P0] Platform Admin edits Nile Harbor subscription and row plan badge updates', async ({ page }) => {

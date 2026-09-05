@@ -33,7 +33,7 @@ type OrganizationSummary = {
 test.describe('Team member plan limit', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running with pilot seed data',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running with pilot seed data',
   )
 
   test('[P0] HR blocked adding over-limit Free user sees the limit and upgrade path, modal stays open', async ({

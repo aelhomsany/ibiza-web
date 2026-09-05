@@ -19,15 +19,12 @@ EXCLUDES=(':(exclude)CHANGELOG*' ':(exclude)scripts/verify-brand.sh')
 # Occurrences that are allowed to survive. Each is stripped from the line before the check;
 # anything still matching afterwards fails.
 #
-#   ibiza-api / ibiza-web  Repository and directory names. TEMPORARY -- delete these two
-#                          alternatives once the GitHub repos and local directories are renamed.
 #   IBIZA_*                The pre-rename environment variables that vite.config.ts refuses to
 #                          build on, so it can name them back to the operator. Permanent while
 #                          that guard lives: a guard that cannot say what to rename is useless.
 #   Ibiza-handoff.md       Filename of a BMad test-design record written under the working title.
 #                          Records are never rewritten, so neither is a link to one.
 ALLOWED='
-  s/\bibiza-(api|web)\b//gi;
   s/\bIBIZA_[A-Z0-9_]*//g;
   s/\bIbiza-handoff\.md\b//gi;
 '

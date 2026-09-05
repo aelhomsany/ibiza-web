@@ -7,7 +7,7 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 test.describe('Team Calendar — Story 4.2 / 7.11', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for calendar data',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for calendar data',
   )
 
   test('[P1] Employee sees calendar week nav and timeline at /calendar', async ({ page }) => {

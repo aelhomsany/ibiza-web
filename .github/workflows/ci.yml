@@ -112,18 +112,18 @@ jobs:
           --health-timeout=5s
           --health-retries=10
     steps:
-      - name: Checkout ibiza-web
+      - name: Checkout leaveo-web
         uses: actions/checkout@v4
         with:
-          path: ibiza-web
+          path: leaveo-web
 
-      - name: Checkout ibiza-api
+      - name: Checkout leaveo-api
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository_owner }}/ibiza-api
+          repository: ${{ github.repository_owner }}/leaveo-api
           ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.LEAVEO_API_READ_TOKEN }}
-          path: ibiza-api
+          path: leaveo-api
         continue-on-error: false
 
       - uses: actions/setup-node@v4
@@ -134,7 +134,7 @@ jobs:
           # lockfile, and it still satisfies package.json's own `engines: >=22.12.0 <23`.
           node-version: '22.13.0'
           cache: npm
-          cache-dependency-path: ibiza-web/package-lock.json
+          cache-dependency-path: leaveo-web/package-lock.json
 
       - uses: actions/setup-java@v4
         with:
@@ -142,20 +142,20 @@ jobs:
           java-version: '21'
 
       - name: Install web dependencies
-        working-directory: ibiza-web
+        working-directory: leaveo-web
         run: npm ci
 
       - name: Install Playwright browsers
-        working-directory: ibiza-web
+        working-directory: leaveo-web
         run: npx playwright install --with-deps chromium
 
-      # The environment below mirrors ibiza-web/scripts/run-e2e-with-api.sh, which is the
+      # The environment below mirrors leaveo-web/scripts/run-e2e-with-api.sh, which is the
       # documented way to run this suite and the source of truth for what the API needs.
       # Only the DB_* values differ (the MySQL service container above). Keep the two in
       # step: the first time this job ever reached the tests (2026-09-05, run 33969001876)
       # it failed billing-recovery on a missing STRIPE_WEBHOOK_SECRET that the script exports.
-      - name: Start ibiza-api
-        working-directory: ibiza-api
+      - name: Start leaveo-api
+        working-directory: leaveo-api
         env:
           SPRING_PROFILES_ACTIVE: dev
           DB_HOST: 127.0.0.1
@@ -184,24 +184,24 @@ jobs:
           echo $! > api.pid
 
       - name: Wait for API health
-        run: ibiza-web/scripts/wait-for-http.sh http://localhost:8080/actuator/health '"status":"UP"' 180
+        run: leaveo-web/scripts/wait-for-http.sh http://localhost:8080/actuator/health '"status":"UP"' 180
 
       - name: Verify OpenAPI generated types
-        working-directory: ibiza-web
+        working-directory: leaveo-web
         env:
           API_URL: http://localhost:8080
         run: ./scripts/verify-openapi-types.sh
 
       - name: Build web app for preview
-        working-directory: ibiza-web
+        working-directory: leaveo-web
         run: npm run build
 
       - name: Verify E2E tag integrity
-        working-directory: ibiza-web
+        working-directory: leaveo-web
         run: npm run verify:e2e-tags
 
       - name: Run regression E2E with API
-        working-directory: ibiza-web
+        working-directory: leaveo-web
         env:
           CI: true
           TEST_ENV: ci
@@ -215,9 +215,9 @@ jobs:
           STRIPE_WEBHOOK_SECRET: whsec_e2e_local_secret
         run: npm run test:e2e:regression:ci
 
-      - name: Stop ibiza-api
+      - name: Stop leaveo-api
         if: always()
-        working-directory: ibiza-api
+        working-directory: leaveo-api
         run: |
           if [[ -f api.pid ]]; then
             kill "$(cat api.pid)" 2>/dev/null || true
@@ -229,6 +229,6 @@ jobs:
         with:
           name: playwright-report-with-api
           path: |
-            ibiza-web/playwright-report/
-            ibiza-web/test-results/
+            leaveo-web/playwright-report/
+            leaveo-web/test-results/
           retention-days: 7

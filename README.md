@@ -1,4 +1,4 @@
-# ibiza-web
+# leaveo-web
 
 React SPA for Leaveo leave management.
 
@@ -13,7 +13,7 @@ React SPA for Leaveo leave management.
 ### Prerequisites
 
 - Node.js 20.19+ or 22.12+
-- Running `ibiza-api` (see sibling repo)
+- Running `leaveo-api` (see sibling repo)
 
 ### 1. Configure environment
 
@@ -32,9 +32,9 @@ npm run dev
 
 SPA runs on **http://localhost:5173**. Requests to `/api/*` are proxied to the API on port 8080.
 
-## Full-stack local dev (with ibiza-api)
+## Full-stack local dev (with leaveo-api)
 
-1. In sibling repo `../ibiza-api`: ensure local MySQL is running, export `.env`, then `./mvnw spring-boot:run`.
+1. In sibling repo `../leaveo-api`: ensure local MySQL is running, export `.env`, then `./mvnw spring-boot:run`.
 2. In this repo: `cp .env.example .env`, then `npm run dev`.
 3. Open **http://localhost:5173** — unauthenticated users land on `/login`.
 4. Pilot credentials (password `PilotDev123!` for all):
@@ -46,7 +46,7 @@ SPA runs on **http://localhost:5173**. Requests to `/api/*` are proxied to the A
 | `jordan@company.com` | HR Admin | `/` |
 | `riley@leaveo.example` | Platform Admin | `/platform/organizations` |
 
-See `../ibiza-api/README.md` for backend setup.
+See `../leaveo-api/README.md` for backend setup.
 
 ## Authentication flow
 
@@ -71,14 +71,14 @@ All HTTP calls go through `src/api/client.ts` with `credentials: 'include'`, Bea
 
 | Purpose | Run from | Command |
 |---------|----------|---------|
-| All API tests | `ibiza-api` repository root | `./mvnw -q test` |
-| All Playwright tests | `ibiza-web` repository root | `npm run test:e2e:api` |
-| Exact seven-test Playwright smoke suite | `ibiza-web` repository root | `npm run test:e2e:smoke:api` |
-| Full Playwright regression suite | `ibiza-web` repository root | `npm run test:e2e:regression:api` |
-| All Vitest unit/component tests | `ibiza-web` repository root | `npm run test:ci` |
+| All API tests | `leaveo-api` repository root | `./mvnw -q test` |
+| All Playwright tests | `leaveo-web` repository root | `npm run test:e2e:api` |
+| Exact seven-test Playwright smoke suite | `leaveo-web` repository root | `npm run test:e2e:smoke:api` |
+| Full Playwright regression suite | `leaveo-web` repository root | `npm run test:e2e:regression:api` |
+| All Vitest unit/component tests | `leaveo-web` repository root | `npm run test:ci` |
 
-The Playwright `:api` commands start the sibling `ibiza-api` service, so port 8080 must be free.
-The wrapper inherits exported `DB_*` variables and does not load `ibiza-api/.env`; without exports,
+The Playwright `:api` commands start the sibling `leaveo-api` service, so port 8080 must be free.
+The wrapper inherits exported `DB_*` variables and does not load `leaveo-api/.env`; without exports,
 it uses its documented localhost/root defaults. Use a disposable local database with pilot seed data
 because API-backed journeys can create or update records.
 

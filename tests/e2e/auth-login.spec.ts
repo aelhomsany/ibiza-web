@@ -5,7 +5,7 @@ import { tags } from '../support/tags'
 test.describe('Authentication API', { tag: [tags.smoke, tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for API auth checks',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for API auth checks',
   )
 
   test('Given pilot credentials, When logging in via API, Then an access token is returned', async ({
@@ -20,7 +20,7 @@ test.describe('Authentication API', { tag: [tags.smoke, tags.regression, tags.ap
 test.describe('Authentication UI', { tag: [tags.smoke, tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for UI auth checks',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for UI auth checks',
   )
 
   test('Given the login page, When signing in with valid credentials, Then the team calendar loads', async ({

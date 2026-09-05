@@ -16,7 +16,7 @@ test.describe(
   () => {
     test.skip(
       process.env.E2E_API_AVAILABLE !== 'true',
-      'Set E2E_API_AVAILABLE=true when ibiza-api is running for authenticated shell navigation',
+      'Set E2E_API_AVAILABLE=true when leaveo-api is running for authenticated shell navigation',
     )
 
     test('[P1] Skip link moves focus to main content', async ({ page }) => {
@@ -87,7 +87,7 @@ test.describe(
  * reduced motion, and no rendered control below the 44px target floor.
  *
  * Dependency tag is @ui-only: every surface is reachable with route mocks alone, so these run in
- * `npm run test:e2e:ui-only` and in `--grep @regression` without ibiza-api.
+ * `npm run test:e2e:ui-only` and in `--grep @regression` without leaveo-api.
  */
 
 const publicBaseUrl = process.env.PUBLIC_BASE_URL ??

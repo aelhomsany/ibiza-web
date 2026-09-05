@@ -15,7 +15,7 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 test.describe('Balance cards — Story 3.1', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for balance data',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for balance data',
   )
 
   test('[P1] Employee sees annual leave balance card with numbers after login', async ({

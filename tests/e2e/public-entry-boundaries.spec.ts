@@ -242,7 +242,7 @@ test.describe(
   () => {
     test.skip(
       process.env.E2E_API_AVAILABLE !== 'true',
-      'Set E2E_API_AVAILABLE=true when ibiza-api is running with platform-auth seed',
+      'Set E2E_API_AVAILABLE=true when leaveo-api is running with platform-auth seed',
     )
     test(
       '[P0] Given customer and Platform Admin credentials, When each is used in both realms, Then only its own realm accepts it',

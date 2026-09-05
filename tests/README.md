@@ -1,6 +1,6 @@
 # Leaveo E2E Tests (Playwright)
 
-End-to-end tests for the `ibiza-web` SPA against the local Vite dev server (and optionally `ibiza-api`).
+End-to-end tests for the `leaveo-web` SPA against the local Vite dev server (and optionally `leaveo-api`).
 
 ## Setup
 
@@ -23,7 +23,7 @@ End-to-end tests for the `ibiza-web` SPA against the local Vite dev server (and 
    cp .env.example .env
    ```
 
-4. For API-backed tests, start `ibiza-api` and set in `.env`:
+4. For API-backed tests, start `leaveo-api` and set in `.env`:
 
    ```
    E2E_API_AVAILABLE=true
@@ -33,7 +33,7 @@ End-to-end tests for the `ibiza-web` SPA against the local Vite dev server (and 
 
 | Command | Purpose |
 |---------|---------|
-| `npm run test:e2e:api` | All 48 Playwright tests; starts `ibiza-api` from `../ibiza-api` |
+| `npm run test:e2e:api` | All 48 Playwright tests; starts `leaveo-api` from `../leaveo-api` |
 | `npm run test:e2e:smoke:api` | Exact seven-test executable smoke set; starts the API |
 | `npm run test:e2e:regression:api` | Full 48-test regression; starts the API |
 | `npm run test:e2e:ui-only` | Five browser-only tests; no API required |
@@ -119,7 +119,7 @@ Artifacts: `test-results/` (JUnit + traces) and `playwright-report/` on failure.
 |-------|-----|
 | Browser not installed | `npx playwright install chromium` |
 | Port 5173 in use | Stop other Vite dev servers or change `BASE_URL` |
-| API-backed test skipped | Set `E2E_API_AVAILABLE=true` and run `ibiza-api` on `:8080`, or use an `:api` wrapper |
+| API-backed test skipped | Set `E2E_API_AVAILABLE=true` and run `leaveo-api` on `:8080`, or use an `:api` wrapper |
 | Integrity check fails | Reconcile the spec tags and exact titles in `tests/e2e/tag-manifest.json` |
 
 ### Story 6.4 plan-limit regression journey

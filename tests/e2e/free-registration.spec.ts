@@ -32,7 +32,7 @@ test.describe(
   () => {
     test.skip(
       process.env.E2E_API_AVAILABLE !== 'true',
-      'Set E2E_API_AVAILABLE=true when ibiza-api is running with registration enabled',
+      'Set E2E_API_AVAILABLE=true when leaveo-api is running with registration enabled',
     )
 
     test(

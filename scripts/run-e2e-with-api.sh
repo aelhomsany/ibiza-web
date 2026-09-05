@@ -2,12 +2,12 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-API_DIR="${LEAVEO_API_DIR:-$(cd "$ROOT/../ibiza-api" && pwd)}"
+API_DIR="${LEAVEO_API_DIR:-$(cd "$ROOT/../leaveo-api" && pwd)}"
 API_PORT="${API_PORT:-8080}"
 WEB_PORT="${WEB_PORT:-5173}"
 
 if [[ ! -f "$API_DIR/pom.xml" ]]; then
-  echo "ibiza-api not found at $API_DIR (set LEAVEO_API_DIR)" >&2
+  echo "leaveo-api not found at $API_DIR (set LEAVEO_API_DIR)" >&2
   exit 1
 fi
 
@@ -26,7 +26,7 @@ trap cleanup EXIT
 export CORS_ALLOWED_ORIGINS="${CORS_ALLOWED_ORIGINS:-http://localhost:${WEB_PORT}}"
 export PUBLIC_CORS_ALLOWED_ORIGINS="${PUBLIC_CORS_ALLOWED_ORIGINS:-http://localhost:${WEB_PORT}}"
 export PLATFORM_CORS_ALLOWED_ORIGINS="${PLATFORM_CORS_ALLOWED_ORIGINS:-http://localhost:${WEB_PORT}}"
-# Credentials come from ibiza-api/.env when it exists, so this script works on a developer
+# Credentials come from leaveo-api/.env when it exists, so this script works on a developer
 # machine whose MySQL actually has a password. Only KEY=VALUE lines are read: the file also
 # contains prose, so `source`-ing it fails. Anything already exported wins.
 #
@@ -118,7 +118,7 @@ cd "$ROOT"
 if existing_page=$(curl -fsS --max-time 5 "http://localhost:${WEB_PORT}/" 2>/dev/null); then
   if ! grep -qi 'leaveo' <<<"$existing_page"; then
     served_title=$(grep -oiE '<title>[^<]*</title>' <<<"$existing_page" | head -1)
-    echo "Port ${WEB_PORT} is already serving something that is not ibiza-web ${served_title:+(${served_title})}." >&2
+    echo "Port ${WEB_PORT} is already serving something that is not leaveo-web ${served_title:+(${served_title})}." >&2
     echo "Playwright would reuse it and every test would fail on missing selectors." >&2
     echo "Stop that server, or re-run with a free port: WEB_PORT=5174 $0 $*" >&2
     exit 1

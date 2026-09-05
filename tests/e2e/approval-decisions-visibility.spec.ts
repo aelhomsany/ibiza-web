@@ -11,7 +11,7 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 test.describe('Approval visibility — Story 3.8', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot approval seed data',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for pilot approval seed data',
   )
 
   test('[P2] Manager sees Approvals badge and My Leaves Review Now link', async ({ page }) => {

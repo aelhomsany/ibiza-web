@@ -9,7 +9,7 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
 /**
  * Story 3.7 — sparse E2E for approve happy path + decline reason guard (FR-13 / UX-DR18).
- * Runs in CI via the ibiza-web `e2e-with-api` job (`E2E_API_AVAILABLE=true`).
+ * Runs in CI via the leaveo-web `e2e-with-api` job (`E2E_API_AVAILABLE=true`).
  *
  * The two decision tests each provision their OWN pending request and act on that one by id.
  * They used to take `approve-btn-*`/`decline-btn-*` `.first()` from the curated demo seed and
@@ -71,7 +71,7 @@ async function provisionPendingRequest(request: APIRequestContext, note: string)
 test.describe('Approval decision — Story 3.7', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot approval seed data',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for pilot approval seed data',
   )
 
   test('[P1] Manager approves a pending row and it disappears from the inbox', async ({

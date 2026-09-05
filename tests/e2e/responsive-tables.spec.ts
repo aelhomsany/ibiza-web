@@ -70,7 +70,7 @@ async function viewPageAtMobileWidth(page: Page, path: string): Promise<void> {
 test.describe('Responsive tables — Story 10.3', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot table data',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for pilot table data',
   )
 
   // The Dashboard's "recent requests" table used to be checked here alongside My Leaves.

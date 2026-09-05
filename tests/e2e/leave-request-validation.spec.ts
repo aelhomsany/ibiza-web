@@ -22,7 +22,7 @@ function nextWeekend(): { saturday: string; sunday: string } {
 test.describe('Leave request validation — FR-6 zero working days (Story 3.3)', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for leave preview data',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for leave preview data',
   )
 
   test('[P0] Given a weekend-only date range, When preview renders, Then submit is blocked with group message', async ({

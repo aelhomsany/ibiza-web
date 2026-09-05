@@ -6,7 +6,7 @@ import { tags } from '../support/tags'
  * Sparse E2E per the Leaveo validation pyramid: browser proof that a clean reset produces curated,
  * trustworthy surfaces (AC 7) — Employee history, HR Settings workforce, and Platform Organizations.
  * Authoritative safety/determinism/isolation coverage lives in the API suite
- * `../ibiza-api/.../config/DemoDataResetIntegrationTest.java`.
+ * `../leaveo-api/.../config/DemoDataResetIntegrationTest.java`.
  */
 
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'

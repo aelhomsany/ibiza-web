@@ -17,7 +17,7 @@ const platformAdminCredentials = {
 test.describe('Platform admin authentication', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running with platform admin seed',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running with platform admin seed',
   )
 
   test('[P0] real Platform Admin login lands in admin shell without org navigation', async ({

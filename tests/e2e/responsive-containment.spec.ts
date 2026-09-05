@@ -67,7 +67,7 @@ test.describe(
   () => {
     test.skip(
       process.env.E2E_API_AVAILABLE !== 'true',
-      'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot dashboard/settings data',
+      'Set E2E_API_AVAILABLE=true when leaveo-api is running for pilot dashboard/settings data',
     )
 
     // 390px and 901px bracket the 900px shell breakpoint. The Dashboard merged into

@@ -23,7 +23,7 @@ test.describe(
   () => {
     test.skip(
       process.env.E2E_API_AVAILABLE !== 'true',
-      'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot dashboard data',
+      'Set E2E_API_AVAILABLE=true when leaveo-api is running for pilot dashboard data',
     )
 
     // The Dashboard merged into My Leaves on 2026-09-01, splitting Story 11.1's one

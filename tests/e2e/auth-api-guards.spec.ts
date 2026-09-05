@@ -6,7 +6,7 @@ const apiUrl = process.env.API_URL ?? process.env.VITE_API_URL ?? 'http://localh
 test.describe('Authentication API guards', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for API guard checks',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for API guard checks',
   )
 
   test('[P0-001] Given no token, When calling /auth/me, Then 401 is returned', async ({ request }) => {

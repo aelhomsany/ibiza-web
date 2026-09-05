@@ -10,7 +10,7 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 test.describe('Approval inbox — Story 3.6', { tag: [tags.smoke, tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for pilot approval seed data',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for pilot approval seed data',
   )
 
   test('[P2] Manager sees direct-report pending row on Approvals page', async ({ page }) => {

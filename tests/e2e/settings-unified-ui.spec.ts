@@ -6,12 +6,12 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
 /**
  * Story 2.7 — unified Settings page composition.
- * Remove outer skip when ibiza-api is unavailable in CI; inner tests assert implemented UI.
+ * Remove outer skip when leaveo-api is unavailable in CI; inner tests assert implemented UI.
  */
 test.describe('Settings unified UI — Story 2.7', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for settings data',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for settings data',
   )
 
   test('[P1] HR Admin sees subtitle and three policy cards in mockup order', async ({ page }) => {

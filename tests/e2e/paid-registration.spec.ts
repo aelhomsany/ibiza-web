@@ -129,7 +129,7 @@ test.describe(
   () => {
     test.skip(
       process.env.E2E_API_AVAILABLE !== 'true',
-      'Set E2E_API_AVAILABLE=true when ibiza-api is running with paid registration enabled',
+      'Set E2E_API_AVAILABLE=true when leaveo-api is running with paid registration enabled',
     )
 
     test(
@@ -230,7 +230,7 @@ test.describe(
   () => {
     test.skip(
       process.env.E2E_API_AVAILABLE !== 'true',
-      'Set E2E_API_AVAILABLE=true when ibiza-api is running with paid registration enabled',
+      'Set E2E_API_AVAILABLE=true when leaveo-api is running with paid registration enabled',
     )
 
     test(

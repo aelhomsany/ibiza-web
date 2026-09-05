@@ -10,7 +10,7 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 test.describe('My Leaves history — Story 3.5', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for My Leaves data',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for My Leaves data',
   )
 
   test('[P2] Employee sees My Leaves balances, history, and shared request CTA', async ({

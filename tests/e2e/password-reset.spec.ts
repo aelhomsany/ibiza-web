@@ -12,7 +12,7 @@ test.describe('Password reset form', { tag: [tags.regression, tags.uiOnly] }, ()
 test.describe('Password reset submit', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for forgot-password submit flow',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for forgot-password submit flow',
   )
 
   test('Given a known email, When submitting forgot-password, Then confirmation is shown', async ({

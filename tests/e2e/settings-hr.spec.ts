@@ -7,7 +7,7 @@ const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 test.describe('HR Settings page', { tag: [tags.smoke, tags.regression, tags.api] }, () => {
   test.skip(
     process.env.E2E_API_AVAILABLE !== 'true',
-    'Set E2E_API_AVAILABLE=true when ibiza-api is running for settings data',
+    'Set E2E_API_AVAILABLE=true when leaveo-api is running for settings data',
   )
 
   test('[P1] HR Admin sees workforce group tabs and holidays on Settings', async ({ page }) => {
