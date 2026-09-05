@@ -1,10 +1,10 @@
 {
   "documentTitle": "Platform Admin — Operator Access",
-  "brand": "Ibiza Platform",
+  "brand": "Leaveo Platform",
   "realm": "Platform Admin",
   "operatorOnly": "Operator access only",
   "formTitle": "Operator Sign In",
-  "intro": "Use your dedicated Ibiza operator credentials. Customer organization accounts cannot sign in here.",
+  "intro": "Use your dedicated Leaveo operator credentials. Customer organization accounts cannot sign in here.",
   "boundary": "This session can manage platform organizations and subscriptions. It cannot enter an organization's workforce application.",
   "fields": {
     "email": "Operator email",
@@ -33,7 +33,7 @@
   },
   "profile": {
     "title": "Operator Profile",
-    "subtitle": "Your Ibiza platform operator account.",
+    "subtitle": "Your Leaveo platform operator account.",
     "summary": "Operator account summary",
     "account": "Account",
     "boundary": "Operator accounts are platform-scoped. They hold no organization, workforce group, or leave data.",

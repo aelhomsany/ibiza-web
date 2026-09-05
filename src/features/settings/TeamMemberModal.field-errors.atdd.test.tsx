@@ -85,7 +85,7 @@ describe('TeamMemberModal ATDD - Story 10.4 field-level server validation', () =
       status: 400,
       title: 'Validation failed',
       detail: 'Request failed validation',
-      type: 'https://ibiza.app/errors/validation-failed',
+      type: 'https://leaveo.net/errors/validation-failed',
       violations: [
         { field: 'fullName', message: 'Full name is required' },
         { field: 'email', message: 'Email must be valid' },
@@ -133,7 +133,7 @@ describe('TeamMemberModal ATDD - Story 10.4 field-level server validation', () =
         status: 400,
         title: 'Validation failed',
         detail: 'Allocated days must be greater than or equal to 0',
-        type: 'https://ibiza.app/errors/validation-failed',
+        type: 'https://leaveo.net/errors/validation-failed',
         violations: [
           { field: 'entitlements[0].allocatedDays', message: 'must be greater than or equal to 0' },
         ],
@@ -164,7 +164,7 @@ describe('TeamMemberModal ATDD - Story 10.4 field-level server validation', () =
       status: 400,
       title: 'Validation failed',
       detail: 'Request failed validation',
-      type: 'https://ibiza.app/errors/validation-failed',
+      type: 'https://leaveo.net/errors/validation-failed',
       violations: [
         { field: 'fullName', message: 'must not be blank' },
         { field: 'email', message: 'must be a well-formed email address' },

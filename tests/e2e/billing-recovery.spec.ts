@@ -91,7 +91,7 @@ test.describe(
         await expect(page.getByTestId('billing-restricted-banner')).toHaveCount(0)
         await expect(page.getByTestId('cta-reduce-seats')).toHaveCount(0)
 
-        // Retries exhausted. Stripe moves the subscription to `unpaid`; Ibiza restricts.
+        // Retries exhausted. Stripe moves the subscription to `unpaid`; Leaveo restricts.
         await deliverStripeWebhook({
           request,
           event: stripeEvent('customer.subscription.updated', {

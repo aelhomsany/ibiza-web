@@ -7,7 +7,7 @@ describe('ApiError ATDD - Story 10.4', () => {
       status: 400,
       title: 'Validation failed',
       detail: 'Request failed validation',
-      type: 'https://ibiza.app/errors/validation-failed',
+      type: 'https://leaveo.net/errors/validation-failed',
       violations: [
         { field: 'fullName', message: 'Full name is required' },
         { field: 'email', message: 'Email must be valid' },

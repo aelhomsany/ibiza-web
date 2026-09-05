@@ -11,7 +11,7 @@
  *
  * Keyed per user: a shared browser must not let one account's preference silence another's.
  */
-const KEY_PREFIX = 'ibiza.onboarding.autoRedirectOptOut'
+const KEY_PREFIX = 'leaveo.onboarding.autoRedirectOptOut'
 
 function storageKey(userId: number | string): string {
   return `${KEY_PREFIX}:${userId}`

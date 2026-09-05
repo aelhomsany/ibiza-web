@@ -12,8 +12,8 @@
     "saving": "Saving…"
   },
   "brand": {
-    "admin": "Ibiza Admin",
-    "name": "Ibiza",
+    "admin": "Leaveo Admin",
+    "name": "Leaveo",
     "platformConsole": "Platform Console",
     "tagline": "Team Leave Management"
   },
@@ -40,7 +40,7 @@
     "notApplicable": "Not applicable"
   },
   "recovery": {
-    "app": "Reload Ibiza or try again to recover your workspace.",
+    "app": "Reload Leaveo or try again to recover your workspace.",
     "heading": "Something went wrong",
     "route": "This page could not load. Your navigation is still available."
   },

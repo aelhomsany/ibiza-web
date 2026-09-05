@@ -1,7 +1,7 @@
 {
   "brand": {
-    "name": "Ibiza",
-    "homeLabel": "Home — Ibiza",
+    "name": "Leaveo",
+    "homeLabel": "Home — Leaveo",
     "tagline": "Working-day clarity for distributed teams"
   },
   "navigation": {
@@ -30,19 +30,19 @@
   "availability": {
     "eyebrow": "Current availability",
     "title": "Start free now, or plan a larger rollout with our team.",
-    "body": "Pricing is live from Ibiza's authoritative catalog. Self-service sign-up is open for Free and Growth; more than 200 active Users, or a migration, goes through the assisted Contact Sales path.",
+    "body": "Pricing is live from Leaveo's authoritative catalog. Self-service sign-up is open for Free and Growth; more than 200 active Users, or a migration, goes through the assisted Contact Sales path.",
     "note": "Viewing Pricing or contacting Sales does not create a workspace.",
     "pricingHref": "/pricing",
     "contactHref": "/contact-sales"
   },
   "pricing": {
     "title": "Free forever for up to 5 people. A card only when you choose a paid plan.",
-    "description": "Compare Ibiza Free, Growth, and Contact Sales from the authoritative public plan catalog.",
+    "description": "Compare Leaveo Free, Growth, and Contact Sales from the authoritative public plan catalog.",
     "eyebrow": "Pricing",
     "intro": "Free is not a trial and never asks for a card. Growth is $1 per active User each month, and the card is entered at checkout when you choose it. Larger or more complex rollouts go through Contact Sales.",
     "loading": "Checking the authoritative plan catalog…",
     "loadingFallback": "Contact Sales remains available while live catalog pricing loads.",
-    "comparisonLabel": "Ibiza plan comparison",
+    "comparisonLabel": "Leaveo plan comparison",
     "availableTitle": "Available now",
     "termsTitle": "Terms and plan changes",
     "planned": "Planned —",
@@ -59,7 +59,7 @@
     "availabilityAssisted": "Assisted only — our team sets this up with you."
   },
   "contactSales": {
-    "title": "Plan an assisted Ibiza rollout.",
+    "title": "Plan an assisted Leaveo rollout.",
     "description": "Send a minimized, consented Contact Sales request for more than 200 active Users or complex migration and implementation needs.",
     "eyebrow": "Contact Sales",
     "intro": "Tell us only what our Platform Admin team needs to review your rollout. Submitting this form does not create a workspace or customer session.",
@@ -79,7 +79,7 @@
     "contextLabel": "Implementation context",
     "assuranceTitle": "No workspace is created by this request",
     "assuranceBody": "The request records a sales lead and follow-up consent only. It does not create an Organization, User, subscription, or company-domain claim.",
-    "consentTitle": "I consent to Ibiza following up about this request.",
+    "consentTitle": "I consent to Leaveo following up about this request.",
     "consentBody": "This is separate from optional analytics consent. You can use the form whether analytics is accepted or declined.",
     "submit": "Send Request",
     "submitting": "Sending Request…",
@@ -97,11 +97,11 @@
   },
   "home": {
     "title": "Leave that adds up across every working week.",
-    "description": "Ibiza makes working-day charging visible for distributed teams, from the dates counted to the Workforce Group policy behind the result.",
+    "description": "Leaveo makes working-day charging visible for distributed teams, from the dates counted to the Workforce Group policy behind the result.",
     "eyebrow": "Transparent leave management",
     "intro": "See the result, every charged or excluded date, and the group policy that produced it—before a leave balance changes.",
     "distributedTitle": "One team can work across different weekends without hidden arithmetic.",
-    "distributedBody": "Each person belongs to a Workforce Group with its own weekend pattern and public holidays. Ibiza applies the requester's policy and keeps the consequence readable for employees, managers, and HR.",
+    "distributedBody": "Each person belongs to a Workforce Group with its own weekend pattern and public holidays. Leaveo applies the requester's policy and keeps the consequence readable for employees, managers, and HR.",
     "fitTitle": "Built for teams that need policy clarity, not another opaque total.",
     "fitItems": [
       "Employees can see why a balance is charged.",
@@ -111,9 +111,9 @@
   },
   "product": {
     "title": "A leave workflow with the calculation in view.",
-    "description": "Explore Ibiza's evidence-led leave workflow for requests, approvals, balances, and distributed-team calendars.",
+    "description": "Explore Leaveo's evidence-led leave workflow for requests, approvals, balances, and distributed-team calendars.",
     "eyebrow": "Product",
-    "intro": "Ibiza carries the same working-day evidence from preview through approval and history, so the result is never separated from its reasons.",
+    "intro": "Leaveo carries the same working-day evidence from preview through approval and history, so the result is never separated from its reasons.",
     "stepsTitle": "The evidence stays with the decision",
     "steps": [
       {
@@ -134,9 +134,9 @@
   },
   "distributedTeams": {
     "title": "Different weekends. One explainable leave record.",
-    "description": "See how Ibiza keeps weekend, public-holiday, and Workforce Group policies clear for distributed teams.",
+    "description": "See how Leaveo keeps weekend, public-holiday, and Workforce Group policies clear for distributed teams.",
     "eyebrow": "Distributed teams",
-    "intro": "A shared calendar does not mean every teammate follows the same working week. You define a Workforce Group for each working pattern, and Ibiza keeps that group's policy with every calculation.",
+    "intro": "A shared calendar does not mean every teammate follows the same working week. You define a Workforce Group for each working pattern, and Leaveo keeps that group's policy with every calculation.",
     "comparisonTitle": "Curated policy examples",
     "groupOneTitle": "A Friday–Saturday weekend group",
     "groupOneBody": "A Friday request date is excluded and named as that group's weekend.",
@@ -147,13 +147,13 @@
   },
   "workingDays": {
     "title": "Every charged day has a visible reason.",
-    "description": "A readable Ibiza working-day example showing the result, charged and excluded dates, Workforce Group policy, and team consequence.",
+    "description": "A readable Leaveo working-day example showing the result, charged and excluded dates, Workforce Group policy, and team consequence.",
     "eyebrow": "Working-day transparency",
-    "intro": "The total is only the beginning. Ibiza keeps the date sequence and the policy source beside it."
+    "intro": "The total is only the beginning. Leaveo keeps the date sequence and the policy source beside it."
   },
   "security": {
     "title": "Clear boundaries around customer and operator access.",
-    "description": "Ibiza security separates Organization User sessions, Platform Admin access, tenant data, and optional public analytics.",
+    "description": "Leaveo security separates Organization User sessions, Platform Admin access, tenant data, and optional public analytics.",
     "eyebrow": "Security",
     "intro": "The public site, customer application, and Platform Admin application are separate entry and session boundaries.",
     "principlesTitle": "Security posture",
@@ -175,21 +175,21 @@
   },
   "privacy": {
     "title": "Privacy choices without a product penalty.",
-    "description": "Learn how Ibiza handles necessary services, optional public analytics, consent receipts, and minimized event data.",
+    "description": "Learn how Leaveo handles necessary services, optional public analytics, consent receipts, and minimized event data.",
     "eyebrow": "Privacy",
     "intro": "Public content and both login experiences work with Necessary Only. Optional analytics is a separate, versioned choice.",
     "versionLabel": "Effective policy version",
     "version": "31 July 2026",
     "necessaryTitle": "Necessary services",
-    "necessaryBody": "Ibiza may store a minimized consent receipt so your choice can be honored. Declining analytics does not create a behavioral visitor profile.",
+    "necessaryBody": "Leaveo may store a minimized consent receipt so your choice can be honored. Declining analytics does not create a behavioral visitor profile.",
     "analyticsTitle": "Optional analytics",
-    "analyticsBody": "After acceptance, Ibiza permits only public page and product-proof events with route, locale, source or campaign, and proof type. Events reject names, email, raw IP, organization details, leave content, medical data, notes, and balances.",
+    "analyticsBody": "After acceptance, Leaveo permits only public page and product-proof events with route, locale, source or campaign, and proof type. Events reject names, email, raw IP, organization details, leave content, medical data, notes, and balances.",
     "changeTitle": "Change your choice",
     "changeBody": "Use Privacy Choices below at any time. A change appends a new receipt and applies to future optional collection."
   },
   "terms": {
-    "title": "Terms for the public Ibiza experience.",
-    "description": "Read the current terms for Ibiza's public product information and existing-customer login entry.",
+    "title": "Terms for the public Leaveo experience.",
+    "description": "Read the current terms for Leaveo's public product information and existing-customer login entry.",
     "eyebrow": "Terms",
     "intro": "These terms cover the public information released with Story 12.1. Public registration, pricing commitments, Contact Sales, and workspace creation are not offered here yet.",
     "versionLabel": "Effective",
@@ -197,7 +197,7 @@
     "sections": [
       {
         "title": "Product information",
-        "body": "The public examples explain currently curated Ibiza workflows. They are not customer records, testimonials, or a promise that an unavailable acquisition route has opened."
+        "body": "The public examples explain currently curated Leaveo workflows. They are not customer records, testimonials, or a promise that an unavailable acquisition route has opened."
       },
       {
         "title": "Existing customer access",
@@ -211,7 +211,7 @@
   },
   "notFound": {
     "title": "This public page does not exist.",
-    "description": "The requested Ibiza public page could not be found.",
+    "description": "The requested Leaveo public page could not be found.",
     "body": "Use a verified public route to continue. No customer or operator application content was exposed."
   },
   "proof": {
@@ -285,7 +285,7 @@
       "completeWorkspace": "Complete Workspace Setup",
       "confirmed": "Payment is confirmed by the billing provider. Complete workspace setup to continue.",
       "continueToWorkspace": "Continue to Your Workspace",
-      "exit": "Return to Ibiza",
+      "exit": "Return to Leaveo",
       "expired": "This registration has expired before any payment was taken. Recover it to continue; you have not been charged.",
       "eyebrow": "Secure billing",
       "provisioningDone": "Workspace setup finished. Continue to sign in securely.",
@@ -299,7 +299,7 @@
       "unavailable": "We cannot read the authoritative registration state yet. Use recovery; do not start a second payment.",
       "waiting": "We are waiting for the signed billing confirmation. Keep this page open or return later."
     },
-    "description": "Verify your email and create an Ibiza Free workspace for 1–5 active users with no card required.",
+    "description": "Verify your email and create a Leaveo Free workspace for 1–5 active users with no card required.",
     "disabled": "New Free registration is temporarily unavailable. Existing registrations can still be recovered.",
     "email": "Administrator email",
     "error": "We could not complete that step. Review the information or try again shortly.",
@@ -354,6 +354,6 @@
     "terms": "Terms",
     "security": "Security",
     "operator": "Platform Admin",
-    "copyright": "© 2026 Ibiza"
+    "copyright": "© 2026 Leaveo"
   }
 }

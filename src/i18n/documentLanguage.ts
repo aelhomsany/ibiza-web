@@ -1,7 +1,7 @@
 export type SupportedLocale = 'en' | 'ar'
 
 export const DEFAULT_LOCALE: SupportedLocale = 'en'
-export const PREFERRED_LANGUAGE_STORAGE_KEY = 'ibiza.preferredLanguage'
+export const PREFERRED_LANGUAGE_STORAGE_KEY = 'leaveo.preferredLanguage'
 
 export function isSupportedLocale(value: string | null | undefined): value is SupportedLocale {
   return value === 'en' || value === 'ar'

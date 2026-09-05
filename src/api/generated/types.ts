@@ -813,7 +813,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Re-check whether the caller's Ibiza email matches a Slack member */
+        /** Re-check whether the caller's Leaveo email matches a Slack member */
         post: operations["linkMe"];
         delete?: never;
         options?: never;
@@ -7934,7 +7934,7 @@ type WithRequired<T, K extends keyof T> = T & {
     [P in K]-?: T[P];
 };
 
-// Ibiza keeps these schema aliases for feature code ergonomics, even though
+// Leaveo keeps these schema aliases for feature code ergonomics, even though
 // openapi-typescript exposes schemas through components["schemas"].
 type RequiredSchema<K extends keyof components["schemas"]> = Required<components["schemas"][K]>;
 

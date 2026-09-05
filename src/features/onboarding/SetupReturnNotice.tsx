@@ -5,7 +5,7 @@ import { useAuth } from '../../auth/useAuth'
 import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from '../../components/ui/icons'
 import './setup-return.css'
 
-const DISMISS_KEY = 'ibiza.onboarding.setupReturnDismissed'
+const DISMISS_KEY = 'leaveo.onboarding.setupReturnDismissed'
 
 // Tab-scoped rather than component state: the shell survives route changes but not a reload, and a
 // banner that reappeared on every refresh would not read as dismissed.

@@ -21,6 +21,10 @@ jobs:
           # lockfile, and it still satisfies package.json's own `engines: >=22.12.0 <23`.
           node-version: '22.13.0'
           cache: npm
+      # Before npm ci: this only needs the checkout, and a brand regression should be the
+      # first thing the log shows rather than something found after a five-minute install.
+      - name: Verify brand
+        run: npm run verify:brand
       # `npm ci` enforces peer ranges strictly, unlike the `npm install` that produced the
       # committed lockfile. openapi-typescript@7 still declares `typescript: ^5.x` while this
       # project is on ~6.0.2, so plain `npm ci` failed ERESOLVE here before any job body ran —
@@ -99,7 +103,7 @@ jobs:
         image: mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: ibiza
+          MYSQL_DATABASE: leaveo
         ports:
           - 3306:3306
         options: >-
@@ -156,14 +160,14 @@ jobs:
           SPRING_PROFILES_ACTIVE: dev
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
-          DB_NAME: ibiza
+          DB_NAME: leaveo
           DB_USER: root
           DB_PASSWORD: root
           JWT_SECRET: ci-jwt-secret-must-be-at-least-32-characters
           CORS_ALLOWED_ORIGINS: http://localhost:5173
           PUBLIC_CORS_ALLOWED_ORIGINS: http://localhost:5173
           PLATFORM_CORS_ALLOWED_ORIGINS: http://localhost:5173
-          IBIZA_WEB_BASE_URL: http://localhost:5173
+          LEAVEO_WEB_BASE_URL: http://localhost:5173
           PUBLIC_WEB_BASE_URL: http://localhost:5173
           PUBLIC_REGISTRATION_ENABLED: 'true'
           PAID_REGISTRATION_ENABLED: 'true'
@@ -173,7 +177,7 @@ jobs:
           STRIPE_PRICE_STARTER: price_e2e_starter
           STRIPE_PRICE_GROWTH: price_e2e_growth
           DEV_MAIL_SINK_ENABLED: 'true'
-          IBIZA_DEMO_RESET: 'true'
+          LEAVEO_DEMO_RESET: 'true'
         run: |
           ./mvnw -B -q spring-boot:run \
             -Dspring-boot.run.jvmArguments="-Dspring.profiles.active=dev" &

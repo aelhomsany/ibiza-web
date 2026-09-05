@@ -1,4 +1,4 @@
-const HEADER_MENU_OPENED_EVENT = 'ibiza:header-menu-opened'
+const HEADER_MENU_OPENED_EVENT = 'leaveo:header-menu-opened'
 
 export function announceHeaderMenuOpen(id: string) {
   window.dispatchEvent(new CustomEvent<string>(HEADER_MENU_OPENED_EVENT, { detail: id }))

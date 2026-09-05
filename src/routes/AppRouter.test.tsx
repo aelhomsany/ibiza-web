@@ -166,14 +166,14 @@ describe('AppRoutes', () => {
     renderAppRoutes(['/'], createMockAuthForRole('EMPLOYEE'))
 
     await screen.findByTestId('team-calendar-page', undefined, { timeout: 3000 })
-    expect(document.title).toBe('Team Calendar — Ibiza')
+    expect(document.title).toBe('Team Calendar — Leaveo')
   })
 
   it('sets the settings page title', async () => {
     renderAppRoutes(['/settings'], createMockAuthForRole('HR_ADMIN'))
 
     await screen.findByRole('heading', { name: 'Settings' })
-    expect(document.title).toBe('Settings — Ibiza')
+    expect(document.title).toBe('Settings — Leaveo')
   })
 
   it('sets the login page title', async () => {
@@ -187,7 +187,7 @@ describe('AppRoutes', () => {
     )
 
     expect(await screen.findByTestId('login-page')).toBeInTheDocument()
-    expect(document.title).toBe('Sign in — Ibiza')
+    expect(document.title).toBe('Sign in — Leaveo')
   })
 
   it('renders invitation acceptance publicly for a logged-out invitee and sets its title', async () => {
@@ -202,12 +202,12 @@ describe('AppRoutes', () => {
 
     expect(await screen.findByTestId('accept-invitation-page')).toBeInTheDocument()
     expect(screen.queryByTestId('login-page')).not.toBeInTheDocument()
-    expect(document.title).toBe('Accept invitation — Ibiza')
+    expect(document.title).toBe('Accept invitation — Leaveo')
   })
 
   it('uses the static product title before React boots', () => {
     const html = readFileSync(indexHtmlPath, 'utf-8')
-    expect(html).toContain('<title>Ibiza — Team Leave Management</title>')
+    expect(html).toContain('<title>Leaveo — Team Leave Management</title>')
   })
 
   it('[P0] renders the real profile page in the org shell', async () => {

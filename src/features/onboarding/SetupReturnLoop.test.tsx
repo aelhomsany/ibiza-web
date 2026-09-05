@@ -551,7 +551,7 @@ describe('Guided setup progress freshness', () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
     vi.mocked(getOnboarding).mockRejectedValue(
       new ApiError(404, {
-        type: 'https://ibiza.app/errors/not-found',
+        type: 'https://leaveo.net/errors/not-found',
         title: 'Not Found',
         status: 404,
         detail: 'This organization predates guided onboarding and uses the standard Settings flow.',

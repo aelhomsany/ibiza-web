@@ -196,7 +196,7 @@ describe('ScheduleLocationSettingsPage', () => {
     const denial = () =>
       Promise.reject(
         new ApiError(403, {
-          type: 'https://ibiza.app/errors/forbidden',
+          type: 'https://leaveo.net/errors/forbidden',
           title: 'Forbidden',
           status: 403,
           code: 'capability-unavailable',

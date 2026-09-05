@@ -2,7 +2,7 @@ import { test, expect } from '../support/fixtures'
 import { tags } from '../support/tags'
 
 const platformAdminCredentials = {
-  email: process.env.E2E_PLATFORM_ADMIN_EMAIL ?? 'riley@ibiza.app',
+  email: process.env.E2E_PLATFORM_ADMIN_EMAIL ?? 'riley@leaveo.example',
   password: process.env.E2E_PLATFORM_ADMIN_PASSWORD ?? 'PilotDev123!',
 }
 

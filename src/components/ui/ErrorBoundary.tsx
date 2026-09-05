@@ -27,7 +27,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     if (import.meta.env.DEV) {
-      console.error('Ibiza render error caught by boundary', error, errorInfo)
+      console.error('Leaveo render error caught by boundary', error, errorInfo)
     }
     this.headingRef.current?.focus()
   }

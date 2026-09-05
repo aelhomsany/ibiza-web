@@ -42,7 +42,7 @@ export async function loginViaApi(
  * Platform Admin sign-in. Operators authenticate on their OWN realm: Story 12.1 separated the
  * chains so that customer credentials cannot establish a Platform Admin session and vice versa,
  * and `/api/v1/auth/login` answers 401 for an operator by design. Specs written before that split
- * still called loginViaApi for riley@ibiza.app and read the 401 as a broken fixture.
+ * still called loginViaApi for riley@leaveo.example and read the 401 as a broken fixture.
  */
 export async function loginPlatformViaApi(
   request: APIRequestContext,

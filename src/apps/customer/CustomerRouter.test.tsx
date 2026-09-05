@@ -69,7 +69,7 @@ describe('CustomerRoutes', () => {
 
     expect(await screen.findByTestId('accept-invitation-page')).toBeInTheDocument()
     expect(screen.queryByTestId('login-page')).not.toBeInTheDocument()
-    expect(document.title).toBe('Accept invitation — Ibiza')
+    expect(document.title).toBe('Accept invitation — Leaveo')
   })
 
   it('[P0] renders the real profile page at /profile in the deployed customer router', async () => {
@@ -79,7 +79,7 @@ describe('CustomerRoutes', () => {
     expect(screen.getByTestId('org-shell')).toBeInTheDocument()
     // Positive title assertion: i18n is configured with a parseMissingKeyHandler that
     // returns '', so a broken routes.profile key would render blank rather than throw.
-    expect(document.title).toBe('Profile details — Ibiza')
+    expect(document.title).toBe('Profile details — Leaveo')
   })
 
   it('[P1] keeps /profile behind the authentication guard in the deployed customer router', async () => {
@@ -99,16 +99,16 @@ describe('CustomerRoutes', () => {
     )
 
     expect(await screen.findByTestId('login-page')).toBeInTheDocument()
-    expect(document.title).toBe('Sign in — Ibiza')
+    expect(document.title).toBe('Sign in — Leaveo')
   })
 
   it('[P0] the shipped customer HTML entry carries its own static title', () => {
-    // FRONTEND-VAL-005 names `Ibiza — Team Leave Management`, which is index.html — a file
+    // FRONTEND-VAL-005 names `Leaveo — Team Leave Management`, which is index.html — a file
     // vite never builds (inputs are public.html, app.html, admin.html). The shipped customer
     // entry is app.html, so that is what this asserts. Recorded as a requirement-text defect
     // rather than silently reconciled.
     const html = readFileSync(join(repoRoot, 'app.html'), 'utf-8')
-    expect(html).toContain('<title>Ibiza — Customer Application</title>')
+    expect(html).toContain('<title>Leaveo — Customer Application</title>')
   })
 
   it('[P0] redirects a Platform Admin away from org routes in the deployed customer router', async () => {
@@ -129,7 +129,7 @@ describe('CustomerRoutes', () => {
     vi.spyOn(apiClient, 'getPolicyHistory').mockResolvedValue([])
     renderCustomerRoutes(['/settings/leave-policies/draft-1'], createMockAuthForRole('HR_ADMIN'))
     expect(await screen.findByTestId('policy-settings-page')).toBeInTheDocument()
-    expect(document.title).toBe('Policy Settings — Ibiza')
+    expect(document.title).toBe('Policy Settings — Leaveo')
   })
 
   describe('report center route', () => {
@@ -138,7 +138,7 @@ describe('CustomerRoutes', () => {
 
       expect(await screen.findByTestId('report-center-page')).toBeInTheDocument()
       expect(screen.getByTestId('org-shell')).toBeInTheDocument()
-      expect(document.title).toBe('Reports — Ibiza')
+      expect(document.title).toBe('Reports — Leaveo')
     })
 
     it('[P0] redirects a manager away from the HR-only Report Center', async () => {

@@ -93,7 +93,7 @@ describe('SlackWorkspaceSettings', () => {
 
     await user.click(screen.getByTestId('slack-workspace-disconnect'))
     expect(screen.getByTestId('slack-disconnect-modal')).toHaveTextContent(
-      'Ibiza will uninstall its app from Acme Workspace',
+      'Leaveo will uninstall its app from Acme Workspace',
     )
     expect(disconnect).not.toHaveBeenCalled()
 

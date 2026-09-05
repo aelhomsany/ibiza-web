@@ -79,7 +79,7 @@ describe('consented Web Vitals provider — Story 12.1', () => {
 
     startConsentedPageView(pageView)
     window.dispatchEvent(
-      new CustomEvent<StoredConsentPreference>('ibiza:public-consent', {
+      new CustomEvent<StoredConsentPreference>('leaveo:public-consent', {
         detail: {
           ...acceptedPreference,
           analytics: 'DECLINED',

@@ -61,8 +61,8 @@ export function ConsentPreference({
       setExpanded(true)
       setProviderUnavailable(false)
     }
-    window.addEventListener('ibiza:public-consent', onConsentChange)
-    return () => window.removeEventListener('ibiza:public-consent', onConsentChange)
+    window.addEventListener('leaveo:public-consent', onConsentChange)
+    return () => window.removeEventListener('leaveo:public-consent', onConsentChange)
   }, [])
 
   async function choose(analytics: 'ACCEPTED' | 'DECLINED') {
@@ -88,7 +88,7 @@ export function ConsentPreference({
       setExpanded(false)
       setSaving(false)
       window.dispatchEvent(
-        new CustomEvent('ibiza:public-consent', { detail: safeFallback }),
+        new CustomEvent('leaveo:public-consent', { detail: safeFallback }),
       )
       return
     }
@@ -104,7 +104,7 @@ export function ConsentPreference({
     setPreference(saved)
     setExpanded(false)
     setSaving(false)
-    window.dispatchEvent(new CustomEvent('ibiza:public-consent', { detail: saved }))
+    window.dispatchEvent(new CustomEvent('leaveo:public-consent', { detail: saved }))
 
     if (analytics === 'ACCEPTED') {
       onEmitAnalytics?.({ type: 'consent_accepted', policyVersion: receipt.policyVersion })

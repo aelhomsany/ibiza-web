@@ -1,7 +1,7 @@
 import type { PublicPlanCode } from '../../api/publicClient'
 import type { PublicLocale } from './PublicEvidence'
 
-const INTENT_KEY = 'ibiza_public_plan_intent_v1'
+const INTENT_KEY = 'leaveo_public_plan_intent_v1'
 
 export type PublicPlanIntent = {
   plan: PublicPlanCode

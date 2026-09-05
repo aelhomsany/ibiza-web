@@ -39,7 +39,7 @@ describe('Paid registration UX — Story 12.4', () => {
     vi.spyOn(publicClient, 'loadRegistration').mockResolvedValue({
       ...paid, status: 'CHECKOUT_PENDING', recoveryAction: 'WAIT_FOR_PAYMENT', checkoutSessionId: 'cs_123',
     })
-    sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
+    sessionStorage.setItem('leaveo.registrationId', paid.registrationId)
     window.history.replaceState({}, '', '/register/checkout-return?outcome=success&plan=GROWTH')
     render(<CheckoutReturnPage locale="en" />)
 
@@ -53,7 +53,7 @@ describe('Paid registration UX — Story 12.4', () => {
     vi.spyOn(publicClient, 'loadRegistration').mockResolvedValue({
       ...paid, status: 'PROVISIONING_FAILED', recoveryAction: 'RETRY_PROVISIONING', checkoutSessionId: 'cs_123',
     })
-    sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
+    sessionStorage.setItem('leaveo.registrationId', paid.registrationId)
     window.history.replaceState({}, '', '/register/checkout-return?outcome=success&plan=GROWTH')
     render(<CheckoutReturnPage locale="en" />)
 
@@ -66,7 +66,7 @@ describe('Paid registration UX — Story 12.4', () => {
     vi.spyOn(publicClient, 'loadRegistration').mockResolvedValue({
       ...paid, status: 'PAID_PROVISIONING', recoveryAction: null, checkoutSessionId: 'cs_123',
     })
-    sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
+    sessionStorage.setItem('leaveo.registrationId', paid.registrationId)
     window.history.replaceState({}, '', '/register/checkout-return?outcome=success&plan=GROWTH')
     render(<CheckoutReturnPage locale="en" />)
 
@@ -94,7 +94,7 @@ describe('Paid registration UX — Story 12.4', () => {
     const load = vi.spyOn(publicClient, 'loadRegistration').mockResolvedValue({
       ...paid, status: 'ABANDONED', recoveryAction: 'RESUME_CHECKOUT', checkoutSessionId: 'cs_123',
     })
-    sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
+    sessionStorage.setItem('leaveo.registrationId', paid.registrationId)
     window.history.replaceState({}, '', '/register/checkout-return?outcome=cancelled&plan=GROWTH')
 
     // ABANDONED is terminal, so the two-second poll must not be rescheduled. The previous
@@ -121,7 +121,7 @@ describe('Paid registration UX — Story 12.4', () => {
     const load = vi.spyOn(publicClient, 'loadRegistration').mockResolvedValue({
       ...paid, status: 'CHECKOUT_PENDING', recoveryAction: 'WAIT_FOR_PAYMENT', checkoutSessionId: 'cs_123',
     })
-    sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
+    sessionStorage.setItem('leaveo.registrationId', paid.registrationId)
     window.history.replaceState({}, '', '/register/checkout-return?outcome=success&plan=GROWTH')
 
     vi.useFakeTimers()
@@ -142,7 +142,7 @@ describe('Paid registration UX — Story 12.4', () => {
     vi.spyOn(publicClient, 'loadRegistration').mockResolvedValue({
       ...paid, status: 'ABANDONED', recoveryAction: 'RESUME_CHECKOUT', checkoutSessionId: 'cs_123',
     })
-    sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
+    sessionStorage.setItem('leaveo.registrationId', paid.registrationId)
     window.history.replaceState({}, '', '/register/checkout-return?outcome=cancelled&plan=GROWTH')
     render(<CheckoutReturnPage locale="en" />)
 
@@ -156,7 +156,7 @@ describe('Paid registration UX — Story 12.4', () => {
     vi.spyOn(publicClient, 'loadRegistration').mockResolvedValue({
       ...paid, status: 'EXPIRED', recoveryAction: null, checkoutSessionId: null,
     })
-    sessionStorage.setItem('ibiza.registrationId', paid.registrationId)
+    sessionStorage.setItem('leaveo.registrationId', paid.registrationId)
     window.history.replaceState({}, '', '/register/checkout-return?outcome=cancelled&plan=GROWTH')
     render(<CheckoutReturnPage locale="en" />)
 
@@ -193,7 +193,7 @@ describe('Paid registration UX — Story 12.4', () => {
     expect(action).toHaveAttribute('href', '/register')
     // /register resumes from sessionStorage only, so without this the link lands on an empty form.
     await waitFor(() =>
-      expect(sessionStorage.getItem('ibiza.registrationId')).toEqual(paid.registrationId))
+      expect(sessionStorage.getItem('leaveo.registrationId')).toEqual(paid.registrationId))
   })
 
   it('an unreadable recovery id is never persisted', async () => {
@@ -202,7 +202,7 @@ describe('Paid registration UX — Story 12.4', () => {
     render(<RegistrationFlow locale="en" route="/register/recovery" />)
 
     await screen.findByTestId('registration-expired-recovery')
-    expect(sessionStorage.getItem('ibiza.registrationId')).toBeNull()
+    expect(sessionStorage.getItem('leaveo.registrationId')).toBeNull()
   })
 
   it('[BILLING-VAL-105] a reload does not replay a spent checkout idempotency key', async () => {

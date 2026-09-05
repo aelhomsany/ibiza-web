@@ -125,7 +125,7 @@ describe('LoginPage', () => {
           value={createMockAuthValue({
             user: {
               id: 2,
-              email: 'riley@ibiza.app',
+              email: 'riley@leaveo.example',
               fullName: 'Riley Morgan',
               role: 'PLATFORM_ADMIN',
             },
@@ -157,7 +157,7 @@ describe('LoginPage', () => {
         id: role === 'PLATFORM_ADMIN' ? 2 : 1,
         email:
           role === 'PLATFORM_ADMIN'
-            ? 'riley@ibiza.app'
+            ? 'riley@leaveo.example'
             : 'alex@company.com',
         fullName: role === 'PLATFORM_ADMIN' ? 'Riley Morgan' : 'Alex Pilot',
         role,

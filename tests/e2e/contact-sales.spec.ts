@@ -35,7 +35,7 @@ test.describe(
         await expect(page.getByTestId('contact-sales-success')).toBeVisible()
         await expect(page.getByTestId('contact-sales-no-workspace')).toBeVisible()
         await expect(page.getByText(/no workspace was created/i)).toBeVisible()
-        await expect(page.getByText(/welcome to ibiza/i)).toHaveCount(0)
+        await expect(page.getByText(/welcome to leaveo/i)).toHaveCount(0)
 
         for (const width of [390, 768, 900, 901, 1280, 1440]) {
           await page.setViewportSize({ width, height: 900 })

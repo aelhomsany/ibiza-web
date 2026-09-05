@@ -15,7 +15,7 @@ function renderShell(fullName = 'Riley Morgan') {
   const value: PlatformAuthContextValue = {
     user: {
       id: 1,
-      email: 'riley@ibiza.test',
+      email: 'riley@leaveo.example',
       fullName,
       role: 'PLATFORM_ADMIN',
       preferredLanguage: 'en',

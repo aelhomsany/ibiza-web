@@ -169,7 +169,7 @@
       },
       "integrations": {
         "label": "Integrations",
-        "subtitle": "Connect Ibiza to the tools your organization already uses. Personal connections — your calendar and your Slack — live under My settings.",
+        "subtitle": "Connect Leaveo to the tools your organization already uses. Personal connections — your calendar and your Slack — live under My settings.",
         "title": "Integrations"
       },
       "leave-policies": {
@@ -179,7 +179,7 @@
       },
       "organization": {
         "label": "Organization",
-        "subtitle": "Review the organization identity and policy timezone used across Ibiza.",
+        "subtitle": "Review the organization identity and policy timezone used across Leaveo.",
         "title": "Organization"
       },
       "people": {
@@ -582,7 +582,7 @@
       "scopeYours": "These preferences are yours alone. They do not change what anyone else receives.",
       "scopeRequired": "In-app workflow notifications are required and cannot be turned off or muted.",
       "scopeMuteCap": "An email mute can run for at most 30 days.",
-      "scopeSlack": "Slack direct messages appear here only once your HR admin has connected the Slack app. They reach you only if your Slack email matches your Ibiza email."
+      "scopeSlack": "Slack direct messages appear here only once your HR admin has connected the Slack app. They reach you only if your Slack email matches your Leaveo email."
     },
     "slack": "Slack direct messages",
     "muteSlackFor": "Mute Slack messages for",
@@ -958,7 +958,7 @@
       }
     },
     "removeTitle": "Remove chat channel",
-    "removeCopy": "Ibiza will stop posting to {{label}}. Messages already in the channel are left unchanged.",
+    "removeCopy": "Leaveo will stop posting to {{label}}. Messages already in the channel are left unchanged.",
     "success": {
       "created": "Chat channel added",
       "updated": "Chat channel updated",
@@ -983,9 +983,9 @@
   "slack": {
     "title": "Slack app",
     "loading": "Loading Slack status…",
-    "notConnected": "Not connected. Install the Ibiza app in your Slack workspace so approvers and requesters get workflow updates as direct messages.",
+    "notConnected": "Not connected. Install the Leaveo app in your Slack workspace so approvers and requesters get workflow updates as direct messages.",
     "notConnectedMember": "Your HR admin has not connected the Slack app yet. Once it is connected, workflow updates can reach you as Slack direct messages.",
-    "connectedIntro": "Workflow updates are sent as Slack direct messages to everyone whose Slack email matches their Ibiza email.",
+    "connectedIntro": "Workflow updates are sent as Slack direct messages to everyone whose Slack email matches their Leaveo email.",
     "connectedTo": "Connected to {{team}}",
     "installedOn": "Installed {{when}}",
     "status": {
@@ -997,9 +997,9 @@
     "me": {
       "title": "Your Slack",
       "LINKED": "Linked. Workflow updates reach you as direct messages.",
-      "NOT_FOUND": "Not linked — your Slack email differs from your Ibiza email. Ask your Slack admin to match them, then check again.",
-      "UNCHECKED": "Not checked yet. Ibiza matches your Ibiza email to your Slack account the first time it has something to send you.",
-      "intro": "Your organization's Slack app is connected to {{team}}. Ibiza matches your Ibiza email to your Slack account so workflow updates can reach you as direct messages."
+      "NOT_FOUND": "Not linked — your Slack email differs from your Leaveo email. Ask your Slack admin to match them, then check again.",
+      "UNCHECKED": "Not checked yet. Leaveo matches your Leaveo email to your Slack account the first time it has something to send you.",
+      "intro": "Your organization's Slack app is connected to {{team}}. Leaveo matches your Leaveo email to your Slack account so workflow updates can reach you as direct messages."
     },
     "actions": {
       "install": "Add to Slack",
@@ -1010,7 +1010,7 @@
       "checkNow": "Check now"
     },
     "disconnectTitle": "Disconnect Slack",
-    "disconnectCopy": "Ibiza will uninstall its app from {{team}} and stop sending direct messages. Chat channels (webhooks) are not affected.",
+    "disconnectCopy": "Leaveo will uninstall its app from {{team}} and stop sending direct messages. Chat channels (webhooks) are not affected.",
     "callback": {
       "connected": "Slack app connected. Workflow updates can now be sent as direct messages.",
       "accessDenied": "Slack installation was cancelled before access was granted.",
@@ -1019,7 +1019,7 @@
     "success": {
       "disconnected": "Slack app disconnected",
       "linked": "Your Slack account is linked",
-      "notFound": "No Slack account matches your Ibiza email"
+      "notFound": "No Slack account matches your Leaveo email"
     },
     "errors": {
       "load": "Unable to load Slack status.",
@@ -1031,7 +1031,7 @@
       "sentTitle": "What gets sent",
       "sentCopy": "The same workflow updates as email: a request waiting for your approval, a decision on your request, a concern recorded on approved leave, and approval evidence complete.",
       "matchTitle": "How you are matched",
-      "matchCopy": "Ibiza looks up your Ibiza email in the Slack workspace. Nothing is sent to anyone whose email does not match.",
+      "matchCopy": "Leaveo looks up your Leaveo email in the Slack workspace. Nothing is sent to anyone whose email does not match.",
       "optOutTitle": "Turning it off",
       "optOutCopy": "Each person can turn Slack direct messages off or mute them under Notification preferences.",
       "secret": "The app token is stored encrypted and is never returned or logged."

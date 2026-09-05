@@ -25,7 +25,7 @@ writeFileSync(
   join(root, 'deployment.json'),
   JSON.stringify(
     {
-      artifact: artifact === 'app' ? 'ibiza-app' : 'ibiza-admin',
+      artifact: artifact === 'app' ? 'leaveo-app' : 'leaveo-admin',
       entry: 'index.html',
       fallback: 'index.html',
       noindex: true,

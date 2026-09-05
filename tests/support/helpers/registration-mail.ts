@@ -32,7 +32,7 @@ export async function capturedEmailsFor(
   if (response.status() === 404) {
     throw new Error(
       'The dev mail sink is not enabled. Run through scripts/run-e2e-with-api.sh, which sets '
-      + 'ibiza.dev-mail-sink.enabled; without it the raw verification token is unreachable.',
+      + 'leaveo.dev-mail-sink.enabled; without it the raw verification token is unreachable.',
     )
   }
   if (!response.ok()) {

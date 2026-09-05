@@ -218,7 +218,7 @@ describe('Team Calendar click-through ATDD - Story 8.6', () => {
       'getLeaveRequestContext',
     ).mockRejectedValue(
       new apiClient.ApiError(404, {
-        type: 'https://ibiza.app/errors/not-found',
+        type: 'https://leaveo.net/errors/not-found',
         title: 'Not found',
         detail: 'Leave request was not found.',
         status: 404,

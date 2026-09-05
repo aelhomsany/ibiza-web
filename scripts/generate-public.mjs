@@ -52,7 +52,7 @@ function createStructuredData(locale, route, description) {
   return JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'Ibiza',
+    name: 'Leaveo',
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
     inLanguage: locale,
@@ -110,7 +110,7 @@ function generateDocument(locale, route, { noindex = false } = {}) {
     `<link rel="alternate" hreflang="ar" href="${escapeAttribute(arabic)}" />`,
     `<link rel="alternate" hreflang="x-default" href="${escapeAttribute(english)}" />`,
     '<meta property="og:type" content="website" />',
-    `<meta property="og:site_name" content="Ibiza" />`,
+    `<meta property="og:site_name" content="Leaveo" />`,
     `<meta property="og:locale" content="${locale === 'ar' ? 'ar_AR' : 'en_US'}" />`,
     `<meta property="og:title" content="${escapeAttribute(rendered.title)}" />`,
     `<meta property="og:description" content="${escapeAttribute(rendered.description)}" />`,
@@ -131,7 +131,7 @@ function generateDocument(locale, route, { noindex = false } = {}) {
     .replace(/<html[^>]*>/, () => `<html lang="${locale}" dir="${locale === 'ar' ? 'rtl' : 'ltr'}">`)
     .replace(
       /<title>[\s\S]*?<\/title>/,
-      () => `<title>${escapeAttribute(rendered.title)} | Ibiza</title>\n    ${metadata}`,
+      () => `<title>${escapeAttribute(rendered.title)} | Leaveo</title>\n    ${metadata}`,
     )
     .replace(
       '<div id="public-document"></div>',
@@ -181,7 +181,7 @@ writeFileSync(
   join(outputRoot, 'deployment.json'),
   JSON.stringify(
     {
-      artifact: 'ibiza-public',
+      artifact: 'leaveo-public',
       entry: 'index.html',
       fallback: null,
       unknownRouteStatus: 404,

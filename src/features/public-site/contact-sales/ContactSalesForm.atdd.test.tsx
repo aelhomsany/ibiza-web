@@ -64,7 +64,7 @@ describe('ContactSalesForm ATDD — Story 12.2', () => {
       requestHeaders.push(new Headers(init?.headers).get('Idempotency-Key') ?? '')
       if (requestHeaders.length === 1) {
         return new Response(
-          JSON.stringify({ type: 'https://ibiza.app/errors/service-unavailable' }),
+          JSON.stringify({ type: 'https://leaveo.net/errors/service-unavailable' }),
           { status: 503, headers: { 'Content-Type': 'application/problem+json' } },
         )
       }
@@ -108,7 +108,7 @@ describe('ContactSalesForm ATDD — Story 12.2', () => {
         // The lead was recorded but the response was lost; the corrected payload now
         // collides with the stored fingerprint under the same key.
         return new Response(
-          JSON.stringify({ type: 'https://ibiza.app/errors/conflict' }),
+          JSON.stringify({ type: 'https://leaveo.net/errors/conflict' }),
           { status: 409, headers: { 'Content-Type': 'application/problem+json' } },
         )
       }

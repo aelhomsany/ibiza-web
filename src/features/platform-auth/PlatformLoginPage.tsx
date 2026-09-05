@@ -13,7 +13,7 @@ import { usePlatformAuth } from './usePlatformAuth'
 import './platform-login.css'
 
 export function PlatformLoginPage() {
-  const { t } = useTranslation('platformAuth')
+  const { t } = useTranslation(['platformAuth', 'common'])
   const { login, isAuthenticated, isLoading } = usePlatformAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -22,7 +22,7 @@ export function PlatformLoginPage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    document.title = `${t('documentTitle')} | Ibiza`
+    document.title = `${t('documentTitle')} | ${t('common:brand.name')}`
   }, [t])
 
   async function changeLocale(locale: SupportedLocale) {

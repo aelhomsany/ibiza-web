@@ -13,7 +13,7 @@ function signedInOperator(): PlatformAuthContextValue {
   return {
     user: {
       id: 1,
-      email: 'riley@ibiza.test',
+      email: 'riley@leaveo.example',
       fullName: 'Riley Morgan',
       role: 'PLATFORM_ADMIN',
       preferredLanguage: 'en',
@@ -57,7 +57,7 @@ describe('AdminRoutes', () => {
     renderAt('/app-admin/profile')
 
     await screen.findByTestId('platform-profile-page')
-    expect(document.title).toBe('Operator Profile | Platform Admin | Ibiza')
+    expect(document.title).toBe('Operator Profile | Platform Admin | Leaveo')
   })
 
   it('[P1] redirects a signed-out operator away from the profile route', async () => {

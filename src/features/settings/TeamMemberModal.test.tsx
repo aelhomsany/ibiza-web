@@ -195,7 +195,7 @@ describe('TeamMemberModal — add mode', () => {
     const detail = 'Nile Harbor is at the 5-user Free limit'
     vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
       new ApiError(409, {
-        type: 'https://ibiza.app/errors/conflict',
+        type: 'https://leaveo.net/errors/conflict',
         title: 'Conflict',
         status: 409,
         detail,
@@ -226,7 +226,7 @@ describe('TeamMemberModal — add mode', () => {
     const detail = 'Email already in use within this organization'
     vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
       new ApiError(409, {
-        type: 'https://ibiza.app/errors/conflict',
+        type: 'https://leaveo.net/errors/conflict',
         title: 'Conflict',
         status: 409,
         detail,
@@ -253,7 +253,7 @@ describe('TeamMemberModal — add mode', () => {
     const detail = 'Nile Harbor is at the 5-user Free limit'
     vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
       new ApiError(409, {
-        type: 'https://ibiza.app/errors/conflict',
+        type: 'https://leaveo.net/errors/conflict',
         title: 'Conflict',
         status: 409,
         detail,
@@ -285,7 +285,7 @@ describe('TeamMemberModal — add mode', () => {
     const detail = 'Nile Harbor is at the 5-user Free limit'
     vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
       new ApiError(409, {
-        type: 'https://ibiza.app/errors/conflict',
+        type: 'https://leaveo.net/errors/conflict',
         title: 'Conflict',
         status: 409,
         detail,
@@ -295,7 +295,7 @@ describe('TeamMemberModal — add mode', () => {
     )
     vi.spyOn(apiClient, 'createCheckoutSession').mockRejectedValue(
       new ApiError(400, {
-        type: 'https://ibiza.app/errors/validation-failed',
+        type: 'https://leaveo.net/errors/validation-failed',
         title: 'Validation failed',
         status: 400,
         detail: 'Plan is not upgradeable',
@@ -325,7 +325,7 @@ describe('TeamMemberModal — add mode', () => {
     const onClose = vi.fn()
     vi.spyOn(apiClient, 'createTeamMember').mockRejectedValue(
       new ApiError(409, {
-        type: 'https://ibiza.app/errors/conflict',
+        type: 'https://leaveo.net/errors/conflict',
         title: 'Conflict',
         status: 409,
         detail: 'Nile Harbor is at the 5-user Free limit',

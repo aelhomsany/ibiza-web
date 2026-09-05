@@ -31,7 +31,7 @@ import {
 import { MyLeavesPage } from '../my-leaves/MyLeavesPage'
 import { LoginPage } from './LoginPage'
 
-const FIRST_USE_STORAGE_PREFIX = 'ibiza.firstUse.v1:'
+const FIRST_USE_STORAGE_PREFIX = 'leaveo.firstUse.v1:'
 
 const mockBalances: BalanceCardResponse[] = [
   {

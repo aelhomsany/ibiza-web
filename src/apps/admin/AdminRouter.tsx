@@ -31,23 +31,23 @@ const PlatformProfilePage = lazy(() =>
 function OrganizationsRoute() {
   const { t } = useTranslation(['common', 'platformAuth'])
   useEffect(() => {
-    document.title = `${t('common:routes.organizations')} | ${t('platformAuth:realm')} | Ibiza`
+    document.title = `${t('common:routes.organizations')} | ${t('platformAuth:realm')} | ${t('common:brand.name')}`
   }, [t])
   return <OrganizationsPage />
 }
 
 function ProfileRoute() {
-  const { t } = useTranslation(['platformAuth'])
+  const { t } = useTranslation(['platformAuth', 'common'])
   useEffect(() => {
-    document.title = `${t('platformAuth:profile.title')} | ${t('platformAuth:realm')} | Ibiza`
+    document.title = `${t('platformAuth:profile.title')} | ${t('platformAuth:realm')} | ${t('common:brand.name')}`
   }, [t])
   return <PlatformProfilePage />
 }
 
 function NotFound() {
-  const { t } = useTranslation('platformAuth')
+  const { t } = useTranslation(['platformAuth', 'common'])
   useEffect(() => {
-    document.title = `${t('notFound.title')} | Ibiza`
+    document.title = `${t('notFound.title')} | ${t('common:brand.name')}`
   }, [t])
   return (
     <div className="page">

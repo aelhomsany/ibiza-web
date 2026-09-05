@@ -104,7 +104,7 @@ describe('CalendarPrivacySettingsPage', () => {
     const previewSpy = vi.spyOn(apiClient, 'previewCalendarPrivacy')
       .mockRejectedValueOnce(
         new ApiError(403, {
-          type: 'https://ibiza.app/errors/forbidden',
+          type: 'https://leaveo.net/errors/forbidden',
           title: 'Forbidden',
           status: 403,
           detail: 'This capability is not available. Compare plans or contact Sales.',

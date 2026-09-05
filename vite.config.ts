@@ -22,7 +22,7 @@ function isDocumentRequest(pathname: string, accept: string | undefined): boolea
 
 function entryBoundaryRouter(artifact: Artifact): Plugin {
   return {
-    name: 'ibiza-entry-boundary-router',
+    name: 'leaveo-entry-boundary-router',
     apply: 'serve',
     transformIndexHtml(html) {
       return html.replace("style-src 'self'", "style-src 'self' 'unsafe-inline'")
@@ -104,7 +104,16 @@ function entryBoundaryRouter(artifact: Artifact): Plugin {
 }
 
 export default defineConfig(() => {
-  const artifact = (process.env.IBIZA_ARTIFACT ?? 'customer') as Artifact
+  // Fails closed on the pre-rename variable rather than silently building the wrong artifact.
+  // IBIZA_ARTIFACT is no longer read, so an un-updated script or CI job would quietly fall back
+  // to 'customer' and ship the customer SPA under the public or admin artifact's name.
+  if (process.env.IBIZA_ARTIFACT) {
+    throw new Error(
+      'IBIZA_ARTIFACT is set but no longer read. Rename it to LEAVEO_ARTIFACT '
+        + `(current value: ${process.env.IBIZA_ARTIFACT}).`,
+    )
+  }
+  const artifact = (process.env.LEAVEO_ARTIFACT ?? 'customer') as Artifact
   const projectRoot = process.cwd()
   const apiProxyTarget = process.env.API_URL ?? 'http://localhost:8080'
   const webPort = Number(process.env.WEB_PORT ?? 5173)

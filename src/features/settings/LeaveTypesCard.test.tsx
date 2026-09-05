@@ -228,7 +228,7 @@ describe("LeaveTypesCard", () => {
       .spyOn(apiClient, "createLeaveType")
       .mockRejectedValueOnce(
         new apiClient.ApiError(400, {
-          type: "https://ibiza.app/errors/validation-failed",
+          type: "https://leaveo.net/errors/validation-failed",
           title: "Validation failed",
           status: 400,
           violations: [{ field: "name", message: "name already exists" }],
@@ -239,7 +239,7 @@ describe("LeaveTypesCard", () => {
       .spyOn(apiClient, "updateLeaveType")
       .mockRejectedValueOnce(
         new apiClient.ApiError(400, {
-          type: "https://ibiza.app/errors/validation-failed",
+          type: "https://leaveo.net/errors/validation-failed",
           title: "Validation failed",
           status: 400,
           violations: [{ field: "icon", message: "icon is invalid" }],
@@ -520,7 +520,7 @@ describe("LeaveTypesCard", () => {
     });
     vi.spyOn(apiClient, "createPolicyDraft").mockRejectedValueOnce(
       new apiClient.ApiError(403, {
-        type: "https://ibiza.app/errors/forbidden",
+        type: "https://leaveo.net/errors/forbidden",
         title: "Forbidden",
         status: 403,
         detail: "This capability is not available. Compare plans or contact Sales.",
