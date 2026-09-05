@@ -117,6 +117,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ github.repository_owner }}/ibiza-api
+          ref: ${{ github.head_ref || github.ref_name }}
+          token: ${{ secrets.LEAVEO_API_READ_TOKEN }}
           path: ibiza-api
         continue-on-error: false
 
