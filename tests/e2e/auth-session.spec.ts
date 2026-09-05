@@ -34,7 +34,7 @@ test.describe('Auth session security', { tag: [tags.regression, tags.api] }, () 
         status: 401,
         contentType: 'application/problem+json',
         body: JSON.stringify({
-          type: 'https://ibiza.app/errors/unauthorized',
+          type: 'https://leaveo.net/errors/unauthorized',
           status: 401,
           title: 'Unauthorized',
           detail: 'Session expired',

@@ -239,7 +239,7 @@ describe('RequestLeaveModal — Story 3.4', () => {
   it('[P1] surfaces insufficient-balance problem.detail on submit failure', async () => {
     vi.spyOn(apiClient, 'createLeaveRequest').mockRejectedValue(
       new apiClient.ApiError(400, {
-        type: 'https://ibiza.app/errors/insufficient-balance',
+        type: 'https://leaveo.net/errors/insufficient-balance',
         title: 'Insufficient Balance',
         status: 400,
         detail: 'Only 2 working days remaining for Annual Leave',

@@ -10,7 +10,7 @@ function renderPage(overrides: Partial<PlatformAuthContextValue['user']> = {}) {
   const value: PlatformAuthContextValue = {
     user: {
       id: 1,
-      email: 'riley@ibiza.test',
+      email: 'riley@leaveo.example',
       fullName: 'Riley Morgan',
       role: 'PLATFORM_ADMIN',
       preferredLanguage: 'en',
@@ -33,7 +33,7 @@ describe('PlatformProfilePage', () => {
     renderPage()
 
     expect(screen.getByTestId('platform-profile-name')).toHaveTextContent('Riley Morgan')
-    expect(screen.getByTestId('platform-profile-email')).toHaveTextContent('riley@ibiza.test')
+    expect(screen.getByTestId('platform-profile-email')).toHaveTextContent('riley@leaveo.example')
     expect(screen.getByTestId('platform-profile-role')).toHaveTextContent('Platform Admin')
 
     // Positive assertions first. i18n is configured with a parseMissingKeyHandler that

@@ -166,7 +166,7 @@ describe("PolicySettingsPage", () => {
     vi.spyOn(api, "previewPolicy")
       .mockRejectedValueOnce(
         new ApiError(409, {
-          type: "https://ibiza.app/errors/conflict",
+          type: "https://leaveo.net/errors/conflict",
           title: "Conflict",
           status: 409,
           code: "stale-policy-preview",
@@ -195,7 +195,7 @@ describe("PolicySettingsPage", () => {
     mockBase();
     vi.spyOn(api, "updatePolicyDraft").mockRejectedValue(
       new ApiError(400, {
-        type: "https://ibiza.app/errors/validation-failed",
+        type: "https://leaveo.net/errors/validation-failed",
         title: "Validation failed",
         status: 400,
         violations: [
@@ -223,7 +223,7 @@ describe("PolicySettingsPage", () => {
       .spyOn(api, "updatePolicyDraft")
       .mockRejectedValueOnce(
         new ApiError(409, {
-          type: "https://ibiza.app/errors/conflict",
+          type: "https://leaveo.net/errors/conflict",
           title: "Conflict",
           status: 409,
           code: "stale-policy-draft",
@@ -493,7 +493,7 @@ describe("PolicySettingsPage", () => {
     vi.spyOn(api, "previewPolicy").mockResolvedValue(preview);
     vi.spyOn(api, "publishPolicy").mockRejectedValue(
       new ApiError(400, {
-        type: "https://ibiza.app/errors/validation-failed",
+        type: "https://leaveo.net/errors/validation-failed",
         title: "Validation failed",
         status: 400,
         detail: "Publication cannot be backdated",
@@ -537,7 +537,7 @@ describe("PolicySettingsPage", () => {
     mockBase();
     vi.spyOn(api, "previewPolicy").mockRejectedValueOnce(
       new ApiError(403, {
-        type: "https://ibiza.app/errors/forbidden",
+        type: "https://leaveo.net/errors/forbidden",
         title: "Forbidden",
         status: 403,
         detail: "This capability is not available. Compare plans or contact Sales.",

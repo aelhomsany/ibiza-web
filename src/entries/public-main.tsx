@@ -143,7 +143,7 @@ function startConsentedAnalytics(preference?: StoredConsentPreference) {
   observer.observe(proof)
 }
 
-window.addEventListener('ibiza:public-consent', (event) => {
+window.addEventListener('leaveo:public-consent', (event) => {
   const preference = (event as CustomEvent<StoredConsentPreference>).detail
   startConsentedAnalytics(preference)
 })

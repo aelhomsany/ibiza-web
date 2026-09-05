@@ -68,7 +68,7 @@ describe('RequestLeaveModal ATDD - Story 10.4 field-level server validation', ()
         status: 400,
         title: 'Validation failed',
         detail: 'Request failed validation',
-        type: 'https://ibiza.app/errors/validation-failed',
+        type: 'https://leaveo.net/errors/validation-failed',
         violations: [
           { field: 'leaveTypeId', message: 'Leave type is required' },
           { field: 'dateFrom', message: 'Start date is required' },
@@ -118,7 +118,7 @@ describe('RequestLeaveModal ATDD - Story 10.4 field-level server validation', ()
         status: 400,
         title: 'Validation failed',
         detail: 'The selected range has no working days',
-        type: 'https://ibiza.app/errors/validation-failed',
+        type: 'https://leaveo.net/errors/validation-failed',
       } satisfies ProblemDetail),
     )
 
@@ -156,7 +156,7 @@ describe('RequestLeaveModal ATDD - Story 10.4 field-level server validation', ()
         status: 400,
         title: 'Validation failed',
         detail: 'Request failed validation',
-        type: 'https://ibiza.app/errors/validation-failed',
+        type: 'https://leaveo.net/errors/validation-failed',
         violations: [
           { field: 'leaveTypeId', message: 'must not be null' },
           { field: 'dateTo', message: 'dateTo must be on or after dateFrom' },

@@ -109,7 +109,7 @@ describe('ResetPasswordPage', () => {
     const { postResetPassword, ApiError } = await import('../../api/client')
     vi.mocked(postResetPassword).mockRejectedValueOnce(
       new ApiError(400, 'invalid', {
-        type: 'https://ibiza.app/errors/reset-token-invalid',
+        type: 'https://leaveo.net/errors/reset-token-invalid',
       }),
     )
     renderResetPage('expired-token')

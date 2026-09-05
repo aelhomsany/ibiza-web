@@ -13,7 +13,7 @@ function signedInOperator(): PlatformAuthContextValue {
   return {
     user: {
       id: 1,
-      email: 'riley@ibiza.test',
+      email: 'riley@leaveo.example',
       fullName: 'Riley Morgan',
       role: 'PLATFORM_ADMIN',
       preferredLanguage: 'en',

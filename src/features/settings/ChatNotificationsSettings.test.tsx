@@ -128,7 +128,7 @@ describe('ChatNotificationsSettings', () => {
     vi.spyOn(apiClient, 'getChatWebhooks').mockResolvedValue([])
     vi.spyOn(apiClient, 'createChatWebhook').mockRejectedValue(
       new apiClient.ApiError(400, {
-        type: 'https://ibiza.app/errors/validation-failed',
+        type: 'https://leaveo.net/errors/validation-failed',
         title: 'Validation failed',
         status: 400,
         detail: 'Webhook URL host is not a Slack webhook host',
@@ -157,7 +157,7 @@ describe('ChatNotificationsSettings', () => {
       .mockResolvedValueOnce(undefined)
       .mockRejectedValueOnce(
         new apiClient.ApiError(502, {
-          type: 'https://ibiza.app/errors/chat-provider-failed',
+          type: 'https://leaveo.net/errors/chat-provider-failed',
           title: 'Chat provider failed',
           status: 502,
           detail: 'The chat provider did not accept the test message',

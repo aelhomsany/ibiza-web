@@ -399,8 +399,8 @@ describe('ImportWizardPage', () => {
     await waitFor(() => expect(templateSpy).toHaveBeenCalledWith('ENTITLEMENTS_AND_OPENING_BALANCES'))
 
     expect(savedAs).toEqual([
-      'ibiza-people-and-assignments-template.xlsx',
-      'ibiza-entitlements-and-opening-balances-template.xlsx',
+      'leaveo-people-and-assignments-template.xlsx',
+      'leaveo-entitlements-and-opening-balances-template.xlsx',
     ])
     // Downloading a template must not start a job or move the wizard off the picker.
     expect(screen.getByTestId('import-start')).toBeInTheDocument()

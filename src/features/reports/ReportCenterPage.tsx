@@ -109,7 +109,7 @@ function requestFromDraft(
   page = 0,
 ): ReportQueryRequest {
   // `size` is deliberately omitted: the page size default and maximum are server
-  // configuration (`ibiza.reporting.limits.*`), and a hardcoded value larger than a
+  // configuration (`leaveo.reporting.limits.*`), and a hardcoded value larger than a
   // deployment's maximum would make every query a 400. The server echoes the applied
   // size back, which is what the pagination math reads.
   const request: ReportQueryRequest = {

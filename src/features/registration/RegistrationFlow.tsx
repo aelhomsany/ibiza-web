@@ -171,7 +171,7 @@ export function RegistrationFlow({ locale, route }: Props) {
       // Reached by refreshing after a successful verification: replaceState has already stripped
       // the credentials, so their absence means "already used", not "expired". Resume from the
       // stored id instead of dumping a verified administrator into recovery.
-      const resumed = sessionStorage.getItem('ibiza.registrationId')
+      const resumed = sessionStorage.getItem('leaveo.registrationId')
       if (resumed) {
         void loadRegistration(resumed)
           .then((current) => {
@@ -193,7 +193,7 @@ export function RegistrationFlow({ locale, route }: Props) {
       return
     }
 
-    sessionStorage.setItem('ibiza.registrationId', registrationId)
+    sessionStorage.setItem('leaveo.registrationId', registrationId)
     void verifyRegistration(registrationId, token)
       .then((next) => {
         setState(next)
@@ -210,7 +210,7 @@ export function RegistrationFlow({ locale, route }: Props) {
   useEffect(() => {
     if (route !== '/register/recovery') return
     const requested = new URLSearchParams(window.location.search).get('registrationId')
-      ?? sessionStorage.getItem('ibiza.registrationId')
+      ?? sessionStorage.getItem('leaveo.registrationId')
     if (!requested) return
     void loadRegistration(requested)
       .then((current) => {
@@ -218,14 +218,14 @@ export function RegistrationFlow({ locale, route }: Props) {
         // The next action on this page links to /register, which resumes from sessionStorage
         // only. Without this a customer arriving by recovery link dropped into an empty start
         // form. Written after the load succeeds, so an unknown id is never persisted.
-        sessionStorage.setItem('ibiza.registrationId', current.registrationId)
+        sessionStorage.setItem('leaveo.registrationId', current.registrationId)
       })
       .catch(() => undefined)
   }, [route])
 
   useEffect(() => {
     if (route !== '/register') return
-    const registrationId = sessionStorage.getItem('ibiza.registrationId')
+    const registrationId = sessionStorage.getItem('leaveo.registrationId')
     if (!registrationId) return
     void loadRegistration(registrationId)
       .then((current) => {
@@ -236,7 +236,7 @@ export function RegistrationFlow({ locale, route }: Props) {
 			: current.status === 'PAYMENT_CONFIRMED' || current.status === 'PROVISIONING_FAILED' ? 'provision'
 			: current.workspaceCreated ? 'ready' : 'checking')
       })
-      .catch(() => sessionStorage.removeItem('ibiza.registrationId'))
+      .catch(() => sessionStorage.removeItem('leaveo.registrationId'))
   }, [route])
 
   async function start(event: FormEvent<HTMLFormElement>) {
@@ -260,7 +260,7 @@ export function RegistrationFlow({ locale, route }: Props) {
         privacyVersion: '2026-07-31',
         turnstileToken: startToken(),
       }, startKey.current)
-      sessionStorage.setItem('ibiza.registrationId', next.registrationId)
+      sessionStorage.setItem('leaveo.registrationId', next.registrationId)
       setState(next)
       setSeconds(next.resendAvailableInSeconds)
       setPhase('checking')
@@ -341,7 +341,7 @@ export function RegistrationFlow({ locale, route }: Props) {
         turnstileToken: provisionToken(),
       }, provisionKey.current)
       setPhase('ready')
-      sessionStorage.removeItem('ibiza.registrationId')
+      sessionStorage.removeItem('leaveo.registrationId')
       window.location.replace(result.handoffPath)
     } catch (requestError) {
       resetProvision()

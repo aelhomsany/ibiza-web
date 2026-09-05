@@ -99,7 +99,7 @@ jobs:
         image: mysql:8.4@sha256:b3b90af2a6552ae30c266fdb7d5dd55f3afb72404bb78d37fe8a23eb857fd3fb
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: ibiza
+          MYSQL_DATABASE: leaveo
         ports:
           - 3306:3306
         options: >-
@@ -156,14 +156,14 @@ jobs:
           SPRING_PROFILES_ACTIVE: dev
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
-          DB_NAME: ibiza
+          DB_NAME: leaveo
           DB_USER: root
           DB_PASSWORD: root
           JWT_SECRET: ci-jwt-secret-must-be-at-least-32-characters
           CORS_ALLOWED_ORIGINS: http://localhost:5173
           PUBLIC_CORS_ALLOWED_ORIGINS: http://localhost:5173
           PLATFORM_CORS_ALLOWED_ORIGINS: http://localhost:5173
-          IBIZA_WEB_BASE_URL: http://localhost:5173
+          LEAVEO_WEB_BASE_URL: http://localhost:5173
           PUBLIC_WEB_BASE_URL: http://localhost:5173
           PUBLIC_REGISTRATION_ENABLED: 'true'
           PAID_REGISTRATION_ENABLED: 'true'
@@ -173,7 +173,7 @@ jobs:
           STRIPE_PRICE_STARTER: price_e2e_starter
           STRIPE_PRICE_GROWTH: price_e2e_growth
           DEV_MAIL_SINK_ENABLED: 'true'
-          IBIZA_DEMO_RESET: 'true'
+          LEAVEO_DEMO_RESET: 'true'
         run: |
           ./mvnw -B -q spring-boot:run \
             -Dspring-boot.run.jvmArguments="-Dspring.profiles.active=dev" &

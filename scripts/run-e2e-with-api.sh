@@ -2,12 +2,12 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-API_DIR="${IBIZA_API_DIR:-$(cd "$ROOT/../ibiza-api" && pwd)}"
+API_DIR="${LEAVEO_API_DIR:-$(cd "$ROOT/../ibiza-api" && pwd)}"
 API_PORT="${API_PORT:-8080}"
 WEB_PORT="${WEB_PORT:-5173}"
 
 if [[ ! -f "$API_DIR/pom.xml" ]]; then
-  echo "ibiza-api not found at $API_DIR (set IBIZA_API_DIR)" >&2
+  echo "ibiza-api not found at $API_DIR (set LEAVEO_API_DIR)" >&2
   exit 1
 fi
 
@@ -40,13 +40,13 @@ fi
 
 export DB_HOST="${DB_HOST:-localhost}"
 export DB_PORT="${DB_PORT:-3306}"
-# Deliberately NOT the developer's `ibiza` schema. That database was migrated from uncommitted
+# Deliberately NOT the developer's `leaveo` schema. That database was migrated from uncommitted
 # working-tree migrations (V30 applied 2026-08-01, first committed 2026-08-02), so Flyway
 # validation fails against it and the API cannot start — which surfaced only as a health-check
 # timeout and made every @api spec silently unrunnable. E2E gets its own schema, created on
 # demand by `createDatabaseIfNotExist=true` and only ever migrated from committed files. Drop it
 # if it ever drifts; nothing in it is precious, the demo seeder repopulates it.
-export DB_NAME="${DB_NAME:-ibiza_e2e}"
+export DB_NAME="${DB_NAME:-leaveo_e2e}"
 export DB_USER="${DB_USER:-root}"
 export DB_PASSWORD="${DB_PASSWORD:-}"
 # Story 12.4: the paid registration surfaces are behind their own feature control, independent of
@@ -86,7 +86,7 @@ export DEV_MAIL_SINK_ENABLED="${DEV_MAIL_SINK_ENABLED:-true}"
 # these. Left at their defaults they point at 5173, so a run on any other port lands the customer
 # on a server that is not under test.
 export PUBLIC_WEB_BASE_URL="${PUBLIC_WEB_BASE_URL:-http://localhost:${WEB_PORT}}"
-export IBIZA_WEB_BASE_URL="${IBIZA_WEB_BASE_URL:-http://localhost:${WEB_PORT}}"
+export LEAVEO_WEB_BASE_URL="${LEAVEO_WEB_BASE_URL:-http://localhost:${WEB_PORT}}"
 
 # Reset the curated demo tenants before the suite runs. Most @api specs read seeded demo data
 # and several MUTATE it — approval-decision approves and declines the seeded pending requests,
@@ -100,7 +100,7 @@ export IBIZA_WEB_BASE_URL="${IBIZA_WEB_BASE_URL:-http://localhost:${WEB_PORT}}"
 # re-seeds only the three Organizations it owns plus 'E2E Nile %', so Organizations created by
 # other specs are left alone. DemoDataResetRunner is HIGHEST_PRECEDENCE, so the reset completes
 # before the additive DemoDataStartupSeeder runs.
-export IBIZA_DEMO_RESET="${IBIZA_DEMO_RESET:-true}"
+export LEAVEO_DEMO_RESET="${LEAVEO_DEMO_RESET:-true}"
 
 cd "$API_DIR"
 ./mvnw -q spring-boot:run -Dspring-boot.run.arguments="--server.port=${API_PORT}" \
@@ -116,7 +116,7 @@ cd "$ROOT"
 # every selector misses and the whole suite reports "element(s) not found", which reads like a
 # broken application rather than a wrong server. Fail with the real reason instead.
 if existing_page=$(curl -fsS --max-time 5 "http://localhost:${WEB_PORT}/" 2>/dev/null); then
-  if ! grep -qi 'ibiza' <<<"$existing_page"; then
+  if ! grep -qi 'leaveo' <<<"$existing_page"; then
     served_title=$(grep -oiE '<title>[^<]*</title>' <<<"$existing_page" | head -1)
     echo "Port ${WEB_PORT} is already serving something that is not ibiza-web ${served_title:+(${served_title})}." >&2
     echo "Playwright would reuse it and every test would fail on missing selectors." >&2

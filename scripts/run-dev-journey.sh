@@ -18,17 +18,17 @@ set -euo pipefail
 #      handoff is written for: SelfServiceProvisioningService returns an absolute customer URL
 #      precisely because registration runs on the public origin.
 #
-# Not run-e2e-with-api.sh: that one deliberately targets the throwaway ibiza_e2e schema and resets
+# Not run-e2e-with-api.sh: that one deliberately targets the throwaway leaveo_e2e schema and resets
 # the demo tenants. This one runs against the developer's own database and touches no data.
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-API_DIR="${IBIZA_API_DIR:-$(cd "$ROOT/../ibiza-api" && pwd)}"
+API_DIR="${LEAVEO_API_DIR:-$(cd "$ROOT/../ibiza-api" && pwd)}"
 API_PORT="${API_PORT:-8080}"
 WEB_PORT="${WEB_PORT:-5173}"
 PUBLIC_PORT="${PUBLIC_PORT:-4174}"
 
 if [[ ! -f "$API_DIR/pom.xml" ]]; then
-  echo "ibiza-api not found at $API_DIR (set IBIZA_API_DIR)" >&2
+  echo "ibiza-api not found at $API_DIR (set LEAVEO_API_DIR)" >&2
   exit 1
 fi
 
@@ -110,12 +110,12 @@ export DEV_MAIL_SINK_ENABLED="${DEV_MAIL_SINK_ENABLED:-true}"
 # origins: verification and checkout-return land on the public site, the post-provisioning handoff
 # lands on the app. Getting these wrong sends a real customer to a 404 holding a live sign-in code.
 export PUBLIC_WEB_BASE_URL="http://localhost:${PUBLIC_PORT}"
-export IBIZA_WEB_BASE_URL="http://localhost:${WEB_PORT}"
+export LEAVEO_WEB_BASE_URL="http://localhost:${WEB_PORT}"
 # The one RegistrationEmailSender actually reads for the verification link
-# (ibiza.public-experience.public-base-url). PUBLIC_WEB_BASE_URL above only feeds the Stripe
+# (leaveo.public-experience.public-base-url). PUBLIC_WEB_BASE_URL above only feeds the Stripe
 # return URLs, so setting that alone still mailed people a link to the *app* origin, which serves
 # no /register/verify route and bounces them to /login holding a live single-use token.
-export IBIZA_PUBLIC_EXPERIENCE_PUBLIC_BASE_URL="http://localhost:${PUBLIC_PORT}"
+export LEAVEO_PUBLIC_EXPERIENCE_PUBLIC_BASE_URL="http://localhost:${PUBLIC_PORT}"
 
 API_PID=""
 if [[ "$REUSE_API" == "false" ]]; then
@@ -134,7 +134,7 @@ echo "Starting the public site on :${PUBLIC_PORT} (marketing home, pricing, regi
 # and a shell applies command-prefix assignments left to right, so an inline "${WEB_PORT}" would
 # expand to the public port and point every "Customer Log In" back at the marketing site's 404.
 APP_ORIGIN="http://localhost:${WEB_PORT}"
-(cd "$ROOT" && IBIZA_ARTIFACT=public WEB_PORT="$PUBLIC_PORT" \
+(cd "$ROOT" && LEAVEO_ARTIFACT=public WEB_PORT="$PUBLIC_PORT" \
   VITE_PUBLIC_APP_BASE_URL="$APP_ORIGIN" npx vite) &
 PIDS+=($!)
 

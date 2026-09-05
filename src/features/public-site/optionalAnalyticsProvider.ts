@@ -159,7 +159,7 @@ export function startConsentedPageView(
     observers.forEach((observer) => observer.disconnect())
     document.removeEventListener('visibilitychange', onVisibilityChange)
     window.removeEventListener('pagehide', finish)
-    window.removeEventListener('ibiza:public-consent', onConsentChange)
+    window.removeEventListener('leaveo:public-consent', onConsentChange)
   }
 
   function finish() {
@@ -203,5 +203,5 @@ export function startConsentedPageView(
 
   document.addEventListener('visibilitychange', onVisibilityChange)
   window.addEventListener('pagehide', finish)
-  window.addEventListener('ibiza:public-consent', onConsentChange)
+  window.addEventListener('leaveo:public-consent', onConsentChange)
 }

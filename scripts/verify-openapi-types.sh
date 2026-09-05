@@ -17,7 +17,7 @@ npx openapi-typescript "${API_URL}/v3/api-docs" -o "$TEMP"
 # block of schema aliases (see the marker below). Comparing the whole file against
 # fresh generator output would always differ by that block, so compare only the
 # generated prefix — otherwise this check can never pass and stops being a contract.
-MARKER='// Ibiza keeps these schema aliases for feature code ergonomics'
+MARKER='// Leaveo keeps these schema aliases for feature code ergonomics'
 GENERATED_PREFIX="$(mktemp)"
 trap 'rm -f "$TEMP" "$GENERATED_PREFIX"' EXIT
 

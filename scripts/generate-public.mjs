@@ -181,7 +181,7 @@ writeFileSync(
   join(outputRoot, 'deployment.json'),
   JSON.stringify(
     {
-      artifact: 'ibiza-public',
+      artifact: 'leaveo-public',
       entry: 'index.html',
       fallback: null,
       unknownRouteStatus: 404,

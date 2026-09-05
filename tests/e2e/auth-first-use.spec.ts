@@ -116,7 +116,7 @@ test.describe(
             await page.setViewportSize({ width, height: 900 })
             await page.goto('/login')
             await page.evaluate((language) => {
-              localStorage.setItem('ibiza.preferredLanguage', language)
+              localStorage.setItem('leaveo.preferredLanguage', language)
             }, locale)
             await page.reload()
 

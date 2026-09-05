@@ -7,7 +7,7 @@ export type ValidationViolation = {
   message: string
 }
 
-const VALIDATION_FAILED_TYPE = 'https://ibiza.app/errors/validation-failed'
+const VALIDATION_FAILED_TYPE = 'https://leaveo.net/errors/validation-failed'
 
 export function parseFieldViolations(problem: ProblemDetail): FieldViolationMap | null {
   if (problem.type !== VALIDATION_FAILED_TYPE) {

@@ -44,13 +44,13 @@ SPA runs on **http://localhost:5173**. Requests to `/api/*` are proxied to the A
 | `sarah@company.com` | Employee | `/` |
 | `alex@company.com` | Manager | `/` |
 | `jordan@company.com` | HR Admin | `/` |
-| `riley@ibiza.app` | Platform Admin | `/platform/organizations` |
+| `riley@leaveo.example` | Platform Admin | `/platform/organizations` |
 
 See `../ibiza-api/README.md` for backend setup.
 
 ## Authentication flow
 
-1. **Login** — `/login` posts email/password to `POST /api/v1/auth/login`; access token stored in memory; refresh token in httpOnly cookie (`ibiza_refresh`).
+1. **Login** — `/login` posts email/password to `POST /api/v1/auth/login`; access token stored in memory; refresh token in httpOnly cookie (`leaveo_customer_refresh`).
 2. **Session restore** — on app load, `AuthProvider` calls `POST /api/v1/auth/refresh` then `GET /api/v1/auth/me`.
 3. **Protected routes** — org and admin shells require authentication; unauthenticated visitors redirect to `/login`.
 4. **Role guards** — `RoleGuard` enforces authorization after `ProtectedRoute` authentication:

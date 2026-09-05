@@ -35,7 +35,7 @@ export const mockUsers = {
   },
   platformAdmin: {
     id: 99,
-    email: 'riley@ibiza.app',
+    email: 'riley@leaveo.example',
     fullName: 'Riley Morgan',
     role: 'PLATFORM_ADMIN',
   },

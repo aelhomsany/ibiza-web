@@ -10,7 +10,7 @@ import i18n from './config'
 import { applyDocumentLanguage, DEFAULT_LOCALE } from './documentLanguage'
 
 const webRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-const PREFERRED_LANGUAGE_STORAGE_KEY = 'ibiza.preferredLanguage'
+const PREFERRED_LANGUAGE_STORAGE_KEY = 'leaveo.preferredLanguage'
 
 describe('Story 9.5 ATDD — i18n guards', () => {
   afterEach(() => {

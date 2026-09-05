@@ -1,4 +1,4 @@
-export const FIRST_USE_STORAGE_PREFIX = 'ibiza.firstUse.v1:'
+export const FIRST_USE_STORAGE_PREFIX = 'leaveo.firstUse.v1:'
 
 export type FirstUseStep = 'calendars' | 'people' | 'preview'
 

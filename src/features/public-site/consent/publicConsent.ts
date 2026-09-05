@@ -2,7 +2,7 @@ import { publicUuid } from '../../../api/publicClient'
 import type { PublicLocale } from '../PublicEvidence'
 
 export const CONSENT_POLICY_VERSION = '2026-07-31'
-export const CONSENT_STORAGE_KEY = 'ibiza_public_consent_v1'
+export const CONSENT_STORAGE_KEY = 'leaveo_public_consent_v1'
 
 export type ConsentAnalytics = 'ACCEPTED' | 'DECLINED'
 
@@ -87,7 +87,7 @@ export function clearStoredConsent(): void {
   }
   // Same channel the consent controls use, so in-flight measurement stops and the prompt
   // returns without a reload. A null detail means "no preference on record".
-  window.dispatchEvent(new CustomEvent('ibiza:public-consent', { detail: null }))
+  window.dispatchEvent(new CustomEvent('leaveo:public-consent', { detail: null }))
 }
 
 export async function saveConsentReceipt(

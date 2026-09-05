@@ -36,7 +36,7 @@ describe('postAcceptInvitation', () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(
         JSON.stringify({
-          type: 'https://ibiza.app/errors/invitation-unavailable',
+          type: 'https://leaveo.net/errors/invitation-unavailable',
           title: 'Unauthorized',
           status: 401,
           detail: 'sensitive server detail',

@@ -148,7 +148,7 @@ function stepIndexFor(phase: Phase): number {
  * CORS-safelisting, so the save name is derived here from the same rule.
  */
 function templateFileName(templateKey: ImportTemplateKey): string {
-  return `ibiza-${templateKey.toLowerCase().replace(/_/g, '-')}-template.xlsx`
+  return `leaveo-${templateKey.toLowerCase().replace(/_/g, '-')}-template.xlsx`
 }
 
 /** Same object-URL dance as `AuditHistoryPanel`'s exports: anchor, click, revoke on the next tick. */
