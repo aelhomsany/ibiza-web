@@ -35,6 +35,7 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
     "test:e2e:api": "bash scripts/run-e2e-with-api.sh",
+    "verify:brand": "bash scripts/verify-brand.sh",
     "verify:e2e-tags": "playwright test --list --reporter=./tests/support/tag-integrity-reporter.ts",
     "verify:i18n": "node scripts/verify-i18n.mjs",
     "verify:openapi": "bash scripts/verify-openapi-types.sh",

@@ -21,6 +21,10 @@ jobs:
           # lockfile, and it still satisfies package.json's own `engines: >=22.12.0 <23`.
           node-version: '22.13.0'
           cache: npm
+      # Before npm ci: this only needs the checkout, and a brand regression should be the
+      # first thing the log shows rather than something found after a five-minute install.
+      - name: Verify brand
+        run: npm run verify:brand
       # `npm ci` enforces peer ranges strictly, unlike the `npm install` that produced the
       # committed lockfile. openapi-typescript@7 still declares `typescript: ^5.x` while this
       # project is on ~6.0.2, so plain `npm ci` failed ERESOLVE here before any job body ran —
