@@ -24,7 +24,7 @@ function mutationMessage(error: unknown, fallback: string) {
 
 /**
  * Plan PUENTE B6 — Settings → Integrations card for the organization's Slack app (personal DMs).
- * Shows whether the workspace is connected; HR Admins can install, reconnect, or disconnect it.
+ * Shows whether the workspace is connected; Organization Admins can install, reconnect, or disconnect it.
  * Each person's own match ("Your Slack") lives on the My settings page (`SlackLinkSettings`, D-12) so
  * that every role can reach it. The bot token never reaches the browser.
  */
@@ -33,7 +33,7 @@ export function SlackWorkspaceSettings({ onSuccess, onWarning }: SlackWorkspaceS
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const [confirmingDisconnect, setConfirmingDisconnect] = useState(false)
-  const isHrAdmin = user?.role === 'HR_ADMIN'
+  const isOrganizationAdmin = user?.role === 'ORGANIZATION_ADMIN'
 
   const statusQuery = useQuery({
     queryKey: SLACK_STATUS_QUERY_KEY,
@@ -96,14 +96,14 @@ export function SlackWorkspaceSettings({ onSuccess, onWarning }: SlackWorkspaceS
         <div className="chat-channels-intro">
           <p className="chat-channels-copy" data-testid="slack-workspace-copy">
             {revoked
-              ? t(isHrAdmin ? 'settings:slack.revoked' : 'settings:slack.revokedMember', {
+              ? t(isOrganizationAdmin ? 'settings:slack.revoked' : 'settings:slack.revokedMember', {
                   category: status.lastErrorCategory ?? t('common:unknown'),
                 })
               : connected
                 ? t('settings:slack.connectedIntro')
-                : t(isHrAdmin ? 'settings:slack.notConnected' : 'settings:slack.notConnectedMember')}
+                : t(isOrganizationAdmin ? 'settings:slack.notConnected' : 'settings:slack.notConnectedMember')}
           </p>
-          {isHrAdmin && !connected && (
+          {isOrganizationAdmin && !connected && (
             <button
               type="button"
               className="btn btn-primary btn-sm"
@@ -146,7 +146,7 @@ export function SlackWorkspaceSettings({ onSuccess, onWarning }: SlackWorkspaceS
                   )}
                 </p>
               </div>
-              {isHrAdmin && connected && (
+              {isOrganizationAdmin && connected && (
                 <div className="chat-channel-actions">
                   <button
                     type="button"

@@ -13,7 +13,7 @@ import './weekend-day-chips.css'
 type WorkforceGroupModalProps = {
   /**
    * True when the organization has no Workforce Groups yet. Tenants are provisioned with none, so
-   * this is the founding HR Admin's first calendar: the server adopts every still-ungrouped user
+   * this is the founding Organization Admin's first calendar: the server adopts every still-ungrouped user
    * into it, and the copy says so instead of the neutral "group created".
    */
   isFirstGroup?: boolean

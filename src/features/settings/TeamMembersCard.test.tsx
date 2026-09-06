@@ -22,7 +22,7 @@ function renderCard(
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+        <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
           <TeamMembersCard onSuccess={onSuccess} onWarning={onWarning} />
         </AuthTestProvider>
       </MemoryRouter>
@@ -44,7 +44,7 @@ const mockMembers: TeamMemberSummaryResponse[] = [
     fullName: 'Jordan Lee',
     email: 'jordan@company.com',
     department: 'People Ops',
-    role: 'HR_ADMIN',
+    role: 'ORGANIZATION_ADMIN',
     workforceGroupId: 1,
     workforceGroupName: 'US',
     managerId: undefined,
@@ -151,9 +151,9 @@ describe('TeamMembersCard', () => {
     renderCard()
 
     const search = await screen.findByTestId('team-members-search')
-    // Jordan Lee's role is the raw enum HR_ADMIN, displayed as "HR Admin" —
+    // Jordan Lee's role is the raw enum ORGANIZATION_ADMIN, displayed as "Organization Admin" —
     // search must match what's shown, not just the underscored enum.
-    fireEvent.change(search, { target: { value: 'HR Admin' } })
+    fireEvent.change(search, { target: { value: 'Organization Admin' } })
 
     expect(screen.getByText('Jordan Lee')).toBeInTheDocument()
     expect(screen.queryByText('Sarah Chen')).not.toBeInTheDocument()
@@ -357,7 +357,7 @@ describe('TeamMembersCard accessibility ATDD — Story 10.10', () => {
   // is one a reader would otherwise get by counting rows in a table that paginates.
   describe('supporting band', () => {
     const roster: TeamMemberSummaryResponse[] = [
-      { ...mockMembers[0], id: 1, fullName: 'Jordan Lee', role: 'HR_ADMIN', workforceGroupName: 'US', managerName: undefined },
+      { ...mockMembers[0], id: 1, fullName: 'Jordan Lee', role: 'ORGANIZATION_ADMIN', workforceGroupName: 'US', managerName: undefined },
       { ...mockMembers[1], id: 2, fullName: 'Sarah Chen', role: 'EMPLOYEE', workforceGroupName: 'Egypt', managerName: 'Alex Johnson' },
       { ...mockMembers[1], id: 3, fullName: 'Priya Nair', email: 'priya@company.com', role: 'EMPLOYEE', workforceGroupName: 'Egypt', managerName: 'Alex Johnson' },
       { ...mockMembers[1], id: 4, fullName: 'Tom Reed', email: 'tom@company.com', role: 'MANAGER', workforceGroupName: 'US', managerName: 'Jordan Lee' },
@@ -372,7 +372,7 @@ describe('TeamMembersCard accessibility ATDD — Story 10.10', () => {
       await screen.findByTestId('team-member-row-1')
 
       // Deactivated people are counted once, as deactivated — never again inside a role.
-      expect(screen.getByTestId('members-role-HR_ADMIN')).toHaveTextContent('1')
+      expect(screen.getByTestId('members-role-ORGANIZATION_ADMIN')).toHaveTextContent('1')
       expect(screen.getByTestId('members-role-MANAGER')).toHaveTextContent('1')
       expect(screen.getByTestId('members-role-EMPLOYEE')).toHaveTextContent('2')
       expect(screen.getByTestId('members-deactivated')).toHaveTextContent('1')

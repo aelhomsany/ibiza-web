@@ -205,8 +205,8 @@
     "modal": "{{name}}'s request was decided elsewhere. Your reason is preserved; close this dialog to review the retained context."
   },
   "subtitle": {
-    "hr": "Review organization approval requests and act on behalf when needed",
-    "manager": "Review leave requests assigned to you"
+    "manager": "Review leave requests assigned to you",
+    "organizationAdmin": "Review organization approval requests and act on behalf when needed"
   },
   "success": {
     "approved": "{{name}}'s request approved",

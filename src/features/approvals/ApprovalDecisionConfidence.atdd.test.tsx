@@ -77,7 +77,7 @@ const mockZeroDay: EnrichedPending[] = [
 
 const mockRecent: RecentApprovalDecisionResponse[] = []
 
-function renderApprovals(role: 'MANAGER' | 'HR_ADMIN' = 'MANAGER') {
+function renderApprovals(role: 'MANAGER' | 'ORGANIZATION_ADMIN' = 'MANAGER') {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },

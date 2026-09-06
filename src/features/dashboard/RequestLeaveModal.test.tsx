@@ -282,7 +282,7 @@ describe('RequestLeaveModal — viewer has no workforce group', () => {
       <QueryClientProvider client={queryClient}>
         <AuthTestProvider
           value={createMockAuthValue({
-            user: { ...mockUsers.hrAdmin, workforceGroupName: null },
+            user: { ...mockUsers.organizationAdmin, workforceGroupName: null },
           })}
         >
           <RequestLeaveModal open onClose={vi.fn()} />

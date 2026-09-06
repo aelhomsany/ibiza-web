@@ -46,7 +46,7 @@ type ApprovalsApiClient = typeof apiClient & {
   getPendingApprovals: () => Promise<PendingApprovalResponse[]>
 }
 
-function renderApprovalsPage(role: 'MANAGER' | 'HR_ADMIN' = 'MANAGER') {
+function renderApprovalsPage(role: 'MANAGER' | 'ORGANIZATION_ADMIN' = 'MANAGER') {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -103,10 +103,10 @@ describe('ApprovalsPage ATDD - Story 3.6', () => {
     expect(screen.queryByTestId('approval-card-101')).not.toBeInTheDocument()
   })
 
-  it.skip('[P1] shows HR Admin backstop subtitle copy', async () => {
+  it.skip('[P1] shows Organization Admin backstop subtitle copy', async () => {
     vi.spyOn(apiClient as ApprovalsApiClient, 'getPendingApprovals').mockResolvedValue([])
 
-    renderApprovalsPage('HR_ADMIN')
+    renderApprovalsPage('ORGANIZATION_ADMIN')
 
     await waitFor(() => {
       expect(screen.getByTestId('approvals-page')).toBeInTheDocument()

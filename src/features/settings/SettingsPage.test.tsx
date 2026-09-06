@@ -39,7 +39,7 @@ const mockTeamMembers: TeamMemberSummaryResponse[] = [
     fullName: 'Jordan Lee',
     email: 'jordan@company.com',
     department: 'People Ops',
-    role: 'HR_ADMIN',
+    role: 'ORGANIZATION_ADMIN',
     workforceGroupId: 1,
     workforceGroupName: 'US',
     managerId: undefined,
@@ -56,7 +56,7 @@ function renderSettingsPage(initialPath = '/settings') {
     <MemoryRouter initialEntries={[initialPath]}>
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
-          <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+          <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
             <SettingsPage />
           </AuthTestProvider>
         </ToastProvider>
@@ -175,7 +175,7 @@ describe('SettingsPage', () => {
   it('[P0] renders six categories with Working calendars as the focused default', async () => {
     renderSettingsPage()
 
-    expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Organization Settings' })).toBeInTheDocument()
     const nav = screen.getByTestId('settings-category-nav')
     // Story 16.2 added 'calendar-privacy' (7 -> 8); Plan PUENTE D-12 moved Notifications
     // to the My settings page (8 -> 7); Plan UNO folded 'schedules-locations' into

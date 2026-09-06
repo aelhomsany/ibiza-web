@@ -58,7 +58,7 @@ function onboardingState(overrides: Partial<OnboardingState> = {}): OnboardingSt
 
 function withProviders(client: QueryClient, ui: ReactElement) {
   return (
-    <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+    <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
       <QueryClientProvider client={client}>
         <MemoryRouter initialEntries={['/onboarding']}>{ui}</MemoryRouter>
       </QueryClientProvider>
@@ -66,7 +66,7 @@ function withProviders(client: QueryClient, ui: ReactElement) {
   )
 }
 
-function renderNotice(path: string, role: UserRole = 'HR_ADMIN') {
+function renderNotice(path: string, role: UserRole = 'ORGANIZATION_ADMIN') {
   return render(
     <AuthTestProvider value={createMockAuthForRole(role)}>
       <MemoryRouter initialEntries={[path]}>
@@ -127,7 +127,7 @@ describe('Guided setup return loop', () => {
     expect(screen.queryByTestId('setup-return-notice')).not.toBeInTheDocument()
   })
 
-  it('does not send a non-HR Admin to a route the guard will bounce', () => {
+  it('does not send a non-Organization Admin to a route the guard will bounce', () => {
     renderNotice('/settings?category=organization&from=onboarding', 'EMPLOYEE')
 
     expect(screen.queryByTestId('setup-return-notice')).not.toBeInTheDocument()
@@ -472,32 +472,32 @@ describe('Guided setup can be postponed', () => {
     expect(() => clearOnboardingRedirectSkip(undefined)).not.toThrow()
   })
 
-  // withProviders signs in as mockUsers.hrAdmin, whose id is 5.
-  const HR_ADMIN_ID = 5
+  // withProviders signs in as mockUsers.organizationAdmin, whose id is 5.
+  const ORGANIZATION_ADMIN_ID = 5
 
   it('drops the opt-out once setup is finished, so it cannot govern a later cycle', async () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
     vi.mocked(getOnboarding).mockResolvedValue(onboardingState({ onboardingComplete: true }))
-    skipOnboardingRedirect(HR_ADMIN_ID)
-    expect(hasSkippedOnboardingRedirect(HR_ADMIN_ID)).toBe(true)
+    skipOnboardingRedirect(ORGANIZATION_ADMIN_ID)
+    expect(hasSkippedOnboardingRedirect(ORGANIZATION_ADMIN_ID)).toBe(true)
 
     render(withProviders(client, <OnboardingPage />))
     await screen.findByTestId('onboarding-page')
 
     await waitFor(() => {
-      expect(hasSkippedOnboardingRedirect(HR_ADMIN_ID)).toBe(false)
+      expect(hasSkippedOnboardingRedirect(ORGANIZATION_ADMIN_ID)).toBe(false)
     })
   })
 
   it('keeps the opt-out while setup is still outstanding', async () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
     vi.mocked(getOnboarding).mockResolvedValue(onboardingState({ onboardingComplete: false }))
-    skipOnboardingRedirect(HR_ADMIN_ID)
+    skipOnboardingRedirect(ORGANIZATION_ADMIN_ID)
 
     render(withProviders(client, <OnboardingPage />))
     await screen.findByTestId('onboarding-page')
 
-    expect(hasSkippedOnboardingRedirect(HR_ADMIN_ID)).toBe(true)
+    expect(hasSkippedOnboardingRedirect(ORGANIZATION_ADMIN_ID)).toBe(true)
   })
 
   it('offers no skip control on the read-only presentation path', () => {
@@ -560,7 +560,7 @@ describe('Guided setup progress freshness', () => {
     )
 
     render(
-      <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+      <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
         <QueryClientProvider client={client}>
           <ToastProvider>
             <MemoryRouter initialEntries={['/onboarding']}>

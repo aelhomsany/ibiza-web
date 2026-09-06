@@ -23,7 +23,7 @@ function renderCard(options?: { onSuccess?: (message: string) => void; onWarning
   })
   const onSuccess = options?.onSuccess ?? vi.fn()
   const onWarning = options?.onWarning ?? vi.fn()
-  const auth = createMockAuthForRole('HR_ADMIN')
+  const auth = createMockAuthForRole('ORGANIZATION_ADMIN')
 
   render(
     <QueryClientProvider client={queryClient}>
@@ -112,7 +112,7 @@ describe('WorkforceGroupsWeekendsCard', () => {
   })
 
   /**
-   * Organizations are provisioned with no Workforce Groups, so this is the state every HR Admin
+   * Organizations are provisioned with no Workforce Groups, so this is the state every Organization Admin
    * lands in. The empty branch used to render a bare sentence *instead of* the card header, which
    * is where the only "add group" button lived — leaving no way to create the first group at all.
    */

@@ -35,7 +35,7 @@ function mutationMessage(error: unknown, fallback: string) {
 }
 
 /**
- * Plan PUENTE B5 — Settings → Integrations card for Slack / Teams incoming webhooks. HR Admin only
+ * Plan PUENTE B5 — Settings → Integrations card for Slack / Teams incoming webhooks. Organization Admin only
  * (D-5): the card renders nothing for anyone else rather than an empty shell. The webhook URL is
  * write-only — entered once, stored encrypted server-side, and only ever echoed back as its host.
  */
@@ -45,12 +45,12 @@ export function ChatNotificationsSettings({ onSuccess, onWarning }: ChatNotifica
   const queryClient = useQueryClient()
   const [editing, setEditing] = useState<ChatWebhookResponse | 'new' | null>(null)
   const [removing, setRemoving] = useState<ChatWebhookResponse | null>(null)
-  const isHrAdmin = user?.role === 'HR_ADMIN'
+  const isOrganizationAdmin = user?.role === 'ORGANIZATION_ADMIN'
 
   const listQuery = useQuery({
     queryKey: QUERY_KEY,
     queryFn: getChatWebhooks,
-    enabled: isHrAdmin,
+    enabled: isOrganizationAdmin,
   })
 
   const testMutation = useMutation({
@@ -75,7 +75,7 @@ export function ChatNotificationsSettings({ onSuccess, onWarning }: ChatNotifica
     onError: (error) => onWarning?.(mutationMessage(error, t('settings:chat.errors.remove'))),
   })
 
-  if (!isHrAdmin) {
+  if (!isOrganizationAdmin) {
     return null
   }
 
@@ -465,7 +465,7 @@ function ChatWebhookFormModal({ webhook, onClose, onSaved }: ChatWebhookFormModa
 export function ChatNotificationsNotes() {
   const { t } = useTranslation(['settings', 'common'])
   const { user } = useAuth()
-  if (user?.role !== 'HR_ADMIN') {
+  if (user?.role !== 'ORGANIZATION_ADMIN') {
     return null
   }
 

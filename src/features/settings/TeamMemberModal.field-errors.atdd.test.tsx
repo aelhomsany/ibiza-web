@@ -38,7 +38,7 @@ const mockMembers: TeamMemberSummaryResponse[] = [
     fullName: 'Jordan HR',
     email: 'hr@company.com',
     department: 'People Ops',
-    role: 'HR_ADMIN',
+    role: 'ORGANIZATION_ADMIN',
     workforceGroupId: 1,
     workforceGroupName: 'US',
     managerId: undefined,
@@ -57,7 +57,7 @@ function renderModal(onClose = vi.fn(), onWarning = vi.fn()) {
   render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+        <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
           <TeamMemberModal
             editMemberId={null}
             onClose={onClose}

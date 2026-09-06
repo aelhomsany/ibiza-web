@@ -147,11 +147,11 @@ function stubDashboardApis(options?: {
   )
   vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue([
     {
-      id: mockUsers.hrAdmin.id,
-      fullName: mockUsers.hrAdmin.fullName,
-      email: mockUsers.hrAdmin.email,
+      id: mockUsers.organizationAdmin.id,
+      fullName: mockUsers.organizationAdmin.fullName,
+      email: mockUsers.organizationAdmin.email,
       department: 'People Ops',
-      role: 'HR_ADMIN',
+      role: 'ORGANIZATION_ADMIN',
       workforceGroupId: options?.unassignedMembers ? null : 1,
       workforceGroupName: options?.unassignedMembers ? null : 'US',
       status: 'ACTIVE',
@@ -186,7 +186,7 @@ function SettingsDeepLinkStub() {
 }
 
 function renderDashboard(
-  role: 'EMPLOYEE' | 'MANAGER' | 'HR_ADMIN' | 'PLATFORM_ADMIN',
+  role: 'EMPLOYEE' | 'MANAGER' | 'ORGANIZATION_ADMIN' | 'PLATFORM_ADMIN',
 ) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -278,13 +278,13 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
   )
 
   it(
-    '[P0] Given HR_ADMIN with incomplete first-use, When Dashboard loads, Then three-step cue shows aria-current and text progress',
+    '[P0] Given ORGANIZATION_ADMIN with incomplete first-use, When Dashboard loads, Then three-step cue shows aria-current and text progress',
     async () => {
       stubDashboardApis({ noHolidays: true })
       localStorage.removeItem(
-        `${FIRST_USE_STORAGE_PREFIX}${mockUsers.hrAdmin.organizationId}:${mockUsers.hrAdmin.id}`,
+        `${FIRST_USE_STORAGE_PREFIX}${mockUsers.organizationAdmin.organizationId}:${mockUsers.organizationAdmin.id}`,
       )
-      renderDashboard('HR_ADMIN')
+      renderDashboard('ORGANIZATION_ADMIN')
 
       const cue = await screen.findByTestId('first-use-cue')
       expect(cue).toBeInTheDocument()
@@ -303,7 +303,7 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
     async () => {
       const user = userEvent.setup()
       stubDashboardApis({ noHolidays: true })
-      renderDashboard('HR_ADMIN')
+      renderDashboard('ORGANIZATION_ADMIN')
 
       const cta = await screen.findByTestId('first-use-cta')
       await user.click(cta)
@@ -320,7 +320,7 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
       // step — which is precisely what this test is about. Steps now complete on org
       // evidence, so the default two-assigned-member stub would satisfy People on its own.
       stubDashboardApis({ noHolidays: true, unassignedMembers: true })
-      const key = `${FIRST_USE_STORAGE_PREFIX}${mockUsers.hrAdmin.organizationId}:${mockUsers.hrAdmin.id}`
+      const key = `${FIRST_USE_STORAGE_PREFIX}${mockUsers.organizationAdmin.organizationId}:${mockUsers.organizationAdmin.id}`
       localStorage.setItem(
         key,
         JSON.stringify({
@@ -328,7 +328,7 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
           updatedAt: '2026-07-27T00:00:00Z',
         }),
       )
-      renderDashboard('HR_ADMIN')
+      renderDashboard('ORGANIZATION_ADMIN')
 
       const cue = await screen.findByTestId('first-use-cue')
       expect(within(cue).getByText(/2 of 3/i)).toBeInTheDocument()
@@ -357,7 +357,7 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
     '[P1] Given dismissed first-use progress, When Dashboard loads, Then cue is hidden and Dashboard remains usable',
     async () => {
       stubDashboardApis({ noHolidays: true })
-      const key = `${FIRST_USE_STORAGE_PREFIX}${mockUsers.hrAdmin.organizationId}:${mockUsers.hrAdmin.id}`
+      const key = `${FIRST_USE_STORAGE_PREFIX}${mockUsers.organizationAdmin.organizationId}:${mockUsers.organizationAdmin.id}`
       localStorage.setItem(
         key,
         JSON.stringify({
@@ -366,7 +366,7 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
           updatedAt: '2026-07-27T00:00:00Z',
         }),
       )
-      renderDashboard('HR_ADMIN')
+      renderDashboard('ORGANIZATION_ADMIN')
 
       await screen.findByTestId('my-leaves-page')
       expect(screen.queryByTestId('first-use-cue')).not.toBeInTheDocument()
@@ -375,10 +375,10 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
   )
 
   it(
-    '[P1] Given a mature organization, When HR Admin opens Dashboard, Then first-use cue does not nag',
+    '[P1] Given a mature organization, When Organization Admin opens Dashboard, Then first-use cue does not nag',
     async () => {
       stubDashboardApis()
-      renderDashboard('HR_ADMIN')
+      renderDashboard('ORGANIZATION_ADMIN')
 
       await screen.findByTestId('my-leaves-page')
       await waitFor(() => {
@@ -391,10 +391,10 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
   )
 
   it(
-    '[P1] Given holidays and leave history but no group assignments, When HR Admin opens Dashboard, Then first-use cue still shows',
+    '[P1] Given holidays and leave history but no group assignments, When Organization Admin opens Dashboard, Then first-use cue still shows',
     async () => {
       stubDashboardApis({ unassignedMembers: true })
-      renderDashboard('HR_ADMIN')
+      renderDashboard('ORGANIZATION_ADMIN')
 
       // Org looks mature on every signal except group assignment, which is
       // exactly what step 2 exists to finish — it must not suppress the cue.
@@ -403,12 +403,12 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
   )
 
   it(
-    '[P1] Given a mature org and no personal leave history, When HR Admin opens Dashboard, Then cue stays suppressed',
+    '[P1] Given a mature org and no personal leave history, When Organization Admin opens Dashboard, Then cue stays suppressed',
     async () => {
-      // A newly invited HR Admin has no requests of their own; suppression must
+      // A newly invited Organization Admin has no requests of their own; suppression must
       // follow org-scoped signals, never the caller's personal history.
       stubDashboardApis({ emptyHistory: true })
-      renderDashboard('HR_ADMIN')
+      renderDashboard('ORGANIZATION_ADMIN')
 
       await screen.findByTestId('my-leaves-page')
       await waitFor(() => {
@@ -424,7 +424,7 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
   // -------------------------------------------------------------------------------------
 
   it(
-    '[P0] Given one holiday endpoint fails, When an unstarted HR Admin opens Dashboard, Then the cue still shows',
+    '[P0] Given one holiday endpoint fails, When an unstarted Organization Admin opens Dashboard, Then the cue still shows',
     async () => {
       stubDashboardApis()
       // Two groups; the second group's holiday lookup blows up. Previously Promise.all
@@ -440,17 +440,17 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
           : Promise.reject(new ApiError('Holiday lookup failed', 500)),
       )
       localStorage.removeItem(
-        `${FIRST_USE_STORAGE_PREFIX}${mockUsers.hrAdmin.organizationId}:${mockUsers.hrAdmin.id}`,
+        `${FIRST_USE_STORAGE_PREFIX}${mockUsers.organizationAdmin.organizationId}:${mockUsers.organizationAdmin.id}`,
       )
 
-      renderDashboard('HR_ADMIN')
+      renderDashboard('ORGANIZATION_ADMIN')
 
       expect(await screen.findByTestId('first-use-cue')).toBeInTheDocument()
     },
   )
 
   it(
-    '[P0] Given every signal endpoint fails, When an unstarted HR Admin opens Dashboard, Then the cue still shows',
+    '[P0] Given every signal endpoint fails, When an unstarted Organization Admin opens Dashboard, Then the cue still shows',
     async () => {
       stubDashboardApis()
       const boom = () => Promise.reject(new ApiError('Signal unavailable', 503))
@@ -458,10 +458,10 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
       vi.spyOn(apiClient, 'getTeamMembers').mockImplementation(boom)
       vi.spyOn(apiClient, 'getRecentApprovalDecisions').mockImplementation(boom)
       localStorage.removeItem(
-        `${FIRST_USE_STORAGE_PREFIX}${mockUsers.hrAdmin.organizationId}:${mockUsers.hrAdmin.id}`,
+        `${FIRST_USE_STORAGE_PREFIX}${mockUsers.organizationAdmin.organizationId}:${mockUsers.organizationAdmin.id}`,
       )
 
-      renderDashboard('HR_ADMIN')
+      renderDashboard('ORGANIZATION_ADMIN')
 
       // Unknown must never read as "mature". Hiding onboarding from a new admin is the
       // costly failure; showing a dismissible cue to an established org is not.
@@ -470,16 +470,16 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
   )
 
   it(
-    '[P0] Given holidays already configured, When HR Admin opens Dashboard, Then Calendars reads complete without ever clicking it',
+    '[P0] Given holidays already configured, When Organization Admin opens Dashboard, Then Calendars reads complete without ever clicking it',
     async () => {
       // Honest progress: the step reflects the organization's real configuration state,
       // not whether this particular admin happened to visit Settings.
       stubDashboardApis({ unassignedMembers: true })
       localStorage.removeItem(
-        `${FIRST_USE_STORAGE_PREFIX}${mockUsers.hrAdmin.organizationId}:${mockUsers.hrAdmin.id}`,
+        `${FIRST_USE_STORAGE_PREFIX}${mockUsers.organizationAdmin.organizationId}:${mockUsers.organizationAdmin.id}`,
       )
 
-      renderDashboard('HR_ADMIN')
+      renderDashboard('ORGANIZATION_ADMIN')
 
       const cue = await screen.findByTestId('first-use-cue')
       await waitFor(() => {
@@ -497,16 +497,16 @@ describe('AuthFirstUse ATDD — Story 11.7', () => {
   )
 
   it(
-    '[P0] Given nothing is configured, When HR Admin follows the Calendars link and returns, Then progress does not advance',
+    '[P0] Given nothing is configured, When Organization Admin follows the Calendars link and returns, Then progress does not advance',
     async () => {
       // Navigating is not configuring. The old build recorded the step on click, so the cue
       // claimed setup progress the organization had never actually made.
       stubDashboardApis({ noHolidays: true, unassignedMembers: true })
-      const storageKey = `${FIRST_USE_STORAGE_PREFIX}${mockUsers.hrAdmin.organizationId}:${mockUsers.hrAdmin.id}`
+      const storageKey = `${FIRST_USE_STORAGE_PREFIX}${mockUsers.organizationAdmin.organizationId}:${mockUsers.organizationAdmin.id}`
       localStorage.removeItem(storageKey)
 
       const user = userEvent.setup()
-      renderDashboard('HR_ADMIN')
+      renderDashboard('ORGANIZATION_ADMIN')
 
       const cue = await screen.findByTestId('first-use-cue')
       expect(within(cue).getByText(/1 of 3/i)).toBeInTheDocument()

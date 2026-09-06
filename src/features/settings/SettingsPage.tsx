@@ -450,7 +450,7 @@ export function SettingsPage() {
             )}
 
             {activeCategory === 'integrations' && (
-              /* Organization-wide integrations only (HR Admin). The per-user cards — calendar
+              /* Organization-wide integrations only (Organization Admin). The per-user cards — calendar
                  sync, calendar feed, "Your Slack" — moved to the My settings page (/my-settings) so every
                  role can reach them (Plan PUENTE D-12). Each card keeps its notes in a band beneath it. */
               <div className="panel-stack" data-testid="integrations-panel">

@@ -50,7 +50,7 @@
     "eyebrow": "Next safe action",
     "body": "This opens the existing workspace surface that owns the change. Return here afterward to refresh progress.",
     "continue": "Continue Setup",
-    "openSettings": "Open Settings",
+    "openSettings": "Open Organization Settings",
     "notNow": "Not Now",
     "notNowHint": "We'll stop opening setup when you sign in. Pick it back up any time from your dashboard.",
     "actions": {
@@ -108,10 +108,10 @@
   "analyticsOptional": "Optional analytics are off. This does not block any setup task.",
   "error": {
     "title": "Onboarding progress is temporarily unavailable",
-    "body": "You can retry or continue through the existing Settings path. Your server evidence is preserved.",
-    "forbiddenTitle": "Guided onboarding is available to HR Admins",
-    "forbiddenBody": "Your role does not have access to this page. Continue in Settings or ask an HR Admin for help.",
-    "legacyOrganization": "Guided setup isn't available for this workspace. Your setup lives in Settings."
+    "body": "You can retry or continue through the existing Organization Settings path. Your server evidence is preserved.",
+    "forbiddenTitle": "Guided onboarding is available to Organization Admins",
+    "forbiddenBody": "Your role does not have access to this page. Continue in Organization Settings or ask an Organization Admin for help.",
+    "legacyOrganization": "Guided setup isn't available for this workspace. Your setup lives in Organization Settings."
   },
   "dashboardCue": {
     "eyebrow": "Guided onboarding",

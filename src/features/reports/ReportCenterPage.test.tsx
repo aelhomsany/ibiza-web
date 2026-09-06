@@ -267,7 +267,7 @@ function renderPage() {
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
         <MemoryRouter>
-          <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+          <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
             <ReportCenterPage />
           </AuthTestProvider>
         </MemoryRouter>
@@ -290,7 +290,7 @@ function renderPageStrict() {
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
           <MemoryRouter>
-            <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+            <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
               <ReportCenterPage />
             </AuthTestProvider>
           </MemoryRouter>
@@ -584,7 +584,7 @@ describe('ReportCenterPage', () => {
     // parseMissingKeyHandler returns '', so a missing ar key would render a blank
     // heading and still pass a bare visibility check — assert the actual text.
     expect(
-      screen.getByRole('heading', { name: 'الوضع الحالى للمنشآة' }),
+      screen.getByRole('heading', { name: 'ملخص المؤسسة' }),
     ).toBeInTheDocument()
   })
 

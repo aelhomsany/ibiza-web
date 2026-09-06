@@ -49,7 +49,7 @@ export function RoleGuard({ allowedRoles, shell }: RoleGuardProps) {
   }
   const canReviewApprovals = capability.data?.canReviewApprovals
     ?? user.canReviewApprovals
-    ?? (role === 'MANAGER' || role === 'HR_ADMIN')
+    ?? (role === 'MANAGER' || role === 'ORGANIZATION_ADMIN')
 
   // Shell-level org guard: delegates to canAccessOrgRoute as the single source of truth.
   // Handles both cross-shell blocking (PLATFORM_ADMIN) and route-level restrictions

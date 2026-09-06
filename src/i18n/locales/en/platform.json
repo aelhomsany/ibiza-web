@@ -20,7 +20,7 @@
     },
     "fields": {
       "assistedHandoff": "Contact Sales handoff (optional)",
-      "hrEmail": "Initial HR Admin email",
+      "adminEmail": "Initial Organization Admin email",
       "name": "Organization name",
       "plan": "Subscription plan",
       "primaryContact": "Primary contact"
@@ -39,7 +39,7 @@
     "title": "Edit Subscription — {{name}}"
   },
   "empty": {
-    "copy": "Create the first customer organization to start provisioning HR access.",
+    "copy": "Create the first customer organization to start provisioning Organization Admin access.",
     "title": "No organizations yet"
   },
   "errors": {

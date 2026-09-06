@@ -90,7 +90,7 @@ describe('MySettingsPage (Plan PUENTE D-12)', () => {
     expect(within(integrations).getByRole('heading', { name: 'My integrations' })).toBeInTheDocument()
     expect(await within(integrations).findByTestId('calendar-sync-settings')).toBeInTheDocument()
     expect(await within(integrations).findByTestId('calendar-feed-settings')).toBeInTheDocument()
-    // Nothing Slack-related until an HR Admin has installed the workspace.
+    // Nothing Slack-related until an Organization Admin has installed the workspace.
     await waitFor(() => expect(apiClient.getSlackStatus).toHaveBeenCalled())
     expect(screen.queryByTestId('slack-link-settings')).not.toBeInTheDocument()
     expect(screen.queryByText('How you are matched')).not.toBeInTheDocument()

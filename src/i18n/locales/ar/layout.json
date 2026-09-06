@@ -4,11 +4,11 @@
     "myLeaves": "إجازاتي",
     "mySettings": "إعداداتي",
     "calendar": "التقويم",
-    "approvals": "الموافقات",
+    "approvals": "طلبات الاعتماد",
     "import": "استيراد البيانات",
     "corrections": "تصحيحات الرصيد",
     "reports": "التقارير",
-    "settings": "الإعدادات",
+    "settings": "إعدادات المؤسسة",
     "organizations": "المؤسسات"
   },
   "navigation": {
@@ -23,22 +23,22 @@
     "scrollHint": "استخدم مفتاحي السهم الأيسر والأيمن لتمرير قائمة الفئات هذه أفقيًا."
   },
   "header": {
-    "openNavigation": "فتح التنقل",
-    "closeNavigation": "إغلاق التنقل",
+    "openNavigation": "فتح قائمة التنقل",
+    "closeNavigation": "إغلاق قائمة التنقل",
     "userMenu": "قائمة المستخدم، {{name}}",
     "accountMenu": "قائمة الحساب",
     "language": "اللغة",
     "userFallback": "مستخدم"
   },
   "menu": {
-    "profile": "تفاصيل الملف الشخصي",
+    "profile": "الملف الشخصي",
     "myRequests": "طلباتي",
     "signOut": "تسجيل الخروج"
   },
   "notifications": {
     "label": "الإشعارات",
-    "unread": "الإشعارات، {{count}} غير مقروءة",
-    "markAllRead": "تحديد الكل كمقروء",
+    "unread": "الإشعارات غير المقروءة: {{count}}",
+    "markAllRead": "تعليم الكل كمقروء",
     "loading": "جارٍ تحميل الإشعارات...",
     "empty": "لا توجد إشعارات بعد"
   },

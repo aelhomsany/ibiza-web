@@ -1,13 +1,8 @@
-/* Settings runs full-bleed (.page-wide) so the rail can hug the shell, but the
-   reading column still needs an end: past ~1600px the cards stretch into
-   unreadable line lengths on a wide display. Cap and centre both the header and
-   the grid together so they stay aligned. */
-.settings-ia-layout,
-.settings-page-header {
-  max-width: var(--settings-ia-max-width);
-  margin-inline: auto;
-}
-
+/* Organization Settings runs full-bleed (.page-wide) and, unlike before, is no longer
+   re-capped at 1280px: it now uses the whole content area, matching My settings so the two
+   Settings destinations feel like one surface rather than two differently-sized pages.
+   Long prose still gets its own measure (.settings-active-subtitle caps at 68ch); it is the
+   card grid and the rail that are free to use the width. */
 .settings-page-header {
   margin-block-end: var(--space-2xl);
 }

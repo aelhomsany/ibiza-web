@@ -26,7 +26,7 @@ const current: CalendarPrivacyVersionResponse = {
   rules: [
     { viewerRelationship: 'SELF', precedenceRank: 0, allowedFields: ['IDENTITY', 'LEAVE_TYPE', 'STATUS', 'REASON', 'REQUEST_CONTEXT'], summary: '' },
     { viewerRelationship: 'ACTIVE_OR_COMPLETED_APPROVER', precedenceRank: 1, allowedFields: ['IDENTITY', 'LEAVE_TYPE', 'STATUS', 'REASON', 'REQUEST_CONTEXT'], summary: '' },
-    { viewerRelationship: 'HR_ADMIN', precedenceRank: 2, allowedFields: ['IDENTITY', 'LEAVE_TYPE', 'STATUS', 'REASON', 'REQUEST_CONTEXT'], summary: '' },
+    { viewerRelationship: 'ORGANIZATION_ADMIN', precedenceRank: 2, allowedFields: ['IDENTITY', 'LEAVE_TYPE', 'STATUS', 'REASON', 'REQUEST_CONTEXT'], summary: '' },
     { viewerRelationship: 'DIRECT_REPORT_MANAGER', precedenceRank: 3, allowedFields: ['IDENTITY', 'LEAVE_TYPE', 'STATUS', 'REQUEST_CONTEXT'], summary: '' },
     { viewerRelationship: 'SAME_WORKFORCE_GROUP', precedenceRank: 4, allowedFields: ['IDENTITY'], summary: '' },
     { viewerRelationship: 'ORGANIZATION_PEER', precedenceRank: 5, allowedFields: ['IDENTITY'], summary: '' },
@@ -45,7 +45,7 @@ function renderPage(onWarning = vi.fn(), onSuccess = vi.fn()) {
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+        <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
           <ToastProvider>
             <CalendarPrivacySettingsPage onWarning={onWarning} onSuccess={onSuccess} />
           </ToastProvider>

@@ -46,7 +46,7 @@
   },
   "roles": {
     "employee": "Employee",
-    "hrAdmin": "HR Admin",
+    "organizationAdmin": "Organization Admin",
     "manager": "Manager",
     "platformAdmin": "Platform Admin"
   },
@@ -66,7 +66,7 @@
     "reports": "Reports",
     "requestDetails": "Request Details",
     "resetPassword": "Reset password",
-    "settings": "Settings",
+    "settings": "Organization Settings",
     "policySettings": "Policy Settings",
     "signIn": "Sign in",
     "mySettings": "My settings"

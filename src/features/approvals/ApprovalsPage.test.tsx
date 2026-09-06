@@ -83,7 +83,7 @@ const mockRecentDecisions: RecentApprovalDecisionResponse[] = [
   },
 ]
 
-function renderApprovalsPage(role: 'MANAGER' | 'HR_ADMIN' = 'MANAGER') {
+function renderApprovalsPage(role: 'MANAGER' | 'ORGANIZATION_ADMIN' = 'MANAGER') {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -183,7 +183,7 @@ describe('ApprovalsPage', () => {
     vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([])
     vi.spyOn(apiClient, 'getRecentApprovalDecisions').mockResolvedValue(mockRecentDecisions)
 
-    renderApprovalsPage('HR_ADMIN')
+    renderApprovalsPage('ORGANIZATION_ADMIN')
 
     const band = await screen.findByTestId('approvals-recent-band')
     await waitFor(() =>
@@ -200,7 +200,7 @@ describe('ApprovalsPage', () => {
     vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([])
     vi.spyOn(apiClient, 'getRecentApprovalDecisions').mockRejectedValue(new Error('boom'))
 
-    renderApprovalsPage('HR_ADMIN')
+    renderApprovalsPage('ORGANIZATION_ADMIN')
 
     const band = await screen.findByTestId('approvals-recent-band')
     await waitFor(() =>
@@ -217,7 +217,7 @@ describe('ApprovalsPage', () => {
     vi.spyOn(apiClient, 'getLeaveRequestAuditEvents').mockResolvedValue([])
 
     const user = userEvent.setup()
-    renderApprovalsPage('HR_ADMIN')
+    renderApprovalsPage('ORGANIZATION_ADMIN')
 
     const toggle = await screen.findByRole('button', { name: /audit history for Jamie Lee/i })
     await user.click(toggle)
@@ -269,10 +269,10 @@ describe('ApprovalsPage', () => {
     expect(screen.queryByTestId('approval-card-101')).not.toBeInTheDocument()
   })
 
-  it('[P1] shows HR Admin backstop subtitle copy', async () => {
+  it('[P1] shows Organization Admin backstop subtitle copy', async () => {
     vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([])
 
-    renderApprovalsPage('HR_ADMIN')
+    renderApprovalsPage('ORGANIZATION_ADMIN')
 
     await waitFor(() => {
       expect(screen.getByTestId('approvals-page')).toBeInTheDocument()
@@ -366,7 +366,7 @@ describe('ApprovalsPage', () => {
       },
     ])
 
-    renderApprovalsPage('HR_ADMIN')
+    renderApprovalsPage('ORGANIZATION_ADMIN')
 
     await waitFor(() => expect(screen.getByTestId('approval-card-101')).toBeInTheDocument())
     expect(screen.getByTestId('assigned-approver-pill-101')).toHaveTextContent(
@@ -475,7 +475,7 @@ describe('ApprovalsPage', () => {
       },
     ])
 
-    renderApprovalsPage('HR_ADMIN')
+    renderApprovalsPage('ORGANIZATION_ADMIN')
 
     await waitFor(() => {
       expect(screen.getByTestId('recent-on-behalf-pill-201')).toBeInTheDocument()
@@ -875,7 +875,7 @@ describe('ApprovalsPage', () => {
     const facts = await screen.findByTestId('approval-decision-facts-101')
     expect(document.documentElement).toHaveAttribute('dir', 'rtl')
     expect(document.documentElement).toHaveAttribute('lang', 'ar')
-    expect(facts).toHaveTextContent('حقائق القرار')
+    expect(facts).toHaveTextContent('بيانات القرار')
     expect(facts).toHaveTextContent('5 مجدولون')
     expect(facts).toHaveTextContent('المرحلة 1 من 2')
     // Arabic dual form — a bare {{count}} key would render the plural noun here.
@@ -960,11 +960,11 @@ describe('ApprovalsPage', () => {
     expect(screen.queryByRole('columnheader', { name: 'Audit' })).not.toBeInTheDocument()
   })
 
-  it('[P2] shows audit history affordance for HR admins on recent decisions', async () => {
+  it('[P2] shows audit history affordance for Organization admins on recent decisions', async () => {
     vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue([])
     vi.spyOn(apiClient, 'getRecentApprovalDecisions').mockResolvedValue(mockRecentDecisions)
 
-    renderApprovalsPage('HR_ADMIN')
+    renderApprovalsPage('ORGANIZATION_ADMIN')
 
     await waitFor(() => expect(screen.getByTestId('recent-decisions-table')).toBeInTheDocument())
     expect(screen.getByRole('columnheader', { name: 'Audit' })).toBeInTheDocument()

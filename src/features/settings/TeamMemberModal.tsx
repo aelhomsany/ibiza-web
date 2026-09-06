@@ -41,7 +41,7 @@ type Props = {
   onDirtyChange?: (dirty: boolean) => void
 }
 
-type UserRole = 'EMPLOYEE' | 'MANAGER' | 'HR_ADMIN'
+type UserRole = 'EMPLOYEE' | 'MANAGER' | 'ORGANIZATION_ADMIN'
 
 // Growth is the only paid plan, so the prompt names its destination instead of
 // asking the admin to pick one. The name is a proper noun and stays untranslated,
@@ -119,7 +119,7 @@ export function TeamMemberModal({
   const upgradePromptRef = useRef<HTMLDivElement>(null)
 
   const groups = groupsQuery.data ?? []
-  // A tenant is provisioned with no Workforce Groups at all: the HR Admin creates them.
+  // A tenant is provisioned with no Workforce Groups at all: the Organization Admin creates them.
   // Until they have, `workforceGroupId` is unsatisfiable, so the form is steered to the
   // Working Calendars screen instead of being submitted into a guaranteed 400. Gated on
   // `isSuccess` so the hint never flashes while the groups are still loading.
@@ -130,7 +130,7 @@ export function TeamMemberModal({
     .map((lt) => ({ id: lt.id!, name: lt.name!, defaultBalanceDays: lt.defaultBalanceDays! }))
 
   const managers = allMembers.filter(
-    (m) => (m.role === 'MANAGER' || m.role === 'HR_ADMIN') && m.status !== 'DEACTIVATED',
+    (m) => (m.role === 'MANAGER' || m.role === 'ORGANIZATION_ADMIN') && m.status !== 'DEACTIVATED',
   )
 
   useEffect(() => {
@@ -182,7 +182,7 @@ export function TeamMemberModal({
 
     const defaultApproverId = managerId !== ''
       ? managerId
-      : allMembers.find((member) => member.role === 'HR_ADMIN' && member.status !== 'DEACTIVATED')?.id
+      : allMembers.find((member) => member.role === 'ORGANIZATION_ADMIN' && member.status !== 'DEACTIVATED')?.id
     if (defaultApproverId != null) {
       setApprovalApproverIds((current) => [defaultApproverId, current[1], current[2]])
     }
@@ -471,7 +471,7 @@ export function TeamMemberModal({
               >
                 <option value="EMPLOYEE">{t('settings:memberModal.roles.employee')}</option>
                 <option value="MANAGER">{t('settings:memberModal.roles.manager')}</option>
-                <option value="HR_ADMIN">{t('settings:memberModal.roles.hrAdmin')}</option>
+                <option value="ORGANIZATION_ADMIN">{t('settings:memberModal.roles.organizationAdmin')}</option>
               </select>
               {roleError.message && (
                 <FieldErrorMessage fieldId={roleError.fieldId} message={roleError.message} />
@@ -592,8 +592,8 @@ export function TeamMemberModal({
                       )}
                     >
                       {member.fullName} — {t(`settings:memberModal.roles.${
-                        member.role === 'HR_ADMIN'
-                          ? 'hrAdmin'
+                        member.role === 'ORGANIZATION_ADMIN'
+                          ? 'organizationAdmin'
                           : member.role === 'MANAGER' ? 'manager' : 'employee'
                       }`)}
                     </option>

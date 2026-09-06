@@ -113,7 +113,7 @@ describe('AppRoutes', () => {
     expect(
       await screen.findByTestId('team-calendar-page', undefined, { timeout: 3000 }),
     ).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Settings' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Organization Settings' })).not.toBeInTheDocument()
   })
 
   it('redirects employee from approvals route', async () => {
@@ -131,13 +131,13 @@ describe('AppRoutes', () => {
     expect(
       await screen.findByTestId('team-calendar-page', undefined, { timeout: 3000 }),
     ).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Settings' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Organization Settings' })).not.toBeInTheDocument()
   })
 
-  it('allows HR admin to open settings route', async () => {
-    renderAppRoutes(['/settings'], createMockAuthForRole('HR_ADMIN'))
+  it('allows Organization admin to open settings route', async () => {
+    renderAppRoutes(['/settings'], createMockAuthForRole('ORGANIZATION_ADMIN'))
 
-    expect(await screen.findByRole('heading', { name: 'Settings' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Organization Settings' })).toBeInTheDocument()
     expect(screen.getByTestId('nav-settings')).toBeInTheDocument()
   })
 
@@ -170,10 +170,10 @@ describe('AppRoutes', () => {
   })
 
   it('sets the settings page title', async () => {
-    renderAppRoutes(['/settings'], createMockAuthForRole('HR_ADMIN'))
+    renderAppRoutes(['/settings'], createMockAuthForRole('ORGANIZATION_ADMIN'))
 
-    await screen.findByRole('heading', { name: 'Settings' })
-    expect(document.title).toBe('Settings — Leaveo')
+    await screen.findByRole('heading', { name: 'Organization Settings' })
+    expect(document.title).toBe('Organization Settings — Leaveo')
   })
 
   it('sets the login page title', async () => {

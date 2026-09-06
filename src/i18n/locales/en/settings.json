@@ -30,7 +30,7 @@
     "relationships": {
       "SELF": "The person themselves",
       "ACTIVE_OR_COMPLETED_APPROVER": "An assigned approver",
-      "HR_ADMIN": "HR administrators",
+      "ORGANIZATION_ADMIN": "Organization Admins",
       "DIRECT_REPORT_MANAGER": "Their direct manager",
       "SAME_WORKFORCE_GROUP": "People in the same workforce group",
       "ORGANIZATION_PEER": "Everyone else in the organization"
@@ -554,7 +554,7 @@
     },
     "roles": {
       "employee": "Employee",
-      "hrAdmin": "HR Admin",
+      "organizationAdmin": "Organization Admin",
       "manager": "Manager"
     },
     "success": {
@@ -676,7 +676,7 @@
       "scopeYours": "These preferences are yours alone. They do not change what anyone else receives.",
       "scopeRequired": "In-app workflow notifications are required and cannot be turned off or muted.",
       "scopeMuteCap": "An email mute can run for at most 30 days.",
-      "scopeSlack": "Slack direct messages appear here only once your HR admin has connected the Slack app. They reach you only if your Slack email matches your Leaveo email."
+      "scopeSlack": "Slack direct messages appear here only once your Organization Admin has connected the Slack app. They reach you only if your Slack email matches your Leaveo email."
     },
     "slack": "Slack direct messages",
     "muteSlackFor": "Mute Slack messages for",
@@ -818,7 +818,7 @@
     }
   },
   "subtitle": "Company policy, team, and leave entitlements",
-  "title": "Settings",
+  "title": "Organization Settings",
   "unsaved": {
     "continue": "Continue Editing",
     "copy": "You have changes that have not been saved. Discard them before moving to another Settings section.",
@@ -895,7 +895,7 @@
     "title": "Slack app",
     "loading": "Loading Slack status…",
     "notConnected": "Not connected. Install the Leaveo app in your Slack workspace so approvers and requesters get workflow updates as direct messages.",
-    "notConnectedMember": "Your HR admin has not connected the Slack app yet. Once it is connected, workflow updates can reach you as Slack direct messages.",
+    "notConnectedMember": "Your Organization Admin has not connected the Slack app yet. Once it is connected, workflow updates can reach you as Slack direct messages.",
     "connectedIntro": "Workflow updates are sent as Slack direct messages to everyone whose Slack email matches their Leaveo email.",
     "connectedTo": "Connected to {{team}}",
     "installedOn": "Installed {{when}}",
@@ -904,7 +904,7 @@
       "REVOKED": "Access revoked"
     },
     "revoked": "Slack revoked the app's access ({{category}}). Direct messages are paused until you reconnect it.",
-    "revokedMember": "Slack revoked the app's access. Direct messages are paused until your HR admin reconnects it.",
+    "revokedMember": "Slack revoked the app's access. Direct messages are paused until your Organization Admin reconnects it.",
     "me": {
       "title": "Your Slack",
       "LINKED": "Linked. Workflow updates reach you as direct messages.",

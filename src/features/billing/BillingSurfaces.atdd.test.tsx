@@ -6,7 +6,7 @@ import { BillingNotice } from './BillingNotice'
 import { PlanAndBillingPage } from './PlanAndBillingPage'
 
 vi.mock('../../auth/useAuth', () => ({
-  useAuth: () => ({ user: { role: 'HR_ADMIN' } }),
+  useAuth: () => ({ user: { role: 'ORGANIZATION_ADMIN' } }),
 }))
 
 const subscription: client.BillingSubscription = {

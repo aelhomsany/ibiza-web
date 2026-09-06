@@ -104,7 +104,7 @@ describe('Story 9.5 ATDD — feature translation coverage', () => {
     '[P1] Settings page title is Arabic',
     async () => {
       await activateArabic()
-      wrap(<SettingsPage />, 'HR_ADMIN')
+      wrap(<SettingsPage />, 'ORGANIZATION_ADMIN')
 
       await waitFor(() => expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument())
       const title = screen.getByRole('heading', { level: 1 })

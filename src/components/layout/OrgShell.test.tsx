@@ -18,7 +18,7 @@ import { OrgShell } from './OrgShell'
 
 function renderOrgShell(
   role: Parameters<typeof createMockAuthForRole>[0],
-  serverCapability = role === 'MANAGER' || role === 'HR_ADMIN',
+  serverCapability = role === 'MANAGER' || role === 'ORGANIZATION_ADMIN',
 ) {
   vi.mocked(apiClient.getApprovalCapability).mockResolvedValue({
     canReviewApprovals: serverCapability,
@@ -116,8 +116,8 @@ describe('OrgShell', () => {
     expect(await screen.findByTestId('nav-approvals')).toBeInTheDocument()
   })
 
-  it('shows Approvals and Settings for HR_ADMIN', () => {
-    renderOrgShell('HR_ADMIN')
+  it('shows Approvals and Settings for ORGANIZATION_ADMIN', () => {
+    renderOrgShell('ORGANIZATION_ADMIN')
 
     expect(screen.getByTestId('nav-approvals')).toBeInTheDocument()
     expect(screen.getByTestId('nav-settings')).toBeInTheDocument()
@@ -300,7 +300,7 @@ describe('OrgShell', () => {
    * The Reports nav item is gated on a live capability probe, but nothing tested that OrgShell
    * actually supplies the probe result: rolePermissions.test.ts passes its own booleans, and no
    * shell or E2E test looked for nav-reports at all. Dropping the argument would have shown every
-   * HR administrator a link straight to a denial banner.
+   * Organization administrator a link straight to a denial banner.
    */
   describe('reports nav capability probe', () => {
     it('shows Reports when the plan entitles the workspace', async () => {
@@ -309,7 +309,7 @@ describe('OrgShell', () => {
         status: 'AVAILABLE',
         available: true,
       })
-      renderOrgShell('HR_ADMIN')
+      renderOrgShell('ORGANIZATION_ADMIN')
 
       expect(await screen.findByTestId('nav-reports')).toBeInTheDocument()
     })
@@ -319,7 +319,7 @@ describe('OrgShell', () => {
         new apiClient.ApiError(403, { title: 'Forbidden', detail: 'Not entitled' }),
       )
       vi.spyOn(apiClient, 'listReportExports').mockResolvedValue([])
-      renderOrgShell('HR_ADMIN')
+      renderOrgShell('ORGANIZATION_ADMIN')
 
       await screen.findByTestId('nav-calendar')
       await waitFor(() => {
@@ -336,7 +336,7 @@ describe('OrgShell', () => {
       vi.spyOn(apiClient, 'listReportExports').mockResolvedValue([
         { id: 'export-1', status: 'READY' } as never,
       ])
-      renderOrgShell('HR_ADMIN')
+      renderOrgShell('ORGANIZATION_ADMIN')
 
       expect(await screen.findByTestId('nav-reports')).toBeInTheDocument()
     })

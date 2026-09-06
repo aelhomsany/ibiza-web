@@ -82,7 +82,7 @@ export async function verificationLinkFor(
  * the mail body is the only place it exists. A test that wants a genuine session for an invited
  * administrator has to read the mail, exactly as they would. Note this is the password-reset
  * invitation the PLATFORM provisioning path sends — not `/accept-invitation`, which is the
- * separate team-member invitation an HR Admin issues from Settings.
+ * separate team-member invitation an Organization Admin issues from Settings.
  */
 export async function initialPasswordTokenFor(
   request: APIRequestContext,

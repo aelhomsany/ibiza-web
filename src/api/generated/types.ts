@@ -474,7 +474,7 @@ export interface paths {
         /** List organizations visible to Platform Admins */
         get: operations["listOrganizations"];
         put?: never;
-        /** Create an organization with an initial HR Admin */
+        /** Create an organization with its initial Organization Admin */
         post: operations["createOrganization"];
         delete?: never;
         options?: never;
@@ -743,7 +743,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Start the "Add to Slack" install for the organization (HR Admin) */
+        /** Start the "Add to Slack" install for the organization (Organization Admin) */
         post: operations["install"];
         delete?: never;
         options?: never;
@@ -758,10 +758,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List the organization's chat channels (HR Admin) */
+        /** List the organization's chat channels (Organization Admin) */
         get: operations["list_3"];
         put?: never;
-        /** Connect a Slack or Teams channel through its incoming webhook (HR Admin) */
+        /** Connect a Slack or Teams channel through its incoming webhook (Organization Admin) */
         post: operations["create_7"];
         delete?: never;
         options?: never;
@@ -778,7 +778,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Post a test message to a chat channel (HR Admin) */
+        /** Post a test message to a chat channel (Organization Admin) */
         post: operations["test"];
         delete?: never;
         options?: never;
@@ -1178,7 +1178,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update the organization's operational timezone (HR Admin only) */
+        /** Update the organization's operational timezone (Organization Admin only) */
         patch: operations["update_2"];
         trace?: never;
     };
@@ -1317,11 +1317,11 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Remove a chat channel (HR Admin) */
+        /** Remove a chat channel (Organization Admin) */
         delete: operations["delete_2"];
         options?: never;
         head?: never;
-        /** Edit a chat channel's label, schedule, toggles, or webhook URL (HR Admin) */
+        /** Edit a chat channel's label, schedule, toggles, or webhook URL (Organization Admin) */
         patch: operations["update_5"];
         trace?: never;
     };
@@ -1630,7 +1630,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List immutable audit history for a leave request (HR Admin only) */
+        /** List immutable audit history for a leave request (Organization Admin only) */
         get: operations["listAuditEvents"];
         put?: never;
         post?: never;
@@ -2073,7 +2073,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Uninstall the Slack app and forget every cached match (HR Admin) */
+        /** Uninstall the Slack app and forget every cached match (Organization Admin) */
         delete: operations["disconnect"];
         options?: never;
         head?: never;
@@ -2136,7 +2136,7 @@ export interface components {
             email?: string;
             fullName?: string;
             /** @enum {string} */
-            role?: "EMPLOYEE" | "MANAGER" | "HR_ADMIN" | "PLATFORM_ADMIN";
+            role?: "EMPLOYEE" | "MANAGER" | "ORGANIZATION_ADMIN" | "PLATFORM_ADMIN";
             /** Format: int64 */
             organizationId?: number | null;
             organizationName?: string | null;
@@ -2152,7 +2152,7 @@ export interface components {
             email?: string;
             department?: string;
             /** @enum {string} */
-            role: "EMPLOYEE" | "MANAGER" | "HR_ADMIN";
+            role: "EMPLOYEE" | "MANAGER" | "ORGANIZATION_ADMIN";
             /** Format: int64 */
             workforceGroupId: number;
             /** Format: int64 */
@@ -2368,7 +2368,7 @@ export interface components {
         };
         CalendarPrivacyRuleInput: {
             /** @enum {string} */
-            viewerRelationship: "SELF" | "ACTIVE_OR_COMPLETED_APPROVER" | "HR_ADMIN" | "DIRECT_REPORT_MANAGER" | "SAME_WORKFORCE_GROUP" | "ORGANIZATION_PEER";
+            viewerRelationship: "SELF" | "ACTIVE_OR_COMPLETED_APPROVER" | "ORGANIZATION_ADMIN" | "DIRECT_REPORT_MANAGER" | "SAME_WORKFORCE_GROUP" | "ORGANIZATION_PEER";
             allowedFields: ("IDENTITY" | "LEAVE_TYPE" | "STATUS" | "REASON" | "REQUEST_CONTEXT")[];
         };
         PublishCalendarPrivacyRequest: {
@@ -2378,7 +2378,7 @@ export interface components {
         };
         CalendarPrivacyRuleResponse: {
             /** @enum {string} */
-            viewerRelationship?: "SELF" | "ACTIVE_OR_COMPLETED_APPROVER" | "HR_ADMIN" | "DIRECT_REPORT_MANAGER" | "SAME_WORKFORCE_GROUP" | "ORGANIZATION_PEER";
+            viewerRelationship?: "SELF" | "ACTIVE_OR_COMPLETED_APPROVER" | "ORGANIZATION_ADMIN" | "DIRECT_REPORT_MANAGER" | "SAME_WORKFORCE_GROUP" | "ORGANIZATION_PEER";
             /** Format: int32 */
             precedenceRank?: number;
             allowedFields?: ("IDENTITY" | "LEAVE_TYPE" | "STATUS" | "REASON" | "REQUEST_CONTEXT")[];
@@ -2882,7 +2882,7 @@ export interface components {
         CreateOrganizationRequest: {
             name?: string;
             primaryContact?: string;
-            initialHrAdminEmail?: string;
+            initialOrganizationAdminEmail?: string;
             /** @enum {string} */
             plan: "FREE" | "GROWTH" | "INTERNAL";
             /** @enum {string} */
@@ -2894,7 +2894,7 @@ export interface components {
             id?: number;
             name?: string;
             primaryContact?: string;
-            initialHrAdminEmail?: string;
+            initialOrganizationAdminEmail?: string;
             /** @enum {string} */
             plan?: "FREE" | "GROWTH" | "INTERNAL";
             /** Format: int64 */
@@ -3284,7 +3284,7 @@ export interface components {
             fullName?: string;
             department?: string;
             /** @enum {string} */
-            role?: "EMPLOYEE" | "MANAGER" | "HR_ADMIN";
+            role?: "EMPLOYEE" | "MANAGER" | "ORGANIZATION_ADMIN";
             /** Format: int64 */
             workforceGroupId?: number;
             approvalApproverIds?: number[];
@@ -3772,7 +3772,7 @@ export interface components {
             workingDates?: string[];
             canViewRequestContext?: boolean;
             /** @enum {string} */
-            viewerRelationship?: "SELF" | "ACTIVE_OR_COMPLETED_APPROVER" | "HR_ADMIN" | "DIRECT_REPORT_MANAGER" | "SAME_WORKFORCE_GROUP" | "ORGANIZATION_PEER";
+            viewerRelationship?: "SELF" | "ACTIVE_OR_COMPLETED_APPROVER" | "ORGANIZATION_ADMIN" | "DIRECT_REPORT_MANAGER" | "SAME_WORKFORCE_GROUP" | "ORGANIZATION_PEER";
         };
         CalendarHolidayResponse: {
             /** Format: int64 */
@@ -4559,7 +4559,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
-            /** @description Not an HR administrator, or the reporting capability is unavailable for this organization */
+            /** @description Not an Organization administrator, or the reporting capability is unavailable for this organization */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5169,7 +5169,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
-            /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
+            /** @description Not an Organization administrator, or DATA_IMPORT is unavailable for this organization */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5214,7 +5214,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
-            /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
+            /** @description Not an Organization administrator, or DATA_IMPORT is unavailable for this organization */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5270,7 +5270,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
-            /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
+            /** @description Not an Organization administrator, or DATA_IMPORT is unavailable for this organization */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5319,7 +5319,7 @@ export interface operations {
                     "*/*": components["schemas"]["ImportJobResponse"];
                 };
             };
-            /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
+            /** @description Not an Organization administrator, or DATA_IMPORT is unavailable for this organization */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5706,7 +5706,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
-            /** @description Not an HR administrator */
+            /** @description Not an Organization administrator */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5748,7 +5748,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
-            /** @description Not an HR administrator */
+            /** @description Not an Organization administrator */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5801,7 +5801,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
-            /** @description Not an HR administrator */
+            /** @description Not an Organization administrator */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5861,7 +5861,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
-            /** @description Not an HR administrator, or BALANCE_CORRECTIONS is unavailable for this organization */
+            /** @description Not an Organization administrator, or BALANCE_CORRECTIONS is unavailable for this organization */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -6966,7 +6966,7 @@ export interface operations {
                     "*/*": components["schemas"]["ImportJobResponse"];
                 };
             };
-            /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
+            /** @description Not an Organization administrator, or DATA_IMPORT is unavailable for this organization */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -7018,7 +7018,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
-            /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
+            /** @description Not an Organization administrator, or DATA_IMPORT is unavailable for this organization */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -7058,7 +7058,7 @@ export interface operations {
                     "*/*": string;
                 };
             };
-            /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
+            /** @description Not an Organization administrator, or DATA_IMPORT is unavailable for this organization */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -7116,7 +7116,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
-            /** @description Not an HR administrator, or DATA_IMPORT is unavailable for this organization */
+            /** @description Not an Organization administrator, or DATA_IMPORT is unavailable for this organization */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -7420,7 +7420,7 @@ export interface operations {
                     "*/*": components["schemas"]["BalanceCorrectionListItemResponse"];
                 };
             };
-            /** @description Not an HR administrator */
+            /** @description Not an Organization administrator */
             403: {
                 headers: {
                     [name: string]: unknown;

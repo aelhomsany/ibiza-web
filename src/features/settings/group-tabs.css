@@ -2,8 +2,12 @@
   display: flex;
   max-width: 100%;
   min-width: 0;
-  gap: 4px;
-  padding: 12px 20px 0;
+  /* 4px was enough to separate two bare text labels; the tabs are bordered chips now, and at
+     4px their borders read as one continuous box rather than as separate controls. */
+  gap: var(--space-sm);
+  /* The strip gained a bottom pad so the chips clear its rule instead of resting their own
+     border on top of it and drawing what looks like a 2px line under one tab only. */
+  padding: 12px 20px;
   border-bottom: 1px solid var(--color-border-light);
   overflow-x: auto;
   overflow-y: hidden;
@@ -17,20 +21,41 @@
   height: 6px;
 }
 
+/* An unselected tab used to be bare muted text on the card: no border, no background, and — a
+   miss against DESIGN.md's Tabs contract, which requires selected/hover/focus states — no hover
+   rule at all. Nothing said the labels beside the selected one were controls, so the group strip
+   read as a heading with one highlighted word. Each tab is now a chip with three distinct steps:
+   bordered on the card at rest, tinted with a stronger border on hover, and filled in the action
+   color when selected. Selection is still text-labeled ("Selected", below), so it never rests on
+   fill and color alone. */
 .group-tab {
   display: inline-flex;
   align-items: center;
   gap: var(--space-sm);
   flex: 0 0 auto;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--color-muted);
+  /* 8px of padding around 13px text made a 32px control. This is the primary way into the card's
+     per-group content, so it takes the same touch-target floor as every other control. */
+  min-height: var(--min-touch-target);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-card);
+  color: var(--color-text-secondary);
   cursor: pointer;
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
-  padding: 8px 12px;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+/* :not(.active) so hovering the selected tab does not walk it back to the weaker treatment. */
+.group-tab:hover:not(.active) {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-primary);
 }
 
 .group-tab-count {
@@ -50,13 +75,24 @@
 }
 
 .group-tab.active {
-  border-bottom-color: var(--color-teal);
-  color: var(--color-teal);
+  border-color: var(--color-action-primary);
+  background: var(--color-surface-selected);
+  color: var(--color-action-primary);
 }
 
 .group-tab:focus-visible {
   outline: 2px solid var(--color-teal);
   outline-offset: -2px;
+}
+
+/* Forced colors replaces every background and border with a system pair, which flattens the
+   selected chip back into the row. The outline survives it, and the "Selected" text carries the
+   state either way. */
+@media (forced-colors: active) {
+  .group-tab.active {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
 }
 
 .settings-list-body {

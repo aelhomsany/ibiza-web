@@ -1,7 +1,7 @@
 /**
  * Whether this user has asked not to be sent to guided setup on sign-in.
  *
- * Sign-in redirected every HR Admin to `/onboarding` until setup completed, with no way to say
+ * Sign-in redirected every Organization Admin to `/onboarding` until setup completed, with no way to say
  * "not now" that survived the next login — so an admin signing in to approve a request was sent
  * somewhere else first, every time.
  *

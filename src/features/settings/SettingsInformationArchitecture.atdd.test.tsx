@@ -41,7 +41,7 @@ const mockTeamMembers: TeamMemberSummaryResponse[] = [
     fullName: 'Jordan Lee',
     email: 'jordan@company.com',
     department: 'People Ops',
-    role: 'HR_ADMIN',
+    role: 'ORGANIZATION_ADMIN',
     workforceGroupId: 1,
     workforceGroupName: 'US',
     managerId: undefined,
@@ -137,7 +137,7 @@ function renderSettings(initialPath = '/settings') {
     <MemoryRouter initialEntries={[initialPath]}>
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
-          <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+          <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
             <SettingsPage />
           </AuthTestProvider>
         </ToastProvider>
@@ -160,7 +160,7 @@ function renderSettingsWithDataRouter(initialPath = '/settings') {
         element: (
           <QueryClientProvider client={queryClient}>
             <ToastProvider>
-              <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+              <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
                 <SettingsPage />
               </AuthTestProvider>
             </ToastProvider>

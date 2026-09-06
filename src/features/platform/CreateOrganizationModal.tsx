@@ -22,7 +22,7 @@ export function CreateOrganizationModal({ onClose }: Props) {
   const createMutation = useCreateOrganization()
   const [name, setName] = useState('')
   const [primaryContact, setPrimaryContact] = useState('')
-  const [initialHrAdminEmail, setInitialHrAdminEmail] = useState('')
+  const [initialOrganizationAdminEmail, setInitialOrganizationAdminEmail] = useState('')
   const [plan, setPlan] = useState<Plan>('GROWTH')
   const [assistedHandoffId, setAssistedHandoffId] = useState<string>(NO_HANDOFF)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -39,7 +39,7 @@ export function CreateOrganizationModal({ onClose }: Props) {
       {
         name,
         primaryContact,
-        initialHrAdminEmail,
+        initialOrganizationAdminEmail,
         plan,
         // Omitted rather than sent empty: the server treats a blank handoff id as "none", but an
         // absent key says so without relying on that.
@@ -100,12 +100,12 @@ export function CreateOrganizationModal({ onClose }: Props) {
             </div>
 
             <div className="form-group">
-              <label htmlFor="org-initial-hr">{t('platform:create.fields.hrEmail')}</label>
+              <label htmlFor="org-initial-admin">{t('platform:create.fields.adminEmail')}</label>
               <input
-                id="org-initial-hr"
+                id="org-initial-admin"
                 type="email"
-                value={initialHrAdminEmail}
-                onChange={(event) => setInitialHrAdminEmail(event.target.value)}
+                value={initialOrganizationAdminEmail}
+                onChange={(event) => setInitialOrganizationAdminEmail(event.target.value)}
                 required
               />
             </div>

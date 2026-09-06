@@ -88,8 +88,8 @@ describe('UserMenu', () => {
     expect(within(panel).getByRole('separator')).toBeInTheDocument()
   })
 
-  it('[P0] shows Settings only for HR_ADMIN', async () => {
-    renderUserMenu('HR_ADMIN')
+  it('[P0] shows Settings only for ORGANIZATION_ADMIN', async () => {
+    renderUserMenu('ORGANIZATION_ADMIN')
     await openMenu()
 
     expect(screen.getByTestId('user-menu-item-settings')).toBeInTheDocument()
@@ -118,8 +118,8 @@ describe('UserMenu', () => {
     expect(screen.queryByTestId('user-menu-panel')).not.toBeInTheDocument()
   })
 
-  it('[P1] navigates HR admins to Settings and closes the menu', async () => {
-    renderUserMenu('HR_ADMIN')
+  it('[P1] navigates Organization admins to Settings and closes the menu', async () => {
+    renderUserMenu('ORGANIZATION_ADMIN')
     await openMenu()
 
     await userEvent.click(screen.getByTestId('user-menu-item-settings'))
@@ -168,7 +168,7 @@ describe('UserMenu', () => {
   })
 
   it('[P1] moves focus between items with ArrowDown and ArrowUp', async () => {
-    renderUserMenu('HR_ADMIN')
+    renderUserMenu('ORGANIZATION_ADMIN')
     await openMenu()
 
     const profile = screen.getByTestId('user-menu-item-profile')

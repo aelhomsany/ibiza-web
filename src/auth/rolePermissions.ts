@@ -11,7 +11,7 @@ import {
   SettingsIcon,
 } from '../components/ui/icons'
 
-export const ORG_ROLES = ['EMPLOYEE', 'MANAGER', 'HR_ADMIN'] as const satisfies readonly UserRole[]
+export const ORG_ROLES = ['EMPLOYEE', 'MANAGER', 'ORGANIZATION_ADMIN'] as const satisfies readonly UserRole[]
 
 export type OrgRole = (typeof ORG_ROLES)[number]
 
@@ -37,8 +37,40 @@ const ORG_BASE: NavCatalogItem[] = [
     requiredRoles: [...ORG_ROLES],
   },
   {
+    label: 'Approvals',
+    path: '/approvals',
+    icon: CheckCircleIcon,
+    testId: 'nav-approvals',
+    requiredRoles: ['MANAGER', 'ORGANIZATION_ADMIN'],
+  },
+  {
+    label: 'Reports',
+    path: '/reports',
+    icon: ReportIcon,
+    testId: 'nav-reports',
+    requiredRoles: ['ORGANIZATION_ADMIN'],
+  },
+  {
+    // Story 15.5: ORGANIZATION_ADMIN-gated like /settings, not capability-probed like /reports -- the
+    // Boundaries call for mirroring the /settings nav pattern exactly.
+    label: 'Data Import',
+    path: '/import',
+    icon: InboxIcon,
+    testId: 'nav-import',
+    requiredRoles: ['ORGANIZATION_ADMIN'],
+  },
+  {
+    label: 'Balance Corrections',
+    path: '/corrections',
+    icon: RefreshCwIcon,
+    testId: 'nav-corrections',
+    requiredRoles: ['ORGANIZATION_ADMIN'],
+  },
+  {
     // Plan PUENTE D-12: the personal cards (notification preferences, calendar sync/feed,
-    // "Your Slack") for every org role — org Settings below is HR_ADMIN only.
+    // "Your Slack") for every org role — Organization Settings below is ORGANIZATION_ADMIN only.
+    // Sits directly above it so the two Settings destinations read as a pair: the personal one
+    // first, then the organization-wide one an Organization Admin also sees.
     label: 'My settings',
     path: '/my-settings',
     icon: SettingsIcon,
@@ -46,37 +78,7 @@ const ORG_BASE: NavCatalogItem[] = [
     requiredRoles: [...ORG_ROLES],
   },
   {
-    label: 'Approvals',
-    path: '/approvals',
-    icon: CheckCircleIcon,
-    testId: 'nav-approvals',
-    requiredRoles: ['MANAGER', 'HR_ADMIN'],
-  },
-  {
-    label: 'Reports',
-    path: '/reports',
-    icon: ReportIcon,
-    testId: 'nav-reports',
-    requiredRoles: ['HR_ADMIN'],
-  },
-  {
-    // Story 15.5: HR_ADMIN-gated like /settings, not capability-probed like /reports -- the
-    // Boundaries call for mirroring the /settings nav pattern exactly.
-    label: 'Data Import',
-    path: '/import',
-    icon: InboxIcon,
-    testId: 'nav-import',
-    requiredRoles: ['HR_ADMIN'],
-  },
-  {
-    label: 'Balance Corrections',
-    path: '/corrections',
-    icon: RefreshCwIcon,
-    testId: 'nav-corrections',
-    requiredRoles: ['HR_ADMIN'],
-  },
-  {
-    label: 'Settings',
+    label: 'Organization Settings',
     path: '/settings',
     icon: SettingsIcon,
     testId: 'nav-settings',
@@ -104,11 +106,11 @@ export function getForbiddenRedirect(role: UserRole): string {
 
 export function getOrgNavItems(
   role: UserRole,
-  canReviewApprovals = role === 'MANAGER' || role === 'HR_ADMIN',
+  canReviewApprovals = role === 'MANAGER' || role === 'ORGANIZATION_ADMIN',
   // ADVANCED_REPORTING is COMING_SOON in the production catalog until Story 13.5, so
-  // an un-gated Reports item would send every HR admin to a denial banner. Callers that
+  // an un-gated Reports item would send every Organization admin to a denial banner. Callers that
   // know the plan pass the probe result; the default keeps role-only behavior.
-  canAccessReports = role === 'HR_ADMIN',
+  canAccessReports = role === 'ORGANIZATION_ADMIN',
 ): NavItem[] {
   if (role === 'PLATFORM_ADMIN') {
     return []
@@ -131,7 +133,7 @@ export function getOrgNavItems(
 export function canAccessOrgRoute(
   role: UserRole,
   pathname: string,
-  canReviewApprovals = role === 'MANAGER' || role === 'HR_ADMIN',
+  canReviewApprovals = role === 'MANAGER' || role === 'ORGANIZATION_ADMIN',
 ): boolean {
   if (role === 'PLATFORM_ADMIN') {
     return false
@@ -142,23 +144,23 @@ export function canAccessOrgRoute(
   }
 
   if (pathname === '/settings' || pathname.startsWith('/settings/')) {
-    return role === 'HR_ADMIN'
+    return role === 'ORGANIZATION_ADMIN'
   }
 
   if (pathname === '/reports' || pathname.startsWith('/reports/')) {
-    return role === 'HR_ADMIN'
+    return role === 'ORGANIZATION_ADMIN'
   }
 
   if (pathname === '/import' || pathname.startsWith('/import/')) {
-    return role === 'HR_ADMIN'
+    return role === 'ORGANIZATION_ADMIN'
   }
 
   if (pathname === '/corrections' || pathname.startsWith('/corrections/')) {
-    return role === 'HR_ADMIN'
+    return role === 'ORGANIZATION_ADMIN'
   }
 
   if (pathname === '/onboarding' || pathname.startsWith('/onboarding/')) {
-    return role === 'HR_ADMIN'
+    return role === 'ORGANIZATION_ADMIN'
   }
 
   return true

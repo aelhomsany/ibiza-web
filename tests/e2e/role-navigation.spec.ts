@@ -31,7 +31,7 @@ test.describe('Role-based navigation', { tag: [tags.regression, tags.api] }, () 
     await expect(page.getByTestId('nav-settings')).toHaveCount(0)
   })
 
-  test('HR Admin sees Approvals and Settings', async ({ page }) => {
+  test('Organization Admin sees Approvals and Settings', async ({ page }) => {
     await loginViaUi(page, { email: 'jordan@company.com', password })
 
     await expect(page.getByTestId('nav-approvals')).toBeVisible()
@@ -47,7 +47,7 @@ test.describe('Role-based navigation', { tag: [tags.regression, tags.api] }, () 
     await expect(page).toHaveURL('/calendar')
     await expect(page.getByTestId('nav-calendar')).toBeVisible()
     await expect(page.getByTestId('team-calendar-page')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Settings' })).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Organization Settings' })).toHaveCount(0)
   })
 
   test('Employee direct URL to approvals redirects to the team calendar', async ({ page }) => {

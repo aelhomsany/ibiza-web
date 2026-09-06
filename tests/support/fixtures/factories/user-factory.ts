@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker'
 export type TestUser = {
   email: string
   fullName: string
-  role: 'EMPLOYEE' | 'MANAGER' | 'HR_ADMIN'
+  role: 'EMPLOYEE' | 'MANAGER' | 'ORGANIZATION_ADMIN'
   timezone: string
 }
 

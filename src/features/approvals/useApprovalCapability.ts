@@ -9,7 +9,7 @@ export function approvalCapabilityQueryKey(userId: number | undefined) {
 export function useApprovalCapability() {
   const { user } = useAuth()
   const initialCapability = user?.canReviewApprovals
-    ?? (user?.role === 'MANAGER' || user?.role === 'HR_ADMIN')
+    ?? (user?.role === 'MANAGER' || user?.role === 'ORGANIZATION_ADMIN')
   return useQuery({
     queryKey: approvalCapabilityQueryKey(user?.id),
     queryFn: getApprovalCapability,
