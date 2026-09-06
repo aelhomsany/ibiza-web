@@ -76,7 +76,7 @@
   "firstUse": {
     "dismiss": "Not Now",
     "eyebrow": "First useful setup",
-    "nonBlocking": "You can keep using the Dashboard and resume this setup later.",
+    "nonBlocking": "You can keep using My Leaves and resume this setup later.",
     "progress": "{{current}} of {{total}}",
     "status": {
       "complete": "Complete",
@@ -181,7 +181,7 @@
     "educationEyebrow": "Working-day product guide",
     "educationResult": "Working days, counted clearly",
     "educationSummary": "Leaveo excludes weekends and holidays defined by your Workforce Group before charging a balance. Start Request Leave for your live result.",
-    "error": "We couldn't load your latest working-day result. Try again without losing the rest of your Dashboard.",
+    "error": "We couldn't load your latest working-day result. Try again; the rest of My Leaves remains available.",
     "eyebrow": "Understand",
     "latestEyebrow": "Stored result from your latest request",
     "loading": "Loading your latest working-day result…",

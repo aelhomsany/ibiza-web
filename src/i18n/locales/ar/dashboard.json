@@ -4,28 +4,28 @@
     "reviewNow": "مراجعة الآن"
   },
   "attention": {
-    "approvedTitle": "تمت الموافقة على طلبك الأخير",
+    "approvedTitle": "تم اعتماد طلبك الأخير",
     "declinedTitle": "هناك طلب يحتاج إلى مراجعتك",
     "emptyDescription": "خطة إجازاتك محدّثة. يمكنك بدء طلب عندما تحتاج إلى إجازة.",
     "emptyTitle": "لا شيء يحتاج إلى انتباهك",
-    "errorDescription": "لا يزال بإمكانك الاطلاع على الأرصدة وتغطية الفريق أدناه.",
+    "errorDescription": "لا يزال بإمكانك الاطلاع على الأرصدة وتوفر الفريق أدناه.",
     "errorTitle": "تعذر التحقق من خطوتك التالية",
     "eyebrow": "خطوتك التالية",
     "loadingApprovalsDescription": "جارٍ البحث عن الطلبات التي تحتاج إلى قرارك.",
-    "loadingApprovalsTitle": "جارٍ التحقق من الموافقات المعلّقة…",
+    "loadingApprovalsTitle": "جارٍ التحقق من طلبات الاعتماد المعلّقة…",
     "loadingRequestsDescription": "جارٍ البحث عن أهم تحديث في طلباتك.",
     "loadingRequestsTitle": "جارٍ التحقق من حالة طلبك…",
-    "pendingApprovals_zero": "لا توجد موافقات معلّقة",
-    "pendingApprovals_one": "موافقة معلّقة واحدة",
-    "pendingApprovals_two": "موافقتان معلّقتان",
-    "pendingApprovals_few": "{{count}} موافقات معلّقة",
-    "pendingApprovals_many": "{{count}} موافقة معلّقة",
-    "pendingApprovals_other": "{{count}} موافقة معلّقة",
+    "pendingApprovals_zero": "لا توجد طلبات اعتماد معلّقة",
+    "pendingApprovals_one": "طلب اعتماد معلّق واحد",
+    "pendingApprovals_two": "طلبا اعتماد معلّقان",
+    "pendingApprovals_few": "{{count}} طلبات اعتماد معلّقة",
+    "pendingApprovals_many": "{{count}} طلب اعتماد معلّقًا",
+    "pendingApprovals_other": "{{count}} طلب اعتماد معلّق",
     "pendingApprovalsDescription": "يساعد اتخاذ القرار على تحديث أرصدة الموظفين وخطط الفريق.",
-    "pendingRequestTitle": "طلب بانتظار الموافقة",
+    "pendingRequestTitle": "طلب إجازة بانتظار الاعتماد",
     "requestDescription": "{{type}} · {{dates}}",
     "requestDescriptionWithStatus": "{{type}} · {{dates}}. {{status}}",
-    "upcomingDescription": "تمت الموافقة على {{type}} لمدة {{days}}.",
+    "upcomingDescription": "تم اعتماد {{type}} لمدة {{days}}.",
     "upcomingTitle": "تبدأ إجازتك في {{date}}",
     "viewRequests": "عرض إجازاتي"
   },
@@ -51,7 +51,7 @@
   },
   "coverage": {
     "eyebrow": "تابع",
-    "loading": "جارٍ تحديث تغطية الفريق…",
+    "loading": "جارٍ تحديث بيانات توفر الفريق…",
     "loadingToday": "جارٍ تحميل غيابات الفريق اليوم…",
     "loadingUpcoming": "جارٍ تحميل غيابات الفريق القادمة…",
     "nextThirtyDays": "الثلاثون يومًا القادمة",
@@ -62,9 +62,9 @@
     "offState_many": "هناك {{count}} عضوًا في الفريق مسجلون في إجازة اليوم.",
     "offState_other": "هناك {{count}} عضو في الفريق مسجلون في إجازة اليوم.",
     "offToday": "في إجازة اليوم",
-    "partial": "بعض بيانات التغطية غير متاحة؛ تظهر الحقائق المتوفرة.",
-    "summaryLabel": "ملخص تغطية الفريق",
-    "title": "تغطية الفريق",
+    "partial": "بعض بيانات توفر الفريق غير متاحة؛ نعرض البيانات المتوفرة.",
+    "summaryLabel": "ملخص توفر الفريق",
+    "title": "توفر الفريق",
     "workingFromHomeToday": "يعملون من المنزل اليوم"
   },
   "errors": {
@@ -76,7 +76,7 @@
   "firstUse": {
     "dismiss": "ليس الآن",
     "eyebrow": "أول إعداد مفيد",
-    "nonBlocking": "يمكنك متابعة استخدام لوحة المعلومات واستئناف هذا الإعداد لاحقًا.",
+    "nonBlocking": "يمكنك متابعة استخدام صفحة «إجازاتي» والعودة إلى الإعداد لاحقًا.",
     "progress": "{{current}} من {{total}}",
     "status": {
       "complete": "مكتملة",
@@ -100,8 +100,8 @@
         "title": "معاينة عملية حساب"
       }
     },
-    "summary": "ثلاث مراجعات قصيرة تجعل أول حساب لإجازات الفريق موثوقًا.",
-    "title": "أعدّ حسابات موثوقة لأيام العمل"
+    "summary": "ثلاث خطوات قصيرة تضمن دقة أول عملية حساب لإجازات الفريق.",
+    "title": "اضبط حساب أيام العمل بدقة"
   },
   "greeting": "{{time}}، {{name}}!",
   "greetings": {
@@ -150,7 +150,7 @@
       "zero": "لا توجد أيام عمل في النطاق المحدد لمجموعة عمل {{name}}",
       "zeroResult": "لا توجد أيام عمل"
     },
-    "success": "تم إرسال طلب الإجازة — في انتظار الموافقة",
+    "success": "تم إرسال طلب الإجازة — بانتظار الاعتماد",
     "title": "طلب إجازة"
   },
   "sidebar": {
@@ -162,10 +162,10 @@
     "workingDays": "{{count}} يوم عمل"
   },
   "statusHints": {
-    "approved": "تمت الموافقة",
-    "approvedBy": "وافق عليه {{name}}",
-    "approvalProgress": "تمت الموافقة التشغيلية · تم توثيق {{recorded}} من {{total}} موافقات",
-    "pending": "بانتظار الموافقة"
+    "approved": "تم الاعتماد",
+    "approvedBy": "اعتمده {{name}}",
+    "approvalProgress": "تم الاعتماد تشغيليًا · سُجّل {{recorded}} من أصل {{total}} قرارات اعتماد",
+    "pending": "بانتظار الاعتماد"
   },
   "subtitle": "خطّط لإجازتك، وافهم ما يُحتسب، واعرف ما يحتاج إلى إجراء.",
   "table": {
@@ -181,7 +181,7 @@
     "educationEyebrow": "دليل احتساب أيام العمل",
     "educationResult": "أيام العمل محسوبة بوضوح",
     "educationSummary": "يستبعد Leaveo عطلات نهاية الأسبوع والعطلات الرسمية المحددة لمجموعة عملك قبل الخصم من الرصيد. ابدأ طلب إجازة لرؤية نتيجتك المباشرة.",
-    "error": "تعذر تحميل أحدث نتيجة لأيام العمل. حاول مرة أخرى من دون فقدان بقية لوحة المعلومات.",
+    "error": "تعذر تحميل أحدث نتيجة لأيام العمل. حاول مرة أخرى؛ ستظل بقية بيانات «إجازاتي» متاحة.",
     "eyebrow": "افهم",
     "latestEyebrow": "نتيجة محفوظة من طلبك الأخير",
     "loading": "جارٍ تحميل أحدث نتيجة لأيام العمل…",

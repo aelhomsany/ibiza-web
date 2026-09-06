@@ -42,7 +42,7 @@
     "results_two": "طلبان ظاهران",
     "results_zero": "لا توجد طلبات ظاهرة",
     "searchLabel": "البحث في سجل الطلبات",
-    "searchPlaceholder": "ابحث بالنوع أو التاريخ أو الحالة أو الموافق أو السبب",
+    "searchPlaceholder": "ابحث بالنوع أو التاريخ أو الحالة أو المعتمِد أو السبب",
     "statusLegend": "التصفية حسب الحالة",
     "title": "العثور على طلب"
   },
@@ -64,9 +64,9 @@
     "coverageFootnote": "من نفس مصدر بيانات تقويم الفريق مباشرة."
   },
   "requestContext": {
-    "approved": "تمت الموافقة",
-    "approvedBy": "وافق عليه {{name}}",
-    "approvalProgress": "تمت الموافقة التشغيلية · تم توثيق {{recorded}} من {{total}} موافقات",
+    "approved": "تم الاعتماد",
+    "approvedBy": "اعتمده {{name}}",
+    "approvalProgress": "تم الاعتماد تشغيليًا · سُجّل {{recorded}} من أصل {{total}} قرارات اعتماد",
     "audit": "سجل التدقيق",
     "dates": "التواريخ",
     "details": "تفاصيل الطلب",
@@ -75,7 +75,7 @@
     "leaveType": "نوع الإجازة",
     "loading": "جارٍ تحميل تفاصيل الطلب…",
     "notFound": "الطلب غير موجود",
-    "pending": "بانتظار الموافقة",
+    "pending": "بانتظار الاعتماد",
     "requester": "مقدم الطلب",
     "status": "الحالة",
     "unavailable": "تفاصيل الطلب غير متاحة.",

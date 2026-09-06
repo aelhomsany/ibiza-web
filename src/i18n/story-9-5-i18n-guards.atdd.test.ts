@@ -2,7 +2,7 @@
  * Story 9.5 ATDD — translation coverage CI guard, missing-key fallback,
  * pre-auth locale persistence. Implemented; kept as a regression suite.
  */
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -67,6 +67,37 @@ describe('Story 9.5 ATDD — i18n guards', () => {
         const arKeys = flatten(JSON.parse(readFileSync(arPath, 'utf8'))).sort()
         expect(arKeys, `ar key drift in ${ns}`).toEqual(enKeys)
       }
+    },
+  )
+
+  it(
+    '[P0] Arabic product copy keeps the current brand, navigation context, and core workflow glossary',
+    () => {
+      const arabicLocaleRoot = resolve(webRoot, 'src/i18n/locales/ar')
+      const arabicResources = readdirSync(arabicLocaleRoot)
+        .filter((file) => file.endsWith('.json'))
+        .map((file) => readFileSync(resolve(arabicLocaleRoot, file), 'utf8'))
+        .join('\n')
+
+      expect(arabicResources).not.toContain('إبيزا')
+
+      const calendar = JSON.parse(
+        readFileSync(resolve(arabicLocaleRoot, 'calendar.json'), 'utf8'),
+      ) as { view: { agenda: string } }
+      const approvals = JSON.parse(
+        readFileSync(resolve(arabicLocaleRoot, 'approvals.json'), 'utf8'),
+      ) as { approver: { assigned: string } }
+      const billing = JSON.parse(
+        readFileSync(resolve(arabicLocaleRoot, 'billing.json'), 'utf8'),
+      ) as { rail: { headroom: string } }
+      const dashboard = JSON.parse(
+        readFileSync(resolve(arabicLocaleRoot, 'dashboard.json'), 'utf8'),
+      ) as { firstUse: { nonBlocking: string } }
+
+      expect(calendar.view.agenda).toBe('العرض اليومي')
+      expect(approvals.approver.assigned).toContain('المعتمِد المعيّن')
+      expect(billing.rail.headroom).toBe('المقاعد المتاحة')
+      expect(dashboard.firstUse.nonBlocking).not.toContain('لوحة المعلومات')
     },
   )
 

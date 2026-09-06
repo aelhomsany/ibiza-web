@@ -14,7 +14,7 @@
   "brand": {
     "admin": "إدارة Leaveo",
     "name": "Leaveo",
-    "platformConsole": "منصة الإدارة",
+    "platformConsole": "لوحة إدارة المنصة",
     "tagline": "إدارة إجازات الفريق"
   },
   "comingSoon": "قريبًا.",
@@ -52,7 +52,7 @@
   },
   "routes": {
     "acceptInvitation": "قبول الدعوة",
-    "approvals": "الموافقات",
+    "approvals": "طلبات الاعتماد",
     "billing": "الخطة والفوترة",
     "calendar": "تقويم الفريق",
     "corrections": "تصحيحات الرصيد",
@@ -73,7 +73,7 @@
   },
   "status": {
     "active": "نشط",
-    "approved": "مقبول",
+    "approved": "معتمد",
     "declined": "مرفوض",
     "deactivated": "غير نشط",
     "pending": "قيد الانتظار",

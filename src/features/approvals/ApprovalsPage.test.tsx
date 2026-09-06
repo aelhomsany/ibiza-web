@@ -875,7 +875,7 @@ describe('ApprovalsPage', () => {
     const facts = await screen.findByTestId('approval-decision-facts-101')
     expect(document.documentElement).toHaveAttribute('dir', 'rtl')
     expect(document.documentElement).toHaveAttribute('lang', 'ar')
-    expect(facts).toHaveTextContent('حقائق القرار')
+    expect(facts).toHaveTextContent('بيانات القرار')
     expect(facts).toHaveTextContent('5 مجدولون')
     expect(facts).toHaveTextContent('المرحلة 1 من 2')
     // Arabic dual form — a bare {{count}} key would render the plural noun here.

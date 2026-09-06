@@ -442,11 +442,11 @@ describe('MyLeavesPage', () => {
     renderMyLeavesPage()
 
     const pendingRow = await screen.findByTestId('my-leaves-request-row-1')
-    expect(pendingRow).toHaveTextContent('بانتظار الموافقة')
+    expect(pendingRow).toHaveTextContent('بانتظار الاعتماد')
     expect(pendingRow).not.toHaveTextContent('Waiting for approval')
 
     const approvedRow = screen.getByTestId('my-leaves-request-row-3')
-    expect(approvedRow).toHaveTextContent('وافق عليه Alex')
+    expect(approvedRow).toHaveTextContent('اعتمده Alex')
     expect(approvedRow).not.toHaveTextContent('Approved by Alex')
   })
 
