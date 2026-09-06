@@ -187,11 +187,6 @@
         "subtitle": "ابحث عن الأعضاء وأدر الأدوار والتسلسل الإداري والمجموعات والاستحقاقات.",
         "title": "الأفراد"
       },
-      "schedules-locations": {
-        "label": "الجداول والمواقع",
-        "subtitle": "إدارة جداول أيام العمل الأسبوعية والمواقع، وتعيينها للمؤسسة أو مجموعات العمل أو أفراد محددين.",
-        "title": "جداول العمل والمواقع"
-      },
       "working-calendars": {
         "label": "تقويمات العمل",
         "subtitle": "حدد عطلات نهاية الأسبوع والعطلات الرسمية لكل مجموعة عمل مع توضيح الأثر قبل الحفظ.",
@@ -221,10 +216,11 @@
     "aria": {
       "list": "مجموعات العمل",
       "weekendDay": "{{day}} يوم عطلة أسبوعية",
-      "weekendDayFor": "{{day}} يوم عطلة أسبوعية لمجموعة {{name}}"
+      "weekendDayFor": "{{day}} يوم عطلة أسبوعية لمجموعة {{name}}",
+      "timezoneFor": "المنطقة الزمنية لمجموعة {{name}}",
+      "changeFromFor": "تاريخ تغيير العطلة الأسبوعية لمجموعة {{name}}"
     },
     "created": "تم إنشاء مجموعة العمل «{{name}}»",
-    "createdPartial": "تم إنشاء المجموعة — افتح علامة التبويب الجديدة لتحديث أيام العطلة الأسبوعية",
     "count": {
       "loading": "جارٍ حساب الأفراد المتأثرين…",
       "people_few": "{{count}} أفراد",
@@ -248,7 +244,6 @@
     "errors": {
       "create": "تعذر إنشاء مجموعة العمل",
       "load": "تعذر تحميل مجموعات العمل.",
-      "saveWeekend": "تعذر حفظ أيام العطلة الأسبوعية. حدّثها من علامة التبويب الجديدة.",
       "updateWeekend": "تعذر تحديث أيام العطلة الأسبوعية"
     },
     "groupName": "اسم المجموعة",
@@ -289,6 +284,105 @@
     "otherGroups": {
       "title": "المجموعات الأخرى",
       "switchHint": "بدّل المجموعة بالأعلى لتحرير إحداها."
+    },
+    "timezone": {
+      "label": "المنطقة الزمنية",
+      "help": "تحدد أي يوم يُعدّ «اليوم» لهذه المجموعة عند بدء سريان تغيير في أسبوع العمل.",
+      "defaultHint": "الافتراضي هو المنطقة الزمنية لمؤسستك.",
+      "saved": "أصبحت مجموعة {{name}} تستخدم {{zone}}.",
+      "saving": "جارٍ حفظ المنطقة الزمنية…",
+      "error": "تعذر تحديث المنطقة الزمنية"
+    },
+    "workingWeek": {
+      "changeFrom": "التغيير اعتبارًا من",
+      "changeFromHint": "اتركه فارغًا ليُطبّق من اليوم بحسب المنطقة الزمنية للمجموعة.",
+      "scheduledTitle": "التغييرات المجدولة",
+      "scheduledItem": "اعتبارًا من {{date}}: العطلة الأسبوعية في {{days}}",
+      "scheduledStatus": "تمت جدولة نمط عطلة الأسبوع لمجموعة {{name}} اعتبارًا من {{date}}. يبقى نمط اليوم ساريًا حتى ذلك الحين.",
+      "cancel": "إلغاء التغيير",
+      "cancelAria": "إلغاء التغيير المجدول لتاريخ {{date}}",
+      "cancelled": "أُلغي التغيير المجدول لتاريخ {{date}}.",
+      "errors": {
+        "cancel": "تعذر إلغاء التغيير المجدول"
+      }
+    },
+    "overrides": {
+      "title": "أفراد بنمط مختلف",
+      "help": "يحلّ أسبوع العمل الشخصي محلّ نمط المجموعة لفرد واحد اعتبارًا من تاريخ محدد. تبقى العطلات الرسمية تابعة للمجموعة.",
+      "add": "إضافة أفراد",
+      "empty": "جميع أفراد مجموعة {{name}} يتبعون نمط المجموعة.",
+      "loading": "جارٍ تحميل أسابيع العمل الشخصية…",
+      "unavailable": "أسابيع العمل الشخصية غير مشمولة في هذه الخطة.",
+      "count_zero": "لا أحد",
+      "count_one": "فرد واحد",
+      "count_two": "فردان",
+      "count_few": "{{count}} أفراد",
+      "count_many": "{{count}} فردًا",
+      "count_other": "{{count}} فرد",
+      "columns": {
+        "person": "الفرد",
+        "pattern": "أيام العطلة الأسبوعية",
+        "from": "اعتبارًا من",
+        "status": "الحالة"
+      },
+      "status": {
+        "CURRENT": "سارٍ",
+        "SCHEDULED": "مجدول",
+        "SUPERSEDED": "مُستبدَل"
+      },
+      "remove": "إزالة",
+      "removeAria": "إزالة أسبوع العمل الشخصي لـ {{name}}",
+      "removed": "عاد {{name}} إلى نمط المجموعة.",
+      "errors": {
+        "load": "تعذر تحميل أسابيع العمل الشخصية.",
+        "remove": "تعذر إزالة أسبوع العمل الشخصي"
+      },
+      "modal": {
+        "title": "منح أفراد أسبوع عمل خاصًا بهم",
+        "people": "أفراد مجموعة {{name}}",
+        "noPeople": "لا يوجد أفراد نشطون في هذه المجموعة بعد.",
+        "selectedCount_zero": "لم يُحدد أحد",
+        "selectedCount_one": "تم تحديد فرد واحد",
+        "selectedCount_two": "تم تحديد فردين",
+        "selectedCount_few": "تم تحديد {{count}} أفراد",
+        "selectedCount_many": "تم تحديد {{count}} فردًا",
+        "selectedCount_other": "تم تحديد {{count}} فرد",
+        "weekend": "أيام العطلة الأسبوعية",
+        "effectiveFrom": "اعتبارًا من",
+        "previewTitle": "الأثر",
+        "previewEmpty": "اعرض المعاينة لمعرفة من سيشمله هذا قبل التأكيد.",
+        "previewing": "جارٍ المعاينة…",
+        "previewResolved_zero": "لن يحصل أحد على أسبوع العمل هذا",
+        "previewResolved_one": "سيحصل فرد واحد على أسبوع العمل هذا",
+        "previewResolved_two": "سيحصل فردان على أسبوع العمل هذا",
+        "previewResolved_few": "سيحصل {{count}} أفراد على أسبوع العمل هذا",
+        "previewResolved_many": "سيحصل {{count}} فردًا على أسبوع العمل هذا",
+        "previewResolved_other": "سيحصل {{count}} فرد على أسبوع العمل هذا",
+        "actions": {
+          "preview": "معاينة",
+          "confirm": "تأكيد"
+        },
+        "created_zero": "لم يُضبط أي أسبوع عمل شخصي",
+        "created_one": "تم ضبط أسبوع العمل الشخصي لفرد واحد",
+        "created_two": "تم ضبط أسبوع العمل الشخصي لفردين",
+        "created_few": "تم ضبط أسبوع العمل الشخصي لـ {{count}} أفراد",
+        "created_many": "تم ضبط أسبوع العمل الشخصي لـ {{count}} فردًا",
+        "created_other": "تم ضبط أسبوع العمل الشخصي لـ {{count}} فرد",
+        "conflictReasons": {
+          "SUBJECT_NOT_FOUND": "تعذر العثور على {{name}} في هذه المؤسسة",
+          "NO_WORKFORCE_GROUP": "{{name}} ليس ضمن أي مجموعة عمل",
+          "DUPLICATE_IN_BATCH": "{{name}} محدد أكثر من مرة في هذه الدفعة"
+        },
+        "errors": {
+          "incomplete": "حدد فردًا واحدًا على الأقل ويوم عطلة أسبوعية وتاريخ بدء قبل المعاينة.",
+          "overCap": "حدد 500 فرد أو أقل في كل دفعة.",
+          "preview": "تعذرت معاينة الدفعة. حاول مجددًا.",
+          "commit": "تعذر ضبط أسابيع العمل. حاول مجددًا.",
+          "capabilityUnavailable": "أسابيع العمل الشخصية غير مشمولة في هذه الخطة، لذا لا يمكن حفظ هذا.",
+          "conflict": "جرى تغيير واحد أو أكثر من هؤلاء الأفراد في الوقت نفسه. أعد المعاينة وحاول مجددًا.",
+          "idempotencyConflict": "تعذر مطابقة هذا التأكيد مع الدفعة التي عاينتها. أعد المعاينة قبل التأكيد."
+        }
+      }
     }
   },
   "holidays": {
@@ -721,189 +815,6 @@
     },
     "success": {
       "published": "تم نشر السياسة"
-    }
-  },
-  "schedules": {
-    "title": "جداول العمل والمواقع",
-    "subtitle": "إدارة جداول أيام العمل الأسبوعية والمواقع، وتعيينها للمؤسسة أو مجموعات العمل أو أفراد محددين.",
-    "sections": {
-      "schedules": "جداول العمل",
-      "locations": "المواقع",
-      "assignments": "التعيينات"
-    },
-    "actions": {
-      "newSchedule": "جدول جديد",
-      "newVersion": "إصدار جديد",
-      "newLocation": "موقع جديد",
-      "newAssignment": "تعيين جديد",
-      "bulkAssignment": "تعيين جماعي",
-      "newVersionFor": "إصدار جديد من {{scheduleName}}"
-    },
-    "empty": {
-      "schedules": "لا توجد جداول عمل بعد. أنشئ جدولاً لتحديد نمط أيام العمل الأسبوعي.",
-      "locations": "لا توجد مواقع بعد. أنشئ موقعًا لربط منطقة زمنية بمصدر عطلات.",
-      "assignments": "لا توجد تعيينات بعد. عيّن جدولاً وموقعًا للبدء."
-    },
-    "schedule": {
-      "modalTitle": "جدول عمل جديد",
-      "versionModalTitle": "إصدار جدول جديد",
-      "name": "اسم الجدول",
-      "namePlaceholder": "مثال: أسبوع قياسي",
-      "workingDays": "أيام العمل",
-      "selectWorkingDays": "اختر يوم عمل واحدًا على الأقل",
-      "created": "تم إنشاء جدول العمل «{{name}}»",
-      "versionCreated": "تم إنشاء إصدار جدول جديد",
-      "errors": {
-        "create": "تعذّر إنشاء جدول العمل. حاول مرة أخرى.",
-        "createVersion": "تعذّر إنشاء الإصدار الجديد. حاول مرة أخرى."
-      },
-      "versionSummary": "إصدار {{versionNumber}}: {{days}}",
-      "columns": {
-        "name": "الجدول",
-        "workingDays": "أيام العمل",
-        "actions": "الإجراءات"
-      },
-      "cardDescription": "أنماط أيام العمل الأسبوعية التي يمكنك إسنادها إلى المجموعات أو الأفراد.",
-      "versionLabel": "الإصدار {{versionNumber}}"
-    },
-    "location": {
-      "modalTitle": "موقع جديد",
-      "name": "اسم الموقع",
-      "namePlaceholder": "مثال: مكتب القاهرة",
-      "timezone": "المنطقة الزمنية (IANA)",
-      "timezonePlaceholder": "Africa/Cairo",
-      "holidaySource": "مصدر العطلات",
-      "selectHolidaySource": "اختر مجموعة العمل التي تُطبَّق عطلاتها الرسمية",
-      "created": "تم إنشاء الموقع «{{name}}»",
-      "errors": {
-        "create": "تعذّر إنشاء الموقع. حاول مرة أخرى.",
-        "incomplete": "أدخل الاسم والمنطقة الزمنية ومصدر العطلات قبل الحفظ."
-      },
-      "noGroups": "— لا توجد مجموعات عمل بعد —",
-      "noGroupsHint": "يأخذ الموقع عطلاته الرسمية من مجموعة عمل، ولا توجد أي مجموعة بعد. أنشئ مجموعة أولاً ثم عد لإضافة الموقع.",
-      "noGroupsAction": "إنشاء مجموعة عمل",
-      "columns": {
-        "name": "الموقع",
-        "timezone": "المنطقة الزمنية"
-      },
-      "cardDescription": "المناطق الزمنية التي تُحتسب على أساسها أيام عمل كل مجموعة."
-    },
-    "assignment": {
-      "modalTitle": "تعيين جدول وموقع",
-      "scope": "النطاق",
-      "subject": "الجهة المعنية",
-      "selectSubject": "اختر جهة",
-      "scheduleVersion": "إصدار الجدول",
-      "versionOption": "{{scheduleName}} · إصدار {{versionNumber}}",
-      "selectScheduleVersion": "اختر إصدار جدول",
-      "location": "الموقع",
-      "selectLocation": "اختر موقعًا",
-      "effectiveFrom": "ساري من",
-      "columns": {
-        "assignedTo": "معيَّن إلى",
-        "location": "الموقع",
-        "membersAffected": "الأعضاء المتأثرون",
-        "schedule": "الجدول",
-        "scheduleValue": "{{schedule}} · إصدار {{versionNumber}}"
-      },
-      "previewTitle": "الأثر",
-      "previewEmpty": "عاين التعيين لمعرفة من سيتأثر به قبل التأكيد.",
-      "previewing": "جارٍ المعاينة…",
-      "previewAffected_zero": "لا يتأثر أي عضو",
-      "previewAffected_one": "عضو واحد متأثر",
-      "previewAffected_two": "عضوان متأثران",
-      "previewAffected_few": "{{count}} أعضاء متأثرين",
-      "previewAffected_many": "{{count}} عضوًا متأثرًا",
-      "previewAffected_other": "{{count}} عضو متأثر",
-      "actions": {
-        "preview": "معاينة",
-        "confirm": "تأكيد التعيين"
-      },
-      "created": "تم إنشاء التعيين",
-      "scopes": {
-        "organization": "المؤسسة بأكملها",
-        "group": "مجموعة عمل",
-        "user": "فرد محدد"
-      },
-      "errors": {
-        "incomplete": "اختر النطاق والجهة وإصدار الجدول والموقع وتاريخ السريان قبل المعاينة.",
-        "preview": "تعذّرت معاينة التعيين. حاول مرة أخرى.",
-        "commit": "تعذّر إنشاء التعيين. حاول مرة أخرى.",
-        "capabilityUnavailable": "جداول العمل والمواقع غير متاحة لهذه المؤسسة حاليًا، لذا لا يمكن الحفظ. تواصل مع الدعم إذا كنت تعتقد أن هذا خطأ.",
-        "conflict": "يوجد تعيين بالفعل لهذا النطاق والجهة وتاريخ السريان. اختر تاريخًا أو جهة مختلفة."
-      },
-      "effectiveFromValue": "ساري من {{date}}",
-      "previewShadowed_zero": "لا يحتفظ أي عضو بتعيين أكثر تحديدًا",
-      "previewShadowed_one": "عضو واحد يحتفظ بتعيين أكثر تحديدًا ولا يتأثر",
-      "previewShadowed_two": "عضوان يحتفظان بتعيين أكثر تحديدًا ولا يتأثران",
-      "previewShadowed_few": "{{count}} أعضاء يحتفظون بتعيين أكثر تحديدًا ولا يتأثرون",
-      "previewShadowed_many": "{{count}} عضوًا يحتفظون بتعيين أكثر تحديدًا ولا يتأثرون",
-      "previewShadowed_other": "{{count}} عضو يحتفظ بتعيين أكثر تحديدًا ولا يتأثر",
-      "cardDescription": "الجدول والموقع اللذان يحكمان كل مجموعة عمل."
-    },
-    "bulkAssignment": {
-      "modalTitle": "تعيين جدول وموقع لعدة أشخاص",
-      "subjects": "الأشخاص",
-      "selectedCount_zero": "لم يتم اختيار أي شخص",
-      "selectedCount_one": "تم اختيار شخص واحد",
-      "selectedCount_two": "تم اختيار شخصين",
-      "selectedCount_few": "تم اختيار {{count}} أشخاص",
-      "selectedCount_many": "تم اختيار {{count}} شخصًا",
-      "selectedCount_other": "تم اختيار {{count}} شخص",
-      "scheduleVersion": "إصدار الجدول",
-      "versionOption": "{{scheduleName}} · إصدار {{versionNumber}}",
-      "selectScheduleVersion": "اختر إصدار جدول",
-      "location": "الموقع",
-      "selectLocation": "اختر موقعًا",
-      "effectiveFrom": "ساري من",
-      "previewTitle": "الأثر",
-      "previewEmpty": "عاين الدفعة لمعرفة من سيتأثر بها قبل التأكيد.",
-      "previewing": "جارٍ المعاينة…",
-      "previewAffected_zero": "لن يتم تعيين أي عضو",
-      "previewAffected_one": "سيتم تعيين عضو واحد",
-      "previewAffected_two": "سيتم تعيين عضوين",
-      "previewAffected_few": "سيتم تعيين {{count}} أعضاء",
-      "previewAffected_many": "سيتم تعيين {{count}} عضوًا",
-      "previewAffected_other": "سيتم تعيين {{count}} عضو",
-      "actions": {
-        "preview": "معاينة",
-        "confirm": "تأكيد التعيين الجماعي"
-      },
-      "created_zero": "لم يتم إنشاء أي تعيين",
-      "created_one": "تم إنشاء تعيين لشخص واحد",
-      "created_two": "تم إنشاء تعيينات لشخصين",
-      "created_few": "تم إنشاء تعيينات لـ {{count}} أشخاص",
-      "created_many": "تم إنشاء تعيينات لـ {{count}} شخصًا",
-      "created_other": "تم إنشاء تعيينات لـ {{count}} شخص",
-      "conflictReasons": {
-        "SUBJECT_NOT_FOUND": "تعذّر العثور على {{name}} في هذه المؤسسة",
-        "ALREADY_ASSIGNED": "لدى {{name}} تعيين بالفعل لهذا التاريخ",
-        "DUPLICATE_IN_BATCH": "تم اختيار {{name}} أكثر من مرة في هذه الدفعة"
-      },
-      "errors": {
-        "incomplete": "اختر شخصًا واحدًا على الأقل وإصدار الجدول والموقع وتاريخ السريان قبل المعاينة.",
-        "overCap": "اختر 500 شخص أو أقل في الدفعة الواحدة.",
-        "preview": "تعذّرت معاينة الدفعة. حاول مرة أخرى.",
-        "commit": "تعذّر إنشاء التعيين الجماعي. حاول مرة أخرى.",
-        "capabilityUnavailable": "جداول العمل والمواقع غير متاحة لهذه المؤسسة حاليًا، لذا لا يمكن الحفظ. تواصل مع الدعم إذا كنت تعتقد أن هذا خطأ.",
-        "conflict": "لدى شخص أو أكثر في هذه الدفعة تعيين بالفعل لهذا التاريخ. راجع قائمة الأثر وحاول مرة أخرى.",
-        "idempotencyConflict": "تعذّر مطابقة هذا التأكيد مع الدفعة التي عاينتها. عاين مرة أخرى قبل التأكيد."
-      }
-    },
-    "capabilityUnavailable": "جداول العمل والمواقع غير متاحة لهذه المؤسسة حاليًا. تواصل مع الدعم إذا كنت تعتقد أن هذا خطأ.",
-    "coverage": {
-      "title": "التغطية",
-      "schedules": "الجداول",
-      "locations": "المواقع",
-      "assignments": "الإسنادات",
-      "peopleCovered": "الأشخاص المشمولون",
-      "unassigned": "بلا إسناد",
-      "ofTotal": "{{covered}} من {{total}}"
-    },
-    "headsUp": {
-      "title": "تنبيه",
-      "unassigned": "الأشخاص بلا إسناد يعودون إلى الصف الذي يشمل المؤسسة كلها، إن وُجد.",
-      "singleTimezone": "كل المواقع تُحتسب بتوقيت {{timezone}}."
     }
   },
   "subtitle": "سياسات الشركة والفريق واستحقاقات الإجازات",

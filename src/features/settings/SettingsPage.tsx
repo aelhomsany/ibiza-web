@@ -20,7 +20,6 @@ import { CloseIcon } from '../../components/ui/icons'
 import { LeaveTypesCard } from './LeaveTypesCard'
 import { TeamMembersCard } from './TeamMembersCard'
 import { WorkforceGroupsWeekendsCard } from './WorkforceGroupsWeekendsCard'
-import { ScheduleLocationSettingsPage } from './ScheduleLocationSettingsPage'
 import { CalendarPrivacySettingsPage } from './CalendarPrivacySettingsPage'
 import { ChatNotificationsNotes, ChatNotificationsSettings } from './ChatNotificationsSettings'
 import { SlackWorkspaceNotes, SlackWorkspaceSettings } from './SlackWorkspaceSettings'
@@ -421,13 +420,6 @@ export function SettingsPage() {
                     })
                   }
                 }}
-                onSuccess={showSuccessToast}
-                onWarning={showWarningToast}
-              />
-            )}
-
-            {activeCategory === 'schedules-locations' && (
-              <ScheduleLocationSettingsPage
                 onSuccess={showSuccessToast}
                 onWarning={showWarningToast}
               />

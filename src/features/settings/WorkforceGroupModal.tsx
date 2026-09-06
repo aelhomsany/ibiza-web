@@ -1,11 +1,12 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isolate } from '../../i18n/bidi'
-import { createWorkforceGroup, putWorkforceGroupWeekendDays } from '../../api/client'
+import { createWorkforceGroup } from '../../api/client'
 import type { DayOfWeek } from '../../api/generated/types'
 import { Modal } from '../../components/ui/Modal'
 import { CloseIcon } from '../../components/ui/icons'
-import { WEEKEND_DAYS_DISPLAY } from './weekendDays'
+import { availableTimezones } from '../../lib/timezones'
+import { WeekendDayChips } from './WeekendDayChips'
 import './team-members.css'
 import './weekend-day-chips.css'
 
@@ -16,6 +17,8 @@ type WorkforceGroupModalProps = {
    * into it, and the copy says so instead of the neutral "group created".
    */
   isFirstGroup?: boolean
+  /** Pre-selected zone: the organization's operational zone, which is also the server default. */
+  defaultTimezone: string
   onClose: () => void
   onSuccess: (message: string, newGroupId: number) => void
   onWarning?: (message: string) => void
@@ -23,27 +26,29 @@ type WorkforceGroupModalProps = {
 
 const DEFAULT_WEEKEND_DAYS: DayOfWeek[] = ['FRIDAY', 'SATURDAY']
 
+/**
+ * Plan UNO: a group is created in one request carrying its name, time zone and weekend pattern,
+ * so there is no half-created group whose weekend save failed after the name was taken.
+ */
 export function WorkforceGroupModal({
   isFirstGroup = false,
+  defaultTimezone,
   onClose,
   onSuccess,
   onWarning,
 }: WorkforceGroupModalProps) {
   const { t } = useTranslation(['settings', 'common'])
   const [name, setName] = useState('')
+  const [timezone, setTimezone] = useState(defaultTimezone)
   const [weekendDays, setWeekendDays] = useState<DayOfWeek[]>(DEFAULT_WEEKEND_DAYS)
   const [submitting, setSubmitting] = useState(false)
+  const timezoneOptions = useMemo(() => availableTimezones(defaultTimezone), [defaultTimezone])
 
-  function toggleWeekendDay(day: DayOfWeek, checked: boolean) {
-    const next = checked
-      ? [...weekendDays, day]
-      : weekendDays.filter((value) => value !== day)
-
+  function changeWeekendDays(next: DayOfWeek[]) {
     if (next.length === 0) {
       onWarning?.(t('settings:groups.selectWeekend'))
       return
     }
-
     setWeekendDays(next)
   }
 
@@ -62,25 +67,18 @@ export function WorkforceGroupModal({
 
     setSubmitting(true)
     try {
-      const created = await createWorkforceGroup({ name: trimmedName })
+      const created = await createWorkforceGroup({ name: trimmedName, timezone, weekendDays })
       if (!created.id) {
         onWarning?.(t('settings:groups.errors.create'))
         return
       }
-      const groupId = created.id
-      try {
-        await putWorkforceGroupWeekendDays(groupId, weekendDays)
-        onSuccess(
-          t(
-            isFirstGroup ? 'settings:groups.createdFirst' : 'settings:groups.created',
-            { name: isolate(trimmedName) },
-          ),
-          groupId,
-        )
-      } catch {
-        onSuccess(t('settings:groups.createdPartial'), groupId)
-        onWarning?.(t('settings:groups.errors.saveWeekend'))
-      }
+      onSuccess(
+        t(
+          isFirstGroup ? 'settings:groups.createdFirst' : 'settings:groups.created',
+          { name: isolate(trimmedName) },
+        ),
+        created.id,
+      )
       onClose()
     } catch {
       onWarning?.(t('settings:groups.errors.create'))
@@ -114,28 +112,30 @@ export function WorkforceGroupModal({
           </div>
 
           <div className="form-group">
+            <label htmlFor="group-timezone">{t('settings:groups.timezone.label')}</label>
+            <select
+              id="group-timezone"
+              data-testid="group-timezone"
+              value={timezone}
+              disabled={submitting}
+              onChange={(event) => setTimezone(event.target.value)}
+            >
+              {timezoneOptions.map((zone) => (
+                <option key={zone} value={zone}>
+                  {zone}
+                </option>
+              ))}
+            </select>
+            <p className="form-hint">{t('settings:groups.timezone.defaultHint')}</p>
+          </div>
+
+          <div className="form-group">
             <label>{t('settings:groups.defaultWeekend')}</label>
-            <div className="weekend-chips">
-              {WEEKEND_DAYS_DISPLAY.map(({ value }) => {
-                const label = t(`settings:days.${value}`)
-                const isActive = weekendDays.includes(value)
-                return (
-                  <label
-                    key={value}
-                    className={`weekend-chip${isActive ? ' active' : ''}${submitting ? ' disabled' : ''}`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isActive}
-                      disabled={submitting}
-                      aria-label={t('settings:groups.aria.weekendDay', { day: label })}
-                      onChange={(event) => toggleWeekendDay(value, event.target.checked)}
-                    />
-                    {label}
-                  </label>
-                )
-              })}
-            </div>
+            <WeekendDayChips
+              weekendDays={weekendDays}
+              disabled={submitting}
+              onChange={changeWeekendDays}
+            />
           </div>
 
           <div className="modal-actions">

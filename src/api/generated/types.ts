@@ -12,7 +12,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Update weekend days for a workforce group */
+        /** Set the working week from a date (today by default; a future date schedules the change) */
         put: operations["updateWeekendDays"];
         post?: never;
         delete?: never;
@@ -28,10 +28,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List workforce groups for the current organization */
+        /** List workforce groups with the working week in force today and any scheduled changes */
         get: operations["list"];
         put?: never;
-        /** Create a workforce group */
+        /** Create a workforce group with its time zone and working week */
         post: operations["create"];
         delete?: never;
         options?: never;
@@ -92,25 +92,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/settings/schedules": {
+    "/api/v1/settings/working-week-overrides": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List Work Schedules and their versions */
-        get: operations["listWorkSchedules"];
+        /** List every personal working-week version */
+        get: operations["listWorkingWeekOverrides"];
         put?: never;
-        /** Create a Work Schedule and its first version */
-        post: operations["createWorkSchedule"];
+        /** Give the selected people a personal working week */
+        post: operations["commitWorkingWeekOverride"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/settings/schedules/{schedulePublicId}/versions": {
+    "/api/v1/settings/working-week-overrides/preview": {
         parameters: {
             query?: never;
             header?: never;
@@ -119,95 +119,8 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Append a new immutable Work Schedule version */
-        post: operations["createWorkScheduleVersion"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/settings/schedule-assignments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List current schedule/location assignments */
-        get: operations["listScheduleAssignments"];
-        put?: never;
-        /** Commit a schedule/location assignment */
-        post: operations["commitScheduleAssignment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/settings/schedule-assignments/preview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Preview a schedule/location assignment's affected members */
-        post: operations["previewScheduleAssignment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/settings/schedule-assignments/bulk": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Commit a bulk schedule/location assignment */
-        post: operations["commitBulkScheduleAssignment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/settings/schedule-assignments/bulk/preview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Preview a bulk schedule/location assignment's affected members and conflicts */
-        post: operations["previewBulkScheduleAssignment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/settings/locations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List Location Contexts */
-        get: operations["listLocationContexts"];
-        put?: never;
-        /** Create a Location Context */
-        post: operations["createLocationContext"];
+        /** Preview which of the selected people would receive the working week and which would conflict */
+        post: operations["previewWorkingWeekOverride"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1195,7 +1108,7 @@ export interface paths {
         delete: operations["delete"];
         options?: never;
         head?: never;
-        /** Rename a workforce group */
+        /** Rename a workforce group and/or move its time zone */
         patch: operations["update"];
         trace?: never;
     };
@@ -1249,23 +1162,6 @@ export interface paths {
         head?: never;
         /** Update team member lifecycle status */
         patch: operations["updateStatus"];
-        trace?: never;
-    };
-    "/api/v1/settings/schedules/{schedulePublicId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Rename a Work Schedule */
-        patch: operations["renameWorkSchedule"];
         trace?: never;
     };
     "/api/v1/settings/operational-timezone": {
@@ -1438,23 +1334,6 @@ export interface paths {
         };
         /** Stream the caller's profile image */
         get: operations["getProfileImageContent"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/settings/schedule-assignments/coverage": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Count active members governed by any schedule/location assignment */
-        get: operations["getScheduleAssignmentCoverage"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2150,6 +2029,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workforce-groups/{id}/weekend-days/{versionPublicId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Cancel a scheduled working-week change that has not taken effect yet */
+        delete: operations["cancelScheduledChange"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/working-week-overrides/{versionPublicId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove one personal working-week version */
+        delete: operations["removeWorkingWeekOverride"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/chat/slack": {
         parameters: {
             query?: never;
@@ -2190,16 +2103,32 @@ export interface components {
     schemas: {
         UpdateWeekendDaysRequest: {
             weekendDays?: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
+            /** Format: date */
+            effectiveFrom?: string;
             distinctWeekendDays?: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
+        };
+        ScheduledWorkingWeekChange: {
+            publicId?: string;
+            weekendDays?: string[];
+            /** Format: date */
+            effectiveFrom?: string;
         };
         WorkforceGroupResponse: {
             /** Format: int64 */
             id?: number;
             name?: string;
+            timezone?: string;
             weekendDays?: string[];
+            /** Format: date */
+            currentEffectiveFrom?: string;
+            scheduledChanges?: components["schemas"]["ScheduledWorkingWeekChange"][];
+            /** Format: int64 */
+            overrideCount?: number;
         };
         CreateWorkforceGroupRequest: {
             name?: string;
+            timezone?: string;
+            weekendDays?: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
         };
         UserSummaryResponse: {
             /** Format: int64 */
@@ -2279,110 +2208,35 @@ export interface components {
             status?: string;
             activeSeat?: boolean;
         };
-        CreateWorkScheduleRequest: {
-            name?: string;
-            workingDays?: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
-        };
-        WorkScheduleResponse: {
-            schedulePublicId?: string;
-            name?: string;
-            versions?: components["schemas"]["WorkScheduleVersionResponse"][];
-        };
-        WorkScheduleVersionResponse: {
-            versionPublicId?: string;
-            /** Format: int32 */
-            versionNumber?: number;
-            workingDays?: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
-        };
-        CreateWorkScheduleVersionRequest: {
-            workingDays?: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
-        };
-        ScheduleAssignmentRequest: {
-            /** @enum {string} */
-            scope: "ORGANIZATION" | "WORKFORCE_GROUP" | "USER";
-            subjectPublicId?: string;
-            scheduleVersionPublicId?: string;
-            locationPublicId?: string;
-            /** Format: date */
-            effectiveFrom: string;
-        };
-        ScheduleAssignmentResponse: {
-            assignmentPublicId?: string;
-            scheduleVersionPublicId?: string;
-            locationPublicId?: string;
-            /** @enum {string} */
-            scope?: "ORGANIZATION" | "WORKFORCE_GROUP" | "USER";
-            subjectPublicId?: string;
-            /** Format: date */
-            effectiveFrom?: string;
-            /** Format: int32 */
-            affectedMemberCount?: number;
-        };
-        ScheduleAssignmentMemberImpact: {
-            memberPublicId?: string;
-        };
-        ScheduleAssignmentPreviewResponse: {
-            /** @enum {string} */
-            scope?: "ORGANIZATION" | "WORKFORCE_GROUP" | "USER";
-            subjectPublicId?: string;
-            scheduleVersionPublicId?: string;
-            locationPublicId?: string;
-            /** Format: date */
-            effectiveFrom?: string;
-            /** Format: int32 */
-            affectedMemberCount?: number;
-            /** Format: int32 */
-            shadowedMemberCount?: number;
-            members?: components["schemas"]["ScheduleAssignmentMemberImpact"][];
-        };
-        BulkScheduleAssignmentRequest: {
+        WorkingWeekOverrideRequest: {
             subjectIds: string[];
-            scheduleVersionPublicId?: string;
-            locationPublicId?: string;
+            weekendDays: ("MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY")[];
             /** Format: date */
             effectiveFrom: string;
         };
-        BulkScheduleAssignmentResult: {
-            scheduleVersionPublicId?: string;
-            locationPublicId?: string;
+        WorkingWeekOverrideResult: {
+            commitPublicId?: string;
+            weekendDays?: string[];
             /** Format: date */
             effectiveFrom?: string;
             /** Format: int32 */
             subjectCount?: number;
             /** Format: int32 */
-            affectedMemberCount?: number;
+            resolvedCount?: number;
         };
-        BulkScheduleAssignmentConflict: {
+        WorkingWeekOverrideConflict: {
             subjectId?: string;
             reason?: string;
         };
-        BulkScheduleAssignmentPreviewResponse: {
-            scheduleVersionPublicId?: string;
-            locationPublicId?: string;
+        WorkingWeekOverridePreviewResponse: {
+            weekendDays?: string[];
             /** Format: date */
             effectiveFrom?: string;
             /** Format: int32 */
             subjectCount?: number;
             /** Format: int32 */
-            affectedMemberCount?: number;
-            conflicts?: components["schemas"]["BulkScheduleAssignmentConflict"][];
-        };
-        CreateLocationContextRequest: {
-            name?: string;
-            code?: string;
-            country?: string;
-            region?: string;
-            ianaTimezone?: string;
-            holidayWorkforceGroupPublicId?: string;
-        };
-        LocationContextResponse: {
-            locationPublicId?: string;
-            name?: string;
-            code?: string;
-            country?: string;
-            region?: string;
-            ianaTimezone?: string;
-            holidayWorkforceGroupPublicId?: string;
+            resolvedCount?: number;
+            conflicts?: components["schemas"]["WorkingWeekOverrideConflict"][];
         };
         CreateLeaveTypeRequest: {
             name: string;
@@ -3421,6 +3275,7 @@ export interface components {
         };
         UpdateWorkforceGroupRequest: {
             name?: string;
+            timezone?: string;
         };
         UpdateUserPreferencesRequest: {
             preferredLanguage?: string;
@@ -3444,6 +3299,7 @@ export interface components {
         TeamMemberSummaryResponse: {
             /** Format: int64 */
             id?: number;
+            publicId?: string;
             fullName?: string;
             email?: string;
             department?: string;
@@ -3457,9 +3313,6 @@ export interface components {
             status?: string;
             /** Format: date-time */
             deactivatedAt?: string;
-        };
-        UpdateWorkScheduleRequest: {
-            name?: string;
         };
         UpdateOperationalTimezoneRequest: {
             timezone?: string;
@@ -3594,13 +3447,17 @@ export interface components {
             mutedUntil?: string;
             effectiveEnabledNow?: boolean;
         };
-        ScheduleAssignmentCoverageResponse: {
-            /** Format: int32 */
-            activeMemberCount?: number;
-            /** Format: int32 */
-            coveredMemberCount?: number;
-            /** Format: int32 */
-            unassignedMemberCount?: number;
+        WorkingWeekOverrideResponse: {
+            versionPublicId?: string;
+            subjectId?: string;
+            fullName?: string;
+            /** Format: int64 */
+            workforceGroupId?: number;
+            workforceGroupName?: string;
+            weekendDays?: string[];
+            /** Format: date */
+            effectiveFrom?: string;
+            status?: string;
         };
         ImpactSummary: {
             /** Format: int32 */
@@ -4318,7 +4175,7 @@ export interface operations {
             };
         };
     };
-    listWorkSchedules: {
+    listWorkingWeekOverrides: {
         parameters: {
             query?: never;
             header?: never;
@@ -4333,130 +4190,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["WorkScheduleResponse"][];
+                    "*/*": components["schemas"]["WorkingWeekOverrideResponse"][];
                 };
             };
         };
     };
-    createWorkSchedule: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateWorkScheduleRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["WorkScheduleResponse"];
-                };
-            };
-        };
-    };
-    createWorkScheduleVersion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                schedulePublicId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateWorkScheduleVersionRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["WorkScheduleVersionResponse"];
-                };
-            };
-        };
-    };
-    listScheduleAssignments: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ScheduleAssignmentResponse"][];
-                };
-            };
-        };
-    };
-    commitScheduleAssignment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ScheduleAssignmentRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ScheduleAssignmentResponse"];
-                };
-            };
-        };
-    };
-    previewScheduleAssignment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ScheduleAssignmentRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ScheduleAssignmentPreviewResponse"];
-                };
-            };
-        };
-    };
-    commitBulkScheduleAssignment: {
+    commitWorkingWeekOverride: {
         parameters: {
             query?: never;
             header?: {
@@ -4467,7 +4206,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["BulkScheduleAssignmentRequest"];
+                "application/json": components["schemas"]["WorkingWeekOverrideRequest"];
             };
         };
         responses: {
@@ -4477,7 +4216,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["BulkScheduleAssignmentResult"];
+                    "*/*": components["schemas"]["WorkingWeekOverrideResult"];
                 };
             };
             /** @description Committed for the first time */
@@ -4486,12 +4225,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["BulkScheduleAssignmentResult"];
+                    "*/*": components["schemas"]["WorkingWeekOverrideResult"];
                 };
             };
         };
     };
-    previewBulkScheduleAssignment: {
+    previewWorkingWeekOverride: {
         parameters: {
             query?: never;
             header?: never;
@@ -4500,7 +4239,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["BulkScheduleAssignmentRequest"];
+                "application/json": components["schemas"]["WorkingWeekOverrideRequest"];
             };
         };
         responses: {
@@ -4510,51 +4249,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["BulkScheduleAssignmentPreviewResponse"];
-                };
-            };
-        };
-    };
-    listLocationContexts: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["LocationContextResponse"][];
-                };
-            };
-        };
-    };
-    createLocationContext: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateLocationContextRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["LocationContextResponse"];
+                    "*/*": components["schemas"]["WorkingWeekOverridePreviewResponse"];
                 };
             };
         };
@@ -6520,32 +6215,6 @@ export interface operations {
             };
         };
     };
-    renameWorkSchedule: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                schedulePublicId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateWorkScheduleRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["WorkScheduleResponse"];
-                };
-            };
-        };
-    };
     current: {
         parameters: {
             query?: never;
@@ -6888,26 +6557,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": string;
-                };
-            };
-        };
-    };
-    getScheduleAssignmentCoverage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ScheduleAssignmentCoverageResponse"];
                 };
             };
         };
@@ -7891,6 +7540,49 @@ export interface operations {
             };
         };
     };
+    cancelScheduledChange: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                versionPublicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WorkforceGroupResponse"];
+                };
+            };
+        };
+    };
+    removeWorkingWeekOverride: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                versionPublicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     disconnect: {
         parameters: {
             query?: never;
@@ -7933,7 +7625,6 @@ export interface operations {
 type WithRequired<T, K extends keyof T> = T & {
     [P in K]-?: T[P];
 };
-
 // Leaveo keeps these schema aliases for feature code ergonomics, even though
 // openapi-typescript exposes schemas through components["schemas"].
 type RequiredSchema<K extends keyof components["schemas"]> = Required<components["schemas"][K]>;
@@ -8100,8 +7791,42 @@ export type UserSummaryResponse = Omit<
     canReviewApprovals?: boolean;
 };
 export type DayOfWeek = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
-export type WorkforceGroupResponse = Omit<RequiredSchema<"WorkforceGroupResponse">, "weekendDays"> & {
+export type ScheduledWorkingWeekChange = Omit<RequiredSchema<"ScheduledWorkingWeekChange">, "weekendDays"> & {
     weekendDays: DayOfWeek[];
+};
+export type WorkforceGroupResponse = Omit<
+    RequiredSchema<"WorkforceGroupResponse">,
+    "weekendDays" | "scheduledChanges"
+> & {
+    weekendDays: DayOfWeek[];
+    scheduledChanges: ScheduledWorkingWeekChange[];
+};
+export type UpdateWorkforceGroupRequest = components["schemas"]["UpdateWorkforceGroupRequest"];
+// Plan UNO: per-person working weeks (Working calendars -> "People with a different pattern").
+export type WorkingWeekOverrideStatus = "CURRENT" | "SCHEDULED" | "SUPERSEDED";
+export type WorkingWeekOverrideConflictReason = "SUBJECT_NOT_FOUND" | "NO_WORKFORCE_GROUP" | "DUPLICATE_IN_BATCH";
+export type WorkingWeekOverrideRequest = Omit<components["schemas"]["WorkingWeekOverrideRequest"], "weekendDays"> & {
+    weekendDays: DayOfWeek[];
+};
+export type WorkingWeekOverrideConflict = Omit<RequiredSchema<"WorkingWeekOverrideConflict">, "reason"> & {
+    reason: WorkingWeekOverrideConflictReason;
+};
+export type WorkingWeekOverridePreviewResponse = Omit<
+    RequiredSchema<"WorkingWeekOverridePreviewResponse">,
+    "weekendDays" | "conflicts"
+> & {
+    weekendDays: DayOfWeek[];
+    conflicts: WorkingWeekOverrideConflict[];
+};
+export type WorkingWeekOverrideResult = Omit<RequiredSchema<"WorkingWeekOverrideResult">, "weekendDays"> & {
+    weekendDays: DayOfWeek[];
+};
+export type WorkingWeekOverrideResponse = Omit<
+    RequiredSchema<"WorkingWeekOverrideResponse">,
+    "weekendDays" | "status"
+> & {
+    weekendDays: DayOfWeek[];
+    status: WorkingWeekOverrideStatus;
 };
 export type UserRole = NonNullable<UserSummaryResponse["role"]>;
 export type CalendarSyncStatusResponse = {
@@ -8220,34 +7945,3 @@ export type BalanceCorrectionResponse = RequiredSchema<"BalanceCorrectionRespons
 export type BalanceCorrectionListItemResponse = RequiredSchema<"BalanceCorrectionListItemResponse">;
 export type BalanceCorrectionListPage = RequiredSchema<"BalanceCorrectionListPage">;
 
-// Story 16.1: multiple work schedules and location context.
-export type CreateWorkScheduleRequest = components["schemas"]["CreateWorkScheduleRequest"];
-export type UpdateWorkScheduleRequest = components["schemas"]["UpdateWorkScheduleRequest"];
-export type CreateWorkScheduleVersionRequest = components["schemas"]["CreateWorkScheduleVersionRequest"];
-export type WorkScheduleVersionResponse = RequiredSchema<"WorkScheduleVersionResponse">;
-export type WorkScheduleResponse = Omit<RequiredSchema<"WorkScheduleResponse">, "versions"> & {
-    versions: WorkScheduleVersionResponse[];
-};
-export type CreateLocationContextRequest = components["schemas"]["CreateLocationContextRequest"];
-export type LocationContextResponse = RequiredSchema<"LocationContextResponse">;
-export type ScheduleAssignmentRequest = components["schemas"]["ScheduleAssignmentRequest"];
-export type ScheduleAssignmentResponse = RequiredSchema<"ScheduleAssignmentResponse">;
-export type ScheduleAssignmentCoverageResponse = RequiredSchema<"ScheduleAssignmentCoverageResponse">;
-export type ScheduleAssignmentMemberImpact = RequiredSchema<"ScheduleAssignmentMemberImpact">;
-export type ScheduleAssignmentPreviewResponse = Omit<
-    RequiredSchema<"ScheduleAssignmentPreviewResponse">,
-    "members"
-> & {
-    members: ScheduleAssignmentMemberImpact[];
-};
-
-// Story 16.4: bulk (USER-scope only) schedule/location assignment -- see spec-16-4.
-export type BulkScheduleAssignmentRequest = components["schemas"]["BulkScheduleAssignmentRequest"];
-export type BulkScheduleAssignmentResult = RequiredSchema<"BulkScheduleAssignmentResult">;
-export type BulkScheduleAssignmentConflict = RequiredSchema<"BulkScheduleAssignmentConflict">;
-export type BulkScheduleAssignmentPreviewResponse = Omit<
-    RequiredSchema<"BulkScheduleAssignmentPreviewResponse">,
-    "conflicts"
-> & {
-    conflicts: BulkScheduleAssignmentConflict[];
-};

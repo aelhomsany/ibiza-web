@@ -187,11 +187,6 @@
         "subtitle": "Find members and manage roles, reporting lines, groups, and entitlements.",
         "title": "People"
       },
-      "schedules-locations": {
-        "label": "Schedules & locations",
-        "subtitle": "Manage weekly working-day schedules and locations, and assign them to your organization, workforce groups, or individual people.",
-        "title": "Work schedules & locations"
-      },
       "working-calendars": {
         "label": "Working calendars",
         "subtitle": "Set each Workforce Group's weekends and public holidays, with impact visible before save.",
@@ -221,10 +216,11 @@
     "aria": {
       "list": "Workforce groups",
       "weekendDay": "{{day}} weekend day",
-      "weekendDayFor": "{{day}} weekend day for {{name}}"
+      "weekendDayFor": "{{day}} weekend day for {{name}}",
+      "timezoneFor": "Time zone for {{name}}",
+      "changeFromFor": "Weekend change date for {{name}}"
     },
     "created": "Workforce Group \"{{name}}\" created",
-    "createdPartial": "Group created — open the new tab to update weekend days",
     "count": {
       "loading": "Counting affected people…",
       "people_few": "{{count}} people",
@@ -248,7 +244,6 @@
     "errors": {
       "create": "Failed to create workforce group",
       "load": "Unable to load workforce groups.",
-      "saveWeekend": "Weekend days could not be saved. Update them from the new tab.",
       "updateWeekend": "Failed to update weekend days"
     },
     "groupName": "Group name",
@@ -289,6 +284,105 @@
     "otherGroups": {
       "title": "Other groups",
       "switchHint": "Switch groups above to edit one of these."
+    },
+    "timezone": {
+      "label": "Time zone",
+      "help": "Decides which day counts as today for this group when a working-week change takes effect.",
+      "defaultHint": "Defaults to your organization's time zone.",
+      "saved": "{{name}} now uses {{zone}}.",
+      "saving": "Saving time zone…",
+      "error": "Failed to update the time zone"
+    },
+    "workingWeek": {
+      "changeFrom": "Change from",
+      "changeFromHint": "Leave empty to apply from today in the group's time zone.",
+      "scheduledTitle": "Scheduled changes",
+      "scheduledItem": "From {{date}}: weekends on {{days}}",
+      "scheduledStatus": "{{name}} weekend pattern scheduled from {{date}}. Today's pattern stays until then.",
+      "cancel": "Cancel change",
+      "cancelAria": "Cancel the change scheduled for {{date}}",
+      "cancelled": "The change scheduled for {{date}} was cancelled.",
+      "errors": {
+        "cancel": "Failed to cancel the scheduled change"
+      }
+    },
+    "overrides": {
+      "title": "People with a different pattern",
+      "help": "A personal working week replaces the group pattern for one person from a date. Holidays still follow the group.",
+      "add": "Add people",
+      "empty": "Everyone in {{name}} follows the group pattern.",
+      "loading": "Loading personal working weeks…",
+      "unavailable": "Personal working weeks are not included in this plan.",
+      "count_zero": "No one",
+      "count_one": "{{count}} person",
+      "count_two": "{{count}} people",
+      "count_few": "{{count}} people",
+      "count_many": "{{count}} people",
+      "count_other": "{{count}} people",
+      "columns": {
+        "person": "Person",
+        "pattern": "Weekend days",
+        "from": "From",
+        "status": "Status"
+      },
+      "status": {
+        "CURRENT": "In force",
+        "SCHEDULED": "Scheduled",
+        "SUPERSEDED": "Replaced"
+      },
+      "remove": "Remove",
+      "removeAria": "Remove the personal working week for {{name}}",
+      "removed": "{{name}} is back on the group pattern.",
+      "errors": {
+        "load": "Unable to load personal working weeks.",
+        "remove": "Failed to remove the personal working week"
+      },
+      "modal": {
+        "title": "Give people their own working week",
+        "people": "People in {{name}}",
+        "noPeople": "No active people in this group yet.",
+        "selectedCount_zero": "No people selected",
+        "selectedCount_one": "{{count}} person selected",
+        "selectedCount_two": "{{count}} people selected",
+        "selectedCount_few": "{{count}} people selected",
+        "selectedCount_many": "{{count}} people selected",
+        "selectedCount_other": "{{count}} people selected",
+        "weekend": "Weekend days",
+        "effectiveFrom": "From",
+        "previewTitle": "Impact",
+        "previewEmpty": "Preview to see who this reaches before confirming.",
+        "previewing": "Previewing…",
+        "previewResolved_zero": "No one would get this working week",
+        "previewResolved_one": "{{count}} person would get this working week",
+        "previewResolved_two": "{{count}} people would get this working week",
+        "previewResolved_few": "{{count}} people would get this working week",
+        "previewResolved_many": "{{count}} people would get this working week",
+        "previewResolved_other": "{{count}} people would get this working week",
+        "actions": {
+          "preview": "Preview",
+          "confirm": "Confirm"
+        },
+        "created_zero": "No personal working weeks set",
+        "created_one": "Personal working week set for {{count}} person",
+        "created_two": "Personal working weeks set for {{count}} people",
+        "created_few": "Personal working weeks set for {{count}} people",
+        "created_many": "Personal working weeks set for {{count}} people",
+        "created_other": "Personal working weeks set for {{count}} people",
+        "conflictReasons": {
+          "SUBJECT_NOT_FOUND": "{{name}} could not be found in this organization",
+          "NO_WORKFORCE_GROUP": "{{name}} has no workforce group",
+          "DUPLICATE_IN_BATCH": "{{name}} is selected more than once in this batch"
+        },
+        "errors": {
+          "incomplete": "Select at least one person, a weekend day, and a start date before previewing.",
+          "overCap": "Select 500 people or fewer per batch.",
+          "preview": "Could not preview the batch. Try again.",
+          "commit": "Could not set the working weeks. Try again.",
+          "capabilityUnavailable": "Personal working weeks are not included in this plan, so this cannot be saved.",
+          "conflict": "One or more of these people were changed at the same time. Preview again and retry.",
+          "idempotencyConflict": "This confirmation could not be matched to the batch you previewed. Preview again before confirming."
+        }
+      }
     }
   },
   "holidays": {
@@ -721,189 +815,6 @@
     },
     "success": {
       "published": "Policy published"
-    }
-  },
-  "schedules": {
-    "title": "Work schedules & locations",
-    "subtitle": "Manage weekly working-day schedules and locations, and assign them to your organization, workforce groups, or individual people.",
-    "sections": {
-      "schedules": "Work schedules",
-      "locations": "Locations",
-      "assignments": "Assignments"
-    },
-    "actions": {
-      "newSchedule": "New schedule",
-      "newVersion": "New version",
-      "newLocation": "New location",
-      "newAssignment": "New assignment",
-      "bulkAssignment": "Bulk assign",
-      "newVersionFor": "New version of {{scheduleName}}"
-    },
-    "empty": {
-      "schedules": "No work schedules yet. Create one to define a weekly working-day pattern.",
-      "locations": "No locations yet. Create one to pair a timezone with a holiday source.",
-      "assignments": "No assignments yet. Assign a schedule and location to get started."
-    },
-    "schedule": {
-      "modalTitle": "New work schedule",
-      "versionModalTitle": "New schedule version",
-      "name": "Schedule name",
-      "namePlaceholder": "e.g. Standard week",
-      "workingDays": "Working days",
-      "selectWorkingDays": "Select at least one working day",
-      "created": "Work schedule “{{name}}” created",
-      "versionCreated": "New schedule version created",
-      "errors": {
-        "create": "Could not create the work schedule. Try again.",
-        "createVersion": "Could not create the new version. Try again."
-      },
-      "versionSummary": "v{{versionNumber}}: {{days}}",
-      "columns": {
-        "name": "Schedule",
-        "workingDays": "Working days",
-        "actions": "Actions"
-      },
-      "cardDescription": "Weekly working-day patterns you can assign to groups or people.",
-      "versionLabel": "Version {{versionNumber}}"
-    },
-    "location": {
-      "modalTitle": "New location",
-      "name": "Location name",
-      "namePlaceholder": "e.g. Cairo office",
-      "timezone": "IANA timezone",
-      "timezonePlaceholder": "Africa/Cairo",
-      "holidaySource": "Holiday source",
-      "selectHolidaySource": "Select the workforce group whose public holidays apply",
-      "created": "Location “{{name}}” created",
-      "errors": {
-        "create": "Could not create the location. Try again.",
-        "incomplete": "Fill in a name, timezone, and holiday source before saving."
-      },
-      "noGroups": "— No workforce groups yet —",
-      "noGroupsHint": "A location takes its public holidays from a workforce group, and none exist yet. Create one first, then come back to add the location.",
-      "noGroupsAction": "Create a workforce group",
-      "columns": {
-        "name": "Location",
-        "timezone": "Time zone"
-      },
-      "cardDescription": "Time zones that anchor each group's working day."
-    },
-    "assignment": {
-      "modalTitle": "Assign schedule & location",
-      "scope": "Scope",
-      "subject": "Subject",
-      "selectSubject": "Select a subject",
-      "scheduleVersion": "Schedule version",
-      "versionOption": "{{scheduleName}} · v{{versionNumber}}",
-      "selectScheduleVersion": "Select a schedule version",
-      "location": "Location",
-      "selectLocation": "Select a location",
-      "effectiveFrom": "Effective from",
-      "columns": {
-        "assignedTo": "Assigned to",
-        "location": "Location",
-        "membersAffected": "Members affected",
-        "schedule": "Schedule",
-        "scheduleValue": "{{schedule}} · v{{versionNumber}}"
-      },
-      "previewTitle": "Impact",
-      "previewEmpty": "Preview the assignment to see who it affects before confirming.",
-      "previewing": "Previewing…",
-      "previewAffected_one": "{{count}} member affected",
-      "previewAffected_other": "{{count}} members affected",
-      "actions": {
-        "preview": "Preview",
-        "confirm": "Confirm assignment"
-      },
-      "created": "Assignment created",
-      "scopes": {
-        "organization": "Entire organization",
-        "group": "Workforce group",
-        "user": "Individual person"
-      },
-      "errors": {
-        "incomplete": "Select a scope, subject, schedule version, location, and effective date before previewing.",
-        "preview": "Could not preview the assignment. Try again.",
-        "commit": "Could not create the assignment. Try again.",
-        "capabilityUnavailable": "Work schedules and locations are not available for this organization yet, so this cannot be saved. Contact support if you believe this is a mistake.",
-        "conflict": "An assignment already exists for this scope, subject and effective date. Choose a different date or subject."
-      },
-      "effectiveFromValue": "Effective from {{date}}",
-      "previewShadowed_one": "{{count}} member keeps a more specific assignment and is not affected",
-      "previewShadowed_other": "{{count}} members keep a more specific assignment and are not affected",
-      "previewAffected_zero": "No members affected",
-      "previewAffected_two": "{{count}} members affected",
-      "previewAffected_few": "{{count}} members affected",
-      "previewAffected_many": "{{count}} members affected",
-      "previewShadowed_zero": "No members keep a more specific assignment",
-      "previewShadowed_two": "{{count}} members keep a more specific assignment and are not affected",
-      "previewShadowed_few": "{{count}} members keep a more specific assignment and are not affected",
-      "previewShadowed_many": "{{count}} members keep a more specific assignment and are not affected",
-      "cardDescription": "Which schedule and location govern each workforce group."
-    },
-    "bulkAssignment": {
-      "modalTitle": "Bulk assign schedule & location",
-      "subjects": "People",
-      "selectedCount_zero": "No people selected",
-      "selectedCount_one": "{{count}} person selected",
-      "selectedCount_two": "{{count}} people selected",
-      "selectedCount_few": "{{count}} people selected",
-      "selectedCount_many": "{{count}} people selected",
-      "selectedCount_other": "{{count}} people selected",
-      "scheduleVersion": "Schedule version",
-      "versionOption": "{{scheduleName}} · v{{versionNumber}}",
-      "selectScheduleVersion": "Select a schedule version",
-      "location": "Location",
-      "selectLocation": "Select a location",
-      "effectiveFrom": "Effective from",
-      "previewTitle": "Impact",
-      "previewEmpty": "Preview the batch to see who it affects before confirming.",
-      "previewing": "Previewing…",
-      "previewAffected_zero": "No members would be assigned",
-      "previewAffected_one": "{{count}} member would be assigned",
-      "previewAffected_two": "{{count}} members would be assigned",
-      "previewAffected_few": "{{count}} members would be assigned",
-      "previewAffected_many": "{{count}} members would be assigned",
-      "previewAffected_other": "{{count}} members would be assigned",
-      "actions": {
-        "preview": "Preview",
-        "confirm": "Confirm bulk assignment"
-      },
-      "created_zero": "No assignments created",
-      "created_one": "Assignment created for {{count}} person",
-      "created_two": "Assignments created for {{count}} people",
-      "created_few": "Assignments created for {{count}} people",
-      "created_many": "Assignments created for {{count}} people",
-      "created_other": "Assignments created for {{count}} people",
-      "conflictReasons": {
-        "SUBJECT_NOT_FOUND": "{{name}} could not be found in this organization",
-        "ALREADY_ASSIGNED": "{{name}} already has an assignment for this date",
-        "DUPLICATE_IN_BATCH": "{{name}} is selected more than once in this batch"
-      },
-      "errors": {
-        "incomplete": "Select at least one person, a schedule version, a location, and an effective date before previewing.",
-        "overCap": "Select 500 people or fewer per batch.",
-        "preview": "Could not preview the batch. Try again.",
-        "commit": "Could not create the batch assignment. Try again.",
-        "capabilityUnavailable": "Work schedules and locations are not available for this organization yet, so this cannot be saved. Contact support if you believe this is a mistake.",
-        "conflict": "One or more people in this batch already have an assignment for this date. Review the impact list and try again.",
-        "idempotencyConflict": "This confirmation could not be matched to the batch you previewed. Preview again before confirming."
-      }
-    },
-    "capabilityUnavailable": "Work schedules and locations are not available for this organization yet. Contact support if you believe this is a mistake.",
-    "coverage": {
-      "title": "Coverage",
-      "schedules": "Schedules",
-      "locations": "Locations",
-      "assignments": "Assignments",
-      "peopleCovered": "People covered",
-      "unassigned": "Unassigned",
-      "ofTotal": "{{covered}} of {{total}}"
-    },
-    "headsUp": {
-      "title": "Heads up",
-      "unassigned": "People with no assignment fall back to the organization-wide row, if there is one.",
-      "singleTimezone": "Every location resolves to {{timezone}}."
     }
   },
   "subtitle": "Company policy, team, and leave entitlements",

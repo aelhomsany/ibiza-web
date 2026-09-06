@@ -350,43 +350,97 @@
 }
 
 
-/* Schedule assignments read as a table -- five values per row that only mean something
-   against a header. */
-.schedule-assignments-table {
-  min-width: 720px;
+/* Plan UNO: the group's time zone, the "change from" date, its scheduled changes and the people
+   on a pattern of their own all live on the same panel as the weekend chips. */
+.working-calendars-zone-row,
+.working-calendars-change-from {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+  padding-inline: var(--space-card-padding);
 }
 
-.schedule-assignments-table .schedule-assignments-count {
-  font-variant-numeric: tabular-nums;
-  /* Scoped to the table because the class on its own loses to `.dashboard-table td`. */
-  text-align: end;
+.working-calendars-zone-row {
+  padding-block: var(--space-md) 0;
 }
 
-/* Stretching five columns evenly gave a date 348px and a single digit 420px, so the count
-   ended up marooned half a screen from the column beside it. The date and the count are fixed
-   in shape, so `width: 1%` collapses them onto their content; the slack then splits between the
-   three columns that hold user-entered names, which are the ones that can actually use it.
-   Handing it all to a single column instead is no better -- it puts a group name 384px from its
-   own schedule, the same defect drawn horizontally. `width: auto` on the table is not the way
-   out: a percentage column width has nothing to resolve against without a definite table width,
-   so the table silently fills its container anyway. */
-.schedule-assignments-table th:nth-child(4),
-.schedule-assignments-table td:nth-child(4),
-.schedule-assignments-table th:nth-child(5),
-.schedule-assignments-table td:nth-child(5) {
-  width: 1%;
+.working-calendars-change-from {
+  padding-block: var(--space-md);
 }
 
-/* Values collapse; headings stay wrappable. Pinning the headings too makes a two-word heading
-   claim a line's width of its own and pushes the table past its card. */
-.schedule-assignments-table td:nth-child(4),
-.schedule-assignments-table td:nth-child(5) {
-  white-space: nowrap;
+.working-calendars-zone-row label,
+.working-calendars-change-from label {
+  font-size: 13px;
+  font-weight: 600;
 }
 
-/* Values collapse; headings stay wrappable. Pinning the headings too makes a two-word
-   heading claim a line's width of its own and pushes the table past its card (which is
-   what the People table's identity column had to be widened to undo). */
-.schedule-assignments-table td:not(:first-child) {
-  white-space: nowrap;
+.working-calendars-zone-row select {
+  max-width: 100%;
+}
+
+.working-calendars-zone-row .settings-card-helper-inline,
+.working-calendars-change-from .form-hint {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.working-calendars-scheduled {
+  padding-inline: var(--space-card-padding);
+  padding-block-end: var(--space-md);
+}
+
+.working-calendars-overrides {
+  padding: var(--space-md) var(--space-card-padding);
+  border-block-start: 1px solid var(--color-border-light);
+}
+
+.working-calendars-overrides-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-block-end: var(--space-sm);
+}
+
+.working-calendars-overrides-header .btn {
+  flex: none;
+}
+
+.working-calendars-scheduled h4,
+.working-calendars-overrides h3 {
+  margin: 0 0 var(--space-xs);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.working-calendars-scheduled ul,
+.working-calendars-overrides ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.working-calendars-scheduled li,
+.working-calendars-overrides li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+  font-size: var(--font-body-sm-size);
+}
+
+.working-calendars-row-name {
+  font-weight: 600;
+}
+
+.working-calendars-row-meta {
+  color: var(--color-text-secondary);
+}
+
+.working-calendars-row-actions {
+  margin-inline-start: auto;
 }

@@ -3,19 +3,28 @@ import { useTranslation } from 'react-i18next'
 import { isolate } from '../../i18n/bidi'
 import { type KeyboardEvent, useEffect, useMemo, useState } from 'react'
 import {
+  cancelScheduledWeekendChange,
   getPublicHolidays,
   getTeamMembers,
   getWorkforceGroups,
+  listWorkingWeekOverrides,
+  patchWorkforceGroup,
   putWorkforceGroupWeekendDays,
+  removeWorkingWeekOverride,
 } from '../../api/client'
 import type {
   DayOfWeek,
   WorkforceGroupResponse,
+  WorkingWeekOverrideResponse,
 } from '../../api/generated/types'
 import { useAuth } from '../../auth/useAuth'
+import { DateField } from '../../components/DateField'
+import { availableTimezones } from '../../lib/timezones'
 import { PublicHolidaysSection } from './PublicHolidaysSection'
 import { WeekendDayChips } from './WeekendDayChips'
 import { WorkforceGroupModal } from './WorkforceGroupModal'
+import { WorkingDayStrip } from './WorkingDayStrip'
+import { WorkingWeekOverrideModal, type OverrideCandidate } from './WorkingWeekOverrideModal'
 import { CalendarIcon, CheckCircleIcon, ChevronRightIcon, PlusIcon } from '../../components/ui/icons'
 import { WEEKEND_DAYS_DISPLAY } from './weekendDays'
 import './group-tabs.css'
@@ -51,6 +60,10 @@ function sameWeekendDays(left: DayOfWeek[], right: DayOfWeek[]) {
   )
 }
 
+function workingDaysOf(weekendDays: DayOfWeek[]) {
+  return WEEKEND_DAYS_DISPLAY.map(({ value }) => value).filter((day) => !weekendDays.includes(day))
+}
+
 export function WorkforceGroupsWeekendsCard({
   requestedGroupId = null,
   discardSignal = 0,
@@ -66,6 +79,7 @@ export function WorkforceGroupsWeekendsCard({
   const queryClient = useQueryClient()
   const queryKey = useMemo(() => ['workforce-groups', orgId] as const, [orgId])
   const membersQueryKey = useMemo(() => ['team-members', orgId] as const, [orgId])
+  const overridesQueryKey = useMemo(() => ['working-week-overrides', orgId] as const, [orgId])
 
   const groupsQuery = useQuery({
     queryKey,
@@ -90,6 +104,10 @@ export function WorkforceGroupsWeekendsCard({
     groups.find((group) => group.id === resolvedActiveGroupId) ?? null
 
   const [groupModalOpen, setGroupModalOpen] = useState(false)
+  const [overrideModalOpen, setOverrideModalOpen] = useState(false)
+  // Personal working weeks need DISTRIBUTED_OPERATIONS. The plan catalog is server-side, so the
+  // first refused write is what tells this card to stop offering the affordance.
+  const [overridesUnavailable, setOverridesUnavailable] = useState(false)
   // Lazy-init from any group already resolved on first render (e.g. a warm
   // React Query cache on remount), so the impact panel doesn't flash "select
   // a weekend day" for one frame before the sync effect below corrects it.
@@ -105,6 +123,9 @@ export function WorkforceGroupsWeekendsCard({
   const [syncedGroupId, setSyncedGroupId] = useState<number | null>(
     () => activeGroup?.id ?? null,
   )
+  // Empty means "from today in the group's zone" -- the server default. A later date turns the
+  // save into a scheduled change and leaves today's pattern alone.
+  const [changeFrom, setChangeFrom] = useState('')
   const [holidaysDirty, setHolidaysDirty] = useState(false)
   const [savedMessage, setSavedMessage] = useState('')
 
@@ -114,6 +135,7 @@ export function WorkforceGroupsWeekendsCard({
     }
     setDraftWeekendDays(activeGroup.weekendDays)
     setSyncedGroupId(activeGroup.id)
+    setChangeFrom('')
     setHolidaysDirty(false)
     setSavedMessage('')
     // Group identity is the reset boundary; a same-group refetch must not erase
@@ -127,6 +149,7 @@ export function WorkforceGroupsWeekendsCard({
     }
     setDraftWeekendDays(activeGroup.weekendDays)
     setSyncedGroupId(activeGroup.id)
+    setChangeFrom('')
     setHolidaysDirty(false)
     setSavedMessage('')
     // This effect intentionally responds to the page-level discard signal. Server
@@ -176,7 +199,7 @@ export function WorkforceGroupsWeekendsCard({
     [onDirtyChange],
   )
 
-  const activeMemberCount = useMemo(() => {
+  const activeMembers = useMemo(() => {
     if (!activeGroup || !membersQuery.data) {
       return null
     }
@@ -184,8 +207,9 @@ export function WorkforceGroupsWeekendsCard({
       (member) =>
         member.workforceGroupId === activeGroup.id &&
         member.status !== 'DEACTIVATED',
-    ).length
+    )
   }, [activeGroup, membersQuery.data])
+  const activeMemberCount = activeMembers?.length ?? null
 
   // The very query PublicHolidaysSection runs, under the very same key: React Query serves both
   // subscribers from one cache entry, so the rail costs no extra request and cannot disagree with
@@ -194,6 +218,14 @@ export function WorkforceGroupsWeekendsCard({
     queryKey: ['public-holidays', orgId, activeGroup?.id] as const,
     queryFn: () => getPublicHolidays(activeGroup!.id!),
     enabled: orgId != null && activeGroup?.id != null,
+  })
+
+  // One org-wide read; the section below filters it to the active group so switching tabs costs
+  // nothing and the tab counts (via overrideCount) and the list cannot drift apart.
+  const overridesQuery = useQuery({
+    queryKey: overridesQueryKey,
+    queryFn: listWorkingWeekOverrides,
+    enabled: orgId != null && groups.length > 0,
   })
 
   const countLabel = membersQuery.isPending
@@ -252,23 +284,85 @@ export function WorkforceGroupsWeekendsCard({
     activateTab(groups[nextIndex].id)
   }
 
+  const replaceGroupInCache = (updated: WorkforceGroupResponse) => {
+    queryClient.setQueryData<WorkforceGroupResponse[]>(queryKey, (current) =>
+      current?.map((group) => (group.id === updated.id ? updated : group)),
+    )
+  }
+
+  const formatDate = (isoDate: string) =>
+    new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeZone: 'UTC' }).format(
+      new Date(`${isoDate}T00:00:00Z`),
+    )
+
   const updateWeekendsMutation = useMutation({
     mutationFn: ({
       groupId,
       weekendDays,
+      effectiveFrom,
     }: {
       groupId: number
       weekendDays: DayOfWeek[]
-    }) => putWorkforceGroupWeekendDays(groupId, weekendDays),
-    onSuccess: (updated) => {
-      queryClient.setQueryData<WorkforceGroupResponse[]>(queryKey, (current) =>
-        current?.map((group) => (group.id === updated.id ? updated : group)),
-      )
+      effectiveFrom: string
+    }) => putWorkforceGroupWeekendDays(groupId, weekendDays, effectiveFrom || undefined),
+    onSuccess: (updated, { effectiveFrom }) => {
+      replaceGroupInCache(updated)
+      // The response's weekendDays are the pattern in force today. After a scheduled change they
+      // are unchanged, so the draft snaps back to them and the status says when the change lands.
       setDraftWeekendDays(updated.weekendDays)
-      setSavedMessage(t('groups.savedStatus', { name: isolate(updated.name) }))
+      setChangeFrom('')
+      const scheduled = (updated.scheduledChanges ?? []).some(
+        (change) => change.effectiveFrom === effectiveFrom,
+      )
+      setSavedMessage(
+        scheduled
+          ? t('groups.workingWeek.scheduledStatus', {
+              name: isolate(updated.name),
+              date: formatDate(effectiveFrom),
+            })
+          : t('groups.savedStatus', { name: isolate(updated.name) }),
+      )
     },
     onError: () => {
       onWarning?.(t('groups.errors.updateWeekend'))
+    },
+  })
+
+  const updateTimezoneMutation = useMutation({
+    mutationFn: ({ groupId, timezone }: { groupId: number; timezone: string }) =>
+      patchWorkforceGroup(groupId, { timezone }),
+    onSuccess: (updated) => {
+      replaceGroupInCache(updated)
+      onSuccess?.(t('groups.timezone.saved', { name: isolate(updated.name), zone: updated.timezone }))
+    },
+    onError: () => {
+      onWarning?.(t('groups.timezone.error'))
+    },
+  })
+
+  const cancelChangeMutation = useMutation({
+    mutationFn: ({ groupId, versionPublicId }: { groupId: number; versionPublicId: string; effectiveFrom: string }) =>
+      cancelScheduledWeekendChange(groupId, versionPublicId),
+    onSuccess: (updated, { effectiveFrom }) => {
+      replaceGroupInCache(updated)
+      onSuccess?.(t('groups.workingWeek.cancelled', { date: formatDate(effectiveFrom) }))
+    },
+    onError: () => {
+      onWarning?.(t('groups.workingWeek.errors.cancel'))
+    },
+  })
+
+  const removeOverrideMutation = useMutation({
+    mutationFn: ({ versionPublicId }: { versionPublicId: string; fullName: string }) =>
+      removeWorkingWeekOverride(versionPublicId),
+    onSuccess: (_result, { fullName }) => {
+      void queryClient.invalidateQueries({ queryKey: overridesQueryKey })
+      // overrideCount on the group changed too.
+      void queryClient.invalidateQueries({ queryKey })
+      onSuccess?.(t('groups.overrides.removed', { name: isolate(fullName) }))
+    },
+    onError: () => {
+      onWarning?.(t('groups.overrides.errors.remove'))
     },
   })
 
@@ -300,6 +394,26 @@ export function WorkforceGroupsWeekendsCard({
     (holiday) => holiday.dateFrom?.slice(0, 4) === String(currentYear),
   ).length
   const otherGroups = groups.filter((group) => group.id !== activeGroup?.id)
+
+  const activeTimezone = activeGroup?.timezone ?? user?.organizationTimezone ?? 'UTC'
+  // Show the zone being saved while the PATCH is in flight; on failure the select falls back to
+  // the cached group, which is the reversion.
+  const displayedTimezone = updateTimezoneMutation.isPending
+    ? updateTimezoneMutation.variables.timezone
+    : activeTimezone
+  const timezoneOptions = availableTimezones(activeTimezone)
+  const defaultNewGroupTimezone = user?.organizationTimezone ?? user?.timezone ?? 'UTC'
+
+  const scheduledChanges = activeGroup?.scheduledChanges ?? []
+  // Superseded versions are history: a person's newer override replaced them.
+  const groupOverrides: WorkingWeekOverrideResponse[] = (overridesQuery.data ?? []).filter(
+    (override) => override.workforceGroupId === activeGroup?.id && override.status !== 'SUPERSEDED',
+  )
+  const overrideCandidates: OverrideCandidate[] = (activeMembers ?? []).flatMap((member) =>
+    member.publicId && member.fullName
+      ? [{ publicId: member.publicId, fullName: member.fullName }]
+      : [],
+  )
 
   return (
     <div className="panel-with-aside">
@@ -450,6 +564,37 @@ export function WorkforceGroupsWeekendsCard({
               </div>
             </section>
 
+            <div className="working-calendars-zone-row">
+              <label htmlFor="working-calendars-timezone">{t('groups.timezone.label')}</label>
+              <select
+                id="working-calendars-timezone"
+                data-testid="working-calendars-timezone"
+                aria-label={t('groups.aria.timezoneFor', { name: activeGroup.name })}
+                value={displayedTimezone}
+                disabled={updateTimezoneMutation.isPending}
+                onChange={(event) => {
+                  if (event.target.value === activeTimezone) {
+                    return
+                  }
+                  updateTimezoneMutation.mutate({
+                    groupId: activeGroup.id,
+                    timezone: event.target.value,
+                  })
+                }}
+              >
+                {timezoneOptions.map((zone) => (
+                  <option key={zone} value={zone}>
+                    {zone}
+                  </option>
+                ))}
+              </select>
+              <p className="settings-card-helper-inline">
+                {updateTimezoneMutation.isPending
+                  ? t('groups.timezone.saving')
+                  : t('groups.timezone.help')}
+              </p>
+            </div>
+
             <div className="settings-card-body">
               <div className="settings-col settings-col-weekends">
                 <p className="settings-card-label">
@@ -464,6 +609,23 @@ export function WorkforceGroupsWeekendsCard({
                     setSavedMessage('')
                   }}
                 />
+                <div className="working-calendars-change-from">
+                  <label htmlFor="working-calendars-change-from">
+                    {t('groups.workingWeek.changeFrom')}
+                  </label>
+                  <DateField
+                    id="working-calendars-change-from"
+                    data-testid="working-calendars-change-from"
+                    aria-label={t('groups.aria.changeFromFor', { name: activeGroup.name })}
+                    value={changeFrom}
+                    disabled={updateWeekendsMutation.isPending}
+                    onChange={(value) => {
+                      setChangeFrom(value)
+                      setSavedMessage('')
+                    }}
+                  />
+                  <p className="form-hint">{t('groups.workingWeek.changeFromHint')}</p>
+                </div>
                 <div className="working-calendars-save-row">
                   {draftWeekendDays.length === 0 ? (
                     <p className="working-calendars-validation" role="alert">
@@ -491,6 +653,7 @@ export function WorkforceGroupsWeekendsCard({
                       updateWeekendsMutation.mutate({
                         groupId: activeGroup.id,
                         weekendDays: draftWeekendDays,
+                        effectiveFrom: changeFrom,
                       })
                     }}
                   >
@@ -499,6 +662,54 @@ export function WorkforceGroupsWeekendsCard({
                       : t('groups.actions.save')}
                   </button>
                 </div>
+
+                {scheduledChanges.length > 0 && (
+                  <section
+                    className="working-calendars-scheduled"
+                    data-testid="working-calendars-scheduled-changes"
+                    aria-labelledby="working-calendars-scheduled-title"
+                  >
+                    <h4 id="working-calendars-scheduled-title">
+                      {t('groups.workingWeek.scheduledTitle')}
+                    </h4>
+                    <ul>
+                      {scheduledChanges.map((change) => {
+                        const sentence = t('groups.workingWeek.scheduledItem', {
+                          date: formatDate(change.effectiveFrom),
+                          days: formatWeekend(change.weekendDays),
+                        })
+                        const cancelling =
+                          cancelChangeMutation.isPending &&
+                          cancelChangeMutation.variables.versionPublicId === change.publicId
+                        return (
+                          <li key={change.publicId} data-testid={`scheduled-change-${change.publicId}`}>
+                            <WorkingDayStrip workingDays={workingDaysOf(change.weekendDays)} label={sentence} />
+                            <span aria-hidden="true">{sentence}</span>
+                            <span className="working-calendars-row-actions">
+                              <button
+                                type="button"
+                                className="btn btn-outline btn-sm"
+                                aria-label={t('groups.workingWeek.cancelAria', {
+                                  date: formatDate(change.effectiveFrom),
+                                })}
+                                disabled={cancelChangeMutation.isPending}
+                                onClick={() =>
+                                  cancelChangeMutation.mutate({
+                                    groupId: activeGroup.id,
+                                    versionPublicId: change.publicId,
+                                    effectiveFrom: change.effectiveFrom,
+                                  })
+                                }
+                              >
+                                {cancelling ? t('groups.actions.saving') : t('groups.workingWeek.cancel')}
+                              </button>
+                            </span>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </section>
+                )}
               </div>
               <PublicHolidaysSection
                 activeGroupId={activeGroup.id}
@@ -509,6 +720,81 @@ export function WorkforceGroupsWeekendsCard({
                 onWarning={onWarning}
               />
             </div>
+
+            <section
+              className="working-calendars-overrides"
+              data-testid="working-calendars-overrides"
+              aria-labelledby="working-calendars-overrides-title"
+            >
+              <div className="working-calendars-overrides-header">
+                <div>
+                  <h3 id="working-calendars-overrides-title">{t('groups.overrides.title')}</h3>
+                  <p className="settings-card-helper-inline">{t('groups.overrides.help')}</p>
+                </div>
+                {overridesUnavailable ? (
+                  <p className="form-hint" data-testid="overrides-unavailable">
+                    {t('groups.overrides.unavailable')}
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    data-testid="add-override-btn"
+                    disabled={membersQuery.isPending}
+                    onClick={() => setOverrideModalOpen(true)}
+                  >
+                    <PlusIcon size={14} /> {t('groups.overrides.add')}
+                  </button>
+                )}
+              </div>
+              {overridesQuery.isPending ? (
+                <p className="form-hint" role="status">{t('groups.overrides.loading')}</p>
+              ) : overridesQuery.isError ? (
+                <p className="form-hint" role="alert">{t('groups.overrides.errors.load')}</p>
+              ) : groupOverrides.length === 0 ? (
+                <p className="form-hint" data-testid="overrides-empty">
+                  {t('groups.overrides.empty', { name: isolate(activeGroup.name) })}
+                </p>
+              ) : (
+                <ul data-testid="overrides-list">
+                  {groupOverrides.map((override) => {
+                    const pattern = formatWeekend(override.weekendDays)
+                    const removing =
+                      removeOverrideMutation.isPending &&
+                      removeOverrideMutation.variables.versionPublicId === override.versionPublicId
+                    return (
+                      <li key={override.versionPublicId} data-testid={`override-${override.versionPublicId}`}>
+                        <span className="working-calendars-row-name" dir="auto">{override.fullName}</span>
+                        <WorkingDayStrip workingDays={workingDaysOf(override.weekendDays)} label={pattern} />
+                        <span className="working-calendars-row-meta" aria-hidden="true">{pattern}</span>
+                        <span className="working-calendars-row-meta">
+                          {t('groups.overrides.columns.from')} {formatDate(override.effectiveFrom)}
+                        </span>
+                        <span className="working-calendars-row-meta">
+                          {t(`groups.overrides.status.${override.status}`)}
+                        </span>
+                        <span className="working-calendars-row-actions">
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-sm"
+                            aria-label={t('groups.overrides.removeAria', { name: override.fullName })}
+                            disabled={removeOverrideMutation.isPending}
+                            onClick={() =>
+                              removeOverrideMutation.mutate({
+                                versionPublicId: override.versionPublicId,
+                                fullName: override.fullName,
+                              })
+                            }
+                          >
+                            {removing ? t('groups.actions.saving') : t('groups.overrides.remove')}
+                          </button>
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </section>
 
             {savedMessage && (
               <p className="working-calendars-saved-status" role="status">
@@ -521,6 +807,7 @@ export function WorkforceGroupsWeekendsCard({
         {groupModalOpen && (
           <WorkforceGroupModal
             isFirstGroup={!hasGroups}
+            defaultTimezone={defaultNewGroupTimezone}
             onClose={() => setGroupModalOpen(false)}
             onSuccess={(message, newGroupId) => {
               void queryClient.invalidateQueries({ queryKey })
@@ -539,6 +826,22 @@ export function WorkforceGroupsWeekendsCard({
             onWarning={onWarning}
           />
         )}
+
+        {overrideModalOpen && activeGroup && (
+          <WorkingWeekOverrideModal
+            groupName={activeGroup.name}
+            people={overrideCandidates}
+            groupWeekendDays={activeGroup.weekendDays}
+            onClose={() => setOverrideModalOpen(false)}
+            onSuccess={(message) => {
+              void queryClient.invalidateQueries({ queryKey: overridesQueryKey })
+              void queryClient.invalidateQueries({ queryKey })
+              onSuccess?.(message)
+            }}
+            onWarning={onWarning}
+            onCapabilityUnavailable={() => setOverridesUnavailable(true)}
+          />
+        )}
       </section>
 
       {hasGroups && activeGroup && (
@@ -554,7 +857,7 @@ export function WorkforceGroupsWeekendsCard({
               <div className="support-note-kv">
                 <dt>{t('groups.impact.affected')}</dt>
                 <dd data-testid="impact-affected-people">
-                  {activeMemberCount == null ? '\u2014' : activeMemberCount}
+                  {activeMemberCount == null ? '—' : activeMemberCount}
                 </dd>
               </div>
               <div className="support-note-kv">
@@ -564,7 +867,13 @@ export function WorkforceGroupsWeekendsCard({
               <div className="support-note-kv">
                 <dt>{t('groups.railImpact.holidays', { year: currentYear })}</dt>
                 <dd data-testid="impact-holidays">
-                  {holidaysThisYear == null ? '\u2014' : holidaysThisYear}
+                  {holidaysThisYear == null ? '—' : holidaysThisYear}
+                </dd>
+              </div>
+              <div className="support-note-kv">
+                <dt>{t('groups.overrides.title')}</dt>
+                <dd data-testid="impact-overrides">
+                  {overridesQuery.data == null ? '—' : groupOverrides.length}
                 </dd>
               </div>
             </dl>

@@ -25,6 +25,7 @@ import { HorizontalScrollRegion } from '../../components/ui/HorizontalScrollRegi
 import { LoadingState } from '../../components/ui/LoadingState'
 import { PresenceBadge } from '../../components/ui/PresenceBadge'
 import { useToast } from '../../components/ui/useToast'
+import { availableTimezones } from '../../lib/timezones'
 import {
   DEFAULT_REPORT_DEFINITION,
   REPORT_DEFINITIONS,
@@ -64,23 +65,6 @@ type DraftReportView = {
 type AppliedQuery = {
   definitionKey: ReportDefinitionKey
   request: ReportQueryRequest
-}
-
-/**
- * IANA zones the browser knows about, with the requester's own zone guaranteed present.
- *
- * The server rejects anything outside `ZoneId.getAvailableZoneIds()`, so offering a
- * closed list is what keeps an invalid zone from costing a round trip.
- */
-function availableTimezones(current: string): string[] {
-  let zones: string[]
-  try {
-    zones = Intl.supportedValuesOf?.('timeZone') ?? []
-  } catch {
-    zones = []
-  }
-  if (zones.length === 0) zones = [current, 'UTC']
-  return zones.includes(current) ? zones : [current, ...zones]
 }
 
 function initialDraft(timezone: string): DraftReportView {

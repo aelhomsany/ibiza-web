@@ -14,8 +14,7 @@ export function OrganizationSettingsCard() {
   const orgId = user?.organizationId
 
   // Keyed under this card rather than reusing another feature's key for the same endpoint, so a
-  // Policy- or Schedules-side invalidation cannot silently drive these figures (the reasoning is
-  // spelled out on ScheduleLocationSettingsPage's copy of this query).
+  // Policy-side invalidation cannot silently drive these figures.
   const glanceQuery = useQuery({
     queryKey: ['organization-glance', orgId] as const,
     queryFn: getPolicySettingsOverview,

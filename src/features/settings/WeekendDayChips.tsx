@@ -4,7 +4,8 @@ import { WEEKEND_DAYS_DISPLAY } from './weekendDays'
 import './weekend-day-chips.css'
 
 type WeekendDayChipsProps = {
-  groupName: string
+  /** Names the group in each chip's accessible name; omit for a pattern that has no group yet. */
+  groupName?: string
   weekendDays: DayOfWeek[]
   disabled?: boolean
   onChange: (weekendDays: DayOfWeek[]) => void
@@ -32,7 +33,11 @@ export function WeekendDayChips({
               type="checkbox"
               checked={isActive}
               disabled={disabled}
-              aria-label={t('groups.aria.weekendDayFor', { day: label, name: groupName })}
+              aria-label={
+                groupName
+                  ? t('groups.aria.weekendDayFor', { day: label, name: groupName })
+                  : t('groups.aria.weekendDay', { day: label })
+              }
               onChange={(event) => {
                 const next = event.target.checked
                   ? [...weekendDays, value]

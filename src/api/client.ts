@@ -35,6 +35,11 @@ import type {
   UpdateTeamMemberRequest,
   UpdateTeamMemberStatusRequest,
   UpdateWeekendDaysRequest,
+  UpdateWorkforceGroupRequest,
+  WorkingWeekOverridePreviewResponse,
+  WorkingWeekOverrideRequest,
+  WorkingWeekOverrideResponse,
+  WorkingWeekOverrideResult,
   UserSummaryResponse,
   WorkforceGroupResponse,
   CalendarMonthResponse,
@@ -82,20 +87,6 @@ import type {
   CompensateBalanceCorrectionRequest,
   BalanceCorrectionListPage,
   BalanceCorrectionListItemResponse,
-  CreateWorkScheduleRequest,
-  UpdateWorkScheduleRequest,
-  CreateWorkScheduleVersionRequest,
-  WorkScheduleResponse,
-  WorkScheduleVersionResponse,
-  CreateLocationContextRequest,
-  LocationContextResponse,
-  ScheduleAssignmentRequest,
-  ScheduleAssignmentResponse,
-  ScheduleAssignmentCoverageResponse,
-  ScheduleAssignmentPreviewResponse,
-  BulkScheduleAssignmentRequest,
-  BulkScheduleAssignmentResult,
-  BulkScheduleAssignmentPreviewResponse,
   CalendarPrivacyVersionResponse,
   CalendarPrivacyPreviewResponse,
   PublishCalendarPrivacyRequest,
@@ -406,17 +397,78 @@ export async function createWorkforceGroup(
   })
 }
 
+export async function patchWorkforceGroup(
+  groupId: number,
+  payload: UpdateWorkforceGroupRequest,
+): Promise<WorkforceGroupResponse> {
+  return request<WorkforceGroupResponse>(`/api/v1/workforce-groups/${groupId}`, {
+    method: 'PATCH',
+    body: payload,
+  })
+}
+
+/**
+ * Sets the group's working week from a date. Without `effectiveFrom` the server applies it from
+ * today in the group's time zone; a later date is added as a scheduled change instead.
+ */
 export async function putWorkforceGroupWeekendDays(
   groupId: number,
   weekendDays: DayOfWeek[],
+  effectiveFrom?: string,
 ): Promise<WorkforceGroupResponse> {
-  const payload: UpdateWeekendDaysRequest = { weekendDays }
+  const payload: UpdateWeekendDaysRequest = effectiveFrom
+    ? { weekendDays, effectiveFrom }
+    : { weekendDays }
   return request<WorkforceGroupResponse>(
     `/api/v1/workforce-groups/${groupId}/weekend-days`,
     {
       method: 'PUT',
       body: payload,
     },
+  )
+}
+
+export async function cancelScheduledWeekendChange(
+  groupId: number,
+  versionPublicId: string,
+): Promise<WorkforceGroupResponse> {
+  return request<WorkforceGroupResponse>(
+    `/api/v1/workforce-groups/${groupId}/weekend-days/${encodeURIComponent(versionPublicId)}`,
+    { method: 'DELETE' },
+  )
+}
+
+// Plan UNO: per-person working weeks. Writes are gated by DISTRIBUTED_OPERATIONS server-side.
+export async function listWorkingWeekOverrides(): Promise<WorkingWeekOverrideResponse[]> {
+  return request<WorkingWeekOverrideResponse[]>('/api/v1/settings/working-week-overrides', {
+    method: 'GET',
+  })
+}
+
+export async function previewWorkingWeekOverride(
+  payload: WorkingWeekOverrideRequest,
+): Promise<WorkingWeekOverridePreviewResponse> {
+  return request<WorkingWeekOverridePreviewResponse>(
+    '/api/v1/settings/working-week-overrides/preview',
+    { method: 'POST', body: payload },
+  )
+}
+
+export async function commitWorkingWeekOverride(
+  idempotencyKey: string,
+  payload: WorkingWeekOverrideRequest,
+): Promise<WorkingWeekOverrideResult> {
+  return request<WorkingWeekOverrideResult>('/api/v1/settings/working-week-overrides', {
+    method: 'POST',
+    body: payload,
+    headers: { 'Idempotency-Key': idempotencyKey },
+  })
+}
+
+export async function removeWorkingWeekOverride(versionPublicId: string): Promise<void> {
+  return request<void>(
+    `/api/v1/settings/working-week-overrides/${encodeURIComponent(versionPublicId)}`,
+    { method: 'DELETE' },
   )
 }
 
@@ -475,22 +527,6 @@ export const updatePolicyDraft = (publicId: string, payload: UpdatePolicyDraftRe
 export const previewPolicy = (publicId: string) => request<PolicyPreviewResponse>(`/api/v1/settings/leave-policies/drafts/${publicId}/preview`, { method: 'POST' })
 export const publishPolicy = (publicId: string, idempotencyKey: string, payload: PublishPolicyRequest) => request<PolicyPublicationResponse>(`/api/v1/settings/leave-policies/drafts/${publicId}/publish`, { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: payload })
 export const getPolicyHistory = (policyPublicId: string) => request<PolicyHistoryItem[]>(`/api/v1/settings/leave-policies/${policyPublicId}/history`, { method: 'GET' })
-
-// Story 16.1: multiple work schedules and location context.
-export const getWorkSchedules = () => request<WorkScheduleResponse[]>('/api/v1/settings/schedules', { method: 'GET' })
-export const createWorkSchedule = (payload: CreateWorkScheduleRequest) => request<WorkScheduleResponse>('/api/v1/settings/schedules', { method: 'POST', body: payload })
-export const renameWorkSchedule = (schedulePublicId: string, payload: UpdateWorkScheduleRequest) => request<WorkScheduleResponse>(`/api/v1/settings/schedules/${schedulePublicId}`, { method: 'PATCH', body: payload })
-export const createWorkScheduleVersion = (schedulePublicId: string, payload: CreateWorkScheduleVersionRequest) => request<WorkScheduleVersionResponse>(`/api/v1/settings/schedules/${schedulePublicId}/versions`, { method: 'POST', body: payload })
-export const getLocationContexts = () => request<LocationContextResponse[]>('/api/v1/settings/locations', { method: 'GET' })
-export const createLocationContext = (payload: CreateLocationContextRequest) => request<LocationContextResponse>('/api/v1/settings/locations', { method: 'POST', body: payload })
-export const previewScheduleAssignment = (payload: ScheduleAssignmentRequest) => request<ScheduleAssignmentPreviewResponse>('/api/v1/settings/schedule-assignments/preview', { method: 'POST', body: payload })
-export const commitScheduleAssignment = (payload: ScheduleAssignmentRequest) => request<ScheduleAssignmentResponse>('/api/v1/settings/schedule-assignments', { method: 'POST', body: payload })
-export const listScheduleAssignments = () => request<ScheduleAssignmentResponse[]>('/api/v1/settings/schedule-assignments', { method: 'GET' })
-export const getScheduleAssignmentCoverage = () => request<ScheduleAssignmentCoverageResponse>('/api/v1/settings/schedule-assignments/coverage', { method: 'GET' })
-
-// Story 16.4 — bulk (USER-scope only) schedule/location assignment.
-export const previewBulkScheduleAssignment = (payload: BulkScheduleAssignmentRequest) => request<BulkScheduleAssignmentPreviewResponse>('/api/v1/settings/schedule-assignments/bulk/preview', { method: 'POST', body: payload })
-export const commitBulkScheduleAssignment = (idempotencyKey: string, payload: BulkScheduleAssignmentRequest) => request<BulkScheduleAssignmentResult>('/api/v1/settings/schedule-assignments/bulk', { method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: payload })
 
 // Story 16.2 — calendar visibility configuration (HR only).
 export const getCalendarPrivacy = () => request<CalendarPrivacyVersionResponse>('/api/v1/settings/calendar-privacy', { method: 'GET' })

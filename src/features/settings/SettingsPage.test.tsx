@@ -82,14 +82,15 @@ function mockSettingsApis() {
   vi.spyOn(apiClient, 'putWorkforceGroupWeekendDays').mockResolvedValue({
     id: 1,
     name: 'US',
+    timezone: 'America/New_York',
     weekendDays: ['SATURDAY', 'SUNDAY', 'FRIDAY'],
+    currentEffectiveFrom: '2000-01-01',
+    scheduledChanges: [],
+    overrideCount: 0,
   })
   vi.spyOn(apiClient, 'getLeaveTypes').mockResolvedValue(mockLeaveTypes)
   vi.spyOn(apiClient, 'getManagedLeaveTypes').mockResolvedValue(mockLeaveTypes)
   vi.spyOn(apiClient, 'getPolicySettingsOverview').mockResolvedValue({ leaveTypes: [], users: [], workforceGroups: [] })
-  vi.spyOn(apiClient, 'getWorkSchedules').mockResolvedValue([])
-  vi.spyOn(apiClient, 'getLocationContexts').mockResolvedValue([])
-  vi.spyOn(apiClient, 'listScheduleAssignments').mockResolvedValue([])
   vi.spyOn(apiClient, 'getTeamMembers').mockResolvedValue(mockTeamMembers)
   vi.spyOn(apiClient, 'getChatWebhooks').mockResolvedValue([])
   vi.spyOn(apiClient, 'getCalendarFeed').mockResolvedValue({ active: false })
@@ -117,7 +118,11 @@ function mockSettingsApis() {
   vi.spyOn(apiClient, 'createWorkforceGroup').mockResolvedValue({
     id: 3,
     name: 'UK',
-    weekendDays: [],
+    timezone: 'Europe/London',
+    weekendDays: ['SATURDAY', 'SUNDAY'],
+    currentEffectiveFrom: '2000-01-01',
+    scheduledChanges: [],
+    overrideCount: 0,
   })
   vi.spyOn(apiClient, 'getNotificationPreferences').mockResolvedValue([
     {
@@ -167,14 +172,15 @@ describe('SettingsPage', () => {
     ).toBeInTheDocument()
   })
 
-  it('[P0] renders seven categories with Working calendars as the focused default', async () => {
+  it('[P0] renders six categories with Working calendars as the focused default', async () => {
     renderSettingsPage()
 
     expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument()
     const nav = screen.getByTestId('settings-category-nav')
     // Story 16.2 added 'calendar-privacy' (7 -> 8); Plan PUENTE D-12 moved Notifications
-    // to the My settings page (8 -> 7).
-    expect(within(nav).getAllByRole('tab')).toHaveLength(7)
+    // to the My settings page (8 -> 7); Plan UNO folded 'schedules-locations' into
+    // Working calendars (7 -> 6).
+    expect(within(nav).getAllByRole('tab')).toHaveLength(6)
 
     await waitFor(() => {
       expect(screen.getByRole('tab', { name: 'US' })).toBeInTheDocument()
@@ -204,11 +210,12 @@ describe('SettingsPage', () => {
     await user.click(screen.getByTestId('working-calendars-save-btn'))
 
     await waitFor(() => {
-      expect(apiClient.putWorkforceGroupWeekendDays).toHaveBeenCalledWith(1, [
-        'SATURDAY',
-        'SUNDAY',
-        'FRIDAY',
-      ])
+      // No "change from" date was set, so the pattern applies from today (the server default).
+      expect(apiClient.putWorkforceGroupWeekendDays).toHaveBeenCalledWith(
+        1,
+        ['SATURDAY', 'SUNDAY', 'FRIDAY'],
+        undefined,
+      )
     })
     expect(
       await screen.findByText(`${isolate('US')} weekend pattern saved. Future calculations now use this policy.`),
@@ -257,11 +264,6 @@ describe('SettingsPage', () => {
 
   it('[P2] progressively discloses infrequent group creation', async () => {
     const user = userEvent.setup()
-    const putSpy = vi.spyOn(apiClient, 'putWorkforceGroupWeekendDays').mockResolvedValue({
-      id: 3,
-      name: 'UK',
-      weekendDays: ['SATURDAY', 'SUNDAY'],
-    })
     renderSettingsPage()
 
     await screen.findByTestId('workforce-groups-weekends-card')
@@ -274,8 +276,15 @@ describe('SettingsPage', () => {
     await user.click(within(modal).getByTestId('create-group-submit'))
 
     await waitFor(() => {
-      expect(apiClient.createWorkforceGroup).toHaveBeenCalledWith({ name: 'UK' })
-      expect(putSpy).toHaveBeenCalledWith(3, expect.arrayContaining(['SATURDAY', 'SUNDAY']))
+      // Plan UNO: one request carries the name, zone and pattern (the default Fri+Sat plus Sun).
+      expect(apiClient.createWorkforceGroup).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'UK',
+          timezone: expect.any(String),
+          weekendDays: expect.arrayContaining(['FRIDAY', 'SATURDAY', 'SUNDAY']),
+        }),
+      )
     })
+    expect(apiClient.putWorkforceGroupWeekendDays).not.toHaveBeenCalled()
   })
 })
