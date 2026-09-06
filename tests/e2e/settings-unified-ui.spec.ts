@@ -14,14 +14,14 @@ test.describe('Settings unified UI — Story 2.7', { tag: [tags.regression, tags
     'Set E2E_API_AVAILABLE=true when leaveo-api is running for settings data',
   )
 
-  test('[P1] HR Admin sees subtitle and three policy cards in mockup order', async ({ page }) => {
+  test('[P1] Organization Admin sees subtitle and three policy cards in mockup order', async ({ page }) => {
     await loginViaUi(page, { email: 'jordan@company.com', password })
     await navigateInApp(page, '/settings')
 
     // exact: true — Story 11.5's settings information architecture added a visually hidden
     // <h2>Settings categories</h2>, so the substring match now resolves to two headings and
     // fails Playwright strict mode. The assertion still targets the page's own <h1>.
-    await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Organization Settings', exact: true })).toBeVisible()
     await expect(
       page.getByText('Company policy, team, and leave entitlements'),
     ).toBeVisible()

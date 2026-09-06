@@ -10,7 +10,7 @@ import type { UserRole } from '../api/generated/types'
  * the admin bundle, which `verify-artifact-boundaries.mjs` does not grep for.
  * `rolePermissions.ts` consumes this constant so there is still one source of truth.
  */
-export const SETTINGS_REQUIRED_ROLES: UserRole[] = ['HR_ADMIN']
+export const SETTINGS_REQUIRED_ROLES: UserRole[] = ['ORGANIZATION_ADMIN']
 
 export function canAccessSettings(role: UserRole): boolean {
   return SETTINGS_REQUIRED_ROLES.includes(role)

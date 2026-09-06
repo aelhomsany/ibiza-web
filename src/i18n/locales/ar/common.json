@@ -46,7 +46,7 @@
   },
   "roles": {
     "employee": "موظف",
-    "hrAdmin": "مسؤول الموارد البشرية",
+    "organizationAdmin": "مسؤول المؤسسة",
     "manager": "مدير",
     "platformAdmin": "مسؤول المنصة"
   },
@@ -66,7 +66,7 @@
     "reports": "التقارير",
     "requestDetails": "تفاصيل الطلب",
     "resetPassword": "إعادة تعيين كلمة المرور",
-    "settings": "الإعدادات",
+    "settings": "إعدادات المؤسسة",
     "policySettings": "إعدادات السياسة",
     "signIn": "تسجيل الدخول",
     "mySettings": "إعداداتي"

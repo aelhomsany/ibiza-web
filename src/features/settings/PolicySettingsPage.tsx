@@ -504,7 +504,7 @@ export function PolicySettingsPage() {
               <option value="ORGANIZATION">
                 {t("policy.scopes.organization")}
               </option>
-              {/* A tenant is provisioned with no Workforce Groups -- the HR Admin creates
+              {/* A tenant is provisioned with no Workforce Groups -- the Organization Admin creates
                   them -- so offering this scope before then leads only to an empty subject
                   list and a rejected save. */}
               {hasWorkforceGroups && (

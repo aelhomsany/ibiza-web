@@ -26,7 +26,7 @@ function mutationMessage(error: unknown, fallback: string) {
 /**
  * Plan PUENTE D-12 — the personal half of the Slack app, on the My settings page for every role:
  * whether this person's own Slack account was matched to their Leaveo email, with a re-check.
- * Renders nothing until an HR Admin has installed the workspace (Settings → Integrations), so a
+ * Renders nothing until an Organization Admin has installed the workspace (Settings → Integrations), so a
  * member of an organization without Slack never sees a Slack card. No Slack user ids are shown —
  * the API only reports "linked" / "not linked".
  */

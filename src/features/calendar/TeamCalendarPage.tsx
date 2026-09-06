@@ -87,7 +87,7 @@ export function TeamCalendarPage() {
   const selectedGroupForWeekStart = workforceGroupsQuery.data?.find(
     (group) => group.id === workforceGroupId,
   )
-  // An organization is provisioned with no Workforce Groups -- the HR Admin creates them -- so
+  // An organization is provisioned with no Workforce Groups -- the Organization Admin creates them -- so
   // until then this filter would be a select whose only choice is "All groups". Hide the dead
   // control rather than showing a picker with nothing to pick.
   const hasGroupFilter =

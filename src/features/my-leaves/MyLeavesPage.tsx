@@ -63,7 +63,7 @@ export function MyLeavesPage() {
     'onboarding',
   ])
   const { user } = useAuth()
-  const isHrAdmin = user?.role === 'HR_ADMIN'
+  const isOrganizationAdmin = user?.role === 'ORGANIZATION_ADMIN'
   const [modalOpen, setModalOpen] = useState(false)
   const [expandedRequestId, setExpandedRequestId] = useState<number | null>(null)
   const [searchParams, setSearchParams] = useSearchParams()
@@ -76,7 +76,7 @@ export function MyLeavesPage() {
   const pendingCountQuery = usePendingApprovalCount()
   const approvalCapability = useApprovalCapability()
   // Ambient cue — keeps the 30s cache; only the guided page itself forces a re-read.
-  const onboardingQuery = useOnboarding(isHrAdmin)
+  const onboardingQuery = useOnboarding(isOrganizationAdmin)
   const pendingCount = pendingCountQuery.data?.count ?? 0
   const guidedOnboarding = onboardingQuery.isSuccess
     && onboardingQuery.data.presentationEnabled !== false
@@ -286,7 +286,7 @@ export function MyLeavesPage() {
         </button>
       </header>
 
-      {isHrAdmin && guidedOnboarding
+      {isOrganizationAdmin && guidedOnboarding
         && onboardingQuery.data.activationStatus !== 'COMMERCIALLY_ACTIVATED' && (
         <aside className="first-use-cue" data-testid="guided-onboarding-cue">
           <div className="first-use-cue-header">
@@ -304,7 +304,7 @@ export function MyLeavesPage() {
         </aside>
       )}
 
-      {user && isHrAdmin
+      {user && isOrganizationAdmin
         && (onboardingQuery.isError
           || (onboardingQuery.isSuccess && onboardingQuery.data.presentationEnabled === false)) && (
         <FirstUseCue
@@ -318,7 +318,7 @@ export function MyLeavesPage() {
         <MyLeavesAttention
           canReviewApprovals={Boolean(
             approvalCapability.data?.canReviewApprovals ?? user?.canReviewApprovals
-              ?? (user?.role === 'MANAGER' || user?.role === 'HR_ADMIN'),
+              ?? (user?.role === 'MANAGER' || user?.role === 'ORGANIZATION_ADMIN'),
           )}
           pendingCount={pendingCount}
           isPendingCountLoading={pendingCountQuery.isPending}
@@ -462,7 +462,7 @@ export function MyLeavesPage() {
               <MyLeavesHistory
                 allRequestsCount={historyQuery.data.length}
                 requests={filteredRequests}
-                showAuditHistory={isHrAdmin}
+                showAuditHistory={isOrganizationAdmin}
                 hasActiveFilters={hasActiveFilters}
                 workforceGroupName={user?.workforceGroupName}
                 focusedRequestId={

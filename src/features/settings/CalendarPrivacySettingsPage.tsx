@@ -23,7 +23,7 @@ import './calendar-privacy.css'
 const RELATIONSHIPS: ViewerRelationship[] = [
   'SELF',
   'ACTIVE_OR_COMPLETED_APPROVER',
-  'HR_ADMIN',
+  'ORGANIZATION_ADMIN',
   'DIRECT_REPORT_MANAGER',
   'SAME_WORKFORCE_GROUP',
   'ORGANIZATION_PEER',

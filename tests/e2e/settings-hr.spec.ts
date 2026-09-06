@@ -2,6 +2,13 @@ import { test, expect } from '../support/fixtures'
 import { loginViaUi, navigateInApp } from '../support/helpers/auth'
 import { tags } from '../support/tags'
 
+// Both the filename and the describe title below are contractual identities, not free wording, so
+// the 2026-09-06 role rename deliberately stopped at this file. tag-manifest.json approves the
+// seven executable @smoke tests as `file::describe::test` — renaming the title to match the page's
+// new name fails `verify:e2e-tags` with "unapproved identities found" — and validation-matrix.md
+// and validation-traceability.json cite this path. The page it drives is called Organization
+// Settings; the assertions below say so, which is where the user-visible name is checked.
+
 const password = process.env.E2E_USER_PASSWORD ?? 'PilotDev123!'
 
 test.describe('HR Settings page', { tag: [tags.smoke, tags.regression, tags.api] }, () => {
@@ -10,13 +17,13 @@ test.describe('HR Settings page', { tag: [tags.smoke, tags.regression, tags.api]
     'Set E2E_API_AVAILABLE=true when leaveo-api is running for settings data',
   )
 
-  test('[P1] HR Admin sees workforce group tabs and holidays on Settings', async ({ page }) => {
+  test('[P1] Organization Admin sees workforce group tabs and holidays on Settings', async ({ page }) => {
     await loginViaUi(page, { email: 'jordan@company.com', password })
     await navigateInApp(page, '/settings')
 
     // exact: Story 11.5's SettingsCategoryNav adds an sr-only "Settings categories" h2,
     // so a substring match resolves to two headings and trips strict mode.
-    await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Organization Settings', exact: true })).toBeVisible()
     await expect(page.getByTestId('workforce-groups-weekends-card')).toBeVisible()
     await expect(page.getByRole('tab', { name: 'US' })).toBeVisible()
     await expect(page.getByRole('tab', { name: 'Egypt' })).toBeVisible()

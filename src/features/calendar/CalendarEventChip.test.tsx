@@ -27,7 +27,7 @@ const base: CalendarAbsenceResponse = {
   workingDays: 3,
   workingDates: ['2026-06-10', '2026-06-11', '2026-06-12'],
   canViewRequestContext: true,
-  viewerRelationship: 'HR_ADMIN',
+  viewerRelationship: 'ORGANIZATION_ADMIN',
 }
 
 /** Delete keys outright — the server omits them, it does not send them as null. */

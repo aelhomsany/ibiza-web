@@ -22,7 +22,7 @@ export type ReportingAccess = {
  * Whether this organization can reach the Report Center, and in which of the two modes.
  *
  * `ADVANCED_REPORTING` stays `COMING_SOON` in the production catalog until Story 13.5 promotes it,
- * so without this probe every HR administrator would see a Reports nav item that lands on a denial
+ * so without this probe every Organization administrator would see a Reports nav item that lands on a denial
  * banner. The route guard stays role-based on purpose: a direct URL still reaches the page and
  * shows the server's honest denial.
  *
@@ -59,7 +59,7 @@ export function useReportingCapability() {
         throw recoveryError
       }
     },
-    enabled: user?.id != null && user.role === 'HR_ADMIN',
+    enabled: user?.id != null && user.role === 'ORGANIZATION_ADMIN',
     staleTime: 5 * 60_000,
     retry: false,
   })

@@ -271,7 +271,7 @@
       "tests": [
         "Employee sees base nav only",
         "Manager sees Approvals without Settings",
-        "HR Admin sees Approvals and Settings",
+        "Organization Admin sees Approvals and Settings",
         "Employee direct URL to settings redirects to the team calendar",
         "Employee direct URL to approvals redirects to the team calendar"
       ]
@@ -305,7 +305,7 @@
         "@api"
       ],
       "tests": [
-        "[P1] HR Admin sees workforce group tabs and holidays on Settings",
+        "[P1] Organization Admin sees workforce group tabs and holidays on Settings",
         "[P1] Switching workforce group tab updates the active weekend label",
         "[P2] Leave Types card shows Annual Leave row"
       ]
@@ -316,7 +316,7 @@
         "@api"
       ],
       "tests": [
-        "[P1] HR Admin sees subtitle and three policy cards in mockup order",
+        "[P1] Organization Admin sees subtitle and three policy cards in mockup order",
         "[P1] Leave Types card shows five seeded types with uncapped Unpaid copy",
         "[P1] + Add Group creates a new workforce group tab"
       ]
@@ -340,7 +340,7 @@
         "@story-11-7"
       ],
       "tests": [
-        "[P1] Given HR Admin with incomplete first-use, When My Leaves loads, Then cue CTA opens Working calendars"
+        "[P1] Given Organization Admin with incomplete first-use, When My Leaves loads, Then cue CTA opens Working calendars"
       ]
     },
     "auth-first-use.spec.ts::Auth responsive and locale proof \u2014 Story 11.7": {
@@ -493,7 +493,7 @@
         "@story-12-5"
       ],
       "tests": [
-        "[P0] Given an HR Admin exits mid-setup, When they return on another session, Then onboarding opens the next evidence-based safe action"
+        "[P0] Given an Organization Admin exits mid-setup, When they return on another session, Then onboarding opens the next evidence-based safe action"
       ]
     },
     "guided-onboarding.spec.ts::Commercial Activation \u2014 Story 12.5": {
@@ -525,7 +525,7 @@
         "@story-12-5"
       ],
       "tests": [
-        "[P0] Given the real onboarding endpoint, When an HR Admin opens onboarding, Then the rendered evidence is the server\u2019s and the activation surface never contradicts itself"
+        "[P0] Given the real onboarding endpoint, When an Organization Admin opens onboarding, Then the rendered evidence is the server\u2019s and the activation surface never contradicts itself"
       ]
     },
     "accessibility-completion.spec.ts::Free registration accessibility checkpoints \u2014 Story 12.3": {

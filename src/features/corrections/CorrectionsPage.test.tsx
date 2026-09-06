@@ -65,7 +65,7 @@ function renderPage() {
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
         <MemoryRouter>
-          <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+          <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
             <CorrectionsPage />
           </AuthTestProvider>
         </MemoryRouter>

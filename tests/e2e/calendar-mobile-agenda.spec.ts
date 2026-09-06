@@ -89,8 +89,8 @@ test.describe(
     test(
       '[P1] Given a permitted absence chip, When activated, Then request context navigation succeeds',
       async ({ page }) => {
-        // HR Admin, not an Employee: LeaveRequestContextService#canViewRequestContext
-        // grants HR_ADMIN request context for every absence in the org, so the chip is
+        // Organization Admin, not an Employee: LeaveRequestContextService#canViewRequestContext
+        // grants ORGANIZATION_ADMIN request context for every absence in the org, so the chip is
         // always a link. The curated seed anchors Mike's approved WFH to
         // nearestWorkingDay(today) (LeaveRequestProvisioner KEY_MIKE_WFH_TODAY), which
         // guarantees at least one permitted absence inside the default period.

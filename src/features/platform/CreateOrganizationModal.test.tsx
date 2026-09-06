@@ -9,7 +9,7 @@ const createdOrganization = {
   id: 2,
   name: 'Nile Tech',
   primaryContact: 'Fatima Hassan',
-  initialHrAdminEmail: 'fatima@niletech.eg',
+  initialOrganizationAdminEmail: 'fatima@niletech.eg',
   plan: 'GROWTH' as const,
   userCount: 1,
   userLimit: 200,
@@ -46,7 +46,7 @@ function renderModal(onClose = vi.fn()) {
 async function fillRequiredFields(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText('Organization name'), 'Nile Tech')
   await user.type(screen.getByLabelText('Primary contact'), 'Fatima Hassan')
-  await user.type(screen.getByLabelText('Initial HR Admin email'), 'fatima@niletech.eg')
+  await user.type(screen.getByLabelText('Initial Organization Admin email'), 'fatima@niletech.eg')
   await user.selectOptions(screen.getByLabelText('Subscription plan'), 'GROWTH')
 }
 
@@ -73,7 +73,7 @@ describe('CreateOrganizationModal', () => {
       expect(createSpy).toHaveBeenCalledWith({
         name: 'Nile Tech',
         primaryContact: 'Fatima Hassan',
-        initialHrAdminEmail: 'fatima@niletech.eg',
+        initialOrganizationAdminEmail: 'fatima@niletech.eg',
         plan: 'GROWTH',
       })
     })

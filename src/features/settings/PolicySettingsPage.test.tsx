@@ -26,7 +26,7 @@ function renderPage() {
   return render(
     <QueryClientProvider client={client}>
       <ToastProvider>
-        <AuthTestProvider value={createMockAuthForRole("HR_ADMIN")}>
+        <AuthTestProvider value={createMockAuthForRole("ORGANIZATION_ADMIN")}>
           <MemoryRouter initialEntries={["/settings/leave-policies/draft-1"]}>
             <Routes>
               <Route
@@ -110,7 +110,7 @@ function renderPageInDataRouter() {
         element: (
           <QueryClientProvider client={client}>
             <ToastProvider>
-              <AuthTestProvider value={createMockAuthForRole("HR_ADMIN")}>
+              <AuthTestProvider value={createMockAuthForRole("ORGANIZATION_ADMIN")}>
                 <PolicySettingsPage />
               </AuthTestProvider>
             </ToastProvider>

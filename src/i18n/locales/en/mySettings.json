@@ -8,7 +8,7 @@
     },
     "integrations": {
       "title": "My integrations",
-      "subtitle": "Connect your own calendar and Slack account. Organization-wide integrations are managed by your HR admin under Settings."
+      "subtitle": "Connect your own calendar and Slack account. Organization-wide integrations are managed by your Organization Admin under Organization Settings."
     }
   }
 }

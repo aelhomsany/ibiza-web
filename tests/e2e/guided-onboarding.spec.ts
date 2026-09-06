@@ -16,7 +16,7 @@ test.describe(
   { tag: [tags.regression, tags.uiOnly, tags.story('12-5')] },
   () => {
     test(
-      '[P0] Given an HR Admin exits mid-setup, When they return on another session, Then onboarding opens the next evidence-based safe action',
+      '[P0] Given an Organization Admin exits mid-setup, When they return on another session, Then onboarding opens the next evidence-based safe action',
       async ({ browser }) => {
         for (const locale of ['en', 'ar'] as const) {
           for (const width of [390, 768, 900, 901, 1280, 1440]) {
@@ -176,17 +176,17 @@ test.describe(
     )
 
     test(
-      '[P0] Given the real onboarding endpoint, When an HR Admin opens onboarding, Then the rendered evidence is the server’s and the activation surface never contradicts itself',
+      '[P0] Given the real onboarding endpoint, When an Organization Admin opens onboarding, Then the rendered evidence is the server’s and the activation surface never contradicts itself',
       async ({ page, request }) => {
-        // Onboarding is HR-Admin-only (the shared pilot identity is a MANAGER and gets a 403),
+        // Onboarding is Organization-Admin-only (the shared pilot identity is a MANAGER and gets a 403),
         // and the Organization must be guided-onboarding-eligible — the older demo orgs are
         // correctly refused by the eligibility gate. DemoScenarioSeeder provisions Meridian Labs
         // through OrganizationProvisioningCore for exactly this.
-        const hrAdmin = {
-          email: process.env.E2E_HR_ADMIN_EMAIL ?? 'morgan@meridian-labs.example',
+        const organizationAdmin = {
+          email: process.env.E2E_ORGANIZATION_ADMIN_EMAIL ?? 'morgan@meridian-labs.example',
           password: process.env.E2E_USER_PASSWORD ?? 'PilotDev123!',
         }
-        const session = await loginViaApi(request, hrAdmin)
+        const session = await loginViaApi(request, organizationAdmin)
         const state = await apiRequest<{
           activationStatus: 'NOT_ACTIVATED' | 'COMMERCIALLY_ACTIVATED'
           nextSafeAction: { stage: string; action: string; href: string }
@@ -207,7 +207,7 @@ test.describe(
         }
         expect(state.stages).toHaveLength(5)
 
-        await loginViaUi(page, hrAdmin)
+        await loginViaUi(page, organizationAdmin)
         await navigateInApp(page, '/onboarding')
 
         // Rendered from the same unstubbed response the assertions above were made against.

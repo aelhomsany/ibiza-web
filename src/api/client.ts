@@ -560,7 +560,7 @@ export async function downloadImportArtifact(publicId: string): Promise<Blob> {
 /**
  * The empty `.xlsx` template for one import type: a single header row, exactly the columns the
  * uploader checks for, every column pre-formatted as text so Excel leaves leading zeros and dates
- * alone. Server-rendered rather than assembled here, so the file the HR Admin fills in and the
+ * alone. Server-rendered rather than assembled here, so the file the Organization Admin fills in and the
  * header the validator compares against can never drift apart.
  */
 export async function downloadImportTemplate(templateKey: ImportTemplateKey): Promise<Blob> {
@@ -886,7 +886,7 @@ export async function deleteCalendarFeed(): Promise<void> {
   return request<void>('/api/v1/calendar-feeds', { method: 'DELETE' })
 }
 
-// Plan PUENTE B5: chat channels (Slack / Teams incoming webhooks). HR Admin only; the webhook URL
+// Plan PUENTE B5: chat channels (Slack / Teams incoming webhooks). Organization Admin only; the webhook URL
 // is write-only — responses carry the host, never the URL.
 export async function getChatWebhooks(): Promise<ChatWebhookResponse[]> {
   return request<ChatWebhookResponse[]>('/api/v1/chat-webhooks', { method: 'GET' })
@@ -911,7 +911,7 @@ export async function testChatWebhook(id: number): Promise<void> {
   return request<void>(`/api/v1/chat-webhooks/${id}/test`, { method: 'POST' })
 }
 
-// Plan PUENTE B6: the organization's Slack app (personal DMs). Install/uninstall are HR Admin
+// Plan PUENTE B6: the organization's Slack app (personal DMs). Install/uninstall are Organization Admin
 // only; status and link-me are for everyone. The bot token never reaches the browser.
 export async function getSlackStatus(): Promise<SlackStatusResponse> {
   return request<SlackStatusResponse>('/api/v1/chat/slack/status', { method: 'GET' })

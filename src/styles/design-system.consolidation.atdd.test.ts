@@ -23,7 +23,7 @@ describe('design-system consolidation ATDD — Story 10.6', () => {
     expect(content).toMatch(/\.role-badge\s*\{/)
     expect(content).toMatch(/\.role-badge-EMPLOYEE\s*\{/)
     expect(content).toMatch(/\.role-badge-MANAGER\s*\{/)
-    expect(content).toMatch(/\.role-badge-HR_ADMIN\s*\{/)
+    expect(content).toMatch(/\.role-badge-ORGANIZATION_ADMIN\s*\{/)
   })
 
   it('[P0] global.css defines consolidated button variants btn-danger, btn-ghost, btn-success, btn-danger-outline', () => {

@@ -105,7 +105,7 @@ test.describe(
     test(
       '[P0] Settings Workforce Group navigation is fully reachable at 390px',
       async ({ page }) => {
-        // HR Admin pilot user (jordan); sarah is EMPLOYEE and cannot open Settings.
+        // Organization Admin pilot user (jordan); sarah is EMPLOYEE and cannot open Settings.
         await loginViaUi(page, { email: 'jordan@company.com', password })
         await page.setViewportSize({ width: 390, height: 844 })
         await navigateInApp(page, '/settings')

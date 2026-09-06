@@ -25,7 +25,7 @@ const connected: SlackStatusResponse = {
   me: { linked: true, status: 'LINKED' },
 }
 
-function renderCard(role: UserRole = 'HR_ADMIN', onSuccess = vi.fn(), onWarning = vi.fn()) {
+function renderCard(role: UserRole = 'ORGANIZATION_ADMIN', onSuccess = vi.fn(), onWarning = vi.fn()) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   })
@@ -52,14 +52,14 @@ describe('SlackWorkspaceSettings', () => {
       renderCard(role)
 
       expect(await screen.findByTestId('slack-workspace-copy')).toHaveTextContent(
-        'Your HR admin has not connected the Slack app yet',
+        'Your Organization Admin has not connected the Slack app yet',
       )
       expect(screen.queryByTestId('slack-workspace-install')).not.toBeInTheDocument()
       expect(screen.queryByTestId('slack-me-row')).not.toBeInTheDocument()
     },
   )
 
-  it('sends an HR Admin to Slack via the API-issued authorization URL', async () => {
+  it('sends an Organization Admin to Slack via the API-issued authorization URL', async () => {
     const user = userEvent.setup()
     const assign = vi.fn()
     vi.stubGlobal('location', { ...window.location, assign })
@@ -78,13 +78,13 @@ describe('SlackWorkspaceSettings', () => {
     })
   })
 
-  it('shows the workspace and lets an HR Admin disconnect it after confirming', async () => {
+  it('shows the workspace and lets an Organization Admin disconnect it after confirming', async () => {
     const user = userEvent.setup()
     const onSuccess = vi.fn()
     vi.spyOn(apiClient, 'getSlackStatus').mockResolvedValue(connected)
     const disconnect = vi.spyOn(apiClient, 'disconnectSlack').mockResolvedValue(undefined)
 
-    renderCard('HR_ADMIN', onSuccess)
+    renderCard('ORGANIZATION_ADMIN', onSuccess)
 
     expect(await screen.findByTestId('slack-workspace-team')).toHaveTextContent('Connected to Acme Workspace')
     expect(screen.getByTestId('slack-workspace-status')).toHaveTextContent('Connected')
@@ -105,7 +105,7 @@ describe('SlackWorkspaceSettings', () => {
     })
   })
 
-  it('shows a revoked workspace with its error category and offers an HR Admin a reconnect', async () => {
+  it('shows a revoked workspace with its error category and offers an Organization Admin a reconnect', async () => {
     const user = userEvent.setup()
     const assign = vi.fn()
     vi.stubGlobal('location', { ...window.location, assign })
@@ -145,7 +145,7 @@ describe('SlackWorkspaceSettings', () => {
       new apiClient.ApiError(400, { title: 'Bad Request', status: 400, detail: 'Slack app is not configured' }),
     )
 
-    renderCard('HR_ADMIN', vi.fn(), onWarning)
+    renderCard('ORGANIZATION_ADMIN', vi.fn(), onWarning)
 
     await user.click(await screen.findByRole('button', { name: 'Add to Slack' }))
 

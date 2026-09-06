@@ -102,7 +102,7 @@ test.describe('Responsive tables — Story 10.3', { tag: [tags.regression, tags.
   test('[P0] Approvals recent decisions expose the decision date at 375px', async ({
     page,
   }) => {
-    // Uses the HR Admin's org-wide seeded recent decisions, including the Audit
+    // Uses the Organization Admin's org-wide seeded recent decisions, including the Audit
     // column, rather than consuming the pilot seed's limited pending-request budget.
     await loginViaUi(page, { email: 'jordan@company.com', password })
     await viewPageAtMobileWidth(page, '/approvals')

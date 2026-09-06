@@ -27,7 +27,7 @@ function renderCard() {
 
   render(
     <QueryClientProvider client={queryClient}>
-      <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+      <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
         <WorkforceGroupsWeekendsCard onSuccess={vi.fn()} onWarning={vi.fn()} />
       </AuthTestProvider>
     </QueryClientProvider>,

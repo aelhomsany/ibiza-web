@@ -82,7 +82,7 @@ test.describe(
         // This previously navigated straight to /settings with no session at all, on a comment
         // that "assumes API-backed seed of a Free org already at five active Users" — no seeder
         // created one, so the test timed out on add-member-btn and had never passed. Both halves
-        // are now real: sign in as that Organization's HR Admin, and DemoScenarioSeeder seeds it
+        // are now real: sign in as that Organization's Organization Admin, and DemoScenarioSeeder seeds it
         // at the cap.
         await loginViaUi(page, freeLimitHr)
         await page.goto('/settings?category=people')

@@ -93,7 +93,7 @@ function renderLeaveTypesCard(onWarning = vi.fn(), onSuccess = vi.fn()) {
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <AuthTestProvider value={createMockAuthForRole("HR_ADMIN")}>
+        <AuthTestProvider value={createMockAuthForRole("ORGANIZATION_ADMIN")}>
           <LeaveTypesCard onWarning={onWarning} onSuccess={onSuccess} />
           <LocationProbe />
         </AuthTestProvider>

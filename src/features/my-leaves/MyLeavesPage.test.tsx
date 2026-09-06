@@ -370,7 +370,7 @@ describe('MyLeavesPage', () => {
     vi.spyOn(apiClient, 'getDashboardBalances').mockResolvedValue(mockBalances)
     vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue(mockHistory)
 
-    renderMyLeavesPage('/my-leaves?status=DECLINED', 'HR_ADMIN')
+    renderMyLeavesPage('/my-leaves?status=DECLINED', 'ORGANIZATION_ADMIN')
 
     const historyRegion = await screen.findByTestId('my-leaves-history-table')
     expect(within(historyRegion).getByRole('columnheader', { name: 'Audit' }))
@@ -525,7 +525,7 @@ describe('MyLeavesPage', () => {
 describe('MyLeavesPage attention priority — Story 3.8 / 11.2', () => {
   function renderForRole(role: UserRole) {
     vi.spyOn(apiClient, 'getApprovalCapability').mockResolvedValue({
-      canReviewApprovals: role === 'MANAGER' || role === 'HR_ADMIN',
+      canReviewApprovals: role === 'MANAGER' || role === 'ORGANIZATION_ADMIN',
     })
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -562,7 +562,7 @@ describe('MyLeavesPage attention priority — Story 3.8 / 11.2', () => {
     }
   })
 
-  it.each<UserRole>(['MANAGER', 'HR_ADMIN'])(
+  it.each<UserRole>(['MANAGER', 'ORGANIZATION_ADMIN'])(
     '[P0] prioritizes pending approvals over the viewer own request for %s',
     async (role) => {
       vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 2 })

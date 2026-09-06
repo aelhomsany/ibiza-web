@@ -40,7 +40,7 @@ type ScheduleAssignmentModalProps = {
  * Assign a Work Schedule version + Location to an Organization/Workforce Group/User, effective a
  * future date. SPA-only guard (spec Testing & Validation): the Confirm button stays disabled until
  * a fresh Preview has resolved for the CURRENT selections -- any field change invalidates it, so an
- * HR admin can never commit an assignment whose affected-member count they have not just seen. The
+ * Organization admin can never commit an assignment whose affected-member count they have not just seen. The
  * server itself does not require a preview call before commit; this sequencing is a UX guard only.
  */
 export function ScheduleAssignmentModal({
@@ -62,7 +62,7 @@ export function ScheduleAssignmentModal({
   const [previewing, setPreviewing] = useState(false)
   const [committing, setCommitting] = useState(false)
   // DISTRIBUTED_OPERATIONS stays COMING_SOON on every plan until Story 16.5's release gate is
-  // flipped, so a denial is the response an HR admin actually gets today. It is not retryable, and the generic "Try again"
+  // flipped, so a denial is the response an Organization admin actually gets today. It is not retryable, and the generic "Try again"
   // copy invited a doomed retry (code review 2026-08-28).
   const [capabilityUnavailable, setCapabilityUnavailable] = useState(false)
 

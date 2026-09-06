@@ -23,12 +23,12 @@ export function OrgShell() {
   const role = user?.role ?? 'EMPLOYEE'
   const capability = useApprovalCapability()
   const canReviewApprovals = capability.data?.canReviewApprovals ?? user?.canReviewApprovals
-    ?? (role === 'MANAGER' || role === 'HR_ADMIN')
+    ?? (role === 'MANAGER' || role === 'ORGANIZATION_ADMIN')
   const reportingCapability = useReportingCapability()
   // Restricted-recovery counts as access: exports created before billing lapsed stay collectable,
   // and hiding the nav made AC3's one sanctioned exception unreachable in the product.
   const canAccessReports =
-    role === 'HR_ADMIN' &&
+    role === 'ORGANIZATION_ADMIN' &&
     (reportingCapability.data?.available === true ||
       reportingCapability.data?.recovery === true)
   const { data: pendingCountData } = usePendingApprovalCount()

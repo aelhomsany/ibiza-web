@@ -127,7 +127,7 @@
       "submitting": "Submitting…"
     },
     "errors": {
-      "noWorkforceGroup": "You are not in a workforce group yet, so working days cannot be counted. Create one under Settings → Working Calendars — you will be added to it automatically.",
+      "noWorkforceGroup": "You are not in a workforce group yet, so working days cannot be counted. Create one under Organization Settings → Working Calendars — you will be added to it automatically.",
       "preview": "Unable to preview working days",
       "submit": "Unable to submit leave request"
     },
@@ -186,7 +186,7 @@
     "latestEyebrow": "Stored result from your latest request",
     "loading": "Loading your latest working-day result…",
     "policy": "Policy source: {{group}} Workforce Group",
-    "policyFallback": "Policy source: no Workforce Group yet — create one under Settings → Working Calendars",
+    "policyFallback": "Policy source: no Workforce Group yet — create one under Organization Settings → Working Calendars",
     "requestContext": "{{type}} · {{dates}}. This is the stored result for that request.",
     "requestContextWithHint": "{{type}} · {{dates}}. {{hint}}",
     "title": "Working-day clarity",

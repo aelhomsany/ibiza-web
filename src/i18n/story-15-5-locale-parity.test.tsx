@@ -43,7 +43,7 @@ function renderInAr(node: React.ReactNode) {
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
         <MemoryRouter>
-          <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>{node}</AuthTestProvider>
+          <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>{node}</AuthTestProvider>
         </MemoryRouter>
       </ToastProvider>
     </QueryClientProvider>,

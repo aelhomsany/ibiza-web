@@ -33,7 +33,7 @@ const approvedSmokeIdentities = new Set([
   'auth-login.spec.ts::Authentication API::Given pilot credentials, When logging in via API, Then an access token is returned',
   'auth-login.spec.ts::Authentication UI::Given the login page, When signing in with valid credentials, Then the team calendar loads',
   'public-entry-boundaries.spec.ts::Platform Admin boundary — Story 12.1::[P0] Given customer and Platform Admin credentials, When each is used in both realms, Then only its own realm accepts it',
-  'settings-hr.spec.ts::HR Settings page::[P1] HR Admin sees workforce group tabs and holidays on Settings',
+  'settings-hr.spec.ts::HR Settings page::[P1] Organization Admin sees workforce group tabs and holidays on Settings',
   'settings-hr.spec.ts::HR Settings page::[P1] Switching workforce group tab updates the active weekend label',
   'settings-hr.spec.ts::HR Settings page::[P2] Leave Types card shows Annual Leave row',
 ])

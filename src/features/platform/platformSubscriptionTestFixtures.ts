@@ -4,7 +4,7 @@ export const mockAcmeForEditSubscription: OrganizationSummaryResponse = {
   id: 1,
   name: 'Nile Harbor',
   primaryContact: 'Jordan Lee',
-  initialHrAdminEmail: 'jordan@company.com',
+  initialOrganizationAdminEmail: 'jordan@company.com',
   plan: 'INTERNAL',
   userCount: 6,
   userLimit: 9999,
