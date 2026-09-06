@@ -127,14 +127,14 @@ describe('CustomerRoutes', () => {
     vi.spyOn(apiClient, 'getPolicySettingsOverview').mockResolvedValue({ leaveTypes: [], users: [], workforceGroups: [] })
     vi.spyOn(apiClient, 'getPolicyDraft').mockResolvedValue({ policyPublicId: 'policy-1', draftPublicId: 'draft-1', leaveTypePublicId: 'type-1', mode: 'ANNUAL_ALLOWANCE', allowanceDays: 20, balancePeriod: 'CALENDAR_YEAR', scope: 'ORGANIZATION', subjectPublicId: '', effectiveFrom: '2027-01-01', revision: 0, consumed: false })
     vi.spyOn(apiClient, 'getPolicyHistory').mockResolvedValue([])
-    renderCustomerRoutes(['/settings/leave-policies/draft-1'], createMockAuthForRole('HR_ADMIN'))
+    renderCustomerRoutes(['/settings/leave-policies/draft-1'], createMockAuthForRole('ORGANIZATION_ADMIN'))
     expect(await screen.findByTestId('policy-settings-page')).toBeInTheDocument()
     expect(document.title).toBe('Policy Settings — Leaveo')
   })
 
   describe('report center route', () => {
-    it('[P0] renders the lazy Report Center at /reports for an HR admin', async () => {
-      renderCustomerRoutes(['/reports'], createMockAuthForRole('HR_ADMIN'))
+    it('[P0] renders the lazy Report Center at /reports for an Organization admin', async () => {
+      renderCustomerRoutes(['/reports'], createMockAuthForRole('ORGANIZATION_ADMIN'))
 
       expect(await screen.findByTestId('report-center-page')).toBeInTheDocument()
       expect(screen.getByTestId('org-shell')).toBeInTheDocument()

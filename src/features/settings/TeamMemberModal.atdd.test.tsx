@@ -42,7 +42,7 @@ function renderModal(onClose = vi.fn()) {
   render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+        <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
           <TeamMemberModal
             editMemberId={null}
             onClose={onClose}

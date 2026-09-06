@@ -75,7 +75,7 @@ export async function mockAuthenticatedOnboarding(
         id: 42,
         email: 'hr@example.test',
         fullName: 'Onboarding HR',
-        role: 'HR_ADMIN',
+        role: 'ORGANIZATION_ADMIN',
         organizationId: 7,
         organizationName: 'Onboarding Workspace',
         timezone: 'UTC',

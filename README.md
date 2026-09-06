@@ -43,7 +43,7 @@ SPA runs on **http://localhost:5173**. Requests to `/api/*` are proxied to the A
 |-------|------|------------------|
 | `sarah@company.com` | Employee | `/` |
 | `alex@company.com` | Manager | `/` |
-| `jordan@company.com` | HR Admin | `/` |
+| `jordan@company.com` | Organization Admin | `/` |
 | `riley@leaveo.example` | Platform Admin | `/platform/organizations` |
 
 See `../leaveo-api/README.md` for backend setup.
@@ -54,9 +54,9 @@ See `../leaveo-api/README.md` for backend setup.
 2. **Session restore** — on app load, `AuthProvider` calls `POST /api/v1/auth/refresh` then `GET /api/v1/auth/me`.
 3. **Protected routes** — org and admin shells require authentication; unauthenticated visitors redirect to `/login`.
 4. **Role guards** — `RoleGuard` enforces authorization after `ProtectedRoute` authentication:
-   - Org shell (`shell="org"`): `EMPLOYEE`, `MANAGER`, `HR_ADMIN` only; `PLATFORM_ADMIN` redirects to `/platform/organizations`
+   - Org shell (`shell="org"`): `EMPLOYEE`, `MANAGER`, `ORGANIZATION_ADMIN` only; `PLATFORM_ADMIN` redirects to `/platform/organizations`
    - Admin shell (`shell="admin"`): `PLATFORM_ADMIN` only; org roles redirect to `/`
-   - Route-level guards: `/approvals` → Manager + HR Admin; `/settings` → HR Admin only
+   - Route-level guards: `/approvals` → Manager + Organization Admin; `/settings` → Organization Admin only
 5. **Post-login routing** — org roles → `/` (Dashboard); `PLATFORM_ADMIN` → `/platform/organizations`.
 6. **Sign out** — sidebar footer button calls `POST /api/v1/auth/logout`, clears client state, returns to `/login`.
 7. **Password reset** — `/forgot-password` and `/reset-password?token=...` (API from Story 1.4).
@@ -163,7 +163,7 @@ Two route-based shells share one SPA (both require sign-in). Navigation is filte
 |------|---------|-------------|
 | Employee | Dashboard, My Leaves, Team Calendar | — |
 | Manager | + Approvals | — |
-| HR Admin | + Settings | — |
+| Organization Admin | + Settings | — |
 | Platform Admin | — | Organizations only |
 
 | Shell | Routes | Visual |

@@ -16,7 +16,7 @@ function renderSection(options?: { onWarning?: (message: string) => void }) {
     onWarning,
     ...render(
       <QueryClientProvider client={queryClient}>
-        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+        <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
           <PublicHolidaysSection
             activeGroupId={1}
             activeGroupName="US"

@@ -37,7 +37,7 @@ const STEP_ORDER: FirstUseStep[] = ['calendars', 'people', 'preview']
  * Org signals for the first-use cue, resolved independently.
  *
  * Each field is `null` when its source call failed. A single failing endpoint must never
- * decide whether a brand-new HR Admin sees onboarding at all: `Promise.all` used to reject
+ * decide whether a brand-new Organization Admin sees onboarding at all: `Promise.all` used to reject
  * the whole query if one group's holiday fetch errored, which suppressed the cue for exactly
  * the person it exists for (Epic 11 retrospective action item 4).
  */
@@ -122,7 +122,7 @@ export function FirstUseCue({
   const signalsQuery = useQuery({
     queryKey: ['first-use-signals', user.organizationId],
     queryFn: getFirstUseOrganizationSignals,
-    enabled: user.role === 'HR_ADMIN' && storageKey !== null && !progress.dismissed,
+    enabled: user.role === 'ORGANIZATION_ADMIN' && storageKey !== null && !progress.dismissed,
     retry: false,
     staleTime: 5 * 60 * 1000,
     // The admin leaves for Settings and comes back; the cue has to notice what they changed.
@@ -130,7 +130,7 @@ export function FirstUseCue({
     refetchOnMount: 'always',
   })
 
-  if (user.role !== 'HR_ADMIN' || !storageKey || progress.dismissed) {
+  if (user.role !== 'ORGANIZATION_ADMIN' || !storageKey || progress.dismissed) {
     return null
   }
 
@@ -156,7 +156,7 @@ export function FirstUseCue({
   }
 
   // Org signals are org-scoped (recent-decisions/holidays/members), so a
-  // newly invited HR Admin with no personal history does not suppress the
+  // newly invited Organization Admin with no personal history does not suppress the
   // mature-org check for the org they were invited into.
   let showCue = false
   if (signalsQuery.isSuccess) {

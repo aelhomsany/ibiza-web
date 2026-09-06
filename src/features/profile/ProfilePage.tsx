@@ -206,7 +206,7 @@ export function ProfilePage() {
 }
 
 function roleKey(role: string): string {
-  if (role === 'HR_ADMIN') return 'hrAdmin'
+  if (role === 'ORGANIZATION_ADMIN') return 'organizationAdmin'
   if (role === 'PLATFORM_ADMIN') return 'platformAdmin'
   return role.toLowerCase()
 }

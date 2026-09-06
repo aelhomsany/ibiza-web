@@ -9,7 +9,7 @@ function renderCard() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+      <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
         <OrganizationSettingsCard />
       </AuthTestProvider>
     </QueryClientProvider>,

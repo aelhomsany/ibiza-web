@@ -28,7 +28,7 @@ type OrganizationSummary = {
  * does for a freshly created tenant. Rather than chase those three checks with a better forgery,
  * the test now earns a real session the way the administrator does: the platform provisions the
  * Organization, the invitation email is read from the dev mail sink, the invitation is accepted
- * with a password, and the HR Admin signs in. Nothing about auth is stubbed any more.
+ * with a password, and the Organization Admin signs in. Nothing about auth is stubbed any more.
  */
 test.describe('Team member plan limit', { tag: [tags.regression, tags.api] }, () => {
   test.skip(
@@ -58,7 +58,7 @@ test.describe('Team member plan limit', { tag: [tags.regression, tags.api] }, ()
       data: {
         name: orgName,
         primaryContact: 'Fatima Hassan',
-        initialHrAdminEmail: hrEmail,
+        initialOrganizationAdminEmail: hrEmail,
         plan: 'FREE',
       },
     })
@@ -67,7 +67,7 @@ test.describe('Team member plan limit', { tag: [tags.regression, tags.api] }, ()
     // The platform provisioning path invites the initial administrator through
     // PasswordResetService.sendInvitation, so the mail carries a /reset-password link and the
     // password is set through /api/v1/auth/reset-password — not the /accept-invitation endpoint,
-    // which belongs to the separate team-member invitation an HR Admin issues from Settings.
+    // which belongs to the separate team-member invitation an Organization Admin issues from Settings.
     const invitationToken = await initialPasswordTokenFor(request, hrEmail)
     await apiRequest({
       request,
@@ -81,7 +81,7 @@ test.describe('Team member plan limit', { tag: [tags.regression, tags.api] }, ()
     const hrCredentials = { email: hrEmail, password: HR_PASSWORD, timezone: 'America/New_York' }
     const { accessToken: hrToken } = await loginViaApi(request, hrCredentials)
 
-    // A tenant is provisioned with no Workforce Groups — the HR Admin creates them — so the
+    // A tenant is provisioned with no Workforce Groups — the Organization Admin creates them — so the
     // members seeded below need one to belong to, and the modal's group select needs an option.
     const group = await apiRequest<{ id: number; name: string }>({
       request,
@@ -93,7 +93,7 @@ test.describe('Team member plan limit', { tag: [tags.regression, tags.api] }, ()
     const groupId = group.id
     expect(groupId).toBeTruthy()
 
-    // Four members plus the HR Admin puts this Organization exactly on the FREE(5) cap, so the
+    // Four members plus the Organization Admin puts this Organization exactly on the FREE(5) cap, so the
     // member added through the UI below is the one that must be refused. It seeded two while the
     // cap was FREE(3); Story 12.3 raised it to FREE(5) and updated the API test but not this
     // spec, so the fourth user became legal and the contracted refusal never fired.

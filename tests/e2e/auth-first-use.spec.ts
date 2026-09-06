@@ -56,7 +56,7 @@ test.describe(
     )
 
     test(
-      '[P1] Given HR Admin with incomplete first-use, When My Leaves loads, Then cue CTA opens Working calendars',
+      '[P1] Given Organization Admin with incomplete first-use, When My Leaves loads, Then cue CTA opens Working calendars',
       async ({ page }) => {
         await loginViaUi(page, { email: firstUseHrEmail, password })
         // The first-use cue moved with the greeting to My Leaves when the Dashboard

@@ -12,7 +12,7 @@ import './my-settings.css'
 
 /**
  * Plan PUENTE D-12 — "My settings", a left-nav item for every org role. The org-wide Settings
- * page is HR Admin only, so the personal cards live here: Notification preferences, Calendar
+ * page is Organization Admin only, so the personal cards live here: Notification preferences, Calendar
  * sync, Calendar feed, and "Your Slack" (shown only once the workspace is installed). Same
  * card stack and notes bands as Settings → Integrations.
  */

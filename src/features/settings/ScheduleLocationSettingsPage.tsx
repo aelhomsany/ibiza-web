@@ -764,7 +764,7 @@ function NewLocationContextModal({
   const [holidayWorkforceGroupPublicId, setHolidayWorkforceGroupPublicId] = useState('')
   const [submitting, setSubmitting] = useState(false)
   // A location borrows its public holidays from a Workforce Group, and a tenant now starts with
-  // none — the HR Admin creates them. Without this the holiday source is an empty required
+  // none — the Organization Admin creates them. Without this the holiday source is an empty required
   // select above a permanently disabled button, with nothing saying why.
   const noGroups = groupsLoaded && workforceGroups.length === 0
 

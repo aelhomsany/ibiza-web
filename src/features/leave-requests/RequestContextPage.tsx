@@ -24,7 +24,7 @@ export function RequestContextPage() {
   const { id } = useParams()
   const requestId = parseRequestId(id)
   const { user } = useAuth()
-  const isHrAdmin = user?.role === 'HR_ADMIN'
+  const isOrganizationAdmin = user?.role === 'ORGANIZATION_ADMIN'
   const query = useLeaveRequestContext(requestId)
 
   if (requestId == null) {
@@ -147,7 +147,7 @@ export function RequestContextPage() {
               ) : null}
             </dd>
           </div>
-          {isHrAdmin && request.id != null ? (
+          {isOrganizationAdmin && request.id != null ? (
             <div>
               <dt>{t('requestContext.audit')}</dt>
               <dd>

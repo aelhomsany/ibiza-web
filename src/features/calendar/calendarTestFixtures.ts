@@ -39,7 +39,7 @@ export const mockCalendarMonth: CalendarMonthResponse = {
       workingDays: 3,
       workingDates: ['2026-06-10', '2026-06-11', '2026-06-12'],
       canViewRequestContext: true,
-      viewerRelationship: 'HR_ADMIN',
+      viewerRelationship: 'ORGANIZATION_ADMIN',
     },
     {
       requestId: 11,

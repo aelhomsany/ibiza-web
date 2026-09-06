@@ -27,7 +27,7 @@ test.describe('Platform create organization', { tag: [tags.regression, tags.api]
 
     await page.getByLabel('Organization name').fill(orgName)
     await page.getByLabel('Primary contact').fill('Fatima Hassan')
-    await page.getByLabel('Initial HR Admin email').fill(hrEmail)
+    await page.getByLabel('Initial Organization Admin email').fill(hrEmail)
     await page.getByLabel('Subscription plan').selectOption('GROWTH')
     await page
       .getByRole('dialog', { name: 'Create Organization' })

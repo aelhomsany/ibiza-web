@@ -85,7 +85,7 @@ function renderPage(onWarning = vi.fn(), onSuccess = vi.fn()) {
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+        <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
           {/* The component calls useToast() for its standalone fallback even when the parent
               supplies onSuccess/onWarning, so a provider is required here as it is in the app. */}
           <ToastProvider>
@@ -248,7 +248,7 @@ describe('ScheduleLocationSettingsPage', () => {
   })
 
   /**
-   * A tenant is provisioned with zero Workforce Groups -- the HR Admin creates them -- so the
+   * A tenant is provisioned with zero Workforce Groups -- the Organization Admin creates them -- so the
    * holiday source can legitimately have nothing to offer. Without an explanation the admin sees
    * an empty required select above a button that never enables.
    */

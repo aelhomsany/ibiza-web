@@ -46,7 +46,7 @@ test.describe(
     }) => {
       await loginViaUi(page, { email: 'jordan@company.com', password })
       await page.getByTestId('nav-settings').click()
-      await expect(page.getByRole('heading', { name: 'Settings', exact: true })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Organization Settings', exact: true })).toBeVisible()
       await expect(page.getByRole('tab', { name: 'US', exact: true })).toBeVisible()
       await expect(page.getByRole('tab', { name: 'Egypt', exact: true })).toBeVisible()
       await page.getByTestId('settings-category-people').click()

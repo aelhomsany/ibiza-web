@@ -67,7 +67,7 @@ export function RequestLeaveModal({ open, onClose, onSuccess }: RequestLeaveModa
 
   const clientDateInvalid =
     dateFrom !== '' && dateTo !== '' && dateTo < dateFrom
-  // An organization is provisioned with no Workforce Groups; the founding HR Admin is created
+  // An organization is provisioned with no Workforce Groups; the founding Organization Admin is created
   // ungrouped and is adopted into the first group they create. Until then every working-day
   // calculation for them is a guaranteed 400, so the preview is skipped and the explainer says
   // what to do instead of echoing the server's untranslated "no workforce group assigned".

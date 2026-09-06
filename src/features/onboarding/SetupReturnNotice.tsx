@@ -36,9 +36,9 @@ export function SetupReturnNotice() {
   const [dismissed, setDismissed] = useState(readDismissed)
 
   const cameFromSetup = searchParams.get('from') === 'onboarding'
-  // A non-HR Admin is bounced off /onboarding by the route guard, so offering them the trip back
+  // A non-Organization Admin is bounced off /onboarding by the route guard, so offering them the trip back
   // would only lose their place — the marker can be pasted into any URL.
-  const canReturn = user?.role === 'HR_ADMIN'
+  const canReturn = user?.role === 'ORGANIZATION_ADMIN'
   if (!cameFromSetup || !canReturn || dismissed || location.pathname === '/onboarding') {
     return null
   }

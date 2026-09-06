@@ -12,7 +12,7 @@ function renderGuard(
   initialPath: string,
   role: Parameters<typeof createMockAuthForRole>[0],
   guardProps: ComponentProps<typeof RoleGuard>,
-  serverCapability = role === 'MANAGER' || role === 'HR_ADMIN',
+  serverCapability = role === 'MANAGER' || role === 'ORGANIZATION_ADMIN',
 ) {
   vi.mocked(apiClient.getApprovalCapability).mockResolvedValue({
     canReviewApprovals: serverCapability,
@@ -63,24 +63,24 @@ describe('RoleGuard', () => {
   })
 
   it('redirects EMPLOYEE from approvals route', () => {
-    renderGuard('/approvals', 'EMPLOYEE', { allowedRoles: ['MANAGER', 'HR_ADMIN'] })
+    renderGuard('/approvals', 'EMPLOYEE', { allowedRoles: ['MANAGER', 'ORGANIZATION_ADMIN'] })
     expect(screen.getByTestId('home-page')).toBeInTheDocument()
     expect(screen.queryByTestId('approvals-page')).not.toBeInTheDocument()
   })
 
   it('allows MANAGER on approvals route', () => {
-    renderGuard('/approvals', 'MANAGER', { allowedRoles: ['MANAGER', 'HR_ADMIN'] })
+    renderGuard('/approvals', 'MANAGER', { allowedRoles: ['MANAGER', 'ORGANIZATION_ADMIN'] })
     expect(screen.getByTestId('approvals-page')).toBeInTheDocument()
   })
 
   it('redirects MANAGER from settings route', () => {
-    renderGuard('/settings', 'MANAGER', { allowedRoles: ['HR_ADMIN'] })
+    renderGuard('/settings', 'MANAGER', { allowedRoles: ['ORGANIZATION_ADMIN'] })
     expect(screen.getByTestId('home-page')).toBeInTheDocument()
     expect(screen.queryByTestId('settings-page')).not.toBeInTheDocument()
   })
 
-  it('allows HR_ADMIN on settings route', () => {
-    renderGuard('/settings', 'HR_ADMIN', { allowedRoles: ['HR_ADMIN'] })
+  it('allows ORGANIZATION_ADMIN on settings route', () => {
+    renderGuard('/settings', 'ORGANIZATION_ADMIN', { allowedRoles: ['ORGANIZATION_ADMIN'] })
     expect(screen.getByTestId('settings-page')).toBeInTheDocument()
   })
 
@@ -115,8 +115,8 @@ describe('RoleGuard', () => {
       expect(screen.queryByTestId('settings-page')).not.toBeInTheDocument()
     })
 
-    it('allows HR_ADMIN on /settings via canAccessOrgRoute', () => {
-      renderGuard('/settings', 'HR_ADMIN', { shell: 'org' })
+    it('allows ORGANIZATION_ADMIN on /settings via canAccessOrgRoute', () => {
+      renderGuard('/settings', 'ORGANIZATION_ADMIN', { shell: 'org' })
       expect(screen.getByTestId('settings-page')).toBeInTheDocument()
     })
 

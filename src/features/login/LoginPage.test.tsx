@@ -199,13 +199,13 @@ describe('LoginPage', () => {
     },
   )
 
-  it('resumes an enabled server onboarding workflow after HR admin sign-in', async () => {
+  it('resumes an enabled server onboarding workflow after Organization admin sign-in', async () => {
     const user = userEvent.setup()
     login.mockResolvedValue({
       id: 7,
       email: 'hr@company.com',
       fullName: 'Harper Admin',
-      role: 'HR_ADMIN',
+      role: 'ORGANIZATION_ADMIN',
       organizationId: 1,
       organizationName: 'Nile Harbor',
       timezone: 'America/New_York',
@@ -254,17 +254,17 @@ describe('LoginPage', () => {
 
   it('respects a persisted "Not now" instead of diverting the admin on every sign-in', async () => {
     const user = userEvent.setup()
-    const hrAdmin = {
+    const organizationAdmin = {
       id: 7,
       email: 'hr@company.com',
       fullName: 'Harper Admin',
-      role: 'HR_ADMIN' as const,
+      role: 'ORGANIZATION_ADMIN' as const,
       organizationId: 1,
       organizationName: 'Nile Harbor',
       timezone: 'America/New_York',
     }
-    login.mockResolvedValue(hrAdmin)
-    skipOnboardingRedirect(hrAdmin.id)
+    login.mockResolvedValue(organizationAdmin)
+    skipOnboardingRedirect(organizationAdmin.id)
     vi.stubGlobal('fetch', vi.fn())
 
     render(
@@ -302,7 +302,7 @@ describe('LoginPage', () => {
       id: 7,
       email: 'hr@company.com',
       fullName: 'Harper Admin',
-      role: 'HR_ADMIN',
+      role: 'ORGANIZATION_ADMIN',
       organizationId: 1,
       organizationName: 'Nile Harbor',
       timezone: 'America/New_York',

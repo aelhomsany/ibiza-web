@@ -34,7 +34,7 @@ const mockLeaveTypes: LeaveTypeResponse[] = [
 
 const mockMembers: TeamMemberSummaryResponse[] = [
   { id: 3, fullName: 'Alex Johnson', email: 'alex@company.com', department: 'Engineering', role: 'MANAGER', workforceGroupId: 1, workforceGroupName: 'US', managerId: undefined, managerName: undefined },
-  { id: 5, fullName: 'Jordan Lee', email: 'jordan@company.com', department: 'People', role: 'HR_ADMIN', workforceGroupId: 1, workforceGroupName: 'US', managerId: undefined, managerName: undefined },
+  { id: 5, fullName: 'Jordan Lee', email: 'jordan@company.com', department: 'People', role: 'ORGANIZATION_ADMIN', workforceGroupId: 1, workforceGroupName: 'US', managerId: undefined, managerName: undefined },
 ]
 
 function renderModal(
@@ -49,7 +49,7 @@ function renderModal(
   const result = render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+        <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
           <TeamMemberModal
             editMemberId={editMemberId}
             onClose={onClose}
@@ -159,7 +159,7 @@ describe('TeamMemberModal — add mode', () => {
     await waitFor(() => {
       const optionLabels = screen.getAllByRole('option').map((option) => option.textContent)
       expect(optionLabels).toContain('Alex Johnson — Manager')
-      expect(optionLabels).toContain('Jordan Lee — HR Admin')
+      expect(optionLabels).toContain('Jordan Lee — Organization Admin')
     })
 
     await user.type(screen.getByLabelText(/Full name/i), 'Gap Test')
@@ -184,7 +184,7 @@ describe('TeamMemberModal — add mode', () => {
     await waitFor(() => {
       const optionLabels = screen.getAllByRole('option').map((option) => option.textContent)
       expect(optionLabels).toContain('Alex Johnson — مدير')
-      expect(optionLabels).toContain('Jordan Lee — مسؤول الموارد البشرية')
+      expect(optionLabels).toContain('Jordan Lee — مسؤول المؤسسة')
     })
   })
 
@@ -487,7 +487,7 @@ describe('TeamMemberModal — edit mode', () => {
   })
 })
 
-// A tenant now starts with zero Workforce Groups — the HR Admin creates them — so the required
+// A tenant now starts with zero Workforce Groups — the Organization Admin creates them — so the required
 // group field can legitimately have nothing to pick. The modal has to say so and refuse to
 // submit, otherwise the only feedback is a 400 from the server.
 describe('TeamMemberModal — organization has no workforce groups', () => {
@@ -503,7 +503,7 @@ describe('TeamMemberModal — organization has no workforce groups', () => {
     render(
       <QueryClientProvider client={queryClient}>
         <MemoryRouter initialEntries={['/settings?category=people']}>
-          <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+          <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
             <TeamMemberModal
               editMemberId={null}
               onClose={onClose}

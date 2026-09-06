@@ -85,9 +85,9 @@ export function ApprovalsPage() {
   const [focusTarget, setFocusTarget] = useState<ApprovalKey | 'empty' | null>(null)
   const headingRefs = useRef(new Map<ApprovalKey, HTMLHeadingElement>())
   const emptyHeadingRef = useRef<HTMLHeadingElement>(null)
-  const isHrAdmin = user?.role === 'HR_ADMIN'
-  const subtitle = isHrAdmin
-    ? t('approvals:subtitle.hr')
+  const isOrganizationAdmin = user?.role === 'ORGANIZATION_ADMIN'
+  const subtitle = isOrganizationAdmin
+    ? t('approvals:subtitle.organizationAdmin')
     : t('approvals:subtitle.manager')
 
   const visibleApprovals = useMemo(
@@ -629,7 +629,7 @@ export function ApprovalsPage() {
                   <th scope="col">{t('approvals:table.status')}</th>
                   <th scope="col">{t('approvals:table.decidedBy')}</th>
                   <th scope="col">{t('approvals:table.decisionDate')}</th>
-                  {isHrAdmin ? (
+                  {isOrganizationAdmin ? (
                     <th scope="col">{t('approvals:table.audit')}</th>
                   ) : null}
                   <th scope="col">{t('approvals:table.approvalEvidence')}</th>
@@ -644,7 +644,7 @@ export function ApprovalsPage() {
                     <RecentDecisionRow
                       key={decision.requestId}
                       decision={decision}
-                      showAuditHistory={isHrAdmin}
+                      showAuditHistory={isOrganizationAdmin}
                     />
                   )
                 })}

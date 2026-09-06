@@ -21,7 +21,7 @@ const slackChannel: ChatWebhookResponse = {
   lastPostedAt: null,
 }
 
-function renderCard(role: UserRole = 'HR_ADMIN', onSuccess = vi.fn(), onWarning = vi.fn()) {
+function renderCard(role: UserRole = 'ORGANIZATION_ADMIN', onSuccess = vi.fn(), onWarning = vi.fn()) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   })
@@ -96,7 +96,7 @@ describe('ChatNotificationsSettings', () => {
     const list = vi.spyOn(apiClient, 'getChatWebhooks').mockResolvedValueOnce([]).mockResolvedValue([slackChannel])
     const create = vi.spyOn(apiClient, 'createChatWebhook').mockResolvedValue(slackChannel)
 
-    renderCard('HR_ADMIN', onSuccess)
+    renderCard('ORGANIZATION_ADMIN', onSuccess)
     await user.click(await screen.findByTestId('chat-webhook-add'))
     await user.type(screen.getByLabelText('Channel label'), '#people-ops')
     await user.type(
@@ -165,7 +165,7 @@ describe('ChatNotificationsSettings', () => {
         } as never),
       )
 
-    renderCard('HR_ADMIN', onSuccess, onWarning)
+    renderCard('ORGANIZATION_ADMIN', onSuccess, onWarning)
     await user.click(await screen.findByTestId('chat-webhook-test-7'))
     await waitFor(() => expect(onSuccess).toHaveBeenCalledWith('Test message sent'))
 
@@ -184,7 +184,7 @@ describe('ChatNotificationsSettings', () => {
     vi.spyOn(apiClient, 'getChatWebhooks').mockResolvedValueOnce([slackChannel]).mockResolvedValue([])
     const remove = vi.spyOn(apiClient, 'deleteChatWebhook').mockResolvedValue(undefined)
 
-    renderCard('HR_ADMIN', onSuccess)
+    renderCard('ORGANIZATION_ADMIN', onSuccess)
     await user.click(await screen.findByTestId('chat-webhook-remove-7'))
     expect(screen.getByTestId('chat-webhook-remove-modal')).toHaveTextContent('#people-ops')
     expect(remove).not.toHaveBeenCalled()

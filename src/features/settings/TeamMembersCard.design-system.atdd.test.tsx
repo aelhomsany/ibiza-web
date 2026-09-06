@@ -13,7 +13,7 @@ const mockMembers: TeamMemberSummaryResponse[] = [
     fullName: 'Jordan Lee',
     email: 'jordan@company.com',
     department: 'People Ops',
-    role: 'HR_ADMIN',
+    role: 'ORGANIZATION_ADMIN',
     workforceGroupId: 1,
     workforceGroupName: 'US',
     managerId: undefined,
@@ -41,7 +41,7 @@ function renderCard() {
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+        <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
           <TeamMembersCard onSuccess={vi.fn()} onWarning={vi.fn()} />
         </AuthTestProvider>
       </MemoryRouter>
@@ -67,9 +67,9 @@ describe('TeamMembersCard design-system ATDD — Story 10.6', () => {
     roleBadges.forEach((badge) => {
       expect(badge.className).toMatch(/\brole-badge\b/)
       expect(badge.className).not.toMatch(/^badge\s/)
-      expect(badge.className).not.toMatch(/\sbadge-(EMPLOYEE|MANAGER|HR_ADMIN)\b/)
+      expect(badge.className).not.toMatch(/\sbadge-(EMPLOYEE|MANAGER|ORGANIZATION_ADMIN)\b/)
     })
-    expect(container.querySelector('.badge-EMPLOYEE, .badge-MANAGER, .badge-HR_ADMIN')).toBeNull()
+    expect(container.querySelector('.badge-EMPLOYEE, .badge-MANAGER, .badge-ORGANIZATION_ADMIN')).toBeNull()
   })
 
   it('[P0] deactivation confirm uses btn-danger, not btn-primary', async () => {

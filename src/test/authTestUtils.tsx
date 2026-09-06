@@ -23,11 +23,11 @@ export const mockUsers = {
     timezone: 'America/New_York',
     workforceGroupName: 'US',
   },
-  hrAdmin: {
+  organizationAdmin: {
     id: 5,
     email: 'jordan@company.com',
     fullName: 'Jordan Lee',
-    role: 'HR_ADMIN',
+    role: 'ORGANIZATION_ADMIN',
     organizationId: 1,
     organizationName: 'Nile Harbor',
     timezone: 'America/New_York',
@@ -48,7 +48,7 @@ export function createMockAuthForRole(role: UserRole): AuthContextValue {
   const userByRole: Record<UserRole, UserSummaryResponse> = {
     EMPLOYEE: mockUsers.employee,
     MANAGER: mockUsers.manager,
-    HR_ADMIN: mockUsers.hrAdmin,
+    ORGANIZATION_ADMIN: mockUsers.organizationAdmin,
     PLATFORM_ADMIN: mockUsers.platformAdmin,
   }
 

@@ -101,7 +101,7 @@ function OrganizationsTable({
                   <span className="org-cell__name">{organization.name}</span>
                   <span className="org-cell__subline">
                     {organization.primaryContact}
-                    {organization.initialHrAdminEmail ? ` · ${organization.initialHrAdminEmail}` : ''}
+                    {organization.initialOrganizationAdminEmail ? ` · ${organization.initialOrganizationAdminEmail}` : ''}
                   </span>
                 </div>
               </td>

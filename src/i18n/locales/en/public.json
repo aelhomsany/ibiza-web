@@ -101,12 +101,12 @@
     "eyebrow": "Transparent leave management",
     "intro": "See the result, every charged or excluded date, and the group policy that produced it—before a leave balance changes.",
     "distributedTitle": "One team can work across different weekends without hidden arithmetic.",
-    "distributedBody": "Each person belongs to a Workforce Group with its own weekend pattern and public holidays. Leaveo applies the requester's policy and keeps the consequence readable for employees, managers, and HR.",
+    "distributedBody": "Each person belongs to a Workforce Group with its own weekend pattern and public holidays. Leaveo applies the requester's policy and keeps the consequence readable for employees, managers, and Organization Admins.",
     "fitTitle": "Built for teams that need policy clarity, not another opaque total.",
     "fitItems": [
       "Employees can see why a balance is charged.",
       "Managers review the same date and policy evidence.",
-      "HR keeps weekend and holiday rules attached to the right group."
+      "Organization Admins keep weekend and holiday rules attached to the right group."
     ]
   },
   "product": {
@@ -143,7 +143,7 @@
     "groupTwoTitle": "A Saturday–Sunday weekend group",
     "groupTwoBody": "The same Friday is charged, unless a holiday applies to that group.",
     "consequenceTitle": "The operational consequence",
-    "consequenceBody": "Managers compare coverage using the requester's actual charged dates. HR can change future group policy without rewriting historical requests."
+    "consequenceBody": "Managers compare coverage using the requester's actual charged dates. Organization Admins can change future group policy without rewriting historical requests."
   },
   "workingDays": {
     "title": "Every charged day has a visible reason.",

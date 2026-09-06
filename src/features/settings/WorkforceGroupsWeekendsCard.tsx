@@ -527,7 +527,7 @@ export function WorkforceGroupsWeekendsCard({
               // The first group adopts every still-ungrouped user server-side, so the
               // member counts this card renders are stale until the roster refetches.
               void queryClient.invalidateQueries({ queryKey: membersQueryKey })
-              // The signed-in HR Admin is one of those adopted users, so their cached
+              // The signed-in Organization Admin is one of those adopted users, so their cached
               // summary still says they have no workforce group. Screens that gate on
               // that (Request Leave) stay blocked until the summary is re-fetched.
               if (!hasGroups) {

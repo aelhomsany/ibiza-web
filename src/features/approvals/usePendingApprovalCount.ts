@@ -12,7 +12,7 @@ export function usePendingApprovalCount() {
   const capability = useApprovalCapability()
   const userId = user?.id
   const canReview = capability.data?.canReviewApprovals ?? user?.canReviewApprovals
-    ?? (user?.role === 'MANAGER' || user?.role === 'HR_ADMIN')
+    ?? (user?.role === 'MANAGER' || user?.role === 'ORGANIZATION_ADMIN')
   const enabled = userId != null && canReview
 
   return useQuery({

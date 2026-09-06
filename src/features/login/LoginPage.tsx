@@ -56,7 +56,7 @@ export function LoginPage() {
       )
       let destination = fromPath ?? getHomePath(signedInUser.role)
 
-      // Resuming is server-owned: an HR admin who signs back in (including through
+      // Resuming is server-owned: an Organization admin who signs back in (including through
       // the assisted password-invitation path) returns to the workflow only while
       // the feature is enabled and required setup is still outstanding.
       // Any unavailable/disabled response preserves the established dashboard cue.
@@ -68,7 +68,7 @@ export function LoginPage() {
       // persisted opt-out, an admin signing in to approve a request was diverted on every login.
       if (
         !fromPath
-        && signedInUser.role === 'HR_ADMIN'
+        && signedInUser.role === 'ORGANIZATION_ADMIN'
         && !hasSkippedOnboardingRedirect(signedInUser.id)
       ) {
         try {

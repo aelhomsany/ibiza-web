@@ -10,7 +10,7 @@ export function BillingNotice() {
   const [subscription, setSubscription] = useState<BillingSubscription | null>(null)
 
   useEffect(() => {
-    if (user?.role !== 'HR_ADMIN') return
+    if (user?.role !== 'ORGANIZATION_ADMIN') return
     let active = true
     void getBillingSubscription().then((value) => active && setSubscription(value)).catch(() => undefined)
     return () => { active = false }

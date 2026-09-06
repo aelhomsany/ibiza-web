@@ -5,7 +5,7 @@ import type { i18n as I18nInstance, TFunction } from 'i18next'
  *
  * Every function here is display-only. None of them aggregates, sums, re-derives, or
  * reinterprets a value — the server owns all arithmetic (AD-4). They exist so that an
- * enum code, an empty collection, or a nested fact map reaches the HR administrator as
+ * enum code, an empty collection, or a nested fact map reaches the Organization administrator as
  * readable, localized text instead of `APPROVED`, an empty cell, or `[object Object]`.
  */
 

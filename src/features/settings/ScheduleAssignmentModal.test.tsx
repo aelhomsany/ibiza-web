@@ -71,7 +71,7 @@ describe('ScheduleAssignmentModal', () => {
     expect(previewSpy).not.toHaveBeenCalled()
   })
 
-  // Spec Testing & Validation (SPA-only): an HR admin must see the resolved
+  // Spec Testing & Validation (SPA-only): an Organization admin must see the resolved
   // affected-member impact before Confirm ever becomes reachable, and any
   // later field change must invalidate that resolved preview again.
   it('confirm button disabled until preview resolves', async () => {

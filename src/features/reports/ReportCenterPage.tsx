@@ -603,7 +603,7 @@ export function ReportCenterPage() {
 
   const dateRangeErrorId = draftError ? 'report-filter-error' : undefined
   const grouplessHintId = groupless ? 'report-groupless-hint' : undefined
-  // An organization starts with no Workforce Groups (the HR Admin creates them), which would
+  // An organization starts with no Workforce Groups (the Organization Admin creates them), which would
   // leave this optional filter as a select whose only choice is "All groups".
   const hasWorkforceGroupFilter =
     !workforceGroupsQuery.isSuccess || (workforceGroupsQuery.data?.length ?? 0) > 0

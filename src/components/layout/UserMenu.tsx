@@ -329,7 +329,7 @@ export function UserMenu({ userName, userRole, profileImageUrl, onSignOut, varia
 }
 
 function roleKey(role: UserRole): string {
-  if (role === 'HR_ADMIN') return 'hrAdmin'
+  if (role === 'ORGANIZATION_ADMIN') return 'organizationAdmin'
   if (role === 'PLATFORM_ADMIN') return 'platformAdmin'
   return role.toLowerCase()
 }

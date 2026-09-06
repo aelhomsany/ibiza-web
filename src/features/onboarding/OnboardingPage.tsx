@@ -162,7 +162,7 @@ function OnboardingView({
                   : t('onboarding:next.continue')}
               </Link>
               {/*
-                Persisted opt-out. Sign-in used to divert every HR Admin here until setup completed,
+                Persisted opt-out. Sign-in used to divert every Organization Admin here until setup completed,
                 so an admin who came to approve a request was overridden on every login.
               */}
               {onSkip ? (

@@ -69,10 +69,10 @@ describe('AppRouter page identity ATDD — Story 10.1', () => {
   it(
     '[P0] sets document.title to "{Page title} — Leaveo" on the settings route',
     async () => {
-      renderAppRoutes(['/settings'], createMockAuthForRole('HR_ADMIN'))
+      renderAppRoutes(['/settings'], createMockAuthForRole('ORGANIZATION_ADMIN'))
 
-      await screen.findByRole('heading', { name: 'Settings' })
-      expect(document.title).toBe('Settings — Leaveo')
+      await screen.findByRole('heading', { name: 'Organization Settings' })
+      expect(document.title).toBe('Organization Settings — Leaveo')
     },
   )
 

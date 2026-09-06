@@ -102,7 +102,7 @@ export function TeamMembersCard({
         member.email,
         member.department,
         member.role,
-        // Search the same humanized label the row displays (e.g. "HR Admin"),
+        // Search the same humanized label the row displays (e.g. "Organization Admin"),
         // not just the raw enum, alongside the raw value for exact-enum typers.
         member.role && i18n.exists(`common:roles.${roleKey(member.role)}`)
           ? t(`common:roles.${roleKey(member.role)}`)
@@ -130,7 +130,7 @@ export function TeamMembersCard({
     }
     // Fixed order, strongest first: a Map keyed by arrival order would reshuffle the rail every
     // time somebody's role changed.
-    return (['HR_ADMIN', 'MANAGER', 'EMPLOYEE'] as const)
+    return (['ORGANIZATION_ADMIN', 'MANAGER', 'EMPLOYEE'] as const)
       .map((role) => ({ role, count: counts.get(role) ?? 0 }))
       .filter(({ count }) => count > 0)
   }, [activeMembers])
@@ -597,6 +597,6 @@ export function TeamMembersCard({
 }
 
 function roleKey(role: string): string {
-  if (role === 'HR_ADMIN') return 'hrAdmin'
+  if (role === 'ORGANIZATION_ADMIN') return 'organizationAdmin'
   return role.toLowerCase()
 }

@@ -35,7 +35,7 @@ function renderModal() {
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <AuthTestProvider value={createMockAuthForRole('HR_ADMIN')}>
+        <AuthTestProvider value={createMockAuthForRole('ORGANIZATION_ADMIN')}>
           <TeamMemberModal
             editMemberId={null}
             onClose={vi.fn()}
