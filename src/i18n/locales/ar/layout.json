@@ -47,7 +47,8 @@
     "recentDecisions": "جارٍ تحميل القرارات الأخيرة…",
     "leaveBalances": "جارٍ تحميل أرصدة الإجازات",
     "leaveHistory": "جارٍ تحميل سجل الإجازات",
-    "teamMembers": "جارٍ تحميل أعضاء الفريق…"
+    "teamMembers": "جارٍ تحميل أعضاء الفريق…",
+    "pendingCancellations": "جارٍ تحميل طلبات الإلغاء…"
   },
   "language": {
     "en": "English",

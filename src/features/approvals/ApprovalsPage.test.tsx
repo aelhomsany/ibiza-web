@@ -108,6 +108,8 @@ function renderApprovalsPage(role: 'MANAGER' | 'ORGANIZATION_ADMIN' = 'MANAGER')
 describe('ApprovalsPage', () => {
   beforeEach(() => {
     vi.spyOn(apiClient, 'getRecentApprovalDecisions').mockResolvedValue([])
+    // Plan VUELTA: the Organization Admin's cancellation queue renders above the leave queue.
+    vi.spyOn(apiClient, 'getPendingCancellations').mockResolvedValue([])
     vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
     vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([])
   })

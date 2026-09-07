@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router-dom'
+import { ApiError } from '../../api/client'
+import type { RecentRequestResponse } from '../../api/generated/types'
 import { useAuth } from '../../auth/useAuth'
 import { LoadingState } from '../../components/ui/LoadingState'
 import { PlusIcon } from '../../components/ui/icons'
@@ -18,16 +20,27 @@ import { useDashboardBalances } from '../dashboard/useDashboardBalances'
 import { useDashboardOutToday } from '../dashboard/useDashboardOutToday'
 import { useDashboardUpcoming } from '../dashboard/useDashboardUpcoming'
 import { useOnboarding } from '../onboarding/useOnboarding'
+import { CancelLeaveModal } from './CancelLeaveModal'
+import { cancelVariantFor, type CancelLeaveVariant } from './cancellation'
 import { MyLeavesAttention } from './MyLeavesAttention'
 import { MyLeavesFilters } from './MyLeavesFilters'
 import { MyLeavesHistory } from './MyLeavesHistory'
 import { MyLeavesSupportRail } from './MyLeavesSupportRail'
 import { STATUS_FILTERS, type MyLeavesStatusFilter } from './statusFilters'
+import { useCancelLeave, useRequestLeaveCancellation } from './useCancelLeave'
 import { useMyLeaveRequests } from './useMyLeaveRequests'
 import './my-leaves.css'
 
 const SEARCH_INPUT_ID = 'my-leaves-search'
 const QUERY_COMMIT_DELAY_MS = 500
+
+type CancelTarget = {
+  requestId: number
+  variant: CancelLeaveVariant
+  leaveTypeName: string
+  dateRange: string
+  daysToRestore: number
+}
 
 function statusFilterFrom(value: string | null): MyLeavesStatusFilter {
   return STATUS_FILTERS.includes(value as MyLeavesStatusFilter)
@@ -66,6 +79,16 @@ export function MyLeavesPage() {
   const isOrganizationAdmin = user?.role === 'ORGANIZATION_ADMIN'
   const [modalOpen, setModalOpen] = useState(false)
   const [expandedRequestId, setExpandedRequestId] = useState<number | null>(null)
+  const [cancelTarget, setCancelTarget] = useState<CancelTarget | null>(null)
+  const [cancelReason, setCancelReason] = useState('')
+  const [cancelError, setCancelError] = useState<string | null>(null)
+  // The in-flight flag is owned here rather than read from the mutation: React Query's
+  // `isPending` stalls under StrictMode's double-invoke and leaves the confirm button stuck
+  // busy with a 200 already in the network tab (CANCEL-UI-VAL-007). The ref is the authority
+  // for the re-entrancy guard so two clicks in one tick cannot both pass it; the state copy
+  // exists only to re-render.
+  const cancelInFlight = useRef(false)
+  const [isCancelling, setIsCancelling] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
   const greetingRef = useRef<HTMLHeadingElement>(null)
   const { showToast } = useToast()
@@ -75,6 +98,8 @@ export function MyLeavesPage() {
   const upcomingQuery = useDashboardUpcoming()
   const pendingCountQuery = usePendingApprovalCount()
   const approvalCapability = useApprovalCapability()
+  const cancelMutation = useCancelLeave()
+  const reviewRequestMutation = useRequestLeaveCancellation()
   // Ambient cue — keeps the 30s cache; only the guided page itself forces a re-read.
   const onboardingQuery = useOnboarding(isOrganizationAdmin)
   const pendingCount = pendingCountQuery.data?.count ?? 0
@@ -249,6 +274,79 @@ export function MyLeavesPage() {
       setSearchParams(next, { replace: true })
     },
     [expandedRequestId, searchParams, setSearchParams],
+  )
+
+  const openCancel = useCallback(
+    (request: RecentRequestResponse) => {
+      const variant = cancelVariantFor(request)
+      if (request.id == null || variant == null) {
+        return
+      }
+      setCancelReason('')
+      setCancelError(null)
+      setCancelTarget({
+        requestId: request.id,
+        variant,
+        leaveTypeName: request.leaveTypeName ?? '',
+        dateRange: formatDateRange(
+          request.dateFrom ?? '',
+          request.dateTo ?? '',
+          i18n.language,
+        ),
+        // The server's own arithmetic. The SPA never derives what a cancellation gives back.
+        daysToRestore: request.cancellation?.daysToRestore ?? 0,
+      })
+    },
+    [i18n.language],
+  )
+
+  const dismissCancel = useCallback(() => {
+    setCancelTarget(null)
+    setCancelReason('')
+    setCancelError(null)
+  }, [])
+
+  const confirmCancel = useCallback(
+    async (reason: string) => {
+      const target = cancelTarget
+      if (!target || cancelInFlight.current) {
+        return
+      }
+      cancelInFlight.current = true
+      setIsCancelling(true)
+      setCancelError(null)
+      try {
+        if (target.variant === 'REVIEW') {
+          await reviewRequestMutation.mutateAsync({
+            requestId: target.requestId,
+            reason,
+          })
+          showToast(t('leaves:cancel.successReview'))
+        } else {
+          await cancelMutation.mutateAsync({ requestId: target.requestId })
+          showToast(
+            target.variant === 'WITHDRAW'
+              ? t('leaves:cancel.successWithdraw')
+              : t('leaves:cancel.successCancel', { count: target.daysToRestore }),
+          )
+        }
+        setCancelTarget(null)
+        setCancelReason('')
+      } catch (error) {
+        // The API's problem detail says *why* — a closed balance year, a review already open,
+        // a request somebody else decided in the meantime — and is far more useful than a
+        // generic retry line, so it is preferred whenever the server sent one.
+        setCancelError(
+          error instanceof ApiError
+            ? error.problem.detail ?? t('leaves:cancel.error')
+            : t('leaves:cancel.error'),
+        )
+      } finally {
+        cancelInFlight.current = false
+        setIsCancelling(false)
+      }
+    },
+    [cancelMutation, cancelTarget, reviewRequestMutation, showToast, t],
   )
 
   // The attention callout's request action expands that request in the history
@@ -474,6 +572,7 @@ export function MyLeavesPage() {
                 onClearFilters={clearFilters}
                 onRequestLeave={openRequestLeave}
                 onToggleDetails={toggleDetails}
+                onCancelRequest={openCancel}
               />
             )}
           </section>
@@ -499,6 +598,24 @@ export function MyLeavesPage() {
         onClose={() => setModalOpen(false)}
         onSuccess={showSubmitSuccessToast}
       />
+
+      {cancelTarget ? (
+        <CancelLeaveModal
+          variant={cancelTarget.variant}
+          requestId={cancelTarget.requestId}
+          leaveTypeName={cancelTarget.leaveTypeName}
+          dateRange={cancelTarget.dateRange}
+          daysToRestore={cancelTarget.daysToRestore}
+          reason={cancelReason}
+          onReasonChange={setCancelReason}
+          onConfirm={(reason) => {
+            void confirmCancel(reason)
+          }}
+          onDismiss={dismissCancel}
+          isSubmitting={isCancelling}
+          submitError={cancelError}
+        />
+      ) : null}
     </div>
   )
 }

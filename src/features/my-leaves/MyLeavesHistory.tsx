@@ -18,6 +18,7 @@ import {
   formatDateRange,
   localizedRequestStatusHint,
 } from '../dashboard/leaveRequestFormatting'
+import { cancelVariantFor } from './cancellation'
 
 type RequestElementMap = MutableRefObject<Map<number, HTMLElement>>
 
@@ -32,6 +33,7 @@ type MyLeavesHistoryProps = {
   onClearFilters: () => void
   onRequestLeave: () => void
   onToggleDetails: (requestId: number) => void
+  onCancelRequest: (request: RecentRequestResponse) => void
 }
 
 function requestId(request: RecentRequestResponse): number | null {
@@ -57,6 +59,73 @@ function RequestHint({ request }: { request: RecentRequestResponse }) {
         </p>
       ) : null}
     </>
+  )
+}
+
+/**
+ * Plan VUELTA Part 5. Two of the five `blockedReason` values are worth explaining to the person
+ * looking at their own row; the other three (ALREADY_CANCELLED, DECLINED, NOT_REQUESTER) are
+ * already obvious from the status badge or from whose page this is, so they render nothing.
+ */
+function CancellationNote({ request }: { request: RecentRequestResponse }) {
+  const { t } = useTranslation('leaves')
+  const blockedReason = request.cancellation?.blockedReason
+  if (blockedReason === 'REVIEW_PENDING') {
+    return (
+      <p className="status-hint my-leaves-request-hint" data-testid="cancellation-pending-note">
+        {t('cancel.pendingReview')}
+      </p>
+    )
+  }
+  // A closed balance year is refused by the API every time, so it gets an explanation and a
+  // direction (HR / Balance Corrections) instead of a button that always 409s.
+  if (blockedReason === 'PRIOR_BALANCE_YEAR') {
+    return (
+      <p className="status-hint my-leaves-request-hint" data-testid="cancellation-prior-year-note">
+        {t('cancel.priorYear')}
+      </p>
+    )
+  }
+  return null
+}
+
+function CancelButton({
+  request,
+  onCancelRequest,
+}: {
+  request: RecentRequestResponse
+  onCancelRequest: (request: RecentRequestResponse) => void
+}) {
+  const { t, i18n } = useTranslation('leaves')
+  const id = requestId(request)
+  const variant = cancelVariantFor(request)
+  if (id == null || variant == null) {
+    return null
+  }
+  const label =
+    variant === 'WITHDRAW'
+      ? t('cancel.confirmWithdraw')
+      : variant === 'CANCEL'
+        ? t('cancel.action')
+        : t('cancel.reviewAction')
+
+  return (
+    <button
+      type="button"
+      className="btn btn-ghost btn-sm my-leaves-cancel-button"
+      data-testid={`my-leaves-cancel-button-${id}`}
+      aria-label={t('cancel.actionFor', {
+        type: request.leaveTypeName,
+        dates: formatDateRange(
+          request.dateFrom ?? '',
+          request.dateTo ?? '',
+          i18n.language,
+        ),
+      })}
+      onClick={() => onCancelRequest(request)}
+    >
+      {label}
+    </button>
   )
 }
 
@@ -168,11 +237,12 @@ export function MyLeavesHistory({
   onClearFilters,
   onRequestLeave,
   onToggleDetails,
+  onCancelRequest,
 }: MyLeavesHistoryProps) {
   const { t, i18n } = useTranslation('leaves')
   const desktopRequestRefs = useRef(new Map<number, HTMLElement>())
   const mobileRequestRefs = useRef(new Map<number, HTMLElement>())
-  const columnCount = 5 + (showAuditHistory ? 1 : 0)
+  const columnCount = 6 + (showAuditHistory ? 1 : 0)
 
   // Move focus/scroll to a request only when the focused id actually changes —
   // NOT when the (re-derived) requests list changes, or typing in search while
@@ -259,6 +329,7 @@ export function MyLeavesHistory({
                 <th scope="col">{t('table.days')}</th>
                 <th scope="col">{t('table.status')}</th>
                 <th scope="col">{t('table.details')}</th>
+                <th scope="col">{t('table.actions')}</th>
                 {showAuditHistory ? <th scope="col">{t('table.audit')}</th> : null}
               </tr>
             </thead>
@@ -298,6 +369,7 @@ export function MyLeavesHistory({
                       <td>
                         <LeaveStatusBadge status={request.status} />
                         <RequestHint request={request} />
+                        <CancellationNote request={request} />
                       </td>
                       <td>
                         <DetailsButton
@@ -305,6 +377,12 @@ export function MyLeavesHistory({
                           expanded={isExpanded}
                           variant="row"
                           onToggleDetails={onToggleDetails}
+                        />
+                      </td>
+                      <td>
+                        <CancelButton
+                          request={request}
+                          onCancelRequest={onCancelRequest}
                         />
                       </td>
                       {showAuditHistory ? (
@@ -369,12 +447,16 @@ export function MyLeavesHistory({
                 {t('history.workingDays', { count: request.workingDays })}
               </p>
               <RequestHint request={request} />
-              <DetailsButton
-                request={request}
-                expanded={isExpanded}
-                variant="card"
-                onToggleDetails={onToggleDetails}
-              />
+              <CancellationNote request={request} />
+              <div className="my-leaves-request-card-actions">
+                <DetailsButton
+                  request={request}
+                  expanded={isExpanded}
+                  variant="card"
+                  onToggleDetails={onToggleDetails}
+                />
+                <CancelButton request={request} onCancelRequest={onCancelRequest} />
+              </div>
               {isExpanded ? (
                 <RequestDetails
                   request={request}

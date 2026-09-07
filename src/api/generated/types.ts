@@ -599,6 +599,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/leave-requests/{id}/cancellation-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ask an Organization Admin to cancel leave that has already started (FR-57)
+         * @description For leave the requester can no longer take back alone. Nothing about the leave changes until an Organization Admin decides: the request stays APPROVED and the balance stays charged. Refused with cancellation-not-required when the leave is still self-service cancellable.
+         */
+        post: operations["requestCancellationReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/leave-requests/{id}/cancellation-request/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Decline a retroactive cancellation request (Organization Admin only)
+         * @description Nothing about the leave changes: status, balance, charged dates and any calendar entry are all left as they were. Only the cancellation row moves.
+         */
+        post: operations["declineCancellationReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/leave-requests/{id}/cancellation-request/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve a retroactive cancellation request (Organization Admin only)
+         * @description Restores the frozen days to the balance year the request was charged to, cancels the leave and closes any open approval steps.
+         */
+        post: operations["approveCancellationReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/leave-requests/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel the authenticated user's own leave request (FR-56)
+         * @description Self-service only: a request nobody has decided yet, or approved leave that has not started. Approved leave whose first day has arrived is refused with code cancellation-requires-review and needs an Organization Admin.
+         */
+        post: operations["cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/leave-requests/{id}/approve": {
         parameters: {
             query?: never;
@@ -2029,6 +2109,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/approvals/cancellations/pending": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List cancellation requests awaiting an Organization Admin's decision (FR-57)
+         * @description Empty for every other role rather than 403, so the shared Approvals page needs no role branch.
+         */
+        get: operations["getPendingCancellations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/approvals/cancellations/pending-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Count cancellation requests awaiting a decision
+         * @description Zero for every non-admin role rather than 403, so the shared badge hook needs no role branch.
+         */
+        get: operations["getPendingCancellationCount"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workforce-groups/{id}/weekend-days/{versionPublicId}": {
         parameters: {
             query?: never;
@@ -2952,6 +3072,17 @@ export interface components {
             current?: boolean;
             actedOnBehalf?: boolean;
         };
+        LeaveCancellationCapability: {
+            cancellable?: boolean;
+            /** @enum {string} */
+            mode?: "SELF_SERVICE" | "ADMIN_REVIEW" | "NONE";
+            /** @enum {string} */
+            blockedReason?: "ALREADY_CANCELLED" | "DECLINED" | "REVIEW_PENDING" | "PRIOR_BALANCE_YEAR" | "NOT_REQUESTER";
+            /** Format: int32 */
+            daysToRestore?: number;
+            /** @enum {string} */
+            reviewStatus?: "COMPLETED" | "PENDING" | "APPROVED" | "DECLINED";
+        };
         LeaveRequestResponse: {
             /** Format: int64 */
             id?: number;
@@ -2964,7 +3095,7 @@ export interface components {
             /** Format: int32 */
             days?: number;
             /** @enum {string} */
-            status?: "PENDING" | "APPROVED" | "DECLINED";
+            status?: "PENDING" | "APPROVED" | "DECLINED" | "CANCELLED";
             note?: string;
             /** Format: date-time */
             createdAt?: string;
@@ -2977,12 +3108,47 @@ export interface components {
             decidedOnBehalf?: boolean;
             nominalApproverFirstName?: string;
             approvalEvidence?: components["schemas"]["ApprovalStepEvidenceResponse"][];
+            cancellation?: components["schemas"]["LeaveCancellationCapability"];
         };
         DeclineLeaveRequestRequest: {
             reason?: string;
         };
         RecordApprovalConcernRequest: {
             note: string;
+        };
+        RequestLeaveCancellationRequest: {
+            /** @description Why the leave should be given back */
+            reason?: string;
+        };
+        CancellationRequestResponse: {
+            publicId?: string;
+            /** Format: int64 */
+            leaveRequestId?: number;
+            /** @enum {string} */
+            track?: "SELF_SERVICE" | "ADMIN_REVIEW";
+            /** @enum {string} */
+            status?: "COMPLETED" | "PENDING" | "APPROVED" | "DECLINED";
+            reason?: string;
+            /** Format: date-time */
+            requestedAt?: string;
+            /** Format: int32 */
+            daysToRestore?: number;
+            /** Format: int32 */
+            balanceYear?: number;
+            /** Format: date-time */
+            decidedAt?: string;
+            decisionNote?: string;
+        };
+        DeclineLeaveCancellationRequest: {
+            /** @description Why the cancellation was refused */
+            note?: string;
+        };
+        ApproveLeaveCancellationRequest: {
+            /** @description Optional note shown to the employee */
+            note?: string;
+        };
+        CancelLeaveRequestRequest: {
+            reason?: string;
         };
         PreviewLeaveRequestRequest: {
             /** Format: int64 */
@@ -3418,7 +3584,7 @@ export interface components {
             /** Format: int64 */
             id?: number;
             /** @enum {string} */
-            type?: "NEW_REQUEST" | "APPROVED" | "DECLINED" | "CONCERN_RECORDED" | "APPROVAL_COMPLETED";
+            type?: "NEW_REQUEST" | "APPROVED" | "DECLINED" | "CONCERN_RECORDED" | "APPROVAL_COMPLETED" | "CANCELLED" | "CANCELLATION_REQUESTED" | "CANCELLATION_APPROVED" | "CANCELLATION_DECLINED";
             message?: string;
             /** Format: date-time */
             occurredAt?: string;
@@ -3601,11 +3767,12 @@ export interface components {
             /** Format: int32 */
             workingDays?: number;
             /** @enum {string} */
-            status?: "PENDING" | "APPROVED" | "DECLINED";
+            status?: "PENDING" | "APPROVED" | "DECLINED" | "CANCELLED";
             statusHint?: string;
             declineReason?: string | null;
             approverFirstName?: string | null;
             approvalEvidence?: components["schemas"]["ApprovalStepEvidenceResponse"][];
+            cancellation?: components["schemas"]["LeaveCancellationCapability"];
         };
         LeaveRequestContextResponse: {
             /** Format: int64 */
@@ -3625,7 +3792,7 @@ export interface components {
             /** Format: int32 */
             workingDays?: number;
             /** @enum {string} */
-            status?: "PENDING" | "APPROVED" | "DECLINED";
+            status?: "PENDING" | "APPROVED" | "DECLINED" | "CANCELLED";
             statusHint?: string;
             declineReason?: string | null;
             approverFirstName?: string | null;
@@ -3635,7 +3802,7 @@ export interface components {
             /** Format: int64 */
             id?: number;
             /** @enum {string} */
-            action?: "SUBMITTED" | "APPROVED" | "DECLINED" | "CONCERN_RECORDED";
+            action?: "SUBMITTED" | "APPROVED" | "DECLINED" | "CONCERN_RECORDED" | "CANCELLED" | "CANCELLATION_REQUESTED" | "CANCELLATION_APPROVED" | "CANCELLATION_DECLINED";
             /** Format: int64 */
             actorUserId?: number;
             actorFirstName?: string;
@@ -3876,7 +4043,7 @@ export interface components {
             /** Format: int32 */
             workingDays?: number;
             /** @enum {string} */
-            status?: "PENDING" | "APPROVED" | "DECLINED";
+            status?: "PENDING" | "APPROVED" | "DECLINED" | "CANCELLED";
             /** @enum {string} */
             decisionResult?: "APPROVED" | "DECLINED" | "CONCERN_RECORDED";
             actorFirstName?: string;
@@ -3982,6 +4149,32 @@ export interface components {
         };
         ApprovalCapabilityResponse: {
             canReviewApprovals?: boolean;
+        };
+        PendingCancellationResponse: {
+            publicId?: string;
+            /** Format: int64 */
+            leaveRequestId?: number;
+            /** Format: int64 */
+            employeeUserId?: number;
+            employeeFullName?: string;
+            /** Format: int64 */
+            leaveTypeId?: number;
+            leaveTypeName?: string;
+            leaveTypeIcon?: string;
+            leaveTypeColor?: string;
+            /** Format: date */
+            dateFrom?: string;
+            /** Format: date */
+            dateTo?: string;
+            /** Format: int32 */
+            workingDays?: number;
+            reason?: string;
+            /** Format: date-time */
+            requestedAt?: string;
+            /** Format: int32 */
+            daysToRestore?: number;
+            /** Format: int32 */
+            balanceYear?: number;
         };
     };
     responses: never;
@@ -5080,6 +5273,110 @@ export interface operations {
         };
         responses: {
             /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LeaveRequestResponse"];
+                };
+            };
+        };
+    };
+    requestCancellationReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestLeaveCancellationRequest"];
+            };
+        };
+        responses: {
+            /** @description Cancellation review opened */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CancellationRequestResponse"];
+                };
+            };
+        };
+    };
+    declineCancellationReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeclineLeaveCancellationRequest"];
+            };
+        };
+        responses: {
+            /** @description Cancellation declined; the leave is unchanged */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LeaveRequestResponse"];
+                };
+            };
+        };
+    };
+    approveCancellationReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ApproveLeaveCancellationRequest"];
+            };
+        };
+        responses: {
+            /** @description Cancellation approved and leave cancelled */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LeaveRequestResponse"];
+                };
+            };
+        };
+    };
+    cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CancelLeaveRequestRequest"];
+            };
+        };
+        responses: {
+            /** @description Leave request cancelled */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -7540,6 +7837,46 @@ export interface operations {
             };
         };
     };
+    getPendingCancellations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PendingCancellationResponse"][];
+                };
+            };
+        };
+    };
+    getPendingCancellationCount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PendingApprovalCountResponse"];
+                };
+            };
+        };
+    };
     cancelScheduledChange: {
         parameters: {
             query?: never;
@@ -7672,8 +8009,53 @@ export type RecordApprovalConcernRequest = components["schemas"]["RecordApproval
 export type EntitlementResponse = RequiredSchema<"EntitlementResponse">;
 export type EntitlementInput = RequiredSchema<"EntitlementInput">;
 export type ForgotPasswordRequest = components["schemas"]["ForgotPasswordRequest"];
-export type LeaveRequestResponse = Omit<RequiredSchema<"LeaveRequestResponse">, "approvalEvidence"> & {
+// Plan VUELTA / FR-56: the server's answer to "can this person cancel this, and what happens if
+// they do". `blockedReason` and `reviewStatus` are genuinely null on the wire — the OpenAPI document
+// does not express nullability, so it is spelled out here the way PendingApprovalResponse does.
+export type LeaveCancellationCapability = Omit<
+    RequiredSchema<"LeaveCancellationCapability">,
+    "blockedReason" | "reviewStatus"
+> & {
+    blockedReason: CancellationBlockedReason | null;
+    reviewStatus: CancellationStatus | null;
+};
+export type CancellationMode = NonNullable<
+    components["schemas"]["LeaveCancellationCapability"]["mode"]
+>;
+export type CancellationBlockedReason = NonNullable<
+    components["schemas"]["LeaveCancellationCapability"]["blockedReason"]
+>;
+export type CancellationStatus = NonNullable<
+    components["schemas"]["CancellationRequestResponse"]["status"]
+>;
+export type CancelLeaveRequestRequest = components["schemas"]["CancelLeaveRequestRequest"];
+export type RequestLeaveCancellationRequest =
+    components["schemas"]["RequestLeaveCancellationRequest"];
+export type ApproveLeaveCancellationRequest =
+    components["schemas"]["ApproveLeaveCancellationRequest"];
+export type DeclineLeaveCancellationRequest =
+    components["schemas"]["DeclineLeaveCancellationRequest"];
+export type CancellationRequestResponse = Omit<
+    RequiredSchema<"CancellationRequestResponse">,
+    "reason" | "decidedAt" | "decisionNote"
+> & {
+    reason: string | null;
+    decidedAt: string | null;
+    decisionNote: string | null;
+};
+export type PendingCancellationResponse = Omit<
+    RequiredSchema<"PendingCancellationResponse">,
+    "leaveTypeIcon" | "leaveTypeColor"
+> & {
+    leaveTypeIcon: string | null;
+    leaveTypeColor: string | null;
+};
+export type LeaveRequestResponse = Omit<
+    RequiredSchema<"LeaveRequestResponse">,
+    "approvalEvidence" | "cancellation"
+> & {
     approvalEvidence?: ApprovalStepEvidenceResponse[];
+    cancellation: LeaveCancellationCapability;
 };
 export type LeaveRequestContextResponse = Omit<RequiredSchema<"LeaveRequestContextResponse">, "approvalEvidence"> & {
     approvalEvidence?: ApprovalStepEvidenceResponse[];
@@ -7749,8 +8131,12 @@ export type PublicHolidayResponse = RequiredSchema<"PublicHolidayResponse">;
 export type RecentApprovalDecisionResponse = Omit<RequiredSchema<"RecentApprovalDecisionResponse">, "approvalEvidence"> & {
     approvalEvidence?: ApprovalStepEvidenceResponse[];
 };
-export type RecentRequestResponse = Omit<RequiredSchema<"RecentRequestResponse">, "approvalEvidence"> & {
+export type RecentRequestResponse = Omit<
+    RequiredSchema<"RecentRequestResponse">,
+    "approvalEvidence" | "cancellation"
+> & {
     approvalEvidence?: ApprovalStepEvidenceResponse[];
+    cancellation: LeaveCancellationCapability;
 };
 export type AuditEventResponse = RequiredSchema<"AuditEventResponse">;
 export type AcceptInvitationRequest = RequiredSchema<"AcceptInvitationRequest">;

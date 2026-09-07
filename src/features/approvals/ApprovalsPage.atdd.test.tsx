@@ -66,6 +66,11 @@ function renderApprovalsPage(role: 'MANAGER' | 'ORGANIZATION_ADMIN' = 'MANAGER')
 }
 
 describe('ApprovalsPage ATDD - Story 3.6', () => {
+  beforeEach(() => {
+    // Plan VUELTA: the Organization Admin's cancellation queue renders above the leave queue.
+    vi.spyOn(apiClient, 'getPendingCancellations').mockResolvedValue([])
+  })
+
   afterEach(() => {
     vi.restoreAllMocks()
   })

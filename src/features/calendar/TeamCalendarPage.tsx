@@ -146,6 +146,9 @@ export function TeamCalendarPage() {
     return (myRequestsQuery.data ?? [])
       .filter(
         (request) =>
+          // Plan VUELTA / CANCEL-UI-VAL-008: this equality — not an exclusion list — is what
+          // keeps a withdrawn request off the overlay. A CANCELLED request is terminal and is
+          // never PENDING again, so it drops out here the moment the server says so.
           request.status === 'PENDING' &&
           request.id != null &&
           !feedRequestIds.has(request.id) &&

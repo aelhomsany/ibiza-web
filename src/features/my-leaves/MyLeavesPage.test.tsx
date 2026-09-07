@@ -553,6 +553,9 @@ describe('MyLeavesPage attention priority — Story 3.8 / 11.2', () => {
     vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
     vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([])
     vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 0 })
+    // Plan VUELTA: an Organization Admin's badge sums both queues, so the cancellation
+    // count is part of every render that resolves it.
+    vi.spyOn(apiClient, 'getPendingCancellationCount').mockResolvedValue({ count: 0 })
   })
 
   afterEach(async () => {

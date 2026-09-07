@@ -10,4 +10,5 @@ export const STATUS_FILTERS: readonly MyLeavesStatusFilter[] = [
   'PENDING',
   'APPROVED',
   'DECLINED',
+  'CANCELLED',
 ]

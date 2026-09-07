@@ -47,7 +47,8 @@
     "recentDecisions": "Loading recent decisions…",
     "leaveBalances": "Loading leave balances",
     "leaveHistory": "Loading leave history",
-    "teamMembers": "Loading team members…"
+    "teamMembers": "Loading team members…",
+    "pendingCancellations": "Loading cancellation requests…"
   },
   "language": {
     "en": "English",

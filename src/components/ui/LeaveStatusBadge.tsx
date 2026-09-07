@@ -9,6 +9,7 @@ const LABEL_KEYS: Record<NonNullable<RecentRequestResponse['status']>, string> =
   PENDING: 'status.pending',
   APPROVED: 'status.approved',
   DECLINED: 'status.declined',
+  CANCELLED: 'status.cancelled',
 }
 
 export function LeaveStatusBadge({ status }: Props) {

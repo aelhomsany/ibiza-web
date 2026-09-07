@@ -45,6 +45,9 @@ describe('OrgShell accessibility ATDD — Story 10.10', () => {
       canReviewApprovals: false,
     })
     vi.spyOn(apiClient, 'getPendingApprovalCount').mockResolvedValue({ count: 0 })
+    // Plan VUELTA: an Organization Admin's badge sums both queues, so the cancellation
+    // count is part of every render that resolves it.
+    vi.spyOn(apiClient, 'getPendingCancellationCount').mockResolvedValue({ count: 0 })
     vi.spyOn(apiClient, 'getUnreadNotificationCount').mockResolvedValue({ count: 0 })
   })
 

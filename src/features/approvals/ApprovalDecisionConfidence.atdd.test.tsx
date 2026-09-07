@@ -99,6 +99,8 @@ function renderApprovals(role: 'MANAGER' | 'ORGANIZATION_ADMIN' = 'MANAGER') {
 function stubInbox(pending: EnrichedPending[]) {
   vi.spyOn(apiClient, 'getPendingApprovals').mockResolvedValue(pending as PendingApprovalResponse[])
   vi.spyOn(apiClient, 'getRecentApprovalDecisions').mockResolvedValue(mockRecent)
+  // Plan VUELTA: the Organization Admin's cancellation queue renders above the leave queue.
+  vi.spyOn(apiClient, 'getPendingCancellations').mockResolvedValue([])
   vi.spyOn(apiClient, 'getDashboardOutToday').mockResolvedValue([])
   vi.spyOn(apiClient, 'getDashboardUpcoming').mockResolvedValue([])
 }

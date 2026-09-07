@@ -673,6 +673,22 @@ describe('TeamCalendarPage landing additions — Dashboard merge (2026-09-01)', 
     expect(screen.queryByTestId('cal-legend-pending-own')).not.toBeInTheDocument()
   })
 
+  it('[P1] drops a cancelled request from the viewer own pending overlay', async () => {
+    // Plan VUELTA / CANCEL-UI-VAL-008. The overlay is composed client-side from the viewer's own
+    // request list, so a withdrawn request would keep haunting the calendar if the composition
+    // asked for anything looser than "still PENDING". Same fixture as the positive control above,
+    // one field apart.
+    vi.spyOn(apiClient, 'getMyLeaveRequests').mockResolvedValue([
+      { ...pendingOwnRequest, status: 'CANCELLED' },
+    ])
+
+    renderTeamCalendarPage()
+
+    await screen.findByTestId('calendar-timeline')
+    expect(screen.queryByTestId('calendar-event-77')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('cal-legend-pending-own')).not.toBeInTheDocument()
+  })
+
   it('[P0] keeps the pending overlay out of the coverage alert', async () => {
     // One approved colleague OFF on Wed Jun 17 plus the viewer's pending OFF on
     // the same day: if pending leaked into coverage, awayPeople.size would hit

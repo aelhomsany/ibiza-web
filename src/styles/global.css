@@ -328,6 +328,11 @@ html {
   color: var(--color-status-declined-fg);
 }
 
+.badge-cancelled {
+  background: var(--color-status-cancelled-bg);
+  color: var(--color-status-cancelled-fg);
+}
+
 .badge-wfh {
   background: var(--color-mint-tint);
   border: 1px dashed var(--color-sage-strong);

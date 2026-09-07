@@ -74,6 +74,7 @@
   "status": {
     "active": "نشط",
     "approved": "معتمد",
+    "cancelled": "ملغى",
     "declined": "مرفوض",
     "deactivated": "غير نشط",
     "pending": "قيد الانتظار",

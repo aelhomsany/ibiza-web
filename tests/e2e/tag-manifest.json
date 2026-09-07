@@ -557,6 +557,16 @@
       "tests": [
         "[P0] Given a keyboard, zoom, reflow, reduced-motion or touch visitor, When the guided onboarding page renders, Then every accessibility checkpoint holds"
       ]
+    },
+    "leave-cancellation.spec.ts::Leave cancellation \u2014 Plan VUELTA": {
+      "tags": [
+        "@regression",
+        "@api"
+      ],
+      "tests": [
+        "[P1] Employee withdraws a pending request and it leaves their history as Cancelled",
+        "[P1] Employee cannot ask to cancel a started leave without a reason, and sees the outcome"
+      ]
     }
   },
   "permanentlySkippedTests": [

@@ -10,6 +10,7 @@ import { useDashboardOutToday } from '../dashboard/useDashboardOutToday'
 import { useDashboardUpcoming } from '../dashboard/useDashboardUpcoming'
 import { formatDateRange } from '../dashboard/leaveRequestFormatting'
 import { ApprovalCard } from './ApprovalCard'
+import { CancellationRequestsSection } from './CancellationRequestsSection'
 import { DeclineModal } from './DeclineModal'
 import { ConcernModal } from './ConcernModal'
 import { RecentDecisionRow } from './RecentDecisionRow'
@@ -396,6 +397,10 @@ export function ApprovalsPage() {
           {decisionFeedback.message}
         </div>
       ) : null}
+
+      {/* Plan VUELTA: retroactive cancellations sit above the leave queue — they are the older
+          debt, and the section renders nothing at all for non-admins. */}
+      <CancellationRequestsSection />
 
       <div className="panel-with-aside">
         <section className="approvals-queue" aria-labelledby="approvals-queue-title">

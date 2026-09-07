@@ -42,6 +42,10 @@
   --color-status-pending-fg: #83552B;
   --color-status-declined-bg: #FBE3DF;
   --color-status-declined-fg: #8B302B;
+  /* Plan VUELTA: cancelled is terminal but not a rejection, so it reads neutral slate
+     rather than declined's red. 6.5:1 on its own background. */
+  --color-status-cancelled-bg: #E7EAEA;
+  --color-status-cancelled-fg: #41545A;
   --color-status-risk-bg: #FAE6E0;
   --color-status-risk-fg: #8B302B;
 

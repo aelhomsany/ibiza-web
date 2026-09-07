@@ -263,6 +263,18 @@ html[lang='ar'] .my-leaves-section-title {
   color: var(--color-action-primary);
 }
 
+.my-leaves-cancel-button {
+  color: var(--color-action-primary);
+  white-space: nowrap;
+}
+
+.my-leaves-request-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-block-start: var(--space-xs);
+}
+
 .my-leaves-mobile-history {
   display: none;
   margin: 0;
@@ -305,9 +317,8 @@ html[lang='ar'] .my-leaves-section-title {
   line-height: var(--font-label-line-height);
 }
 
-.my-leaves-request-card .my-leaves-details-button {
+.my-leaves-request-card .my-leaves-request-card-actions {
   justify-self: start;
-  margin-block-start: var(--space-xs);
 }
 
 .my-leaves-request-card[data-focused='true'] {
@@ -404,8 +415,77 @@ html[lang='ar'] .my-leaves-section-title {
   color: var(--color-working-policy);
 }
 
+/* Plan VUELTA — the cancel confirm dialog. Deliberately a local block rather than a shared
+   import of the approvals feature's `.decline-modal-*` chrome: cross-feature CSS imports are
+   not a pattern here, and both sets are thin wrappers over the same tokens. */
+.modal.cancel-modal-panel {
+  width: min(100%, 480px);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xl);
+}
+
+.cancel-modal-title {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-section-title-size);
+  font-weight: var(--font-section-title-weight);
+}
+
+.cancel-modal-context {
+  margin: var(--space-sm) 0 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-body-sm-size);
+  font-weight: var(--font-label-weight);
+}
+
+.cancel-modal-body {
+  margin: var(--space-sm) 0 var(--space-lg);
+  color: var(--color-text-secondary);
+  font-size: var(--font-label-size);
+}
+
+.cancel-modal-label {
+  display: block;
+  margin-block-end: var(--space-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-label-size);
+  font-weight: var(--font-label-weight);
+}
+
+.cancel-modal-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 96px;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: var(--font-body-size);
+  resize: vertical;
+}
+
+.cancel-modal-textarea:focus-visible {
+  outline: none;
+  border-color: var(--color-action-primary);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.cancel-modal-error {
+  margin: var(--space-sm) 0 0;
+  color: var(--color-error-fg);
+  font-size: var(--font-label-size);
+}
+
+.cancel-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-md);
+  margin-block-start: var(--space-lg);
+}
+
 @media (forced-colors: active) {
   .my-leaves-status-segment:focus-visible,
+  .cancel-modal-textarea:focus-visible,
   .my-leaves-request-card[data-focused='true'] {
     outline: 2px solid CanvasText;
     outline-offset: 2px;
@@ -465,5 +545,16 @@ html[lang='ar'] .my-leaves-section-title {
 
   .my-leaves-result-count {
     text-align: start;
+  }
+}
+
+@media (max-width: 900px) {
+  .cancel-modal-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cancel-modal-actions .btn {
+    width: 100%;
   }
 }

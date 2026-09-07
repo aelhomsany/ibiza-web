@@ -74,6 +74,7 @@
   "status": {
     "active": "Active",
     "approved": "Approved",
+    "cancelled": "Cancelled",
     "declined": "Declined",
     "deactivated": "Deactivated",
     "pending": "Pending",

@@ -13,6 +13,12 @@ import type {
   LeaveRequestResponse,
   LeaveRequestContextResponse,
   DeclineLeaveRequestRequest,
+  CancelLeaveRequestRequest,
+  RequestLeaveCancellationRequest,
+  ApproveLeaveCancellationRequest,
+  DeclineLeaveCancellationRequest,
+  CancellationRequestResponse,
+  PendingCancellationResponse,
   LeaveTypeResponse,
   LoginRequest,
   PendingApprovalResponse,
@@ -855,6 +861,67 @@ export async function recordApprovalConcern(
   })
 }
 
+/**
+ * Plan VUELTA / FR-56 — the requester takes their own leave back. Which of these four calls is
+ * available for a given row is the server's answer, carried on `request.cancellation`; the SPA
+ * never compares dates to decide (see LeaveCancellationCapability).
+ */
+export async function cancelLeaveRequest(
+  id: number,
+  reason?: string,
+): Promise<LeaveRequestResponse> {
+  const payload: CancelLeaveRequestRequest = { reason }
+  return request<LeaveRequestResponse>(`/api/v1/leave-requests/${id}/cancel`, {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function requestLeaveCancellation(
+  id: number,
+  reason: string,
+): Promise<CancellationRequestResponse> {
+  const payload: RequestLeaveCancellationRequest = { reason }
+  return request<CancellationRequestResponse>(
+    `/api/v1/leave-requests/${id}/cancellation-request`,
+    { method: 'POST', body: payload },
+  )
+}
+
+export async function approveLeaveCancellation(
+  id: number,
+  note?: string,
+): Promise<LeaveRequestResponse> {
+  const payload: ApproveLeaveCancellationRequest = { note }
+  return request<LeaveRequestResponse>(
+    `/api/v1/leave-requests/${id}/cancellation-request/approve`,
+    { method: 'POST', body: payload },
+  )
+}
+
+export async function declineLeaveCancellation(
+  id: number,
+  note: string,
+): Promise<LeaveRequestResponse> {
+  const payload: DeclineLeaveCancellationRequest = { note }
+  return request<LeaveRequestResponse>(
+    `/api/v1/leave-requests/${id}/cancellation-request/decline`,
+    { method: 'POST', body: payload },
+  )
+}
+
+export async function getPendingCancellations(): Promise<PendingCancellationResponse[]> {
+  return request<PendingCancellationResponse[]>('/api/v1/approvals/cancellations/pending', {
+    method: 'GET',
+  })
+}
+
+export async function getPendingCancellationCount(): Promise<PendingApprovalCountResponse> {
+  return request<PendingApprovalCountResponse>('/api/v1/approvals/cancellations/pending-count', {
+    method: 'GET',
+  })
+}
+
 export async function getLeaveRequestAuditEvents(
   requestId: number,
 ): Promise<AuditEventResponse[]> {
@@ -1195,6 +1262,12 @@ export const apiClient = {
   getRecentApprovalDecisions,
   approveLeaveRequest,
   declineLeaveRequest,
+  cancelLeaveRequest,
+  requestLeaveCancellation,
+  approveLeaveCancellation,
+  declineLeaveCancellation,
+  getPendingCancellations,
+  getPendingCancellationCount,
   getDashboardOutToday,
   getDashboardUpcoming,
   getCalendarMonth,
