@@ -1,7 +1,7 @@
 import type { APIRequestContext } from '@playwright/test'
 
 import { test, expect } from '../support/fixtures'
-import { loginViaApi, loginViaUi, navigateInApp } from '../support/helpers/auth'
+import { loginViaApi, loginViaUi, logoutViaUi, navigateInApp } from '../support/helpers/auth'
 import { apiRequest } from '../support/helpers/api-client'
 import { tags } from '../support/tags'
 
@@ -150,6 +150,9 @@ test.describe('Leave cancellation — Plan VUELTA', { tag: [tags.regression, tag
     await expect(page.getByTestId(`my-leaves-cancel-button-${requestId}`)).toHaveCount(0)
 
     // And it is waiting on the Organization Admin specifically — the queue the manager never sees.
+    // Sign the requester out first: /login redirects an authenticated session straight to the
+    // calendar, so a second loginViaUi on the same page waits forever for a form nobody renders.
+    await logoutViaUi(page)
     await loginViaUi(page, ORGANIZATION_ADMIN)
     await navigateInApp(page, '/approvals')
     await expect(page.getByTestId(`cancellation-card-${requestId}`)).toBeVisible()
